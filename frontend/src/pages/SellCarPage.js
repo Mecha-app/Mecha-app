@@ -2,15 +2,31 @@ import{useState,useRef}from'react';
 import{useNavigate}from'react-router-dom';
 import{useAuth}from'../context/AuthContext';
 import{Label,Input,Btn,Card,TopBar,PAGE,R}from'../components/UI';
+
 const MAKES=['Toyota','Honda','Ford','Chevrolet','BMW','Mercedes-Benz','Nissan','Hyundai','Kia','Subaru','Mazda','Volkswagen','Audi','Lexus','Ram','GMC','Jeep','Dodge','Tesla','Volvo'];
 const YEARS=Array.from({length:30},(_,i)=>String(2025-i));
 const TITLE_STATUS=['Clean Title','Salvage Title','Rebuilt Title','Lemon Law Buyback','Parts Only'];
 const CONDITIONS=['Excellent','Good','Fair','Poor'];
 const TRANSMISSIONS=['Automatic','Manual','CVT','Semi-Automatic'];
 const DRIVETRAINS=['FWD','RWD','AWD','4WD'];
+
+const Field=({label,required,children})=>(
+  <div style={{marginBottom:14}}>
+    <Label>{label}{required&&<span style={{color:R}}> *</span>}</Label>
+    {children}
+  </div>
+);
+
+const Sel=({value,onChange,options})=>(
+  <select value={value} onChange={onChange} style={{width:'100%',background:'#0a0a0a',border:'1px solid #1e1e1e',borderRadius:4,padding:'12px 10px',color:'#fff',fontFamily:'inherit',fontSize:14,outline:'none'}}>
+    {options.map(o=><option key={o}>{o}</option>)}
+  </select>
+);
+
 export default function SellCarPage(){
   const{user}=useAuth();
   const navigate=useNavigate();
+  if(!user){navigate('/register');return null;}
   const fileRef=useRef();
   const[images,setImages]=useState([]);
   const[previews,setPreviews]=useState([]);
@@ -27,17 +43,16 @@ export default function SellCarPage(){
     const files=Array.from(e.target.files);
     const newImages=[...images,...files].slice(0,12);
     setImages(newImages);
-    const newPreviews=newImages.map(f=>URL.createObjectURL(f));
-    setPreviews(newPreviews);
+    setPreviews(newImages.map(f=>URL.createObjectURL(f)));
   };
   const removeImage=i=>{
     const ni=images.filter((_,idx)=>idx!==i);
-    const np=previews.filter((_,idx)=>idx!==i);
-    setImages(ni);setPreviews(np);
+    setImages(ni);
+    setPreviews(ni.map(f=>URL.createObjectURL(f)));
   };
   const handleSubmit=async()=>{
     setError('');
-    if(images.length<6){setError('Please upload at least 6 photos of your vehicle.');return;}
+    if(images.length<6){setError('Please upload at least 6 photos.');return;}
     if(!form.title||!form.year||!form.make||!form.model||!form.mileage||!form.price||!form.description||!form.city||!form.state){
       setError('Please fill in all required fields.');return;
     }
@@ -58,17 +73,7 @@ export default function SellCarPage(){
     }catch(e){setError(e.message);}
     finally{setLoading(false);}
   };
-  const Field=({label,required,children})=>(
-    <div style={{marginBottom:14}}>
-      <Label>{label}{required&&<span style={{color:R}}> *</span>}</Label>
-      {children}
-    </div>
-  );
-  const Sel=({value,onChange,options})=>(
-    <select value={value} onChange={onChange} style={{width:'100%',background:'#0a0a0a',border:'1px solid #1e1e1e',borderRadius:4,padding:'12px 10px',color:'#fff',fontFamily:'inherit',fontSize:14,outline:'none'}}>
-      {options.map(o=><option key={o}>{o}</option>)}
-    </select>
-  );
+
   return(
     <div style={PAGE}>
       <TopBar onBack={()=>navigate('/marketplace')} title="List Your Car For Sale"/>
@@ -76,7 +81,6 @@ export default function SellCarPage(){
         <div style={{fontFamily:"'Bebas Neue'",fontSize:28,letterSpacing:2,marginBottom:4}}>SELL YOUR CAR <span style={{color:R}}>ON MECHA</span></div>
         <div style={{fontSize:12,color:'#555',marginBottom:24}}>Reach thousands of buyers. Direct chat. No fees to list.</div>
 
-        {/* PHOTOS */}
         <Card style={{marginBottom:16}}>
           <Label>Vehicle Photos <span style={{color:R}}>* (minimum 6)</span></Label>
           <div style={{fontSize:12,color:'#555',marginBottom:12}}>Upload at least 6 photos: front, back, sides, interior, dashboard, engine bay, any damage.</div>
@@ -99,14 +103,12 @@ export default function SellCarPage(){
           <div style={{fontSize:11,color:images.length>=6?'#22c55e':R,fontWeight:700}}>{images.length}/6 minimum photos uploaded</div>
         </Card>
 
-        {/* LISTING TITLE */}
         <Card style={{marginBottom:16}}>
           <Label>Listing Title <span style={{color:R}}>*</span></Label>
           <Input placeholder="e.g. 2020 Toyota Camry XLE — Low Miles, One Owner" value={form.title} onChange={set('title')}/>
           <div style={{fontSize:11,color:'#555',marginTop:6}}>Write a clear title that will attract buyers</div>
         </Card>
 
-        {/* VEHICLE DETAILS */}
         <Card style={{marginBottom:16}}>
           <div style={{fontFamily:"'Bebas Neue'",fontSize:16,letterSpacing:2,marginBottom:14,color:R}}>Vehicle Details</div>
           <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}}>
@@ -127,19 +129,17 @@ export default function SellCarPage(){
           </Field>
         </Card>
 
-        {/* DESCRIPTION & PROBLEMS */}
         <Card style={{marginBottom:16}}>
           <div style={{fontFamily:"'Bebas Neue'",fontSize:16,letterSpacing:2,marginBottom:14,color:R}}>Description & Honesty</div>
           <Field label="Vehicle Description" required>
-            <Input placeholder="Describe your vehicle honestly. Mention service history, upgrades, recent repairs, condition..." value={form.description} onChange={set('description')} rows={5}/>
+            <Input placeholder="Describe your vehicle honestly..." value={form.description} onChange={set('description')} rows={5}/>
           </Field>
           <Field label="Known Problems or Issues">
-            <Input placeholder="List any known issues, warning lights, mechanical problems, cosmetic damage, etc. Leave blank if none." value={form.knownProblems} onChange={set('knownProblems')} rows={3}/>
-            <div style={{fontSize:11,color:'#888',marginTop:6}}>Buyers appreciate honesty. Disclosing issues builds trust and protects you legally.</div>
+            <Input placeholder="List any known issues, warning lights, damage, etc. Leave blank if none." value={form.knownProblems} onChange={set('knownProblems')} rows={3}/>
+            <div style={{fontSize:11,color:'#888',marginTop:6}}>Buyers appreciate honesty. Disclosing issues builds trust.</div>
           </Field>
         </Card>
 
-        {/* PRICE & CONTACT */}
         <Card style={{marginBottom:16}}>
           <div style={{fontFamily:"'Bebas Neue'",fontSize:16,letterSpacing:2,marginBottom:14,color:R}}>Price & Contact</div>
           <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}}>
@@ -152,7 +152,7 @@ export default function SellCarPage(){
 
         {error&&<div style={{color:R,fontSize:13,marginBottom:14,background:'rgba(232,35,42,0.08)',border:'1px solid rgba(232,35,42,0.3)',borderRadius:6,padding:'10px 14px'}}>{error}</div>}
         <Btn onClick={handleSubmit} disabled={loading} style={{padding:16,fontSize:15}}>
-          {loading?'Publishing Your Listing...':'Publish Listing — Free'}
+          {loading?'Publishing...':'Publish Listing — Free'}
         </Btn>
         <div style={{textAlign:'center',fontSize:11,color:'#555',marginTop:10}}>Your listing will be visible to all MECHA users immediately.</div>
       </div>

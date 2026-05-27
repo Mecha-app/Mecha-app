@@ -19,7 +19,7 @@ export default function ShopDashboard(){
           {[['0','Views'],['0','Leads'],['0','Reviews']].map(([v,l])=>(<div key={l} style={{background:'#111',border:'1px solid #1e1e1e',borderRadius:8,padding:16,textAlign:'center'}}><div style={{fontFamily:"'Bebas Neue'",fontSize:26,color:R}}>{v}</div><div style={{fontSize:9,color:'#555',letterSpacing:1.5,textTransform:'uppercase'}}>{l}</div></div>))}
         </div>
         <Card style={{marginBottom:14,textAlign:'center'}}><div style={{fontSize:28,marginBottom:8}}>📬</div><div style={{fontFamily:"'Bebas Neue'",fontSize:18,letterSpacing:2,marginBottom:6}}>INBOX</div><div style={{fontSize:13,color:'#555'}}>Customer messages from MECHA drivers will appear here.</div></Card>
-        <Card style={{textAlign:'center'}}><div style={{fontSize:28,marginBottom:8}}>🏅</div><div style={{fontFamily:"'Bebas Neue'",fontSize:18,letterSpacing:2,marginBottom:6}}>GET VERIFIED</div><div style={{fontSize:13,color:'#555',marginBottom:16}}>Verified shops get 3x more views and appear first in search.</div><Btn style={{maxWidth:220,margin:'0 auto'}}>Apply for Verification</Btn></Card>
+        <Card style={{textAlign:'center'}}><div style={{fontSize:28,marginBottom:8}}>🏅</div><div style={{fontFamily:"'Bebas Neue'",fontSize:18,letterSpacing:2,marginBottom:6}}>GET VERIFIED</div><div style={{fontSize:13,color:'#555',marginBottom:16}}>Verified shops get 3x more views and appear first in search.</div><Btn onClick={()=>window.open('mailto:support@mechaai.com?subject=Shop Verification Request&body=Shop Name: '+encodeURIComponent(user?.shopName||user?.name)+' | Email: '+encodeURIComponent(user?.email),'_blank')} style={{maxWidth:220,margin:'0 auto'}}>Apply for Verification</Btn></Card>
       </div>
     </div>
   );
