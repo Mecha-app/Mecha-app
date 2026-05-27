@@ -4,80 +4,144 @@ a{color:inherit;text-decoration:none;}
 ::-webkit-scrollbar{width:4px;}
 ::-webkit-scrollbar-thumb{background:#E8232A;border-radius:2px;}
 
+
 /* ── MOBILE OPTIMIZATION ── */
-* { box-sizing: border-box; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
 
 @keyframes spin { to { transform: rotate(360deg); } }
 
 @media (max-width: 768px) {
-  /* Landing Page */
-  nav { padding: 14px 20px !important; }
-  nav div[style*="gap:28"] { gap: 14px !important; }
-  
-  /* Hero */
-  div[style*="120px 48px"] { padding: 100px 20px 60px !important; }
-  div[style*="clamp(4.2rem"] { font-size: clamp(3rem, 14vw, 5rem) !important; }
-  div[style*="right:48,bottom:80"] { display: none !important; }
-  
-  /* All sections */
-  div[style*="100px 48px"] { padding: 60px 20px !important; }
-  div[style*="60px 48px"] { padding: 40px 20px !important; }
-  div[style*="120px 48px"] { padding: 60px 20px !important; }
-  
-  /* Grids → single column */
-  div[style*="gridTemplateColumns:'1fr 1fr'"] { 
-    grid-template-columns: 1fr !important; 
+
+  /* ── NAV ── */
+  nav {
+    padding: 12px 16px !important;
+    flex-wrap: wrap !important;
+    gap: 10px !important;
   }
-  div[style*="gridTemplateColumns:'repeat(3"] { 
-    grid-template-columns: 1fr 1fr !important; 
-  }
-  div[style*="gridTemplateColumns:'repeat(4"] { 
-    grid-template-columns: 1fr 1fr !important; 
-  }
-  div[style*="gridTemplateColumns:'2fr 1fr 1fr 1fr'"] { 
-    grid-template-columns: 1fr 1fr !important; 
-  }
-  div[style*="gridTemplateColumns:'1.6fr 1fr'"] { 
-    grid-template-columns: 1fr !important; 
+  nav > div:last-child {
+    display: none !important;
   }
 
-  /* Dashboard */
-  div[style*="maxWidth:600"] { max-width: 100% !important; padding: 16px !important; }
-  div[style*="maxWidth:640"] { max-width: 100% !important; padding: 16px !important; }
-  div[style*="maxWidth:860"] { max-width: 100% !important; padding: 16px !important; }
-  div[style*="maxWidth:900"] { max-width: 100% !important; padding: 16px 20px !important; }
-
-  /* Tables */
-  table { font-size: 11px !important; }
-  th, td { padding: 8px 10px !important; }
-
-  /* Footer */
-  footer div[style*="gridTemplateColumns:'2fr"] { 
-    grid-template-columns: 1fr 1fr !important; 
+  /* ── HERO ── */
+  div[style*="minHeight:'100vh'"] {
+    padding: 80px 16px 40px !important;
+    text-align: center !important;
+  }
+  div[style*="maxWidth:860"] {
+    max-width: 100% !important;
+    text-align: center !important;
+  }
+  div[style*="right:48,bottom:80"] {
+    display: none !important;
+  }
+  div[style*="gap:14,flexWrap:'wrap'"] {
+    justify-content: center !important;
   }
 
-  /* Buttons */
-  button { font-size: 12px !important; }
+  /* ── SECTIONS ── */
+  div[style*="padding:'100px 48px'"] { padding: 50px 16px !important; }
+  div[style*="padding:'60px 48px'"] { padding: 40px 16px !important; }
+  div[style*="padding:'120px 48px'"] { padding: 60px 16px !important; }
+  div[style*="padding:48"] { padding: 24px 16px !important; }
 
-  /* Pricing cards */
+  /* ── GRIDS → SINGLE COLUMN ── */
+  div[style*="gridTemplateColumns:'1fr 1fr'"] {
+    grid-template-columns: 1fr !important;
+  }
   div[style*="gridTemplateColumns:'repeat(3,1fr)'"] {
     grid-template-columns: 1fr !important;
   }
-
-  /* Stats band */
   div[style*="gridTemplateColumns:'repeat(4,1fr)'"] {
     grid-template-columns: 1fr 1fr !important;
+  }
+  div[style*="gridTemplateColumns:'2fr 1fr 1fr 1fr'"] {
+    grid-template-columns: 1fr 1fr !important;
+  }
+  div[style*="gridTemplateColumns:'1.6fr 1fr'"] {
+    grid-template-columns: 1fr !important;
+  }
+  div[style*="gridTemplateColumns:'repeat(4,1fr)',gap:0"] {
+    grid-template-columns: 1fr 1fr !important;
+  }
+
+  /* ── TEXT ALIGNMENT ── */
+  div[style*="maxWidth:800"] { 
+    max-width: 100% !important; 
+    padding: 40px 16px !important;
+    text-align: left !important;
+  }
+  div[style*="maxWidth:600"] { 
+    max-width: 100% !important; 
+    padding: 16px !important; 
+  }
+  div[style*="maxWidth:640"] { 
+    max-width: 100% !important; 
+    padding: 16px !important; 
+  }
+  div[style*="maxWidth:900"] { 
+    max-width: 100% !important; 
+    padding: 40px 16px !important; 
+  }
+
+  /* ── FOOTER ── */
+  footer { padding: 24px 16px !important; }
+  footer > div:first-child {
+    grid-template-columns: 1fr 1fr !important;
+  }
+
+  /* ── TABLES ── */
+  table { font-size: 10px !important; }
+  th, td { padding: 6px 8px !important; }
+
+  /* ── PRICING ── */
+  div[style*="gridTemplateColumns:'repeat(3,1fr)',gap:14"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* ── FAQ ── */
+  div[style*="gridTemplateColumns:'1fr 1fr',gap:14"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* ── HOW IT WORKS ── */
+  div[style*="gridTemplateColumns:'repeat(4,1fr)',gap:0"] {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 20px !important;
+  }
+
+  /* ── DEMO SECTION ── */
+  div[style*="gridTemplateColumns:'1.6fr 1fr',gap:16"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* ── WAITLIST FORM ── */
+  div[style*="display:'flex',maxWidth:500"] {
+    flex-direction: column !important;
+    max-width: 100% !important;
+  }
+  div[style*="display:'flex',maxWidth:500"] input {
+    border-radius: 4px !important;
+    border-right: 1px solid rgba(255,255,255,0.1) !important;
+  }
+  div[style*="display:'flex',maxWidth:500"] button {
+    border-radius: 4px !important;
+    margin-top: 8px !important;
+  }
+
+  /* ── STATS ── */
+  div[style*="position:'absolute',right:48"] {
+    display: none !important;
   }
 }
 
 @media (max-width: 480px) {
-  div[style*="gridTemplateColumns:'repeat(3"] { 
-    grid-template-columns: 1fr !important; 
+  div[style*="gridTemplateColumns:'repeat(4,1fr)'"] {
+    grid-template-columns: 1fr 1fr !important;
   }
-  div[style*="gridTemplateColumns:'1fr 1fr'"] { 
-    grid-template-columns: 1fr !important; 
+  div[style*="gridTemplateColumns:'1fr 1fr'"] {
+    grid-template-columns: 1fr !important;
   }
-  div[style*="gridTemplateColumns:'repeat(4"] { 
-    grid-template-columns: 1fr 1fr !important; 
+  div[style*="gridTemplateColumns:'repeat(3"] {
+    grid-template-columns: 1fr !important;
   }
 }
