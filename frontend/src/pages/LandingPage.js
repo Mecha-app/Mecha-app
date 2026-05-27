@@ -73,7 +73,7 @@ export default function LandingPage(){
       {/* NAV */}
       <nav style={{position:'fixed',top:0,left:0,right:0,zIndex:100,background:scrolled?'rgba(8,8,8,0.97)':'transparent',backdropFilter:scrolled?'blur(8px)':'none',padding:'14px 20px',display:'flex',alignItems:'center',justifyContent:'space-between',flexWrap:'wrap',gap:8,transition:'all .3s'}}>
         <div onClick={()=>navigate('/')} style={{fontFamily:"'Bebas Neue'",fontSize:'2rem',letterSpacing:6,cursor:'pointer'}}>MECH<span style={{color:R}}>A</span></div>
-        <div style={{display:'flex',gap:28,alignItems:'center'}}>
+        <div className="mecha-nav-links" style={{display:'flex',gap:28,alignItems:'center'}}>
           {[['Features','features'],['Pricing','pricing'],['FAQ','faq'],['Towing','/towing/register']].map(([l,id])=><span key={l} className="nav-link" onClick={()=>id.startsWith('/')?navigate(id):document.getElementById(id)?.scrollIntoView({behavior:'smooth'})} style={{color:'#888',fontSize:'.78rem',fontWeight:600,letterSpacing:2,textTransform:'uppercase',cursor:'pointer'}}>{l}</span>)}
           <button onClick={()=>navigate('/register')} style={{background:R,color:'#fff',padding:'10px 22px',border:'none',borderRadius:2,fontFamily:"'Barlow Condensed'",fontSize:'.82rem',fontWeight:700,letterSpacing:2,textTransform:'uppercase',cursor:'pointer'}}>Get Early Access</button>
         </div>
