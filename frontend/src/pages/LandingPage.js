@@ -44,7 +44,7 @@ export default function LandingPage(){
 
   const s={
     page:{background:'#080808',color:'#fff',fontFamily:"'Barlow',sans-serif",overflowX:'hidden'},
-    nav:{position:'fixed',top:0,left:0,right:0,zIndex:100,background:scrolled?'rgba(8,8,8,0.97)':'transparent',backdropFilter:scrolled?'blur(8px)':'none',padding:'20px 48px',display:'flex',alignItems:'center',justifyContent:'space-between',transition:'all .3s'},
+    nav:{position:'fixed',top:0,left:0,right:0,zIndex:100,background:scrolled?'rgba(8,8,8,0.97)':'transparent',backdropFilter:scrolled?'blur(8px)':'none',padding:'14px 20px',display:'flex',alignItems:'center',justifyContent:'space-between',flexWrap:'wrap',gap:8,transition:'all .3s'},
     section:{padding:'100px 48px'},
   };
 
@@ -71,7 +71,7 @@ export default function LandingPage(){
       `}</style>
 
       {/* NAV */}
-      <nav style={{position:'fixed',top:0,left:0,right:0,zIndex:100,background:scrolled?'rgba(8,8,8,0.97)':'transparent',backdropFilter:scrolled?'blur(8px)':'none',padding:'20px 48px',display:'flex',alignItems:'center',justifyContent:'space-between',transition:'all .3s'}}>
+      <nav style={{position:'fixed',top:0,left:0,right:0,zIndex:100,background:scrolled?'rgba(8,8,8,0.97)':'transparent',backdropFilter:scrolled?'blur(8px)':'none',padding:'14px 20px',display:'flex',alignItems:'center',justifyContent:'space-between',flexWrap:'wrap',gap:8,transition:'all .3s'}}>
         <div onClick={()=>navigate('/')} style={{fontFamily:"'Bebas Neue'",fontSize:'2rem',letterSpacing:6,cursor:'pointer'}}>MECH<span style={{color:R}}>A</span></div>
         <div style={{display:'flex',gap:28,alignItems:'center'}}>
           {[['Features','features'],['Pricing','pricing'],['FAQ','faq'],['Towing','/towing/register']].map(([l,id])=><span key={l} className="nav-link" onClick={()=>id.startsWith('/')?navigate(id):document.getElementById(id)?.scrollIntoView({behavior:'smooth'})} style={{color:'#888',fontSize:'.78rem',fontWeight:600,letterSpacing:2,textTransform:'uppercase',cursor:'pointer'}}>{l}</span>)}

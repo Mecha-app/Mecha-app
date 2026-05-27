@@ -27,7 +27,7 @@ export default function Dashboard(){
   return(
     <div style={PAGE}>
       <TopBar title={`Hi, ${user?.name?.split(' ')[0]}`} right={<UserChip/>}/>
-      <div style={{padding:20,maxWidth:600,margin:'0 auto'}}>
+      <div style={{padding:'16px',maxWidth:600,margin:'0 auto',width:'100%'}}>
         {user?.avatar&&(<div style={{display:'flex',alignItems:'center',gap:12,background:'rgba(232,35,42,0.07)',border:'1px solid rgba(232,35,42,0.15)',borderRadius:8,padding:14,marginBottom:18}}><img src={user.avatar} style={{width:44,height:44,borderRadius:'50%',border:`2px solid ${R}`}} alt=""/><div><div style={{fontWeight:700,fontSize:14}}>{user.name}</div><div style={{fontSize:11,color:'#888'}}>{user.email}</div></div></div>)}
         <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:24}}>
           <Card onClick={()=>navigate('/shops')} style={{cursor:'pointer',textAlign:'center'}}><div style={{fontSize:28,marginBottom:8}}>📍</div><div style={{fontFamily:"'Bebas Neue'",fontSize:14,letterSpacing:2,marginBottom:3}}>Find Mechanics</div><div style={{fontSize:11,color:'#555'}}>Near my location</div></Card>

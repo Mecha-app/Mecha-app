@@ -10,7 +10,7 @@ export const Select=({style,...p})=><select style={{width:'100%',background:'#0a
 export const Divider=({label})=><div style={{display:'flex',alignItems:'center',gap:12,margin:'16px 0'}}><div style={{flex:1,height:1,background:BORDER}}/>{label&&<span style={{fontSize:11,color:'#555',letterSpacing:1,textTransform:'uppercase'}}>{label}</span>}<div style={{flex:1,height:1,background:BORDER}}/></div>;
 export const TopBar=({onBack,title,right})=>{
   const goHome=()=>{try{const u=JSON.parse(localStorage.getItem('mechaUser'));if(u&&u.type){window.location.href={driver:'/dashboard',shop:'/shop',towing:'/towing'}[u.type]||'/dashboard';}else{window.location.href='/';}}catch(e){window.location.href='/';}};
-  return(<div style={{background:'#0d0d0d',borderBottom:`1px solid ${BORDER}`,padding:'14px 20px',display:'flex',alignItems:'center',gap:14,position:'sticky',top:0,zIndex:50}}>
+  return(<div style={{background:'#0d0d0d',borderBottom:`1px solid ${BORDER}`,padding:'12px 16px',display:'flex',alignItems:'center',gap:14,position:'sticky',top:0,zIndex:50}}>
     {onBack&&<div onClick={onBack} style={{cursor:'pointer',color:'#555',fontSize:22}}>←</div>}
     <div onClick={goHome} style={{fontFamily:"'Bebas Neue'",fontSize:22,letterSpacing:4,cursor:'pointer'}}>MECH<span style={{color:R}}>A</span></div>
     {title&&<div style={{flex:1,fontSize:13,fontWeight:600,letterSpacing:1,textTransform:'uppercase',color:'#888',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{title}</div>}
