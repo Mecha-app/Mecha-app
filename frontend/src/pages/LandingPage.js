@@ -73,7 +73,7 @@ export default function LandingPage(){
       {/* NAV */}
       <nav style={{position:'fixed',top:0,left:0,right:0,zIndex:100,background:scrolled?'rgba(8,8,8,0.97)':'transparent',backdropFilter:scrolled?'blur(8px)':'none',padding:'14px 20px',display:'flex',alignItems:'center',justifyContent:'space-between',flexWrap:'wrap',gap:8,transition:'all .3s'}}>
         <div onClick={()=>navigate('/')} style={{fontFamily:"'Bebas Neue'",fontSize:'2rem',letterSpacing:6,cursor:'pointer'}}>MECH<span style={{color:R}}>A</span></div>
-        <div className='hide-mobile' style={{display:'flex',gap:16,alignItems:'center'}}>
+        <div className='hide-mobile' style={{display:'flex',gap:12,alignItems:'center'}}>
           {[['Features','features'],['Pricing','pricing'],['FAQ','faq'],['Towing','/towing/register']].map(([l,id])=><span key={l} className="nav-link" onClick={()=>id.startsWith('/')?navigate(id):document.getElementById(id)?.scrollIntoView({behavior:'smooth'})} style={{color:'#888',fontSize:'.78rem',fontWeight:600,letterSpacing:2,textTransform:'uppercase',cursor:'pointer'}}>{l}</span>)}
           <button onClick={()=>navigate('/register')} style={{background:R,color:'#fff',padding:'10px 22px',border:'none',borderRadius:2,fontFamily:"'Barlow Condensed'",fontSize:'.82rem',fontWeight:700,letterSpacing:2,textTransform:'uppercase',cursor:'pointer'}}>Get Early Access</button>
         </div>
@@ -105,7 +105,7 @@ export default function LandingPage(){
         </div>
         <div style={{position:'absolute',right:'clamp(16px,5vw,48px)',bottom:40,display:'flex',flexDirection:'column',gap:12}}>
           {[['230M+','US Drivers'],['$1,400','Avg Saved / Year'],['40+','Languages']].map(([n,l])=>(
-            <div key={l} style={{textAlign:'right'}}>
+            <div key={l} style={{textAlign:'center'}}>
               <div style={{fontFamily:"'Bebas Neue'",fontSize:'2.3rem',lineHeight:1,color:R}}>{n}</div>
               <div style={{fontSize:'.68rem',letterSpacing:2,textTransform:'uppercase',color:'#888'}}>{l}</div>
             </div>
@@ -126,7 +126,7 @@ export default function LandingPage(){
       <div style={{background:'#111',padding:'clamp(40px,8vw,100px) clamp(16px,5vw,48px)',position:'relative'}}>
         <div style={{position:'absolute',top:0,left:0,right:0,height:1,background:'linear-gradient(90deg,transparent,rgba(232,35,42,0.5),transparent)'}}/>
         <div style={{fontSize:'.7rem',letterSpacing:3,textTransform:'uppercase',color:R,fontWeight:600,marginBottom:14}}>The Problem</div>
-        <div style={{fontFamily:"'Bebas Neue'",fontSize:'clamp(2.4rem,5vw,4rem)',letterSpacing:2,marginBottom:48,lineHeight:1.05}}>EVERY DRIVER<br/><span style={{color:'transparent',WebkitTextStroke:'1px rgba(255,255,255,0.2)'}}>FEELS THIS PAIN.</span></div>
+        <div style={{fontFamily:"'Bebas Neue'",fontSize:'clamp(2.4rem,5vw,4rem)',letterSpacing:2,marginBottom:48,lineHeight:1.05}}>EVERY DRIVER<br/><span style={{color:'rgba(255,255,255,0.25)'}}>FEELS THIS PAIN.</span></div>
         <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(280px,1fr))',gap:32,alignItems:'center'}}>
           <div>
             <div style={{fontFamily:"'Bebas Neue'",fontSize:'clamp(5rem,12vw,9rem)',lineHeight:1,color:R,marginBottom:12}}>$1,400</div>
@@ -149,7 +149,7 @@ export default function LandingPage(){
       {/* HOW IT WORKS */}
       <div style={{padding:'clamp(40px,8vw,100px) clamp(16px,5vw,48px)',background:'#080808'}}>
         <div style={{fontSize:'.7rem',letterSpacing:3,textTransform:'uppercase',color:R,fontWeight:600,marginBottom:14,textAlign:'center'}}>How It Works</div>
-        <div style={{fontFamily:"'Bebas Neue'",fontSize:'clamp(2.4rem,5vw,4rem)',letterSpacing:2,marginBottom:60,textAlign:'center'}}>AS SIMPLE AS<br/><span style={{color:'transparent',WebkitTextStroke:'1px rgba(255,255,255,0.2)'}}>1 — 2 — 3 — 4</span></div>
+        <div style={{fontFamily:"'Bebas Neue'",fontSize:'clamp(2.4rem,5vw,4rem)',letterSpacing:2,marginBottom:60,textAlign:'center'}}>AS SIMPLE AS<br/><span style={{color:'rgba(255,255,255,0.25)'}}>1 — 2 — 3 — 4</span></div>
         <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(160px,1fr))',gap:24,position:'relative'}}>
           <div style={{position:'absolute',top:36,left:'12%',right:'12%',height:1,background:'linear-gradient(90deg,transparent,rgba(232,35,42,0.4),transparent)'}}/>
           {[['1','Describe Your Problem','Type what is wrong, snap a photo of your warning light, or speak in your language. MECHA understands it all.'],['2','Get AI Diagnosis','Instant plain-language explanation of exactly what is wrong, how serious it is, and what you should do next.'],['3','Know the Fair Price','See real repair cost data for your city. Walk in knowing exactly what is fair and what is a rip-off.'],['4','Find a Trusted Shop','Book with a MECHA-verified honest mechanic near you. Real reviews from real drivers in your language.']].map(([n,t,d])=>(
@@ -166,7 +166,7 @@ export default function LandingPage(){
       <div style={{background:'#111',padding:'clamp(40px,8vw,100px) clamp(16px,5vw,48px)',position:'relative'}}>
         <div style={{position:'absolute',top:0,left:0,right:0,height:1,background:'linear-gradient(90deg,transparent,rgba(232,35,42,0.5),transparent)'}}/>
         <div style={{fontSize:'.7rem',letterSpacing:3,textTransform:'uppercase',color:R,fontWeight:600,marginBottom:14}}>See It In Action</div>
-        <div style={{fontFamily:"'Bebas Neue'",fontSize:'clamp(2.4rem,5vw,4rem)',letterSpacing:2,marginBottom:48}}>REAL PROBLEMS.<br/><span style={{color:'transparent',WebkitTextStroke:'1px rgba(255,255,255,0.2)'}}>INSTANT ANSWERS.</span></div>
+        <div style={{fontFamily:"'Bebas Neue'",fontSize:'clamp(2.4rem,5vw,4rem)',letterSpacing:2,marginBottom:48}}>REAL PROBLEMS.<br/><span style={{color:'rgba(255,255,255,0.25)'}}>INSTANT ANSWERS.</span></div>
         <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(280px,1fr))',gap:16}}>
           <div style={{borderRadius:4,overflow:'hidden'}}>
             <div style={{aspectRatio:'16/9',background:'#1a1a1a',display:'flex',alignItems:'center',justifyContent:'center'}}>
@@ -216,7 +216,7 @@ export default function LandingPage(){
       {/* FEATURES */}
       <div id='features' style={{padding:'clamp(40px,8vw,100px) clamp(16px,5vw,48px)',background:'#080808'}}>
         <div style={{fontSize:'.7rem',letterSpacing:3,textTransform:'uppercase',color:R,fontWeight:600,marginBottom:14,textAlign:'center'}}>What MECHA Does</div>
-        <div style={{fontFamily:"'Bebas Neue'",fontSize:'clamp(2.4rem,5vw,4rem)',letterSpacing:2,marginBottom:48,textAlign:'center'}}>EVERYTHING YOUR<br/><span style={{color:'transparent',WebkitTextStroke:'1px rgba(255,255,255,0.2)'}}>CAR NEEDS.</span></div>
+        <div style={{fontFamily:"'Bebas Neue'",fontSize:'clamp(2.4rem,5vw,4rem)',letterSpacing:2,marginBottom:48,textAlign:'center'}}>EVERYTHING YOUR<br/><span style={{color:'rgba(255,255,255,0.25)'}}>CAR NEEDS.</span></div>
         <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(160px,1fr))',gap:1,background:'rgba(255,255,255,0.05)',borderRadius:4,overflow:'hidden'}}>
           {[['01','🧠','AI Diagnosis','Describe your problem or snap a photo. Get instant plain-language diagnosis. No jargon. No confusion.'],['02','��️','Price Protection','Know the fair market price before any shop visit. Never overpay again. Real-time data from thousands of repairs.'],['03','📋','Car Health Vault','Your complete car history in one place. Oil changes, tires, inspections — all tracked with smart reminders.'],['04','⭐','Mechanic Trust Score','Find verified honest shops near you. Real ratings from real drivers in your language. Book directly.'],['05','🌐','40+ Languages','Spanish, French, Arabic, Mandarin, Portuguese, Creole and more. Built for every driver on earth.'],['06','📱','Mobile + Web','Full iOS and Android app plus a powerful web dashboard. Your car data goes everywhere you go.'],['07','🔔','Smart Alerts','Never miss an oil change, registration renewal, or tire rotation again. MECHA reminds you before it costs you.'],['08','🚗','Multi-Vehicle','Manage your whole family cars in one account. Every vehicle tracked, every reminder set, every repair logged.']].map(([num,icon,title,desc])=>(
             <div key={num} className="feature-card-wrap" style={{background:'#111',padding:'20px 16px',position:'relative',overflow:'hidden',transition:'background .3s'}}>
@@ -247,10 +247,10 @@ export default function LandingPage(){
         <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(240px,1fr))',gap:32,alignItems:'center',marginBottom:52}}>
           <div>
             <div style={{fontSize:'.7rem',letterSpacing:3,textTransform:'uppercase',color:R,fontWeight:600,marginBottom:14}}>Global By Design</div>
-            <div style={{fontFamily:"'Bebas Neue'",fontSize:'clamp(2.4rem,5vw,4rem)',letterSpacing:2,marginBottom:20}}>BUILT FOR THE<br/><span style={{color:'transparent',WebkitTextStroke:'1px rgba(255,255,255,0.2)'}}>WHOLE WORLD.</span></div>
+            <div style={{fontFamily:"'Bebas Neue'",fontSize:'clamp(2.4rem,5vw,4rem)',letterSpacing:2,marginBottom:20}}>BUILT FOR THE<br/><span style={{color:'rgba(255,255,255,0.25)'}}>WHOLE WORLD.</span></div>
             <p style={{fontSize:'.95rem',color:'#888',lineHeight:1.8}}>Every other car app was built for English-speaking Americans only. <strong style={{color:'#fff'}}>MECHA was built for every driver on earth.</strong> Whether you speak Spanish, Arabic, Creole, or Mandarin — MECHA speaks your language perfectly.</p>
           </div>
-          <div style={{textAlign:'right'}}>
+          <div style={{textAlign:'center'}}>
             <div style={{fontFamily:"'Bebas Neue'",fontSize:'clamp(3rem,8vw,6rem)',lineHeight:1,color:R}}>40+</div>
             <div style={{fontSize:'.95rem',color:'#888',marginTop:8}}>Languages at launch</div>
           </div>
@@ -285,7 +285,7 @@ export default function LandingPage(){
       <div style={{padding:'clamp(40px,8vw,100px) clamp(16px,5vw,48px)',background:'#080808',position:'relative'}}>
         <div style={{position:'absolute',top:0,left:0,right:0,height:1,background:'linear-gradient(90deg,transparent,rgba(232,35,42,0.5),transparent)'}}/>
         <div style={{fontSize:'.7rem',letterSpacing:3,textTransform:'uppercase',color:R,fontWeight:600,marginBottom:14,textAlign:'center'}}>Real Cars. Real Fixes.</div>
-        <div style={{fontFamily:"'Bebas Neue'",fontSize:'clamp(2.4rem,5vw,4rem)',letterSpacing:2,marginBottom:32,textAlign:'center'}}>SEE MECHA<br/><span style={{color:'transparent',WebkitTextStroke:'1px rgba(255,255,255,0.2)'}}>IN ACTION.</span></div>
+        <div style={{fontFamily:"'Bebas Neue'",fontSize:'clamp(2.4rem,5vw,4rem)',letterSpacing:2,marginBottom:32,textAlign:'center'}}>SEE MECHA<br/><span style={{color:'rgba(255,255,255,0.25)'}}>IN ACTION.</span></div>
         <div style={{borderRadius:8,overflow:'hidden',marginBottom:12,position:'relative',cursor:'pointer'}}>
           <img src="https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?w=1200&q=80" alt="Mechanic with MECHA app" style={{width:'100%',maxHeight:520,objectFit:'cover',display:'block'}} loading="lazy"/>
           <div style={{position:'absolute',inset:0,background:'linear-gradient(to top,rgba(0,0,0,0.7),transparent)'}}/>
@@ -331,7 +331,7 @@ export default function LandingPage(){
       <div style={{background:'#111',padding:'clamp(40px,8vw,100px) clamp(16px,5vw,48px)',position:'relative'}}>
         <div style={{position:'absolute',top:0,left:0,right:0,height:1,background:'linear-gradient(90deg,transparent,rgba(232,35,42,0.5),transparent)'}}/>
         <div style={{fontSize:'.7rem',letterSpacing:3,textTransform:'uppercase',color:R,fontWeight:600,marginBottom:14,textAlign:'center'}}>Real Drivers</div>
-        <div style={{fontFamily:"'Bebas Neue'",fontSize:'clamp(2.4rem,5vw,4rem)',letterSpacing:2,marginBottom:48,textAlign:'center'}}>WHAT BETA USERS<br/><span style={{color:'transparent',WebkitTextStroke:'1px rgba(255,255,255,0.2)'}}>ARE SAYING.</span></div>
+        <div style={{fontFamily:"'Bebas Neue'",fontSize:'clamp(2.4rem,5vw,4rem)',letterSpacing:2,marginBottom:48,textAlign:'center'}}>WHAT BETA USERS<br/><span style={{color:'rgba(255,255,255,0.25)'}}>ARE SAYING.</span></div>
         <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(280px,1fr))',gap:14}}>
           {[
             ['Marcus T.','Atlanta, GA · Toyota Camry','👨','My mechanic quoted me $1,100. MECHA said the fair price was $380. I walked in with that data and he dropped to $400. Paid for a whole year of MECHA in one visit.'],
@@ -362,7 +362,7 @@ export default function LandingPage(){
         <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(280px,1fr))',gap:40,alignItems:'start'}}>
           <div>
             <div style={{fontSize:'.7rem',letterSpacing:3,textTransform:'uppercase',color:R,fontWeight:600,marginBottom:14}}>For Repair Shops</div>
-            <div style={{fontFamily:"'Bebas Neue'",fontSize:'clamp(2.4rem,5vw,4rem)',letterSpacing:2,marginBottom:28}}>WIN MORE<br/><span style={{color:'transparent',WebkitTextStroke:'1px rgba(255,255,255,0.2)'}}>CUSTOMERS.</span></div>
+            <div style={{fontFamily:"'Bebas Neue'",fontSize:'clamp(2.4rem,5vw,4rem)',letterSpacing:2,marginBottom:28}}>WIN MORE<br/><span style={{color:'rgba(255,255,255,0.25)'}}>CUSTOMERS.</span></div>
             <p style={{fontSize:'.95rem',color:'#888',lineHeight:1.8,marginBottom:28}}>MECHA sends you <strong style={{color:'#fff'}}>pre-qualified leads</strong> — drivers who already know what is wrong with their car and are looking for an honest mechanic.</p>
             {[['🏅','Verified Honest Shop Badge','Earn MECHA trust certification. Drivers actively search for verified shops. Stand out from every competitor.'],['🌐','Multilingual Customer Chat','Communicate with any customer in their language through AI-powered translation. Never lose a customer to a language barrier.'],['📸','Digital Inspection Reports','Send photo and video proof of issues to customers. Builds trust and increases repair approval rates by up to 49%.'],['📅','Direct Appointment Booking','Customers book directly through MECHA. No phone tag, no missed calls, no empty service bays.']].map(([icon,title,desc])=>(
               <div key={title} style={{display:'flex',alignItems:'flex-start',gap:14,marginBottom:18}}>
@@ -404,7 +404,7 @@ export default function LandingPage(){
       <div id='pricing' style={{background:'#111',padding:'clamp(40px,8vw,100px) clamp(16px,5vw,48px)',position:'relative'}}>
         <div style={{position:'absolute',top:0,left:0,right:0,height:1,background:'linear-gradient(90deg,transparent,rgba(232,35,42,0.5),transparent)'}}/>
         <div style={{fontSize:'.7rem',letterSpacing:3,textTransform:'uppercase',color:R,fontWeight:600,marginBottom:14,textAlign:'center'}}>Simple Pricing</div>
-        <div style={{fontFamily:"'Bebas Neue'",fontSize:'clamp(2.4rem,5vw,4rem)',letterSpacing:2,marginBottom:48,textAlign:'center'}}>START FREE.<br/><span style={{color:'transparent',WebkitTextStroke:'1px rgba(255,255,255,0.2)'}}>SCALE WHEN READY.</span></div>
+        <div style={{fontFamily:"'Bebas Neue'",fontSize:'clamp(2.4rem,5vw,4rem)',letterSpacing:2,marginBottom:48,textAlign:'center'}}>START FREE.<br/><span style={{color:'rgba(255,255,255,0.25)'}}>SCALE WHEN READY.</span></div>
         <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(280px,1fr))',gap:14}}>
           {[
             {tier:'For Drivers',name:'Basic',price:'0',period:'Free forever',feats:['5 AI diagnoses per month','Basic price checker','1 vehicle tracked','English + French','Community mechanic reviews'],cta:'Get Started Free',featured:false},
@@ -415,9 +415,9 @@ export default function LandingPage(){
               {featured&&<div style={{position:'absolute',top:0,right:28,background:R,fontSize:'.62rem',fontWeight:700,letterSpacing:2,textTransform:'uppercase',padding:'5px 12px',borderRadius:'0 0 6px 6px'}}>Most Popular</div>}
               <div style={{fontSize:'.68rem',letterSpacing:3,textTransform:'uppercase',color:'#888',marginBottom:7}}>{tier}</div>
               <div style={{fontFamily:"'Bebas Neue'",fontSize:'1.5rem',letterSpacing:2,marginBottom:22}}>{name}</div>
-              <div style={{fontFamily:"'Bebas Neue'",fontSize:'3.8rem',letterSpacing:2,lineHeight:1}}><span style={{fontSize:'1.1rem',color:'#888',verticalAlign:'super'}}>$</span>{price}</div>
+              <div style={{fontFamily:"'Bebas Neue'",fontSize:'3rem',letterSpacing:2,lineHeight:1}}><span style={{fontSize:'1.1rem',color:'#888',verticalAlign:'super'}}>$</span>{price}</div>
               <div style={{fontSize:'.78rem',color:'#888',marginTop:4,marginBottom:0}}>{period}</div>
-              <div style={{height:1,background:'rgba(255,255,255,0.06)',margin:'24px 0'}}/>
+              <div style={{height:1,background:'rgba(255,255,255,0.06)',margin:'16px 0'}}/>
               <ul style={{listStyle:'none',marginBottom:0}}>
                 {feats.map(f=><li key={f} style={{fontSize:'.82rem',color:'#ccc',padding:'6px 0',display:'flex',alignItems:'center',gap:9}}><span style={{color:R,fontSize:'.72rem'}}>→</span>{f}</li>)}
               </ul>
@@ -431,7 +431,7 @@ export default function LandingPage(){
       {/* COMPARE */}
       <div style={{padding:'clamp(40px,8vw,100px) clamp(16px,5vw,48px)',background:'#080808'}}>
         <div style={{fontSize:'.7rem',letterSpacing:3,textTransform:'uppercase',color:R,fontWeight:600,marginBottom:14,textAlign:'center'}}>One Platform vs Many</div>
-        <div style={{fontFamily:"'Bebas Neue'",fontSize:'clamp(2.4rem,5vw,4rem)',letterSpacing:2,marginBottom:48,textAlign:'center'}}>MECHA DOES IT<br/><span style={{color:'transparent',WebkitTextStroke:'1px rgba(255,255,255,0.2)'}}>ALL IN ONE.</span></div>
+        <div style={{fontFamily:"'Bebas Neue'",fontSize:'clamp(2.4rem,5vw,4rem)',letterSpacing:2,marginBottom:48,textAlign:'center'}}>MECHA DOES IT<br/><span style={{color:'rgba(255,255,255,0.25)'}}>ALL IN ONE.</span></div>
         <div style={{overflowX:'auto'}}>
           <table style={{width:'100%',borderCollapse:'collapse'}}>
             <thead>
@@ -471,7 +471,7 @@ export default function LandingPage(){
       <div id='faq' style={{background:'#111',padding:'clamp(40px,8vw,100px) clamp(16px,5vw,48px)',position:'relative'}}>
         <div style={{position:'absolute',top:0,left:0,right:0,height:1,background:'linear-gradient(90deg,transparent,rgba(232,35,42,0.5),transparent)'}}/>
         <div style={{fontSize:'.7rem',letterSpacing:3,textTransform:'uppercase',color:R,fontWeight:600,marginBottom:14,textAlign:'center'}}>FAQ</div>
-        <div style={{fontFamily:"'Bebas Neue'",fontSize:'clamp(2.4rem,5vw,4rem)',letterSpacing:2,marginBottom:48,textAlign:'center'}}>GOT QUESTIONS?<br/><span style={{color:'transparent',WebkitTextStroke:'1px rgba(255,255,255,0.2)'}}>WE GOT ANSWERS.</span></div>
+        <div style={{fontFamily:"'Bebas Neue'",fontSize:'clamp(2.4rem,5vw,4rem)',letterSpacing:2,marginBottom:48,textAlign:'center'}}>GOT QUESTIONS?<br/><span style={{color:'rgba(255,255,255,0.25)'}}>WE GOT ANSWERS.</span></div>
         <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(260px,1fr))',gap:14}}>
           {[
             ['Do I need to know anything about cars?','Not at all. MECHA was designed for people who know nothing about cars. Everything is explained in plain, simple language.'],
