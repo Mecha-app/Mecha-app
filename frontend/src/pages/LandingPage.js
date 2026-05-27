@@ -43,9 +43,9 @@ export default function LandingPage(){
   ];
 
   const s={
-    page:{background:'#080808',color:'#fff',fontFamily:"'Barlow',sans-serif",overflowX:'hidden'},
+    page:{background:'#080808',color:'#fff',fontFamily:"'Barlow',sans-serif",overflowX:'hidden',overflowY:'auto'},
     nav:{position:'fixed',top:0,left:0,right:0,zIndex:100,background:scrolled?'rgba(8,8,8,0.97)':'transparent',backdropFilter:scrolled?'blur(8px)':'none',padding:'14px 20px',display:'flex',alignItems:'center',justifyContent:'space-between',flexWrap:'wrap',gap:8,transition:'all .3s'},
-    section:{padding:'100px 48px'},
+    section:{padding:'clamp(40px,8vw,100px) clamp(16px,5vw,48px)'},
   };
 
   return(
@@ -80,7 +80,7 @@ export default function LandingPage(){
       </nav>
 
       {/* HERO */}
-      <div style={{minHeight:'100vh',display:'flex',flexDirection:'column',justifyContent:'center',position:'relative',padding:'120px 48px 100px',backgroundImage:"url('https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?w=1800&q=80')",backgroundSize:'cover',backgroundPosition:'center'}}>
+      <div style={{minHeight:'100vh',display:'flex',flexDirection:'column',justifyContent:'center',position:'relative',padding:'clamp(80px,12vw,120px) clamp(16px,5vw,48px) clamp(40px,8vw,100px)',backgroundImage:"url('https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?w=1800&q=80')",backgroundSize:'cover',backgroundPosition:'center'}}>
         <div style={{position:'absolute',inset:0,backgroundImage:'linear-gradient(rgba(255,255,255,0.02) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.02) 1px,transparent 1px)',backgroundSize:'60px 60px',maskImage:'radial-gradient(ellipse 80% 80% at 50% 50%,black,transparent)'}}/>
         <div style={{position:'absolute',inset:0,background:'linear-gradient(to right,rgba(8,8,8,0.85) 55%,rgba(8,8,8,0.3))',zIndex:1}}/><div style={{position:'relative',zIndex:2,maxWidth:860}}>
           <div style={{display:'inline-flex',alignItems:'center',gap:8,background:'rgba(232,35,42,0.12)',border:'1px solid rgba(232,35,42,0.3)',padding:'6px 16px',borderRadius:100,marginBottom:28,fontSize:'.72rem',fontWeight:600,letterSpacing:2,textTransform:'uppercase',color:R,animation:'fadeUp .8s ease both'}}>
@@ -103,7 +103,7 @@ export default function LandingPage(){
             </button>
           </div>
         </div>
-        <div style={{position:'absolute',right:48,bottom:80,display:'flex',flexDirection:'column',gap:20}}>
+        <div style={{position:'absolute',right:'clamp(16px,5vw,48px)',bottom:40,display:'flex',flexDirection:'column',gap:12}}>
           {[['230M+','US Drivers'],['$1,400','Avg Saved / Year'],['40+','Languages']].map(([n,l])=>(
             <div key={l} style={{textAlign:'right'}}>
               <div style={{fontFamily:"'Bebas Neue'",fontSize:'2.3rem',lineHeight:1,color:R}}>{n}</div>
@@ -123,11 +123,11 @@ export default function LandingPage(){
       </div>
 
       {/* PROBLEM */}
-      <div style={{background:'#111',padding:'100px 48px',position:'relative'}}>
+      <div style={{background:'#111',padding:'clamp(40px,8vw,100px) clamp(16px,5vw,48px)',position:'relative'}}>
         <div style={{position:'absolute',top:0,left:0,right:0,height:1,background:'linear-gradient(90deg,transparent,rgba(232,35,42,0.5),transparent)'}}/>
         <div style={{fontSize:'.7rem',letterSpacing:3,textTransform:'uppercase',color:R,fontWeight:600,marginBottom:14}}>The Problem</div>
         <div style={{fontFamily:"'Bebas Neue'",fontSize:'clamp(2.4rem,5vw,4rem)',letterSpacing:2,marginBottom:48,lineHeight:1.05}}>EVERY DRIVER<br/><span style={{color:'transparent',WebkitTextStroke:'1px rgba(255,255,255,0.2)'}}>FEELS THIS PAIN.</span></div>
-        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:48,alignItems:'center'}}>
+        <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(280px,1fr))',gap:32,alignItems:'center'}}>
           <div>
             <div style={{fontFamily:"'Bebas Neue'",fontSize:'clamp(5rem,12vw,9rem)',lineHeight:1,color:R,marginBottom:12}}>$1,400</div>
             <p style={{fontSize:'1rem',color:'#888',lineHeight:1.8,maxWidth:420}}>That is how much the average American overpays on car repairs every year. Not because mechanics are all dishonest, but because <strong style={{color:'#fff'}}>drivers have zero information.</strong> MECHA gives every driver that power back — in their own language.</p>
@@ -147,10 +147,10 @@ export default function LandingPage(){
       </div>
 
       {/* HOW IT WORKS */}
-      <div style={{padding:'100px 48px',background:'#080808'}}>
+      <div style={{padding:'clamp(40px,8vw,100px) clamp(16px,5vw,48px)',background:'#080808'}}>
         <div style={{fontSize:'.7rem',letterSpacing:3,textTransform:'uppercase',color:R,fontWeight:600,marginBottom:14,textAlign:'center'}}>How It Works</div>
         <div style={{fontFamily:"'Bebas Neue'",fontSize:'clamp(2.4rem,5vw,4rem)',letterSpacing:2,marginBottom:60,textAlign:'center'}}>AS SIMPLE AS<br/><span style={{color:'transparent',WebkitTextStroke:'1px rgba(255,255,255,0.2)'}}>1 — 2 — 3 — 4</span></div>
-        <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:0,position:'relative'}}>
+        <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(160px,1fr))',gap:24,position:'relative'}}>
           <div style={{position:'absolute',top:36,left:'12%',right:'12%',height:1,background:'linear-gradient(90deg,transparent,rgba(232,35,42,0.4),transparent)'}}/>
           {[['1','Describe Your Problem','Type what is wrong, snap a photo of your warning light, or speak in your language. MECHA understands it all.'],['2','Get AI Diagnosis','Instant plain-language explanation of exactly what is wrong, how serious it is, and what you should do next.'],['3','Know the Fair Price','See real repair cost data for your city. Walk in knowing exactly what is fair and what is a rip-off.'],['4','Find a Trusted Shop','Book with a MECHA-verified honest mechanic near you. Real reviews from real drivers in your language.']].map(([n,t,d])=>(
             <div key={n} style={{padding:'0 20px',textAlign:'center',position:'relative',zIndex:1}}>
@@ -163,11 +163,11 @@ export default function LandingPage(){
       </div>
 
       {/* DEMO SECTION */}
-      <div style={{background:'#111',padding:'100px 48px',position:'relative'}}>
+      <div style={{background:'#111',padding:'clamp(40px,8vw,100px) clamp(16px,5vw,48px)',position:'relative'}}>
         <div style={{position:'absolute',top:0,left:0,right:0,height:1,background:'linear-gradient(90deg,transparent,rgba(232,35,42,0.5),transparent)'}}/>
         <div style={{fontSize:'.7rem',letterSpacing:3,textTransform:'uppercase',color:R,fontWeight:600,marginBottom:14}}>See It In Action</div>
         <div style={{fontFamily:"'Bebas Neue'",fontSize:'clamp(2.4rem,5vw,4rem)',letterSpacing:2,marginBottom:48}}>REAL PROBLEMS.<br/><span style={{color:'transparent',WebkitTextStroke:'1px rgba(255,255,255,0.2)'}}>INSTANT ANSWERS.</span></div>
-        <div style={{display:'grid',gridTemplateColumns:'1.6fr 1fr',gap:16}}>
+        <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(280px,1fr))',gap:16}}>
           <div style={{borderRadius:4,overflow:'hidden'}}>
             <div style={{aspectRatio:'16/9',background:'#1a1a1a',display:'flex',alignItems:'center',justifyContent:'center'}}>
               <div style={{width:'85%',maxWidth:460,background:'#0a0a0a',borderRadius:12,border:'1px solid rgba(255,255,255,0.06)',padding:18}}>
@@ -214,10 +214,10 @@ export default function LandingPage(){
       </div>
 
       {/* FEATURES */}
-      <div id='features' style={{padding:'100px 48px',background:'#080808'}}>
+      <div id='features' style={{padding:'clamp(40px,8vw,100px) clamp(16px,5vw,48px)',background:'#080808'}}>
         <div style={{fontSize:'.7rem',letterSpacing:3,textTransform:'uppercase',color:R,fontWeight:600,marginBottom:14,textAlign:'center'}}>What MECHA Does</div>
         <div style={{fontFamily:"'Bebas Neue'",fontSize:'clamp(2.4rem,5vw,4rem)',letterSpacing:2,marginBottom:48,textAlign:'center'}}>EVERYTHING YOUR<br/><span style={{color:'transparent',WebkitTextStroke:'1px rgba(255,255,255,0.2)'}}>CAR NEEDS.</span></div>
-        <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:1,background:'rgba(255,255,255,0.05)',borderRadius:4,overflow:'hidden'}}>
+        <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(160px,1fr))',gap:1,background:'rgba(255,255,255,0.05)',borderRadius:4,overflow:'hidden'}}>
           {[['01','🧠','AI Diagnosis','Describe your problem or snap a photo. Get instant plain-language diagnosis. No jargon. No confusion.'],['02','��️','Price Protection','Know the fair market price before any shop visit. Never overpay again. Real-time data from thousands of repairs.'],['03','📋','Car Health Vault','Your complete car history in one place. Oil changes, tires, inspections — all tracked with smart reminders.'],['04','⭐','Mechanic Trust Score','Find verified honest shops near you. Real ratings from real drivers in your language. Book directly.'],['05','🌐','40+ Languages','Spanish, French, Arabic, Mandarin, Portuguese, Creole and more. Built for every driver on earth.'],['06','📱','Mobile + Web','Full iOS and Android app plus a powerful web dashboard. Your car data goes everywhere you go.'],['07','🔔','Smart Alerts','Never miss an oil change, registration renewal, or tire rotation again. MECHA reminds you before it costs you.'],['08','🚗','Multi-Vehicle','Manage your whole family cars in one account. Every vehicle tracked, every reminder set, every repair logged.']].map(([num,icon,title,desc])=>(
             <div key={num} className="feature-card-wrap" style={{background:'#111',padding:'32px 24px',position:'relative',overflow:'hidden',transition:'background .3s'}}>
               <div className="feature-line" style={{position:'absolute',top:0,left:0,right:0,height:2}}/>
@@ -231,8 +231,8 @@ export default function LandingPage(){
       </div>
 
       {/* STATS BAND */}
-      <div style={{background:R,padding:'60px 48px'}}>
-        <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:40,textAlign:'center'}}>
+      <div style={{background:R,padding:'clamp(32px,6vw,60px) clamp(16px,5vw,48px)'}}>
+        <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(140px,1fr))',gap:24,textAlign:'center'}}>
           {[['$2.7T','Combined auto market opportunity by 2035'],['280M+','Registered vehicles in the US'],['$781B','Global auto repair market 2026'],['40+','Languages at launch']].map(([n,l])=>(
             <div key={l}>
               <div style={{fontFamily:"'Bebas Neue'",fontSize:'clamp(3rem,6vw,4.5rem)',letterSpacing:2,lineHeight:1,marginBottom:8}}>{n}</div>
@@ -243,8 +243,8 @@ export default function LandingPage(){
       </div>
 
       {/* LANGUAGES */}
-      <div style={{padding:'100px 48px',background:'#080808',overflow:'hidden'}}>
-        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:60,alignItems:'center',marginBottom:52}}>
+      <div style={{padding:'clamp(40px,8vw,100px) clamp(16px,5vw,48px)',background:'#080808',overflow:'hidden'}}>
+        <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(240px,1fr))',gap:32,alignItems:'center',marginBottom:52}}>
           <div>
             <div style={{fontSize:'.7rem',letterSpacing:3,textTransform:'uppercase',color:R,fontWeight:600,marginBottom:14}}>Global By Design</div>
             <div style={{fontFamily:"'Bebas Neue'",fontSize:'clamp(2.4rem,5vw,4rem)',letterSpacing:2,marginBottom:20}}>BUILT FOR THE<br/><span style={{color:'transparent',WebkitTextStroke:'1px rgba(255,255,255,0.2)'}}>WHOLE WORLD.</span></div>
@@ -282,7 +282,7 @@ export default function LandingPage(){
       </div>
 
       {/* PHOTOS */}
-      <div style={{padding:'100px 48px',background:'#080808',position:'relative'}}>
+      <div style={{padding:'clamp(40px,8vw,100px) clamp(16px,5vw,48px)',background:'#080808',position:'relative'}}>
         <div style={{position:'absolute',top:0,left:0,right:0,height:1,background:'linear-gradient(90deg,transparent,rgba(232,35,42,0.5),transparent)'}}/>
         <div style={{fontSize:'.7rem',letterSpacing:3,textTransform:'uppercase',color:R,fontWeight:600,marginBottom:14,textAlign:'center'}}>Real Cars. Real Fixes.</div>
         <div style={{fontFamily:"'Bebas Neue'",fontSize:'clamp(2.4rem,5vw,4rem)',letterSpacing:2,marginBottom:32,textAlign:'center'}}>SEE MECHA<br/><span style={{color:'transparent',WebkitTextStroke:'1px rgba(255,255,255,0.2)'}}>IN ACTION.</span></div>
@@ -328,11 +328,11 @@ export default function LandingPage(){
       </div>
 
       {/* TESTIMONIALS */}
-      <div style={{background:'#111',padding:'100px 48px',position:'relative'}}>
+      <div style={{background:'#111',padding:'clamp(40px,8vw,100px) clamp(16px,5vw,48px)',position:'relative'}}>
         <div style={{position:'absolute',top:0,left:0,right:0,height:1,background:'linear-gradient(90deg,transparent,rgba(232,35,42,0.5),transparent)'}}/>
         <div style={{fontSize:'.7rem',letterSpacing:3,textTransform:'uppercase',color:R,fontWeight:600,marginBottom:14,textAlign:'center'}}>Real Drivers</div>
         <div style={{fontFamily:"'Bebas Neue'",fontSize:'clamp(2.4rem,5vw,4rem)',letterSpacing:2,marginBottom:48,textAlign:'center'}}>WHAT BETA USERS<br/><span style={{color:'transparent',WebkitTextStroke:'1px rgba(255,255,255,0.2)'}}>ARE SAYING.</span></div>
-        <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:14}}>
+        <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(280px,1fr))',gap:14}}>
           {[
             ['Marcus T.','Atlanta, GA · Toyota Camry','👨','My mechanic quoted me $1,100. MECHA said the fair price was $380. I walked in with that data and he dropped to $400. Paid for a whole year of MECHA in one visit.'],
             ['Maria G.','Miami, FL · Honda CR-V','👩','As someone who does not speak English as a first language, I always felt mechanics took advantage of me. MECHA gave me the confidence to walk in knowing the facts.'],
@@ -358,8 +358,8 @@ export default function LandingPage(){
       </div>
 
       {/* FOR SHOPS */}
-      <div style={{padding:'100px 48px',background:'#080808'}}>
-        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:60,alignItems:'start'}}>
+      <div style={{padding:'clamp(40px,8vw,100px) clamp(16px,5vw,48px)',background:'#080808'}}>
+        <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(280px,1fr))',gap:40,alignItems:'start'}}>
           <div>
             <div style={{fontSize:'.7rem',letterSpacing:3,textTransform:'uppercase',color:R,fontWeight:600,marginBottom:14}}>For Repair Shops</div>
             <div style={{fontFamily:"'Bebas Neue'",fontSize:'clamp(2.4rem,5vw,4rem)',letterSpacing:2,marginBottom:28}}>WIN MORE<br/><span style={{color:'transparent',WebkitTextStroke:'1px rgba(255,255,255,0.2)'}}>CUSTOMERS.</span></div>
@@ -401,11 +401,11 @@ export default function LandingPage(){
       </div>
 
       {/* PRICING */}
-      <div id='pricing' style={{background:'#111',padding:'100px 48px',position:'relative'}}>
+      <div id='pricing' style={{background:'#111',padding:'clamp(40px,8vw,100px) clamp(16px,5vw,48px)',position:'relative'}}>
         <div style={{position:'absolute',top:0,left:0,right:0,height:1,background:'linear-gradient(90deg,transparent,rgba(232,35,42,0.5),transparent)'}}/>
         <div style={{fontSize:'.7rem',letterSpacing:3,textTransform:'uppercase',color:R,fontWeight:600,marginBottom:14,textAlign:'center'}}>Simple Pricing</div>
         <div style={{fontFamily:"'Bebas Neue'",fontSize:'clamp(2.4rem,5vw,4rem)',letterSpacing:2,marginBottom:48,textAlign:'center'}}>START FREE.<br/><span style={{color:'transparent',WebkitTextStroke:'1px rgba(255,255,255,0.2)'}}>SCALE WHEN READY.</span></div>
-        <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:14}}>
+        <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(280px,1fr))',gap:14}}>
           {[
             {tier:'For Drivers',name:'Basic',price:'0',period:'Free forever',feats:['5 AI diagnoses per month','Basic price checker','1 vehicle tracked','English + French','Community mechanic reviews'],cta:'Get Started Free',featured:false},
             {tier:'For Drivers',name:'Pro',price:'9.99',period:'per month — cancel anytime',feats:['Unlimited AI diagnoses','Full price protection','Up to 5 vehicles','All 40+ languages','Mechanic trust scores','Smart maintenance alerts','Service history export','Priority support'],cta:'Join Waitlist',featured:true},
@@ -429,7 +429,7 @@ export default function LandingPage(){
       </div>
 
       {/* COMPARE */}
-      <div style={{padding:'100px 48px',background:'#080808'}}>
+      <div style={{padding:'clamp(40px,8vw,100px) clamp(16px,5vw,48px)',background:'#080808'}}>
         <div style={{fontSize:'.7rem',letterSpacing:3,textTransform:'uppercase',color:R,fontWeight:600,marginBottom:14,textAlign:'center'}}>One Platform vs Many</div>
         <div style={{fontFamily:"'Bebas Neue'",fontSize:'clamp(2.4rem,5vw,4rem)',letterSpacing:2,marginBottom:48,textAlign:'center'}}>MECHA DOES IT<br/><span style={{color:'transparent',WebkitTextStroke:'1px rgba(255,255,255,0.2)'}}>ALL IN ONE.</span></div>
         <div style={{overflowX:'auto'}}>
@@ -468,11 +468,11 @@ export default function LandingPage(){
       </div>
 
       {/* FAQ */}
-      <div id='faq' style={{background:'#111',padding:'100px 48px',position:'relative'}}>
+      <div id='faq' style={{background:'#111',padding:'clamp(40px,8vw,100px) clamp(16px,5vw,48px)',position:'relative'}}>
         <div style={{position:'absolute',top:0,left:0,right:0,height:1,background:'linear-gradient(90deg,transparent,rgba(232,35,42,0.5),transparent)'}}/>
         <div style={{fontSize:'.7rem',letterSpacing:3,textTransform:'uppercase',color:R,fontWeight:600,marginBottom:14,textAlign:'center'}}>FAQ</div>
         <div style={{fontFamily:"'Bebas Neue'",fontSize:'clamp(2.4rem,5vw,4rem)',letterSpacing:2,marginBottom:48,textAlign:'center'}}>GOT QUESTIONS?<br/><span style={{color:'transparent',WebkitTextStroke:'1px rgba(255,255,255,0.2)'}}>WE GOT ANSWERS.</span></div>
-        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:14}}>
+        <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(260px,1fr))',gap:14}}>
           {[
             ['Do I need to know anything about cars?','Not at all. MECHA was designed for people who know nothing about cars. Everything is explained in plain, simple language.'],
             ['How does the AI diagnosis work?','You describe your problem or upload a photo. MECHA analyzes your car model, year, and symptoms to give you an accurate diagnosis in seconds.'],
@@ -494,7 +494,7 @@ export default function LandingPage(){
       </div>
 
       {/* WAITLIST */}
-      <div id='towing' style={{padding:'120px 48px',textAlign:'center',position:'relative',background:'#080808'}}>
+      <div id='towing' style={{padding:'clamp(50px,10vw,120px) clamp(16px,5vw,48px)',textAlign:'center',position:'relative',background:'#080808'}}>
         <div style={{position:'absolute',inset:0,background:'radial-gradient(ellipse 60% 80% at 50% 50%,rgba(232,35,42,0.08),transparent 70%)'}}/>
         <div style={{position:'relative',zIndex:1}}>
           <div style={{fontFamily:"'Bebas Neue'",fontSize:'clamp(3rem,8vw,7rem)',letterSpacing:4,lineHeight:1,marginBottom:18}}>JOIN THE<br/><span style={{color:R}}>WAITLIST.</span></div>
@@ -517,8 +517,8 @@ export default function LandingPage(){
       </div>
 
       {/* FOOTER */}
-      <footer style={{padding:48,borderTop:'1px solid rgba(255,255,255,0.06)'}}>
-        <div style={{display:'grid',gridTemplateColumns:'2fr 1fr 1fr 1fr',gap:40,marginBottom:44}}>
+      <footer style={{padding:'clamp(24px,5vw,48px)',borderTop:'1px solid rgba(255,255,255,0.06)'}}>
+        <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(140px,1fr))',gap:32,marginBottom:44}}>
           <div>
             <div onClick={()=>navigate('/')} style={{fontFamily:"'Bebas Neue'",fontSize:'2rem',letterSpacing:6,marginBottom:14,cursor:'pointer'}}>MECH<span style={{color:R}}>A</span></div>
             <p style={{fontSize:'.8rem',color:'#888',lineHeight:1.7,maxWidth:250}}>The worlds first automotive super-platform — AI diagnosis, price protection, dealership marketplace, mechanic finder, parts shopping, and on-demand towing. Built for every driver on earth in 40+ languages.</p>
