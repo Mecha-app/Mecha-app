@@ -80,7 +80,7 @@ export default function LandingPage(){
       </nav>
 
       {/* HERO */}
-      <div style={{minHeight:'100vh',display:'flex',flexDirection:'column',justifyContent:'center',position:'relative',padding:'clamp(80px,12vw,120px) clamp(16px,5vw,48px) clamp(40px,8vw,100px)',backgroundImage:"url('https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?w=1800&q=80')",backgroundSize:'cover',backgroundPosition:'center'}}>
+      <div style={{minHeight:'100svh',display:'flex',flexDirection:'column',justifyContent:'center',position:'relative',padding:'clamp(80px,12vw,120px) clamp(16px,5vw,48px) clamp(40px,8vw,100px)',backgroundImage:"url('https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?w=1800&q=80')",backgroundSize:'cover',backgroundPosition:'center'}}>
         <div style={{position:'absolute',inset:0,backgroundImage:'linear-gradient(rgba(255,255,255,0.02) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.02) 1px,transparent 1px)',backgroundSize:'60px 60px',maskImage:'radial-gradient(ellipse 80% 80% at 50% 50%,black,transparent)'}}/>
         <div style={{position:'absolute',inset:0,background:'linear-gradient(to right,rgba(8,8,8,0.85) 55%,rgba(8,8,8,0.3))',zIndex:1}}/><div style={{position:'relative',zIndex:2,maxWidth:860}}>
           <div style={{display:'inline-flex',alignItems:'center',gap:8,background:'rgba(232,35,42,0.12)',border:'1px solid rgba(232,35,42,0.3)',padding:'6px 16px',borderRadius:100,marginBottom:28,fontSize:'.72rem',fontWeight:600,letterSpacing:2,textTransform:'uppercase',color:R,animation:'fadeUp .8s ease both'}}>
@@ -203,7 +203,7 @@ export default function LandingPage(){
           </div>
           <div style={{display:'flex',flexDirection:'column',gap:14}}>
             {[['🔧','Find Honest Mechanics','3:02','#1a0a0a'],['🌍','Any Language','1:48','#0a0f1a'],['📊','Track Car Health','2:30','#0a1a0a']].map(([icon,label,dur,bg])=>(
-              <div key={label} style={{flex:1,background:bg,borderRadius:4,minHeight:140,display:'flex',alignItems:'center',justifyContent:'center',position:'relative',flexDirection:'column',gap:6}}>
+              <div key={label} style={{flex:1,background:bg,borderRadius:4,minHeight:100,display:'flex',alignItems:'center',justifyContent:'center',position:'relative',flexDirection:'column',gap:6}}>
                 <div style={{fontSize:'2rem'}}>{icon}</div>
                 <div style={{fontFamily:"'Barlow Condensed'",fontSize:'.82rem',fontWeight:600,textTransform:'uppercase',letterSpacing:1}}>{label}</div>
                 <div style={{position:'absolute',top:10,right:10,background:'rgba(255,255,255,0.08)',borderRadius:2,padding:'2px 7px',fontSize:'.62rem',letterSpacing:1,textTransform:'uppercase',color:'#888'}}>{dur}</div>
@@ -219,9 +219,9 @@ export default function LandingPage(){
         <div style={{fontFamily:"'Bebas Neue'",fontSize:'clamp(2.4rem,5vw,4rem)',letterSpacing:2,marginBottom:48,textAlign:'center'}}>EVERYTHING YOUR<br/><span style={{color:'transparent',WebkitTextStroke:'1px rgba(255,255,255,0.2)'}}>CAR NEEDS.</span></div>
         <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(160px,1fr))',gap:1,background:'rgba(255,255,255,0.05)',borderRadius:4,overflow:'hidden'}}>
           {[['01','🧠','AI Diagnosis','Describe your problem or snap a photo. Get instant plain-language diagnosis. No jargon. No confusion.'],['02','��️','Price Protection','Know the fair market price before any shop visit. Never overpay again. Real-time data from thousands of repairs.'],['03','📋','Car Health Vault','Your complete car history in one place. Oil changes, tires, inspections — all tracked with smart reminders.'],['04','⭐','Mechanic Trust Score','Find verified honest shops near you. Real ratings from real drivers in your language. Book directly.'],['05','🌐','40+ Languages','Spanish, French, Arabic, Mandarin, Portuguese, Creole and more. Built for every driver on earth.'],['06','📱','Mobile + Web','Full iOS and Android app plus a powerful web dashboard. Your car data goes everywhere you go.'],['07','🔔','Smart Alerts','Never miss an oil change, registration renewal, or tire rotation again. MECHA reminds you before it costs you.'],['08','🚗','Multi-Vehicle','Manage your whole family cars in one account. Every vehicle tracked, every reminder set, every repair logged.']].map(([num,icon,title,desc])=>(
-            <div key={num} className="feature-card-wrap" style={{background:'#111',padding:'32px 24px',position:'relative',overflow:'hidden',transition:'background .3s'}}>
+            <div key={num} className="feature-card-wrap" style={{background:'#111',padding:'20px 16px',position:'relative',overflow:'hidden',transition:'background .3s'}}>
               <div className="feature-line" style={{position:'absolute',top:0,left:0,right:0,height:2}}/>
-              <div style={{fontFamily:"'Bebas Neue'",fontSize:'3.5rem',color:'rgba(255,255,255,0.05)',lineHeight:1,marginBottom:10}}>{num}</div>
+              <div style={{fontFamily:"'Bebas Neue'",fontSize:'3.5rem',color:'rgba(255,255,255,0.15)',lineHeight:1,marginBottom:10}}>{num}</div>
               <div style={{fontSize:'1.6rem',marginBottom:14}}>{icon}</div>
               <div style={{fontFamily:"'Barlow Condensed'",fontSize:'1rem',fontWeight:700,letterSpacing:1,textTransform:'uppercase',marginBottom:8}}>{title}</div>
               <div style={{fontSize:'.8rem',color:'#888',lineHeight:1.7}}>{desc}</div>
@@ -251,7 +251,7 @@ export default function LandingPage(){
             <p style={{fontSize:'.95rem',color:'#888',lineHeight:1.8}}>Every other car app was built for English-speaking Americans only. <strong style={{color:'#fff'}}>MECHA was built for every driver on earth.</strong> Whether you speak Spanish, Arabic, Creole, or Mandarin — MECHA speaks your language perfectly.</p>
           </div>
           <div style={{textAlign:'right'}}>
-            <div style={{fontFamily:"'Bebas Neue'",fontSize:'clamp(4rem,10vw,8rem)',lineHeight:1,color:R}}>40+</div>
+            <div style={{fontFamily:"'Bebas Neue'",fontSize:'clamp(3rem,8vw,6rem)',lineHeight:1,color:R}}>40+</div>
             <div style={{fontSize:'.95rem',color:'#888',marginTop:8}}>Languages at launch</div>
           </div>
         </div>
@@ -294,7 +294,7 @@ export default function LandingPage(){
             <div style={{fontSize:'.85rem',color:'rgba(255,255,255,0.7)',lineHeight:1.6}}>A real driver snaps a photo. MECHA identifies the issue, gives the fair price, finds honest mechanics nearby.</div>
           </div>
         </div>
-        <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:12,marginBottom:12}}>
+        <div style={{display:'grid',gridTemplateColumns:'repeat(2,1fr)',gap:8,marginBottom:8}}>
           {[
             ['https://images.unsplash.com/photo-1632823471565-1ecdf5c6da36?w=600&q=80','Check Engine Light'],
             ['https://images.unsplash.com/photo-1601362840469-51e4d8d58785?w=600&q=80','Under the Hood'],
@@ -310,7 +310,7 @@ export default function LandingPage(){
             </div>
           ))}
         </div>
-        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12}}>
+        <div style={{display:'grid',gridTemplateColumns:'1fr',gap:8}}>
           {[
             ['https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=800&q=80','Any Vehicle','Works on Every Make & Model'],
             ['https://images.unsplash.com/photo-1609521263047-f8f205293f24?w=800&q=80','6 Retailers','Buy Parts at the Best Price'],
@@ -341,11 +341,11 @@ export default function LandingPage(){
             ['Priya S.','Houston, TX · Hyundai Tucson','👩','Finally an app that does not treat me like I know nothing about cars. Perfect balance. My whole family uses it now.'],
             ['Jean-Pierre M.','Montreal, QC · Subaru Outback','👨','J utilisais MECHA en français. Incroyable d avoir un outil comme ça dans ma langue natale. Enfin quelque chose fait vraiment pour nous!'],
           ].map(([name,info,av,quote])=>(
-            <div key={name} className="card-hover" style={{background:'#080808',border:'1px solid rgba(255,255,255,0.06)',borderRadius:4,padding:'28px 24px',transition:'all .3s'}}>
-              <div style={{color:R,fontSize:'.95rem',letterSpacing:3,marginBottom:14}}>★★★★★</div>
-              <div style={{fontSize:'.9rem',color:'#ddd',lineHeight:1.8,marginBottom:18,fontStyle:'italic'}}>"{quote}"</div>
+            <div key={name} className="card-hover" style={{background:'#111',border:'1px solid rgba(255,255,255,0.08)',borderRadius:8,padding:'24px 20px',transition:'all .3s',textAlign:'center'}}>
+              <div style={{color:R,fontSize:'1.1rem',letterSpacing:4,marginBottom:12,textAlign:'center'}}>★★★★★</div>
+              <div style={{fontSize:'.9rem',color:'#ddd',lineHeight:1.8,marginBottom:16,fontStyle:'italic',textAlign:'center'}}>"{quote}"</div>
               <div style={{height:1,background:'rgba(255,255,255,0.06)',marginBottom:18}}/>
-              <div style={{display:'flex',alignItems:'center',gap:12}}>
+              <div style={{display:'flex',alignItems:'center',gap:12,justifyContent:'center'}}>
                 <div style={{width:38,height:38,borderRadius:'50%',background:'#1a1a1a',border:'2px solid rgba(232,35,42,0.3)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'1rem'}}>{av}</div>
                 <div>
                   <div style={{fontWeight:700,fontSize:'.85rem',marginBottom:2}}>{name}</div>
@@ -379,7 +379,7 @@ export default function LandingPage(){
               <div style={{fontFamily:"'Bebas Neue'",fontSize:'1rem',letterSpacing:3}}>Mikes Auto · Dashboard</div>
               <div style={{background:'rgba(34,197,94,0.15)',border:'1px solid rgba(34,197,94,0.3)',color:'#22c55e',fontSize:'.62rem',fontWeight:700,letterSpacing:1.5,padding:'3px 10px',borderRadius:100,textTransform:'uppercase'}}>✓ Verified Shop</div>
             </div>
-            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:8,marginBottom:14}}>
+            <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:8,marginBottom:14}}>
               {[['4.9','#22c55e','Trust Score'],['127','#fff','This Month'],['+34%','#22c55e','Revenue']].map(([v,c,l])=>(
                 <div key={l} style={{background:'#080808',borderRadius:8,padding:11,border:'1px solid rgba(255,255,255,0.04)'}}>
                   <div style={{fontFamily:"'Bebas Neue'",fontSize:'1.7rem',lineHeight:1,marginBottom:2,color:c}}>{v}</div>
@@ -411,7 +411,7 @@ export default function LandingPage(){
             {tier:'For Drivers',name:'Pro',price:'9.99',period:'per month — cancel anytime',feats:['Unlimited AI diagnoses','Full price protection','Up to 5 vehicles','All 40+ languages','Mechanic trust scores','Smart maintenance alerts','Service history export','Priority support'],cta:'Join Waitlist',featured:true},
             {tier:'For Shops',name:'Business',price:'149',period:'per month per location',feats:['Verified Honest Shop badge','Multilingual customer chat','Digital inspection reports','Direct appointment booking','Featured in search results','Analytics dashboard','Unlimited staff accounts','Dedicated account manager'],cta:'List Your Shop',featured:false},
           ].map(({tier,name,price,period,feats,cta,featured})=>(
-            <div key={name} style={{background:featured?'linear-gradient(135deg,rgba(232,35,42,0.06),#080808)':'#080808',border:featured?`1px solid ${R}`:`1px solid rgba(255,255,255,0.06)`,borderRadius:4,padding:'36px 28px',position:'relative',overflow:'hidden',transition:'all .3s'}}>
+            <div key={name} style={{background:featured?'linear-gradient(135deg,rgba(232,35,42,0.08),#0a0a0a)':'#111',border:featured?`2px solid ${R}`:`1px solid rgba(255,255,255,0.08)`,borderRadius:8,padding:'28px 20px',position:'relative',overflow:'hidden',transition:'all .3s'}}>
               {featured&&<div style={{position:'absolute',top:0,right:28,background:R,fontSize:'.62rem',fontWeight:700,letterSpacing:2,textTransform:'uppercase',padding:'5px 12px',borderRadius:'0 0 6px 6px'}}>Most Popular</div>}
               <div style={{fontSize:'.68rem',letterSpacing:3,textTransform:'uppercase',color:'#888',marginBottom:7}}>{tier}</div>
               <div style={{fontFamily:"'Bebas Neue'",fontSize:'1.5rem',letterSpacing:2,marginBottom:22}}>{name}</div>
