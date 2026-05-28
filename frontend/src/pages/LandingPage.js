@@ -246,9 +246,9 @@ export default function LandingPage(){
       <div style={{padding:'clamp(40px,8vw,100px) clamp(16px,5vw,48px)',background:'#080808',overflow:'hidden'}}>
         <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(240px,1fr))',gap:32,alignItems:'center',marginBottom:52}}>
           <div>
-            <div style={{fontSize:'.7rem',letterSpacing:3,textTransform:'uppercase',color:R,fontWeight:600,marginBottom:14}}>Global By Design</div>
+            <div style={{fontSize:'.7rem',letterSpacing:3,textTransform:'uppercase',color:R,fontWeight:600,marginBottom:14,textAlign:'center'}}>Global By Design</div>
             <div style={{fontFamily:"'Bebas Neue'",fontSize:'clamp(2.4rem,5vw,4rem)',letterSpacing:2,marginBottom:20}}>BUILT FOR THE<br/><span style={{color:'rgba(255,255,255,0.25)'}}>WHOLE WORLD.</span></div>
-            <p style={{fontSize:'.95rem',color:'#888',lineHeight:1.8}}>Every other car app was built for English-speaking Americans only. <strong style={{color:'#fff'}}>MECHA was built for every driver on earth.</strong> Whether you speak Spanish, Arabic, Creole, or Mandarin — MECHA speaks your language perfectly.</p>
+            <p style={{fontSize:'.95rem',color:'#888',lineHeight:1.8,textAlign:'center'}}>Every other car app was built for English-speaking Americans only. <strong style={{color:'#fff'}}>MECHA was built for every driver on earth.</strong> Whether you speak Spanish, Arabic, Creole, or Mandarin — MECHA speaks your language perfectly.</p>
           </div>
           <div style={{textAlign:'center'}}>
             <div style={{fontFamily:"'Bebas Neue'",fontSize:'clamp(3rem,8vw,6rem)',lineHeight:1,color:R}}>40+</div>
