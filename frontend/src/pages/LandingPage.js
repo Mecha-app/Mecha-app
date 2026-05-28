@@ -166,7 +166,7 @@ export default function LandingPage(){
       <div style={{background:'#111',padding:'clamp(40px,8vw,100px) clamp(16px,5vw,48px)',position:'relative'}}>
         <div style={{position:'absolute',top:0,left:0,right:0,height:1,background:'linear-gradient(90deg,transparent,rgba(232,35,42,0.5),transparent)'}}/>
         <div style={{fontSize:'.7rem',letterSpacing:3,textTransform:'uppercase',color:R,fontWeight:600,marginBottom:14,textAlign:'center'}}>See It In Action</div>
-        <div style={{fontFamily:"'Bebas Neue'",fontSize:'clamp(2.4rem,5vw,4rem)',letterSpacing:2,marginBottom:48}}>REAL PROBLEMS.<br/><span style={{color:'rgba(255,255,255,0.25)'}}>INSTANT ANSWERS.</span></div>
+        <div style={{fontFamily:"'Bebas Neue'",fontSize:'clamp(2.4rem,5vw,4rem)',letterSpacing:2,marginBottom:32,textAlign:"center"}}>REAL PROBLEMS.<br/><span style={{color:'rgba(255,255,255,0.25)'}}>INSTANT ANSWERS.</span></div>
         <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(280px,1fr))',gap:16}}>
           <div style={{borderRadius:4,overflow:'hidden'}}>
             <div style={{aspectRatio:'16/9',background:'#1a1a1a',display:'flex',alignItems:'center',justifyContent:'center'}}>
