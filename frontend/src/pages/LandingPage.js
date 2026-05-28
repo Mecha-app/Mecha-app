@@ -83,7 +83,20 @@ export default function LandingPage(){
           <div style={{width:24,height:2,background:'#fff',borderRadius:2}}/>
           <div style={{width:24,height:2,background:'#fff',borderRadius:2}}/>
         </div>
+        <button onClick={()=>setMenuOpen(prev=>!prev)} style={{background:'transparent',border:'none',cursor:'pointer',padding:'8px',zIndex:200,display:'none'}} className='show-mobile'>
+          <div style={{width:25,height:3,background:'#fff',borderRadius:2,marginBottom:5}}/>
+          <div style={{width:25,height:3,background:'#fff',borderRadius:2,marginBottom:5}}/>
+          <div style={{width:25,height:3,background:'#fff',borderRadius:2}}/>
+        </button>
       </nav>
+      {menuOpen&&<div style={{position:'fixed',top:0,left:0,right:0,bottom:0,background:'#080808',zIndex:999,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:32}}>
+        <button onClick={()=>setMenuOpen(false)} style={{position:'absolute',top:20,right:20,background:'transparent',border:'none',color:'#fff',fontSize:36,cursor:'pointer'}}>✕</button>
+        <div style={{fontFamily:"'Bebas Neue'",fontSize:'2.5rem',letterSpacing:6,marginBottom:10}}>MECH<span style={{color:R}}>A</span></div>
+        {[['Features','features'],['Pricing','pricing'],['FAQ','faq'],['Towing','/towing/register']].map(([l,id])=>(
+          <div key={l} onClick={()=>{setMenuOpen(false);id.startsWith('/')?navigate(id):document.getElementById(id)?.scrollIntoView({behavior:'smooth'});}} style={{fontFamily:"'Bebas Neue'",fontSize:'2rem',letterSpacing:4,color:'#fff',cursor:'pointer',padding:'8px 0'}}>{l}</div>
+        ))}
+        <button onClick={()=>{setMenuOpen(false);navigate('/register');}} style={{background:R,color:'#fff',padding:'14px 40px',border:'none',borderRadius:4,fontFamily:"'Barlow Condensed'",fontSize:'1rem',fontWeight:700,letterSpacing:2,textTransform:'uppercase',cursor:'pointer',marginTop:16}}>Get Early Access</button>
+      </div>}
 
       {/* HERO */}
       <div style={{minHeight:'100svh',display:'flex',flexDirection:'column',justifyContent:'center',position:'relative',padding:'clamp(80px,12vw,120px) clamp(16px,5vw,48px) clamp(40px,8vw,100px)',backgroundImage:"url('https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?w=1800&q=80')",backgroundSize:'cover',backgroundPosition:'center'}}>
