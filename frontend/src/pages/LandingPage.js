@@ -411,7 +411,7 @@ export default function LandingPage(){
             {tier:'For Drivers',name:'Pro',price:'9.99',period:'per month — cancel anytime',feats:['Unlimited AI diagnoses','Full price protection','Up to 5 vehicles','All 40+ languages','Mechanic trust scores','Smart maintenance alerts','Service history export','Priority support'],cta:'Join Waitlist',featured:true},
             {tier:'For Shops',name:'Business',price:'149',period:'per month per location',feats:['Verified Honest Shop badge','Multilingual customer chat','Digital inspection reports','Direct appointment booking','Featured in search results','Analytics dashboard','Unlimited staff accounts','Dedicated account manager'],cta:'List Your Shop',featured:false},
           ].map(({tier,name,price,period,feats,cta,featured})=>(
-            <div key={name} style={{background:featured?'linear-gradient(135deg,rgba(232,35,42,0.08),#0a0a0a)':'#111',border:featured?`2px solid ${R}`:`1px solid rgba(255,255,255,0.08)`,borderRadius:8,padding:'28px 20px',position:'relative',overflow:'hidden',transition:'all .3s'}}>
+            <div key={name} style={{background:featured?'linear-gradient(135deg,rgba(232,35,42,0.08),#0a0a0a)':'#111',border:featured?`2px solid ${R}`:`1px solid rgba(255,255,255,0.08)`,borderRadius:8,padding:'28px 20px',position:'relative',overflow:'hidden',transition:'all .3s',textAlign:'center'}}>
               {featured&&<div style={{position:'absolute',top:0,right:28,background:R,fontSize:'.62rem',fontWeight:700,letterSpacing:2,textTransform:'uppercase',padding:'5px 12px',borderRadius:'0 0 6px 6px'}}>Most Popular</div>}
               <div style={{fontSize:'.68rem',letterSpacing:3,textTransform:'uppercase',color:'#888',marginBottom:7}}>{tier}</div>
               <div style={{fontFamily:"'Bebas Neue'",fontSize:'1.5rem',letterSpacing:2,marginBottom:22}}>{name}</div>
@@ -419,7 +419,7 @@ export default function LandingPage(){
               <div style={{fontSize:'.78rem',color:'#888',marginTop:4,marginBottom:0}}>{period}</div>
               <div style={{height:1,background:'rgba(255,255,255,0.06)',margin:'16px 0'}}/>
               <ul style={{listStyle:'none',marginBottom:0}}>
-                {feats.map(f=><li key={f} style={{fontSize:'.82rem',color:'#ccc',padding:'6px 0',display:'flex',alignItems:'center',gap:9}}><span style={{color:R,fontSize:'.72rem'}}>→</span>{f}</li>)}
+                {feats.map(f=><li key={f} style={{fontSize:'.82rem',color:'#ccc',padding:'6px 0',display:'flex',alignItems:'center',gap:9,justifyContent:'center'}}><span style={{color:R,fontSize:'.72rem'}}>→</span>{f}</li>)}
               </ul>
               <a href="#waitlist" onClick={e=>{e.preventDefault();navigate('/register');}} style={{display:'block',textAlign:'center',marginTop:28,padding:13,border:featured?'none':'1px solid rgba(255,255,255,0.12)',borderRadius:2,fontFamily:"'Barlow Condensed'",fontSize:'.82rem',fontWeight:700,letterSpacing:2,textTransform:'uppercase',color:'#fff',textDecoration:'none',background:featured?R:'transparent'}}>{cta}</a>
             </div>
