@@ -39,6 +39,7 @@ body { overflow-x: hidden !important; }
   
   /* Hide nav links - show only logo + CTA */
   .hide-mobile { display: none !important; }
+  .show-mobile { display: flex !important; }
   
   /* Fix nav wrapping */
   nav { flex-wrap: nowrap !important; }
