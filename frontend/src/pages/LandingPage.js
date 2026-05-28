@@ -415,7 +415,7 @@ export default function LandingPage(){
               {featured&&<div style={{position:'absolute',top:0,right:28,background:R,fontSize:'.62rem',fontWeight:700,letterSpacing:2,textTransform:'uppercase',padding:'5px 12px',borderRadius:'0 0 6px 6px'}}>Most Popular</div>}
               <div style={{fontSize:'.68rem',letterSpacing:3,textTransform:'uppercase',color:'#888',marginBottom:7}}>{tier}</div>
               <div style={{fontFamily:"'Bebas Neue'",fontSize:'1.5rem',letterSpacing:2,marginBottom:22}}>{name}</div>
-              <div style={{fontFamily:"'Bebas Neue'",fontSize:'3rem',letterSpacing:2,lineHeight:1}}><span style={{fontSize:'1.1rem',color:'#888',verticalAlign:'super'}}>$</span>{price}</div>
+              <div style={{fontFamily:"'Bebas Neue'",fontSize:'2.5rem',letterSpacing:2,lineHeight:1.1}}><span style={{fontSize:'1.1rem',color:'#888',verticalAlign:'super'}}>$</span>{price}</div>
               <div style={{fontSize:'.78rem',color:'#888',marginTop:4,marginBottom:0}}>{period}</div>
               <div style={{height:1,background:'rgba(255,255,255,0.06)',margin:'16px 0'}}/>
               <ul style={{listStyle:'none',marginBottom:0}}>
