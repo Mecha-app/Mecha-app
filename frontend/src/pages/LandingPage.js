@@ -78,7 +78,7 @@ export default function LandingPage(){
           {[['Features','features'],['Pricing','pricing'],['FAQ','faq'],['Towing','/towing/register']].map(([l,id])=><span key={l} className="nav-link" onClick={()=>id.startsWith('/')?navigate(id):document.getElementById(id)?.scrollIntoView({behavior:'smooth'})} style={{color:'#888',fontSize:'.78rem',fontWeight:600,letterSpacing:2,textTransform:'uppercase',cursor:'pointer'}}>{l}</span>)}
           <button onClick={()=>navigate('/register')} style={{background:R,color:'#fff',padding:'10px 22px',border:'none',borderRadius:2,fontFamily:"'Barlow Condensed'",fontSize:'.82rem',fontWeight:700,letterSpacing:2,textTransform:'uppercase',cursor:'pointer'}}>Get Early Access</button>
         </div>
-        <div className='show-mobile' onClick={()=>setMenuOpen(!menuOpen)} style={{display:'none',flexDirection:'column',gap:5,cursor:'pointer',padding:8,zIndex:101,position:'relative'}}>
+        <div className='show-mobile' onClick={()=>setMenuOpen(!menuOpen)} style={{flexDirection:'column',gap:5,cursor:'pointer',padding:8,zIndex:101,position:'relative'}}>
           <div style={{width:24,height:2,background:'#fff',borderRadius:2}}/>
           <div style={{width:24,height:2,background:'#fff',borderRadius:2}}/>
           <div style={{width:24,height:2,background:'#fff',borderRadius:2}}/>
