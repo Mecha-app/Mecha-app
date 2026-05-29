@@ -14,21 +14,16 @@ export default function DiagnosePage(){
   const[plan,setPlan]=useState('free');
 
   useEffect(()=>{
-    const checkLimit=async()=>{
-      try{
-        const token=localStorage.getItem('mechaToken');
-        if(!token)return;
-        const res=await fetch(process.env.REACT_APP_API_URL+'/api/diagnoses/check-limit',{
-          method:'POST',headers:{Authorization:'Bearer '+token}
-        });
-        const data=await res.json();
-        if(!data.canDiagnose)setLimitReached(true);
-        setDiagCount(data.count);
-        setDiagLimit(data.limit);
-        setPlan(data.plan);
-      }catch(e){}
-    };
-    checkLimit();
+    const count=parseInt(localStorage.getItem('mechaCount')||'0');
+    const month=localStorage.getItem('mechaCountMonth');
+    const nowMonth=String(new Date().getMonth());
+    if(month!==nowMonth){
+      localStorage.setItem('mechaCount','0');
+      localStorage.setItem('mechaCountMonth',nowMonth);
+    } else if(count>=5){
+      setLimitReached(true);
+    }
+    setDiagCount(count);
   },[]);
   const fileRef=useRef();
   const[imgB64,setImgB64]=useState(null);
