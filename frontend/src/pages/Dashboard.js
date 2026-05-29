@@ -14,7 +14,7 @@ export default function Dashboard(){
       try{
         const token=localStorage.getItem('mechaToken');
         if(!token)return;
-        const res=await fetch(process.env.REACT_APP_API_URL+'/api/diagnoses/check-limit',{method:'POST',headers:{Authorization:'Bearer '+token}});
+        const res=await fetch((process.env.REACT_APP_API_URL||'https://mecha-backend.onrender.com')+'/api/diagnoses/check-limit',{method:'POST',headers:{Authorization:'Bearer '+token}});
         const data=await res.json();
         setDiagCount(data.count||0);
         setDiagLimit(data.limit||5);
