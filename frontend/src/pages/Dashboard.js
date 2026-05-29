@@ -7,6 +7,21 @@ const MAKES=['Toyota','Honda','Ford','Chevrolet','BMW','Mercedes-Benz','Nissan',
 const YEARS=Array.from({length:30},(_,i)=>String(2025-i));
 export default function Dashboard(){
   const{user,logout}=useAuth();
+  const[diagCount,setDiagCount]=useState(0);
+  const[diagLimit,setDiagLimit]=useState(5);
+  React.useEffect(()=>{
+    const check=async()=>{
+      try{
+        const token=localStorage.getItem('mechaToken');
+        if(!token)return;
+        const res=await fetch(process.env.REACT_APP_API_URL+'/api/diagnoses/check-limit',{method:'POST',headers:{Authorization:'Bearer '+token}});
+        const data=await res.json();
+        setDiagCount(data.count||0);
+        setDiagLimit(data.limit||5);
+      }catch(e){}
+    };
+    check();
+  },[]);
   const navigate=useNavigate();
   const[vehicles,setVehicles]=useState([]);
   const[selVeh,setSelVeh]=useState(null);
@@ -37,7 +52,10 @@ export default function Dashboard(){
         {vehicles.map(v=>(<Card key={v._id} onClick={()=>selectVeh(v)} style={{marginBottom:10,cursor:'pointer',border:selVeh?._id===v._id?`1px solid ${R}`:'1px solid #1e1e1e'}}><div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}><div><div style={{fontFamily:"'Bebas Neue'",fontSize:18,letterSpacing:2}}>{v.nickname||`${v.year} ${v.make} ${v.model}`}</div>{v.mileage&&<div style={{fontSize:11,color:'#555'}}>{Number(v.mileage).toLocaleString()} mi</div>}</div><div style={{display:'flex',alignItems:'center',gap:10}}>{selVeh?._id===v._id&&<div style={{background:R,borderRadius:100,padding:'3px 12px',fontSize:9,letterSpacing:2,textTransform:'uppercase',fontWeight:700}}>Selected</div>}<span onClick={e=>handleDelete(v._id,e)} style={{fontSize:16,cursor:'pointer',color:'#444',padding:4}}>��</span></div></div></Card>))}
         {adding&&(<Card style={{marginBottom:14}}><Label>Add Vehicle</Label><div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,marginBottom:10}}><Select value={form.year} onChange={set('year')}><option value="">Year</option>{YEARS.map(y=><option key={y}>{y}</option>)}</Select><Select value={form.make} onChange={set('make')}><option value="">Make</option>{MAKES.map(m=><option key={m}>{m}</option>)}</Select></div><Input placeholder="Model (e.g. Camry)" value={form.model} onChange={set('model')} style={{marginBottom:10}}/><div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,marginBottom:14}}><Input placeholder="Mileage" value={form.mileage} onChange={set('mileage')}/><Input placeholder="Nickname" value={form.nickname} onChange={set('nickname')}/></div><div style={{display:'flex',gap:10}}><Btn onClick={handleAdd} style={{flex:1}}>Save Vehicle</Btn><Btn onClick={()=>setAdding(false)} variant="ghost" style={{flex:1}}>Cancel</Btn></div></Card>)}
         {!adding&&<div onClick={()=>setAdding(true)} style={{textAlign:'center',fontSize:12,color:R,cursor:'pointer',letterSpacing:1.5,textTransform:'uppercase',padding:'10px 0'}}>+ Add Vehicle</div>}
-        {selVeh&&!adding&&<><div style={{gridColumn:'span 2',display:'flex',flexDirection:'column',gap:10}}><Btn onClick={()=>window.location.href='/#pricing'} style={{fontSize:11,letterSpacing:1.5,background:'linear-gradient(135deg,#E8232A,#ff6b35)',border:'none'}}>⭐ Upgrade to Pro — $9.99/mo</Btn><Btn onClick={()=>navigate('/diagnose')}>Diagnose {selVeh.nickname||selVeh.model}</Btn></div></> }
+        {selVeh&&!adding&&<><div style={{gridColumn:'span 2',display:'flex',flexDirection:'column',gap:10}}><div style={{background:'rgba(232,35,42,0.1)',border:'1px solid rgba(232,35,42,0.3)',borderRadius:6,padding:'10px 14px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+        <div style={{fontSize:12,color:'#fff'}}>⚡ <strong>{Math.max(0,diagLimit-diagCount)}</strong> diagnoses left this month</div>
+        <div onClick={()=>window.location.href='/#pricing'} style={{background:'#E8232A',color:'#fff',padding:'6px 12px',borderRadius:3,fontSize:10,fontWeight:700,letterSpacing:1.5,textTransform:'uppercase',cursor:'pointer'}}>Upgrade</div>
+      </div><Btn onClick={()=>navigate('/diagnose')}>Diagnose {selVeh.nickname||selVeh.model}</Btn></div></> }
         <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,marginTop:20}}>
           <Btn onClick={()=>navigate('/sell')} style={{fontSize:11,letterSpacing:1.5,gridColumn:'span 2',background:'#22c55e'}}>�� Marketplace — Buy & Sell Cars</Btn>
           <Btn onClick={()=>navigate('/shops')} variant="ghost" style={{fontSize:11,letterSpacing:1.5}}>Find Mechanics</Btn>
