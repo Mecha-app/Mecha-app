@@ -1,4 +1,5 @@
 import{useState}from'react';
+import{LANGUAGES,getLang,setLang}from'../utils/languages';
 import{useNavigate,Link}from'react-router-dom';
 import{useAuth}from'../context/AuthContext';
 import{registerDriver,loginDriver,googleVerify}from'../utils/api';
@@ -8,6 +9,8 @@ export default function DriverAuth({mode:init}){
   const[mode,setMode]=useState(init||'login');
   const[form,setForm]=useState({name:'',email:'',password:''});
   const[error,setError]=useState('');
+  const[lang,setLangState]=useState(getLang());
+  const[showLang,setShowLang]=useState(false);
   const[loading,setLoading]=useState(false);
   const{login}=useAuth();const navigate=useNavigate();
   const set=f=>e=>setForm(p=>({...p,[f]:e.target.value}));

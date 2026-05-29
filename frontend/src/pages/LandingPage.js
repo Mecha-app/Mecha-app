@@ -17,6 +17,8 @@ export default function LandingPage(){
     }catch(e){alert('Please sign in first.');}
   };
   const[menuOpen,setMenuOpen]=useState(false);
+  const[lang,setLangState]=useState(getLang());
+  const[showLang,setShowLang]=useState(false);
   const[aiText,setAiText]=useState('');
   const aiRef=useRef(0);
   const R='#E8232A';
@@ -86,6 +88,20 @@ export default function LandingPage(){
           {[['Features','features'],['Pricing','pricing'],['FAQ','faq'],['Towing','/towing/register']].map(([l,id])=>(
             <span key={l} className='nav-link' onClick={()=>id.startsWith('/')?navigate(id):document.getElementById(id)?.scrollIntoView({behavior:'smooth'})} style={{color:'#888',fontSize:'.75rem',fontWeight:600,letterSpacing:2,textTransform:'uppercase',cursor:'pointer'}}>{l}</span>
           ))}
+          <div style={{position:'relative'}}>
+            <div onClick={()=>setShowLang(!showLang)} style={{display:'flex',alignItems:'center',gap:6,cursor:'pointer',padding:'8px 12px',border:'1px solid #1e1e1e',borderRadius:4,background:'#111'}}>
+              <span style={{fontSize:16}}>{LANGUAGES.find(l=>l.code===lang)?.flag}</span>
+              <span style={{fontSize:11,color:'#888'}}>{lang.toUpperCase()}</span>
+            </div>
+            {showLang&&<div style={{position:'absolute',top:'100%',right:0,background:'#111',border:'1px solid #1e1e1e',borderRadius:8,maxHeight:240,overflowY:'auto',zIndex:200,marginTop:4,minWidth:200}}>
+              {LANGUAGES.map(l=>(
+                <div key={l.code} onClick={()=>{setLang(l.code);setLangState(l.code);setShowLang(false);}} style={{display:'flex',alignItems:'center',gap:10,padding:'10px 14px',cursor:'pointer',background:lang===l.code?'rgba(232,35,42,0.1)':'transparent',borderBottom:'1px solid #0a0a0a'}}>
+                  <span style={{fontSize:16}}>{l.flag}</span>
+                  <span style={{fontSize:12,color:lang===l.code?'#E8232A':'#ccc'}}>{l.name}</span>
+                </div>
+              ))}
+            </div>}
+          </div>
           <button onClick={()=>navigate('/register')} style={{background:R,color:'#fff',padding:'10px 20px',border:'none',borderRadius:2,fontFamily:"'Barlow Condensed'",fontSize:'.82rem',fontWeight:700,letterSpacing:2,textTransform:'uppercase',cursor:'pointer'}}>Get Early Access</button>
         </div>
         <button onClick={()=>setMenuOpen(prev=>!prev)} className='show-mobile' style={{background:'transparent',border:'none',cursor:'pointer',padding:'6px',display:'none',flexDirection:'column',gap:5}}>
