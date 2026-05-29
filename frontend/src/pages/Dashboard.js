@@ -1,7 +1,7 @@
 import{useState,useEffect}from'react';
 import{useNavigate}from'react-router-dom';
 import{useAuth}from'../context/AuthContext';
-import{getVehicles,addVehicle,deleteVehicle}from'../utils/api';
+import{getVehicles,addVehicle,deleteVehicle,createCheckout}from'../utils/api';
 import{Label,Input,Select,Btn,Card,TopBar,PAGE,R}from'../components/UI';
 const MAKES=['Toyota','Honda','Ford','Chevrolet','BMW','Mercedes-Benz','Nissan','Hyundai','Kia','Subaru','Mazda','Volkswagen','Audi','Lexus','Ram','GMC','Jeep','Dodge','Tesla','Volvo'];
 const YEARS=Array.from({length:30},(_,i)=>String(2025-i));
@@ -28,6 +28,14 @@ export default function Dashboard(){
     return()=>window.removeEventListener('storage',handleStorage);
   },[]);
   const navigate=useNavigate();
+  const handleUpgrade=async()=>{
+    try{
+      const{data}=await createCheckout('pro');
+      window.location.href=data.url;
+    }catch(e){
+      navigate('/register');
+    }
+  };
   const[vehicles,setVehicles]=useState([]);
   const[selVeh,setSelVeh]=useState(null);
   const[adding,setAdding]=useState(false);
@@ -60,7 +68,7 @@ export default function Dashboard(){
         {selVeh&&!adding&&<div style={{display:'flex',flexDirection:'column',gap:10,marginBottom:10}}>
           <div style={{background:'rgba(232,35,42,0.1)',border:'1px solid rgba(232,35,42,0.3)',borderRadius:6,padding:'10px 14px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
             <div style={{fontSize:12,color:'#fff'}}>⚡ <strong>{Math.max(0,diagLimit-diagCount)}</strong> diagnoses left this month</div>
-            <span style={{background:'#E8232A',color:'#fff',padding:'6px 14px',borderRadius:3,fontSize:10,fontWeight:700,letterSpacing:1.5,textTransform:'uppercase',cursor:'pointer'}} onClick={()=>navigate('/')}>UPGRADE</span>
+            <span style={{background:'#E8232A',color:'#fff',padding:'6px 14px',borderRadius:3,fontSize:10,fontWeight:700,letterSpacing:1.5,textTransform:'uppercase',cursor:'pointer'}} onClick={handleUpgrade}>UPGRADE ⭐</span>
           </div>
           <Btn onClick={()=>navigate('/diagnose')}>Diagnose {selVeh.nickname||selVeh.model}</Btn>
         </div>}
