@@ -9,7 +9,7 @@ export default function Dashboard(){
   const{user,logout}=useAuth();
   const[diagCount,setDiagCount]=useState(0);
   const[diagLimit,setDiagLimit]=useState(5);
-  React.useEffect(()=>{
+  useEffect(()=>{
     const check=async()=>{
       try{
         const token=localStorage.getItem('mechaToken');
