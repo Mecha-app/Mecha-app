@@ -8,6 +8,22 @@ export default function DiagnosePage(){
   const vehicle=JSON.parse(sessionStorage.getItem('mechaVehicle')||'null');
   const[problem,setProblem]=useState('');
   const[loading,setLoading]=useState(false);
+  const[limitReached,setLimitReached]=useState(false);
+
+  useEffect(()=>{
+    const checkLimit=async()=>{
+      try{
+        const token=localStorage.getItem('mechaToken');
+        if(!token)return;
+        const res=await fetch(process.env.REACT_APP_API_URL+'/api/diagnoses/check-limit',{
+          method:'POST',headers:{Authorization:'Bearer '+token}
+        });
+        const data=await res.json();
+        if(!data.canDiagnose)setLimitReached(true);
+      }catch(e){}
+    };
+    checkLimit();
+  },[]);
   const fileRef=useRef();
   const[imgB64,setImgB64]=useState(null);
   const[imgPrev,setImgPrev]=useState(null);
