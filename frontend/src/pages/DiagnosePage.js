@@ -9,6 +9,7 @@ export default function DiagnosePage(){
   const[problem,setProblem]=useState('');
   const[loading,setLoading]=useState(false);
   const[limitReached,setLimitReached]=useState(false);
+  const[waking,setWaking]=useState(false);
   const[diagCount,setDiagCount]=useState(0);
   const[diagLimit,setDiagLimit]=useState(5);
   const[plan,setPlan]=useState('free');
@@ -69,7 +70,15 @@ export default function DiagnosePage(){
     }
     finally{setLoading(false);}
   };
-  if(loading)if(limitReached)return(
+  if(loading)if(waking)return(
+    <div style={{minHeight:'100vh',background:'#080808',color:'#fff',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',textAlign:'center',padding:32}}>
+      <div style={{fontSize:48,marginBottom:16,animation:'spin 1s linear infinite',display:'inline-block'}}>⚡</div>
+      <div style={{fontFamily:"'Bebas Neue'",fontSize:'1.8rem',letterSpacing:2,marginBottom:8}}>STARTING UP...</div>
+      <div style={{fontSize:13,color:'#555'}}>Our server is waking up. This takes about 30 seconds.</div>
+      <div style={{fontSize:13,color:'#555',marginTop:8}}>Please wait...</div>
+    </div>
+  );
+  if(limitReached)return(
     <div style={{minHeight:'100vh',background:'#080808',color:'#fff',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',textAlign:'center',padding:32,fontFamily:"'Barlow',sans-serif"}}>
       <div style={{fontSize:56,marginBottom:16}}>⚡</div>
       <div style={{fontFamily:"'Bebas Neue'",fontSize:'clamp(1.6rem,6vw,2.2rem)',letterSpacing:2,marginBottom:12}}>YOU'VE HIT YOUR <span style={{color:'#E8232A'}}>FREE LIMIT</span></div>
