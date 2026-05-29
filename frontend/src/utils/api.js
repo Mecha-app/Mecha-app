@@ -20,4 +20,4 @@ export const loginTowing=d=>api.post('/api/towing/login',d);
 export const googleTowing=c=>api.post('/api/towing/google/verify',{credential:c});
 export default api;
 
-export const createCheckout = (plan) => api.post('/payments/create-checkout', {plan});
+export const createCheckout = (plan) => api.post('/api/payments/create-checkout', {plan});
