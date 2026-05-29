@@ -74,7 +74,26 @@ export default function DiagnosePage(){
     }
     finally{setLoading(false);}
   };
-  if(loading)return(<div style={{...PAGE,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:20}}><Spinner size={56}/><div style={{fontFamily:"'Bebas Neue'",fontSize:22,letterSpacing:3}}>Analyzing Your Car...</div><div style={{fontSize:13,color:'#555'}}>{vehicle?.year} {vehicle?.make} {vehicle?.model}</div></div>);
+  if(loading)if(limitReached)return(
+    <div style={{minHeight:'100vh',background:'#080808',color:'#fff',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',textAlign:'center',padding:32,fontFamily:"'Barlow',sans-serif"}}>
+      <div style={{fontSize:56,marginBottom:16}}>⚡</div>
+      <div style={{fontFamily:"'Bebas Neue'",fontSize:'clamp(1.6rem,6vw,2.2rem)',letterSpacing:2,marginBottom:12}}>YOU'VE HIT YOUR <span style={{color:'#E8232A'}}>FREE LIMIT</span></div>
+      <div style={{fontSize:15,color:'#888',marginBottom:8,maxWidth:320,lineHeight:1.8}}>You have used all 5 free diagnoses this month.</div>
+      <div style={{fontSize:15,color:'#ccc',marginBottom:28,maxWidth:320,lineHeight:1.8}}>Upgrade to <strong style={{color:'#fff'}}>MECHA Pro</strong> and get unlimited AI diagnoses every month.</div>
+      <div style={{display:'flex',flexDirection:'column',gap:8,marginBottom:28,width:'100%',maxWidth:300}}>
+        {[['⚡','Unlimited AI diagnoses every month'],['💰','Know the fair price before any repair'],['🔧','Mechanic trust scores in your city'],['🌍','Works in 40+ languages'],['🚗','Track up to 5 vehicles']].map(([icon,text])=>(
+          <div key={text} style={{display:'flex',alignItems:'center',gap:12,background:'#111',border:'1px solid #1e1e1e',borderRadius:8,padding:'12px 14px',textAlign:'left'}}>
+            <span style={{fontSize:20}}>{icon}</span>
+            <span style={{fontSize:13,color:'#ccc'}}>{text}</span>
+          </div>
+        ))}
+      </div>
+      <button onClick={async()=>{try{const{data}=await createCheckout('pro');window.location.href=data.url;}catch(e){alert('Error: '+e.message);}}} style={{background:'#E8232A',color:'#fff',padding:'16px 0',border:'none',borderRadius:4,fontFamily:"'Barlow Condensed'",fontSize:'1.1rem',fontWeight:700,letterSpacing:2,textTransform:'uppercase',cursor:'pointer',marginBottom:10,width:'100%',maxWidth:300}}>Unlock Pro — $9.99/mo</button>
+      <div style={{fontSize:11,color:'#555',marginBottom:20}}>Cancel anytime. No hidden fees. No contracts.</div>
+      <div onClick={()=>navigate('/dashboard')} style={{fontSize:12,color:'#444',cursor:'pointer'}}>Back to Dashboard</div>
+    </div>
+  );
+  return(<div style={{...PAGE,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:20}}><Spinner size={56}/><div style={{fontFamily:"'Bebas Neue'",fontSize:22,letterSpacing:3}}>Analyzing Your Car...</div><div style={{fontSize:13,color:'#555'}}>{vehicle?.year} {vehicle?.make} {vehicle?.model}</div></div>);
   return(
     <div style={PAGE}>
       {<div style={{background:'#111',borderBottom:'1px solid #1e1e1e',padding:'10px 20px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
