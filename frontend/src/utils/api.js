@@ -1,7 +1,7 @@
 import axios from'axios';
 const api=axios.create({baseURL:process.env.REACT_APP_API_URL||'https://mecha-backend.onrender.com',withCredentials:true});
 api.interceptors.request.use(c=>{const t=localStorage.getItem('mechaToken');if(t)c.headers.Authorization=`Bearer ${t}`;return c;});
-api.interceptors.response.use(r=>r,e=>{if(e.response?.status===401){localStorage.clear();window.location.href='/';}return Promise.reject(e);});
+api.interceptors.response.use(r=>r,e=>{if(e.response?.status===401&&!e.config.url.includes('payments')){localStorage.clear();window.location.href='/';}return Promise.reject(e);});
 export const registerDriver=d=>api.post('/api/auth/register',d);
 export const loginDriver=d=>api.post('/api/auth/login',d);
 export const googleVerify=c=>api.post('/api/auth/google/verify',{credential:c});
