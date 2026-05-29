@@ -1,4 +1,5 @@
 import{useState,useEffect}from'react';
+import{LANGUAGES,getLang,setLang}from'../utils/languages';
 import{useNavigate}from'react-router-dom';
 import{useAuth}from'../context/AuthContext';
 import{getVehicles,addVehicle,deleteVehicle,createCheckout}from'../utils/api';
@@ -13,6 +14,8 @@ export default function Dashboard(){
   const[adding,setAdding]=useState(false);
   const[form,setForm]=useState({year:'',make:'',model:'',mileage:'',nickname:''});
   const[diagCount,setDiagCount]=useState(0);
+  const[lang,setLangState]=useState(getLang());
+  const[showLang,setShowLang]=useState(false);
   const[showSuccess,setShowSuccess]=useState(window.location.search.includes('success=true'));
   const diagLimit=5;
   const refreshCount=()=>{
