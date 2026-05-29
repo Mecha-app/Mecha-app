@@ -1,6 +1,7 @@
 import{useEffect,useState,useRef}from'react';
 import{useNavigate}from'react-router-dom';
 import{useAuth}from'../context/AuthContext';
+import{LANGUAGES,getLang,setLang}from'../utils/languages';
 
 export default function LandingPage(){
   const{user}=useAuth();
