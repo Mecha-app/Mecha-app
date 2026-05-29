@@ -7,20 +7,25 @@ const MAKES=['Toyota','Honda','Ford','Chevrolet','BMW','Mercedes-Benz','Nissan',
 const YEARS=Array.from({length:30},(_,i)=>String(2025-i));
 export default function Dashboard(){
   const{user,logout}=useAuth();
-  const[diagCount,setDiagCount]=useState(0);
-  const[diagLimit,setDiagLimit]=useState(5);
+  const[diagCount,setDiagCount]=useState(()=>{
+    const stored=localStorage.getItem('mechaCount');
+    const month=new Date().getMonth();
+    const storedMonth=localStorage.getItem('mechaCountMonth');
+    if(storedMonth!==String(month)){
+      localStorage.setItem('mechaCount','0');
+      localStorage.setItem('mechaCountMonth',String(month));
+      return 0;
+    }
+    return parseInt(stored||'0');
+  });
+  const diagLimit=5;
   useEffect(()=>{
-    const check=async()=>{
-      try{
-        const token=localStorage.getItem('mechaToken');
-        if(!token)return;
-        const res=await fetch((process.env.REACT_APP_API_URL||'https://mecha-backend.onrender.com')+'/api/diagnoses/check-limit',{method:'POST',headers:{Authorization:'Bearer '+token}});
-        const data=await res.json();
-        setDiagCount(data.count||0);
-        setDiagLimit(data.limit||5);
-      }catch(e){}
+    const handleStorage=()=>{
+      const stored=parseInt(localStorage.getItem('mechaCount')||'0');
+      setDiagCount(stored);
     };
-    check();
+    window.addEventListener('storage',handleStorage);
+    return()=>window.removeEventListener('storage',handleStorage);
   },[]);
   const navigate=useNavigate();
   const[vehicles,setVehicles]=useState([]);
