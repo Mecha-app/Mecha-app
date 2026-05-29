@@ -1,7 +1,7 @@
 import{useState,useRef,useEffect}from'react';
 import{useNavigate}from'react-router-dom';
 import{Label,Input,Btn,Card,TopBar,Spinner,PAGE,R}from'../components/UI';
-import{saveDiagnosis}from'../utils/api';
+import{saveDiagnosis,createCheckout}from'../utils/api';
 import api from'../utils/api';
 export default function DiagnosePage(){
   const navigate=useNavigate();
