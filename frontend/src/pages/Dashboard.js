@@ -59,7 +59,7 @@ export default function Dashboard(){
         {!adding&&<div onClick={()=>setAdding(true)} style={{textAlign:'center',fontSize:12,color:R,cursor:'pointer',letterSpacing:1.5,textTransform:'uppercase',padding:'10px 0'}}>+ Add Vehicle</div>}
         {selVeh&&!adding&&<><div style={{gridColumn:'span 2',display:'flex',flexDirection:'column',gap:10}}><div style={{background:'rgba(232,35,42,0.1)',border:'1px solid rgba(232,35,42,0.3)',borderRadius:6,padding:'10px 14px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
         <div style={{fontSize:12,color:'#fff'}}>⚡ <strong>{Math.max(0,diagLimit-diagCount)}</strong> diagnoses left this month</div>
-        <div onClick={()=>window.open('https://mechaapp.vercel.app/#pricing','_self')} style={{background:'#E8232A',color:'#fff',padding:'6px 12px',borderRadius:3,fontSize:10,fontWeight:700,letterSpacing:1.5,textTransform:'uppercase',cursor:'pointer'}}>Upgrade</div>
+        <div onClick={()=>{window.location.href='https://mechaapp.vercel.app/#pricing';}} style={{background:'#E8232A',color:'#fff',padding:'6px 12px',borderRadius:3,fontSize:10,fontWeight:700,letterSpacing:1.5,textTransform:'uppercase',cursor:'pointer'}}>Upgrade</div>
       </div><Btn onClick={()=>navigate('/diagnose')}>Diagnose {selVeh.nickname||selVeh.model}</Btn></div></> }
         <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,marginTop:20}}>
           <Btn onClick={()=>navigate('/sell')} style={{fontSize:11,letterSpacing:1.5,gridColumn:'span 2',background:'#22c55e'}}>�� Marketplace — Buy & Sell Cars</Btn>
