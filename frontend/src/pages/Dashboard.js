@@ -13,6 +13,7 @@ export default function Dashboard(){
   const[adding,setAdding]=useState(false);
   const[form,setForm]=useState({year:'',make:'',model:'',mileage:'',nickname:''});
   const[diagCount,setDiagCount]=useState(0);
+  const[showSuccess,setShowSuccess]=useState(window.location.search.includes('success=true'));
   const diagLimit=5;
   useEffect(()=>{
     const count=parseInt(localStorage.getItem('mechaCount')||'0');
