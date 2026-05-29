@@ -64,6 +64,9 @@ export default function DiagnosePage(){
       const newCount=(parseInt(localStorage.getItem('mechaCount')||'0'))+1;
       localStorage.setItem('mechaCount',String(newCount));
       localStorage.setItem('mechaCountMonth',String(new Date().getMonth()));
+      const user=JSON.parse(localStorage.getItem('mechaUser')||'{}');
+      const uid=user._id||user.id;
+      if(uid){localStorage.setItem('mechaCount_'+uid,String(newCount));localStorage.setItem('mechaCountMonth_'+uid,String(new Date().getMonth()));}
       navigate('/result',{state:{diagnosis:result,vehicle}});
     }catch(e){
       console.error('Diagnosis error:',e);
