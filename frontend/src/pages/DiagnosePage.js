@@ -61,7 +61,10 @@ export default function DiagnosePage(){
       const result=JSON.parse(clean);
       sessionStorage.setItem('mechaDiagnosis',JSON.stringify(result));
       try{await saveDiagnosis({vehicleId:vehicle._id,problemText:problem,aiResult:result});}catch{}
-      navigate('/result');
+      const newCount=(parseInt(localStorage.getItem('mechaCount')||'0'))+1;
+      localStorage.setItem('mechaCount',String(newCount));
+      localStorage.setItem('mechaCountMonth',String(new Date().getMonth()));
+      navigate('/result',{state:{diagnosis:result,vehicle}});
     }catch(e){
       console.error('Diagnosis error:',e);
       alert('Diagnosis failed: '+e.message);
