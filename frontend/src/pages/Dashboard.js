@@ -15,12 +15,17 @@ export default function Dashboard(){
   const[diagCount,setDiagCount]=useState(0);
   const[showSuccess,setShowSuccess]=useState(window.location.search.includes('success=true'));
   const diagLimit=5;
-  useEffect(()=>{
+  const refreshCount=()=>{
     const count=parseInt(localStorage.getItem('mechaCount')||'0');
     const month=localStorage.getItem('mechaCountMonth');
     const nowMonth=String(new Date().getMonth());
     if(month!==nowMonth){localStorage.setItem('mechaCount','0');localStorage.setItem('mechaCountMonth',nowMonth);setDiagCount(0);}
     else setDiagCount(count);
+  };
+  useEffect(()=>{
+    refreshCount();
+    window.addEventListener('focus',refreshCount);
+    return()=>window.removeEventListener('focus',refreshCount);
   },[]);
   useEffect(()=>{
     getVehicles().then(r=>{setVehicles(r.data);if(r.data.length>0){setSelVeh(r.data[0]);sessionStorage.setItem('mechaVehicle',JSON.stringify(r.data[0]));}}).catch(()=>{});
