@@ -25,6 +25,8 @@ router.post('/',auth,upload.single('image'),async(req,res)=>{
     const{vehicleId,problemText,aiResult}=req.body;
     const imageUrl=req.file?`/uploads/${req.file.filename}`:null;
     const parsed=typeof aiResult==='string'?JSON.parse(aiResult):aiResult;
+    const User=require('../models/User');
+    await User.findByIdAndUpdate(req.user.id,{$inc:{diagnosisCount:1}});
     const dx=await Diagnosis.create({vehicle:vehicleId,user:req.user.id,problemText,imageUrl,aiResult:parsed});
     await Vehicle.findByIdAndUpdate(vehicleId,{$push:{diagnoses:dx._id}});
     res.status(201).json(dx);
