@@ -8,6 +8,14 @@ export default function LandingPage(){
   const[scrolled,setScrolled]=useState(false);
   const[email,setEmail]=useState('');
   const[joined,setJoined]=useState(false);
+  const handleCheckout=async(plan)=>{
+    const token=localStorage.getItem('mechaToken');
+    if(!token){navigate('/register');return;}
+    try{
+      const{data}=await createCheckout(plan);
+      window.location.href=data.url;
+    }catch(e){alert('Please sign in first.');}
+  };
   const[menuOpen,setMenuOpen]=useState(false);
   const[aiText,setAiText]=useState('');
   const aiRef=useRef(0);
