@@ -58,7 +58,7 @@ export default function Dashboard(){
 
   const handleUpgrade=async()=>{
     try{const{data}=await createCheckout('pro');window.location.href=data.url;}
-    catch{navigate('/register');}
+    catch(e){alert('Unable to start checkout. Please try again.');}
   };
 
   const remaining=Math.max(0,diagLimit-diagCount);
