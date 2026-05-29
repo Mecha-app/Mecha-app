@@ -71,7 +71,7 @@ export default function DiagnosePage(){
   if(loading)return(<div style={{...PAGE,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:20}}><Spinner size={56}/><div style={{fontFamily:"'Bebas Neue'",fontSize:22,letterSpacing:3}}>Analyzing Your Car...</div><div style={{fontSize:13,color:'#555'}}>{vehicle?.year} {vehicle?.make} {vehicle?.model}</div></div>);
   return(
     <div style={PAGE}>
-      {plan==='free'&&<div style={{background:'#111',borderBottom:'1px solid #1e1e1e',padding:'10px 20px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+      {<div style={{background:'#111',borderBottom:'1px solid #1e1e1e',padding:'10px 20px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
       <div style={{fontSize:12,color:'#888'}}>⚡ <span style={{color:'#fff',fontWeight:700}}>{Math.max(0,diagLimit-diagCount)} diagnoses</span> remaining this month</div>
       <button onClick={async()=>{try{const{data}=await createCheckout('pro');window.location.href=data.url;}catch(e){alert('Sign in first.');}}} style={{background:'#E8232A',color:'#fff',padding:'6px 14px',border:'none',borderRadius:3,fontSize:10,fontWeight:700,letterSpacing:1.5,textTransform:'uppercase',cursor:'pointer'}}>Upgrade</button>
     </div>}
