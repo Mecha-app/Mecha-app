@@ -57,6 +57,23 @@ export default function Dashboard(){
     <div style={PAGE}>
       <TopBar title={`Hi, ${user?.name?.split(' ')[0]}`} right={<UserChip/>}/>
       <div style={{padding:16,maxWidth:600,margin:'0 auto',width:'100%'}}>
+        <div style={{position:'relative',marginBottom:12}}>
+          <div onClick={()=>setShowLang(!showLang)} style={{display:'flex',alignItems:'center',justifyContent:'space-between',background:'#111',border:'1px solid #1e1e1e',borderRadius:8,padding:'12px 14px',cursor:'pointer'}}>
+            <div style={{display:'flex',alignItems:'center',gap:8}}>
+              <span style={{fontSize:22}}>{LANGUAGES.find(l=>l.code===lang)?.flag||'🇺🇸'}</span>
+              <span style={{fontSize:13,color:'#fff'}}>{LANGUAGES.find(l=>l.code===lang)?.name||'English'}</span>
+            </div>
+            <span style={{fontSize:11,color:'#555'}}>🌍 Tap to change language</span>
+          </div>
+          {showLang&&<div style={{position:'absolute',top:'100%',left:0,right:0,background:'#111',border:'1px solid #1e1e1e',borderRadius:8,maxHeight:280,overflowY:'auto',zIndex:100,marginTop:4}}>
+            {LANGUAGES.map(l=>(
+              <div key={l.code} onClick={()=>{setLang(l.code);setLangState(l.code);setShowLang(false);}} style={{display:'flex',alignItems:'center',gap:10,padding:'12px 14px',cursor:'pointer',background:lang===l.code?'rgba(232,35,42,0.1)':'transparent',borderBottom:'1px solid #0a0a0a'}}>
+                <span style={{fontSize:20}}>{l.flag}</span>
+                <span style={{fontSize:13,color:lang===l.code?'#E8232A':'#ccc'}}>{l.name}</span>
+              </div>
+            ))}
+          </div>}
+        </div>
         <div style={{background:'rgba(232,35,42,0.1)',border:'1px solid rgba(232,35,42,0.3)',borderRadius:8,padding:'12px 16px',display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:16}}>
           <div style={{fontSize:13,color:'#fff'}}>⚡ <strong style={{color:R}}>{remaining}</strong> free diagnoses left</div>
           <button onClick={handleUpgrade} style={{background:R,color:'#fff',padding:'8px 16px',borderRadius:4,fontSize:11,fontWeight:700,letterSpacing:1.5,textTransform:'uppercase',cursor:'pointer',border:'none'}}>UPGRADE PRO</button>
