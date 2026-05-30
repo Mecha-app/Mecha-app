@@ -53,7 +53,7 @@ export default function AdminPage(){
           {[
             ['👥','Total Users',stats?.users||0,''],
             ['⭐','Pro Users',stats?.proUsers||0,'paying'],
-            ['💰','Monthly Revenue',`$${((stats?.proUsers||0)*9.99).toFixed(2)}','est.'],
+            ['💰','Monthly Revenue','$'+((stats?.proUsers||0)*9.99).toFixed(2),'est.'],
             ['⚡','Diagnoses',stats?.diagnoses||0,'total'],
             ['🚗','Listings',stats?.listings||0,'cars'],
             ['🔧','Shops',stats?.shops||0,'registered'],
