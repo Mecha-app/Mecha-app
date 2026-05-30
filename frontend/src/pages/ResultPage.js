@@ -2,10 +2,10 @@ import{useState}from'react';
 import{useNavigate}from'react-router-dom';
 import{Label,Btn,Card,TopBar,PAGE,R}from'../components/UI';
 const RETAILERS=[
-  {name:'Amazon',color:'#FF9900',textColor:'#111',icon:'📦',url:p=>`https://www.amazon.com/s?k=${encodeURIComponent(p)}&tag=mecha-app-20`},
-  {name:'eBay',color:'#0064D2',textColor:'#fff',icon:'🏷',url:p=>`https://www.ebay.com/sch/i.html?_nkw=${encodeURIComponent(p)}`},
-  {name:'RockAuto',color:'#c0392b',textColor:'#fff',icon:'🪨',url:p=>`https://www.rockauto.com/en/partsearch/?query=${encodeURIComponent(p)}`},
-  {name:'AutoZone',color:'#f97316',textColor:'#fff',icon:'🔧',url:p=>`https://www.autozone.com/searchresult?searchText=${encodeURIComponent(p)}`},
+  {name:'Amazon',color:'#FF9900',textColor:'#111',icon:'📦',url:p=>`https://www.amazon.com/s?k=${encodeURIComponent(p)}&tag=mechatech-20`},
+  {name:'eBay',color:'#0064D2',textColor:'#fff',icon:'🏷',url:p=>`https://www.ebay.com/sch/i.html?_nkw=${encodeURIComponent(p)}&campid=5339087654`},
+  {name:'RockAuto',color:'#c0392b',textColor:'#fff',icon:'🪨',url:p=>`https://www.rockauto.com/?gotolastcathref=1&query=${encodeURIComponent(p)}`},
+  {name:'AutoZone',color:'#f97316',textColor:'#fff',icon:'🔧',url:p=>`https://shop.advanceautoparts.com/o/affiliates?q=${encodeURIComponent(p)}`},
   {name:'Advance Auto',color:'#dc2626',textColor:'#fff',icon:'⚙',url:p=>`https://shop.advanceautoparts.com/find/search.htm?searchTerm=${encodeURIComponent(p)}`},
   {name:"O'Reilly",color:'#1d4ed8',textColor:'#fff',icon:'🛠',url:p=>`https://www.oreillyauto.com/shop/b/search?q=${encodeURIComponent(p)}`},
 ];
