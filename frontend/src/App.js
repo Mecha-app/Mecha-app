@@ -13,6 +13,7 @@ import ListingDetailPage from './pages/ListingDetailPage';
 import PrivacyPage from './pages/PrivacyPage';
 import TermsPage from './pages/TermsPage';
 import AboutPage from './pages/AboutPage';
+import AdminPage from './pages/AdminPage';
 import ContactPage from './pages/ContactPage';
 import FindShopsPage from'./pages/FindShopsPage';
 import ShopDetail from'./pages/ShopDetail';
@@ -38,6 +39,7 @@ export default function App(){
         <Route path="/privacy" element={<PrivacyPage/>}/>
         <Route path="/terms" element={<TermsPage/>}/>
         <Route path="/about" element={<AboutPage/>}/>
+        <Route path="/admin" element={<AdminPage/>}/>
         <Route path="/contact" element={<ContactPage/>}/>
         <Route path="/shops" element={<Guard allowed={['driver']}><FindShopsPage/></Guard>}/>
       <Route path="/shops/:id" element={<Guard allowed={['driver']}><ShopDetail/></Guard>}/>
