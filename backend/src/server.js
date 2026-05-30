@@ -16,6 +16,7 @@ app.use('/api/shops',require('./routes/shops'));
 app.use('/api/towing',require('./routes/towing'));
 app.use('/api/listings',require('./routes/listings'));
 app.use('/api/payments',require('./routes/payments'));
+app.use('/api/admin',require('./routes/admin'));
 app.get('/api/health',(_,res)=>res.json({status:'online',db:require('mongoose').connection.readyState===1?'connected':'disconnected'}));
 const PORT=process.env.PORT||5000;
 app.listen(PORT,()=>{
