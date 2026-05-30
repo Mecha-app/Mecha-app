@@ -4,6 +4,31 @@ import{useNavigate}from'react-router-dom';
 import{Label,Input,Btn,Card,TopBar,Spinner,PAGE,R}from'../components/UI';
 import{saveDiagnosis,createCheckout}from'../utils/api';
 import api from'../utils/api';
+function LoadingDiag(){
+  const[msg,setMsg]=React.useState(0);
+  const msgs=[
+    '🔍 Reading your vehicle data...',
+    '🧠 AI is analyzing the symptoms...',
+    '💰 Checking fair repair prices...',
+    '🔧 Identifying parts needed...',
+    '📋 Preparing your report...',
+  ];
+  React.useEffect(()=>{
+    const t=setInterval(()=>setMsg(m=>(m+1)%msgs.length),2500);
+    return()=>clearInterval(t);
+  },[]);
+  return(
+    <div style={{textAlign:'center',padding:40}}>
+      <div style={{fontSize:48,marginBottom:16,animation:'pulse 1.5s infinite'}}>⚡</div>
+      <div style={{fontFamily:"'Bebas Neue'",fontSize:'1.4rem',letterSpacing:2,marginBottom:8}}>MECHA AI IS WORKING</div>
+      <div style={{fontSize:14,color:'#888',marginBottom:24}}>{msgs[msg]}</div>
+      <div style={{display:'flex',gap:6,justifyContent:'center'}}>
+        {[0,1,2,3,4].map(i=><div key={i} style={{width:6,height:6,borderRadius:'50%',background:i===msg?'#E8232A':'#333',transition:'background .3s'}}/>)}
+      </div>
+    </div>
+  );
+}
+
 export default function DiagnosePage(){
   const navigate=useNavigate();
   const vehicle=JSON.parse(sessionStorage.getItem('mechaVehicle')||'null');
