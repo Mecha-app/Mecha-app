@@ -62,24 +62,15 @@ export default function DiagnosePage(){
     try{
       const vd=`${vehicle.year} ${vehicle.make} ${vehicle.model}`;
       const prompt=`You are MECHA AI, an expert automotive diagnostic assistant. Vehicle: ${vd}. Problem reported: "${problem||'analyze the vehicle issue'}". Respond ONLY with a valid JSON object, no markdown, no explanation: {"diagnosis":"plain English 2-3 sentences explaining what is wrong","severity":"low","canDrive":true,"estimatedCost":{"min":100,"max":300},"laborHours":{"min":1,"max":2},"parts":[{"name":"Part Name","estimatedPrice":{"min":50,"max":150},"priority":"required","description":"one sentence"}],"steps":["step 1","step 2"],"mechanicTip":"one insider tip"}`;
-      const res=await fetch('https://api.anthropic.com/v1/messages',{
+      const token=localStorage.getItem('mechaToken');
+      const vehicle=JSON.parse(sessionStorage.getItem('mechaVehicle')||'{}');
+      const res=await fetch('https://mecha-backend.onrender.com/api/diagnoses/ai',{
         method:'POST',
-        headers:{
-          'Content-Type':'application/json',
-          'x-api-key':process.env.REACT_APP_ANTHROPIC_API_KEY,
-          'anthropic-version':'2023-06-01',
-          'anthropic-dangerous-direct-browser-access':'true'
-        },
-        body:JSON.stringify({
-          model:'claude-haiku-4-5',
-          max_tokens:1000,
-          messages:[{role:'user',content:prompt}]
-        })
+        headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
+        body:JSON.stringify({problem,vehicleInfo:`${vehicle.year} ${vehicle.make} ${vehicle.model}`,language:localStorage.getItem('mechaLang')||'en'})
       });
       const data=await res.json();
-      if(data.error){throw new Error(data.error.message);}
-      const text=data.content?.[0]?.text||'{}';
-      const clean=text.replace(/```json|```/g,'').trim();
+      if(data.error)throw new Error(data.error);
       const result=JSON.parse(clean);
       sessionStorage.setItem('mechaDiagnosis',JSON.stringify(result));
       try{await saveDiagnosis({vehicleId:vehicle._id,problemText:problem,aiResult:result});}catch{}
