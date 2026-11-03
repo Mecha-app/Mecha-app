@@ -40,6 +40,7 @@ sandbox-safe path used on the Nuvador build).
 | `0005_shops_towing.sql` | `shops` (GeoJSON Point → lat/lng, [0,0] → NULL; hours is free text; specialties/languages JSONB; rating/review_count plain counters — NO reviews table, the repo has none) · `towing_companies` (point + serviceRadius miles; plan string) |
 | `0006_marketplace_messaging.sql` | `listings` (standalone vehicle ads — NOT linked to vehicles; full repo field set; no zip) · `listing_messages` (repo ChatMessage) · `shop_messages` (repo Message) — two flat tables, no conversation entity |
 | `0007_new_feature_tables.sql` | `service_records`, `maintenance_reminders` — WP5-NEW blueprint features with NO legacy source; start empty at cutover |
+| `0008_wp5_identity_quota.sql` | **WP5 (owner's hard rules):** `users.phone_normalized` + unique partial index (second identity key), `users.free_diagnoses_used` (the LIFETIME free-quota counter — supersedes the legacy monthly `diagnosis_count` semantics; those columns remain for ETL parity, unread by WP5 code), `diagnosis_cache` (exact-match answer cache), `shops.plan` + `shops.stripe_customer_id` and `towing_companies.stripe_customer_id` (the webhook fix — the one deliberate exception to 0005's "shops carry no Stripe fields", ordered by the owner for WP5) |
 
 ## Deliberately absent (repo truth — do not re-add without new data)
 

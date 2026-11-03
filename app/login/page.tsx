@@ -1,0 +1,114 @@
+"use client";
+
+import Link from "next/link";
+import { useState, type FormEvent } from "react";
+import { saveSession } from "@/lib/client/auth";
+
+/**
+ * /login (WP5) — MOBILE-FIRST sign-in. Signing back in returns you to
+ * the SAME account and the SAME diagnosis count — that is the point of
+ * the server-side identity: nothing resets, ever.
+ */
+export default function LoginPage() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [state, setState] = useState<"idle" | "sending" | "error">("idle");
+  const [detail, setDetail] = useState("");
+
+  async function onSubmit(e: FormEvent) {
+    e.preventDefault();
+    setState("sending");
+    setDetail("");
+    try {
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+      const data = (await res.json()) as {
+        token?: string;
+        user?: Parameters<typeof saveSession>[1];
+        detail?: string;
+      };
+      if (res.ok && data.token && data.user) {
+        saveSession(data.token, data.user);
+        window.location.href = "/app/diagnose";
+        return;
+      }
+      setState("error");
+      setDetail(data.detail ?? "Sign-in could not be completed. Please try again.");
+    } catch {
+      setState("error");
+      setDetail("Sign-in could not be completed. Please try again.");
+    }
+  }
+
+  const inputClass =
+    "h-12 w-full rounded-xl border border-line bg-surface px-4 text-base text-ink-1 placeholder:text-ink-3";
+  const labelClass = "block text-sm font-medium text-ink-2";
+
+  return (
+    <main className="mx-auto w-full max-w-md px-4 py-10 sm:py-16">
+      <h1 className="font-display text-3xl font-semibold tracking-[-0.01em] text-ink-1">
+        Welcome back
+      </h1>
+      <p className="mt-3 text-base leading-relaxed text-ink-2">
+        Sign in to your account — your cars, your history, and your remaining free diagnoses
+        are right where you left them.
+      </p>
+
+      <form onSubmit={onSubmit} className="mt-8 flex flex-col gap-5" noValidate>
+        <div>
+          <label htmlFor="login-email" className={labelClass}>
+            Email
+          </label>
+          <input
+            id="login-email"
+            type="email"
+            className={inputClass}
+            autoComplete="email"
+            inputMode="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+        </div>
+        <div>
+          <label htmlFor="login-password" className={labelClass}>
+            Password
+          </label>
+          <input
+            id="login-password"
+            type="password"
+            className={inputClass}
+            autoComplete="current-password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+        </div>
+
+        {state === "error" && (
+          <p className="rounded-xl border border-line bg-surface px-4 py-3 text-base text-verdict-rip" role="alert">
+            {detail}
+          </p>
+        )}
+
+        <button
+          type="submit"
+          disabled={state === "sending"}
+          className="h-12 w-full rounded-full bg-accent px-6 text-base font-semibold text-accent-ink disabled:opacity-60"
+        >
+          {state === "sending" ? "Signing in…" : "Sign in"}
+        </button>
+      </form>
+
+      <p className="mt-8 text-base text-ink-2">
+        New to MECHA?{" "}
+        <Link href="/register" className="font-semibold text-accent underline">
+          Create an account
+        </Link>
+      </p>
+    </main>
+  );
+}

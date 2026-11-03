@@ -26,6 +26,10 @@
  * No key in the environment → AiNotConfiguredError → the route answers
  * the honest 501. No key is ever invented, and keys never ship to the
  * browser (the legacy REACT_APP_ANTHROPIC_API_KEY pattern is gone here).
+ *
+ * WP5: buildDiagnosisPrompt + parseReport are exported so the streaming
+ * provider (lib/server/provider.ts) runs the EXACT same prompt and parse
+ * as this module's non-streaming runner — one source of truth for both.
  */
 
 // ---------------------------------------------------------------------------
@@ -118,21 +122,17 @@ export function isAiConfigured(): boolean {
 }
 
 // ---------------------------------------------------------------------------
-// Runner. Throws AiNotConfiguredError when no key is configured.
-// The prompt mirrors the repo's /ai prompt so stored results stay in the
-// exact shape the legacy data (and the WP5 UI) already uses.
+// The prompt. Mirrors the repo's /ai prompt so stored results stay in the
+// exact shape the legacy data (and the WP5 UI) already uses. Shared by
+// the non-streaming runner below and the WP5 streaming provider.
 // ---------------------------------------------------------------------------
 
-export async function runDiagnosis(req: DiagnosisRequest): Promise<DiagnosisResult> {
-  if (!isAiConfigured()) throw new AiNotConfiguredError();
-
-  const tier: DiagnosisTier = req.tier === "deep" ? "deep" : "triage";
-  const config = AI_TIERS[tier];
+export function buildDiagnosisPrompt(req: DiagnosisRequest): string {
   const language = (req.language ?? "en").trim();
   const langInstruction =
     language && language !== "en" ? `IMPORTANT: Respond entirely in ${language} language.\n` : "";
 
-  const prompt = `${langInstruction}You are MECHA, an expert automotive AI diagnostic assistant. Analyze this car problem and respond with ONLY a valid JSON object.
+  return `${langInstruction}You are MECHA, an expert automotive AI diagnostic assistant. Analyze this car problem and respond with ONLY a valid JSON object.
 
 Vehicle: ${req.vehicleInfo || "Unknown"}
 Problem: ${req.problem}${req.imageUrl ? `\nThe driver also provided a photo of the issue: ${req.imageUrl}` : ""}
@@ -148,6 +148,20 @@ Return JSON:
   "steps": ["step 1", "step 2"],
   "tip": "one insider tip"
 }`;
+}
+
+// ---------------------------------------------------------------------------
+// Non-streaming runner. Throws AiNotConfiguredError when no key is
+// configured. (The WP5 route uses the streaming provider instead; this
+// runner remains for parity checks and non-streaming callers.)
+// ---------------------------------------------------------------------------
+
+export async function runDiagnosis(req: DiagnosisRequest): Promise<DiagnosisResult> {
+  if (!isAiConfigured()) throw new AiNotConfiguredError();
+
+  const tier: DiagnosisTier = req.tier === "deep" ? "deep" : "triage";
+  const config = AI_TIERS[tier];
+  const prompt = buildDiagnosisPrompt(req);
 
   const res = await fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
@@ -183,7 +197,7 @@ Return JSON:
 }
 
 /** Defensive parse into the repo shape: core fields required, rest coerced. */
-function parseReport(json: string): DiagnosisReport {
+export function parseReport(json: string): DiagnosisReport {
   const raw = JSON.parse(json) as Partial<DiagnosisReport>;
   if (typeof raw.diagnosis !== "string" || typeof raw.safeToDriver !== "boolean") {
     throw new Error("diagnosis_parse_failed");
