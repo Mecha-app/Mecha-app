@@ -696,6 +696,10 @@ const en = {
       googleOnly:
         "This account uses Google sign-in, so there's no password to check. Use Continue with Google above.",
     },
+    register: {
+      confirmPassword: "Confirm password",
+      passwordMismatch: "The passwords don't match — check them and try again.",
+    },
     completeProfile: {
       title: "One more thing — your phone number",
       body: "MECHA recognizes your account by your email AND your phone number — together they protect your 5 free diagnoses, so nobody can reset your count by signing up again. Add your number to finish setting up your account.",

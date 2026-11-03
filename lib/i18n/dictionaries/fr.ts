@@ -685,6 +685,10 @@ const fr: DeepPartial<Dictionary> = {
       failed: "La connexion avec Google n'a pas fonctionné. Réessayez, ou connectez-vous avec votre e-mail et votre mot de passe ci-dessous.",
       googleOnly: "Ce compte utilise la connexion avec Google, il n'y a donc aucun mot de passe à vérifier. Utilisez « Continuer avec Google » ci-dessus.",
     },
+    register: {
+      confirmPassword: "Confirmer le mot de passe",
+      passwordMismatch: "Les mots de passe ne correspondent pas — vérifiez-les et réessayez.",
+    },
     completeProfile: {
       title: "Encore une chose : votre numéro de téléphone",
       body: "MECHA reconnaît votre compte par votre e-mail ET votre numéro de téléphone — ensemble, ils protègent vos 5 diagnostics gratuits, pour que personne ne puisse remettre votre compteur à zéro en se réinscrivant. Ajoutez votre numéro pour terminer la configuration de votre compte.",

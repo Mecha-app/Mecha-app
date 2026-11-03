@@ -684,6 +684,10 @@ const es: DeepPartial<Dictionary> = {
       failed: "El inicio de sesión con Google no funcionó. Inténtalo de nuevo, o inicia sesión con tu correo y contraseña abajo.",
       googleOnly: "Esta cuenta usa el inicio de sesión con Google, así que no hay contraseña que comprobar. Usa «Continuar con Google» arriba.",
     },
+    register: {
+      confirmPassword: "Confirmar contraseña",
+      passwordMismatch: "Las contraseñas no coinciden — revísalas e inténtalo de nuevo.",
+    },
     completeProfile: {
       title: "Una cosa más: tu número de teléfono",
       body: "MECHA reconoce tu cuenta por tu correo Y tu número de teléfono: juntos protegen tus 5 diagnósticos gratuitos, para que nadie pueda reiniciar tu contador registrándose otra vez. Agrega tu número para terminar de configurar tu cuenta.",

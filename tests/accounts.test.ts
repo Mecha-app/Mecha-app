@@ -23,6 +23,7 @@ import {
 } from "../lib/server/accountCodes";
 import { MemoryAppStore } from "../lib/server/appStore";
 import {
+  PasswordMismatchError,
   ValidationError,
   loginDriver,
   publicUser,
@@ -273,4 +274,59 @@ test("vehicle spec: optional fields are stored (plate uppercased); engine patch 
     updateVehicle(store, "user-a", vehicle.id, { engine: "" }),
     ValidationError,
   );
+});
+
+// ---------------------------------------------------------------------
+// Password verified twice (owner's rule, 2026-11-03) — the register
+// form collects a confirmation and blocks a mismatch in the browser;
+// the service enforces the same match for any caller that sends one.
+// ---------------------------------------------------------------------
+
+test("register with a matching confirmPassword registers exactly as before", async () => {
+  const store = new MemoryIdentityStore();
+  const mailer = new RecordingMailer();
+  const auth = await registerDriver(
+    store,
+    { ...DRIVER, confirmPassword: DRIVER.password },
+    { mailer },
+  );
+  assert.ok(auth.token);
+  assert.equal(auth.user.email, DRIVER.email);
+  assert.equal(auth.verificationDelivery, "sent");
+  assert.equal(mailer.messages.length, 1);
+  // And the password that was confirmed is the one that signs in.
+  const login = await loginDriver(store, { email: DRIVER.email, password: DRIVER.password });
+  assert.equal(login.user.email, DRIVER.email);
+});
+
+test("register with a mismatched confirmPassword is refused and creates NOTHING", async () => {
+  const store = new MemoryIdentityStore();
+  const mailer = new RecordingMailer();
+  await assert.rejects(
+    registerDriver(store, { ...DRIVER, confirmPassword: "different-passphrase" }, { mailer }),
+    (err: unknown) => {
+      assert.ok(err instanceof PasswordMismatchError);
+      assert.equal(err.code, "password_mismatch");
+      return true;
+    },
+  );
+  // No account, no verification email — the refusal is total.
+  assert.equal(await store.findUserByEmail(DRIVER.email), null);
+  assert.equal(mailer.messages.length, 0);
+});
+
+test("register with a non-string confirmPassword is refused as a mismatch", async () => {
+  const store = new MemoryIdentityStore();
+  await assert.rejects(
+    registerDriver(store, { ...DRIVER, confirmPassword: 12345678 }),
+    PasswordMismatchError,
+  );
+  assert.equal(await store.findUserByEmail(DRIVER.email), null);
+});
+
+test("register without confirmPassword still works (older API callers)", async () => {
+  const store = new MemoryIdentityStore();
+  const auth = await registerDriver(store, DRIVER);
+  assert.ok(auth.token);
+  assert.ok(await store.findUserByEmail(DRIVER.email));
 });

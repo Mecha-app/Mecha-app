@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState, type FormEvent } from "react";
 import { SocialSignIn } from "@/components/SocialSignIn";
 import { saveSession } from "@/lib/client/auth";
+import { useLocale } from "@/lib/i18n/LocaleProvider";
 import { RETURN_TO_KEY } from "@/lib/server/scan";
 
 /**
@@ -34,33 +35,54 @@ function postAuthDestination(): string {
  * account, the server answers 409 and this page says "sign in instead" —
  * because the existing account (and its diagnosis count) is the
  * person's one identity. Nothing is ever silently reset.
+ *
+ * Password verified twice (owner's rule, 2026-11-03 — he caught the
+ * single-field form testing sign-up himself): the confirm field must
+ * match before the form sends anything, and the API enforces the same
+ * match server-side.
  */
 export default function RegisterPage() {
+  const { t } = useLocale();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
-  const [state, setState] = useState<"idle" | "sending" | "conflict" | "error">("idle");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [state, setState] = useState<"idle" | "sending" | "conflict" | "error" | "mismatch">(
+    "idle",
+  );
   const [detail, setDetail] = useState("");
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
+    // Password verified twice (owner's rule, 2026-11-03): a mismatch
+    // is caught HERE — the request never leaves the browser. The API
+    // enforces the same match again server-side (defense in depth).
+    if (password !== confirmPassword) {
+      setState("mismatch");
+      return;
+    }
     setState("sending");
     setDetail("");
     try {
       const res = await fetch("/api/auth/register", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ name, email, phone: phone || undefined, password }),
+        body: JSON.stringify({ name, email, phone: phone || undefined, password, confirmPassword }),
       });
       const data = (await res.json()) as {
         token?: string;
         user?: Parameters<typeof saveSession>[1];
         detail?: string;
+        error?: string;
       };
       if (res.status === 201 && data.token && data.user) {
         saveSession(data.token, data.user);
         window.location.href = postAuthDestination();
+        return;
+      }
+      if (res.status === 400 && data.error === "password_mismatch") {
+        setState("mismatch");
         return;
       }
       if (res.status === 409) {
@@ -148,11 +170,37 @@ export default function RegisterPage() {
             className={inputClass}
             autoComplete="new-password"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={(e) => {
+              setPassword(e.target.value);
+              if (state === "mismatch") setState("idle");
+            }}
             required
           />
           <p className="mt-2 text-sm text-ink-3">At least 8 characters.</p>
         </div>
+        <div>
+          <label htmlFor="reg-password-confirm" className={labelClass}>
+            {t.auth.register.confirmPassword}
+          </label>
+          <input
+            id="reg-password-confirm"
+            type="password"
+            className={inputClass}
+            autoComplete="new-password"
+            value={confirmPassword}
+            onChange={(e) => {
+              setConfirmPassword(e.target.value);
+              if (state === "mismatch") setState("idle");
+            }}
+            required
+          />
+        </div>
+
+        {state === "mismatch" && (
+          <p className="rounded-xl border border-line bg-surface px-4 py-3 text-base text-verdict-rip" role="alert">
+            {t.auth.register.passwordMismatch}
+          </p>
+        )}
 
         {state === "conflict" && (
           <p className="rounded-xl border border-line bg-surface px-4 py-3 text-base text-ink-1" role="alert">

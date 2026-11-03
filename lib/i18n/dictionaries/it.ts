@@ -911,6 +911,10 @@ const it: DeepPartial<Dictionary> = {
       failed: "L'accesso con Google non ha funzionato. Riprova, oppure accedi qui sotto con la tua email e la tua password.",
       googleOnly: "Questo account usa l'accesso con Google, quindi non c'è nessuna password da controllare. Usa «Continua con Google» qui sopra.",
     },
+    register: {
+      confirmPassword: "Conferma la password",
+      passwordMismatch: "Le password non corrispondono — controllale e riprova.",
+    },
     completeProfile: {
       title: "Un'ultima cosa — il tuo numero di telefono",
       body: "MECHA riconosce il tuo account dalla tua email E dal tuo numero di telefono: insieme proteggono le tue 5 diagnosi gratuite, così nessuno può azzerare il tuo contatore registrandosi di nuovo. Aggiungi il tuo numero per completare la configurazione del tuo account.",

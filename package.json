@@ -31,5 +31,5 @@
     "test": "tsc -p tsconfig.test.json && node --test \"tests/.build/tests/*.test.js\"",
     "typecheck": "tsc --noEmit"
   },
-  "version": "0.4.9-hero-dialogue"
+  "version": "0.4.10-confirm-password"
 }

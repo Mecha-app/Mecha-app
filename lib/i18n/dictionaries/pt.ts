@@ -911,6 +911,10 @@ const pt: DeepPartial<Dictionary> = {
       failed: "O login com o Google não funcionou. Tente novamente ou entre com seu e-mail e senha abaixo.",
       googleOnly: "Esta conta usa o login com o Google, portanto não há senha para verificar. Use «Continuar com o Google» acima.",
     },
+    register: {
+      confirmPassword: "Confirmar a senha",
+      passwordMismatch: "As senhas não coincidem — verifique-as e tente novamente.",
+    },
     completeProfile: {
       title: "Só mais uma coisa — seu número de telefone",
       body: "A MECHA reconhece sua conta pelo seu e-mail E pelo seu número de telefone — juntos, eles protegem seus 5 diagnósticos gratuitos, para que ninguém possa zerar sua contagem inscrevendo-se novamente. Adicione seu número para concluir a configuração da sua conta.",

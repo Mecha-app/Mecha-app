@@ -911,6 +911,10 @@ const tr: DeepPartial<Dictionary> = {
       failed: "Google ile oturum açma işe yaramadı. Lütfen tekrar deneyin — ya da aşağıdan e-postanız ve şifrenizle oturum açın.",
       googleOnly: "Bu hesap Google ile oturum açmayı kullanıyor, bu yüzden denetlenecek bir şifre yok. Yukarıdaki «Google ile devam et» düğmesini kullanın.",
     },
+    register: {
+      confirmPassword: "Şifreyi onaylayın",
+      passwordMismatch: "Şifreler eşleşmiyor — kontrol edip tekrar deneyin.",
+    },
     completeProfile: {
       title: "Son bir şey — telefon numaranız",
       body: "MECHA hesabınızı e-postanız VE telefon numaranızla tanır — ikisi birlikte 5 ücretsiz teşhisinizi korur, böylece kimse yeniden kaydolarak sayacınızı sıfırlayamaz. Hesabınızın kurulumunu tamamlamak için numaranızı ekleyin.",

@@ -685,6 +685,10 @@ const ht: DeepPartial<Dictionary> = {
       failed: "Koneksyon ak Google la pa t mache. Tanpri eseye ankò — oubyen konekte ak imèl ou ak modpas ou anba a.",
       googleOnly: "Kont sa a sèvi ak koneksyon Google, kidonk pa gen modpas pou tcheke. Sèvi ak « Kontinye ak Google » anwo a.",
     },
+    register: {
+      confirmPassword: "Konfime modpas la",
+      passwordMismatch: "Modpas yo pa matche — verifye yo epi eseye ankò.",
+    },
     completeProfile: {
       title: "Yon dènye bagay — nimewo telefòn ou",
       body: "MECHA rekonèt kont ou a pa imèl ou AK nimewo telefòn ou — ansanm yo pwoteje 5 dyagnostik gratis ou yo, konsa pèsòn pa ka reyentè kontè ou a lè yo enskri ankò. Ajoute nimewo ou pou fini konfigirasyon kont ou a.",

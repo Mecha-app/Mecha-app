@@ -55,6 +55,22 @@ export class ValidationError extends Error {
   }
 }
 
+/**
+ * Registration sent a password confirmation that does not match the
+ * password (owner's rule, 2026-11-03: a person verifies the password
+ * TWICE before an account exists). The web form checks this before
+ * sending anything; the service checks it again — defense in depth —
+ * so an API caller that skips the form cannot create an account with
+ * an unconfirmed password either. Nothing is created on this path.
+ */
+export class PasswordMismatchError extends Error {
+  readonly code = "password_mismatch";
+  constructor() {
+    super("The passwords don't match — check them and try again.");
+    this.name = "PasswordMismatchError";
+  }
+}
+
 export class InvalidCredentialsError extends Error {
   readonly code = "invalid_credentials";
   constructor() {
@@ -137,7 +153,13 @@ function toAuthResult(user: UserRecord): AuthResult {
 
 export async function registerDriver(
   store: IdentityStore,
-  input: { name?: unknown; email?: unknown; phone?: unknown; password?: unknown },
+  input: {
+    name?: unknown;
+    email?: unknown;
+    phone?: unknown;
+    password?: unknown;
+    confirmPassword?: unknown;
+  },
   deps: { mailer?: Mailer } = {},
 ): Promise<AuthResult> {
   const name = typeof input.name === "string" ? input.name.trim() : "";
@@ -150,6 +172,16 @@ export async function registerDriver(
   const password = typeof input.password === "string" ? input.password : "";
   if (password.length < 8) {
     throw new ValidationError('"password" must be at least 8 characters.');
+  }
+
+  // Password verified twice (owner's rule, 2026-11-03). The web form
+  // always sends the confirmation and blocks a mismatch before the
+  // request leaves the browser; when a confirmation IS sent, the
+  // service enforces the match too. Callers that send none keep the
+  // pre-existing behavior — the field is an added guard, not a new
+  // requirement on the API's older consumers.
+  if (input.confirmPassword !== undefined && input.confirmPassword !== password) {
+    throw new PasswordMismatchError();
   }
 
   // Phone is optional at the form level, but when given it becomes an

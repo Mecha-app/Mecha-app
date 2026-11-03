@@ -911,6 +911,10 @@ const de: DeepPartial<Dictionary> = {
       failed: "Die Anmeldung mit Google hat nicht funktioniert. Bitte versuchen Sie es erneut — oder melden Sie sich unten mit Ihrer E-Mail und Ihrem Passwort an.",
       googleOnly: "Dieses Konto nutzt die Anmeldung mit Google, daher gibt es kein Passwort zu prüfen. Verwenden Sie oben „Mit Google fortfahren“.",
     },
+    register: {
+      confirmPassword: "Passwort bestätigen",
+      passwordMismatch: "Die Passwörter stimmen nicht überein — prüfen Sie sie und versuchen Sie es erneut.",
+    },
     completeProfile: {
       title: "Noch eines — Ihre Telefonnummer",
       body: "MECHA erkennt Ihr Konto an Ihrer E-Mail UND Ihrer Telefonnummer — gemeinsam schützen sie Ihre 5 kostenlosen Diagnosen, damit niemand Ihren Zähler durch eine erneute Registrierung zurücksetzen kann. Fügen Sie Ihre Nummer hinzu, um die Einrichtung Ihres Kontos abzuschließen.",
