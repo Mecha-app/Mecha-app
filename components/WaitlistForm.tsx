@@ -44,7 +44,7 @@ export function WaitlistForm() {
         <Reveal>
         <div className="mx-auto max-w-2xl text-center">
           <p className="text-xs font-semibold uppercase tracking-eyebrow text-accent">{w.eyebrow}</p>
-          <h2 className="mt-4 font-display text-[clamp(2.1rem,4.5vw,3.25rem)] font-semibold leading-[1.08] tracking-[-0.02em] text-ink-1">
+          <h2 className="mt-4 text-balance font-display text-[clamp(2.1rem,4.5vw,3.25rem)] font-semibold leading-[1.08] tracking-[-0.02em] text-ink-1">
             {w.heading}
           </h2>
           <p className="mx-auto mt-5 max-w-xl text-[17px] leading-relaxed text-ink-2">{w.body}</p>

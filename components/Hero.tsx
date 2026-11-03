@@ -87,7 +87,7 @@ export function Hero() {
           <br />
           {t.hero.titleLine2}
         </h1>
-        <p className="mx-auto mt-7 max-w-2xl text-lg leading-relaxed text-ink-2 sm:text-xl">
+        <p className="mx-auto mt-7 max-w-2xl text-pretty text-lg leading-relaxed text-ink-2 sm:text-xl">
           {t.hero.sub}
         </p>
 
@@ -110,7 +110,7 @@ export function Hero() {
           <button
             type="button"
             onClick={watchFilm}
-            className="mt-9 inline-flex items-center gap-2.5 text-sm font-medium text-ink-2 transition-colors duration-150 hover:text-ink-1"
+            className="mt-9 inline-flex min-h-[48px] items-center gap-2.5 px-3 text-sm font-medium text-ink-2 transition-colors duration-150 hover:text-ink-1"
           >
             <span className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-line">
               <PlayIcon />
@@ -124,7 +124,7 @@ export function Hero() {
       <a
         href="#pillars"
         aria-label={t.pillars.eyebrow}
-        className="absolute bottom-6 left-1/2 z-10 -translate-x-1/2 text-ink-2 transition-colors duration-150 hover:text-ink-1"
+        className="absolute bottom-4 left-1/2 z-10 flex h-12 w-12 -translate-x-1/2 items-center justify-center text-ink-2 transition-colors duration-150 hover:text-ink-1"
       >
         <span className="scroll-cue block">
           <ChevronDownIcon />

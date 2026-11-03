@@ -24,26 +24,26 @@ export function Footer() {
             <p className="mt-4 text-sm leading-relaxed text-ink-2">{f.tagline}</p>
           </div>
 
-          <nav className="flex gap-16 text-sm" aria-label="Footer">
-            <div className="flex flex-col gap-2.5">
+          <nav className="flex gap-10 text-sm sm:gap-16" aria-label="Footer">
+            <div className="flex flex-col gap-1">
               <span className="text-[11px] font-semibold uppercase tracking-eyebrow text-ink-3">
                 {f.support}
               </span>
-              <a href="mailto:support@mechaai.com" className="text-ink-2 transition-colors duration-150 hover:text-ink-1">
+              <a href="mailto:support@mechaai.com" className="inline-flex min-h-[48px] items-center text-ink-2 transition-colors duration-150 hover:text-ink-1">
                 support@mechaai.com
               </a>
-              <Link href="/contact" className="text-ink-2 transition-colors duration-150 hover:text-ink-1">
+              <Link href="/contact" className="inline-flex min-h-[48px] items-center text-ink-2 transition-colors duration-150 hover:text-ink-1">
                 {f.contact}
               </Link>
             </div>
-            <div className="flex flex-col gap-2.5">
+            <div className="flex flex-col gap-1">
               <span className="text-[11px] font-semibold uppercase tracking-eyebrow text-ink-3">
                 {f.privacy} / {f.terms}
               </span>
-              <Link href="/privacy" className="text-ink-2 transition-colors duration-150 hover:text-ink-1">
+              <Link href="/privacy" className="inline-flex min-h-[48px] items-center text-ink-2 transition-colors duration-150 hover:text-ink-1">
                 {f.privacy}
               </Link>
-              <Link href="/terms" className="text-ink-2 transition-colors duration-150 hover:text-ink-1">
+              <Link href="/terms" className="inline-flex min-h-[48px] items-center text-ink-2 transition-colors duration-150 hover:text-ink-1">
                 {f.terms}
               </Link>
             </div>

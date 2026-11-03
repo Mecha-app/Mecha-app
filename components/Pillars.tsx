@@ -51,12 +51,14 @@ function PillarColumn({
   title,
   body,
   points,
+  detail,
 }: {
   index: string;
   icon: React.ReactNode;
   title: string;
   body: string;
   points: string[];
+  detail: string;
 }) {
   return (
     <article className="border-t border-line pt-9">
@@ -78,6 +80,7 @@ function PillarColumn({
           </li>
         ))}
       </ul>
+      <p className="mt-7 text-[15px] leading-relaxed text-ink-2">{detail}</p>
     </article>
   );
 }
@@ -96,10 +99,12 @@ export function Pillars() {
     <section id="pillars" className="scroll-mt-16">
       <div className="mx-auto max-w-6xl px-4 py-24 sm:px-6 lg:py-36">
         <Reveal>
-          <p className="text-xs font-semibold uppercase tracking-eyebrow text-accent">{p.eyebrow}</p>
-          <h2 className="mt-4 font-display text-[clamp(2.1rem,4.5vw,3.4rem)] font-semibold leading-[1.08] tracking-[-0.02em] text-ink-1">
-            {p.heading}
-          </h2>
+          <div className="mx-auto max-w-2xl text-center">
+            <p className="text-xs font-semibold uppercase tracking-eyebrow text-accent">{p.eyebrow}</p>
+            <h2 className="mt-4 text-balance font-display text-[clamp(2.1rem,4.5vw,3.4rem)] font-semibold leading-[1.08] tracking-[-0.02em] text-ink-1">
+              {p.heading}
+            </h2>
+          </div>
         </Reveal>
         <div className="mt-16 grid gap-12 md:grid-cols-3 md:gap-10 lg:mt-20">
           <Reveal delay={0}>
@@ -109,6 +114,7 @@ export function Pillars() {
               title={p.diagnose.title}
               body={p.diagnose.body}
               points={[p.diagnose.point1, p.diagnose.point2, p.diagnose.point3]}
+              detail={p.diagnose.detail}
             />
           </Reveal>
           <Reveal delay={130}>
@@ -118,6 +124,7 @@ export function Pillars() {
               title={p.protect.title}
               body={p.protect.body}
               points={[p.protect.point1, p.protect.point2, p.protect.point3]}
+              detail={p.protect.detail}
             />
           </Reveal>
           <Reveal delay={260}>
@@ -127,6 +134,7 @@ export function Pillars() {
               title={p.remember.title}
               body={p.remember.body}
               points={[p.remember.point1, p.remember.point2, p.remember.point3]}
+              detail={p.remember.detail}
             />
           </Reveal>
         </div>

@@ -1,18 +1,28 @@
+import { Businesses } from "@/components/Businesses";
+import { DiagnosisExample } from "@/components/DiagnosisExample";
 import { FairPriceQuote } from "@/components/FairPriceQuote";
+import { Faq } from "@/components/Faq";
 import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
 import { Hero } from "@/components/Hero";
+import { HowItWorks } from "@/components/HowItWorks";
 import { Pillars } from "@/components/Pillars";
+import { Pricing } from "@/components/Pricing";
 import { WaitlistForm } from "@/components/WaitlistForm";
 
 /**
  * Route `/` — marketing home (blueprint §2.1, route 1).
- * WP2 scope: hero with the produced explainer film, the three pillars,
- * the Fair Price vs Their Quote signature block (+ fair-price film),
- * and the real email-only waitlist finale. The live diagnosis demo card
- * and shops band land in WP6 against the WP3 API.
- * Design-elevation pass 1 (2026-11-03): the header floats over the
- * full-viewport hero film (Header `overlay` mode).
+ * Design-elevation pass 1: the header floats over the full-viewport
+ * hero film; pillars, Fair Price, waitlist finale.
+ * Design pass 2 (2026-11-03, owner feedback: "not enough information…
+ * not really convincing"): the page now carries the full argument —
+ * what MECHA does (pillars, deepened with per-pillar detail), how a
+ * diagnosis actually runs (four steps + what every report includes),
+ * the report itself rendered as a labeled example, the nearby shops /
+ * towing network and marketplace, honest pricing with the free meter
+ * explained, and an FAQ that answers the real objections — before the
+ * waitlist finale. Substance in the same design system: section-per-
+ * idea rhythm, hairlines, no card clutter, no invented claims (§1.6).
  */
 export default function HomePage() {
   return (
@@ -21,7 +31,12 @@ export default function HomePage() {
       <main>
         <Hero />
         <Pillars />
+        <HowItWorks />
+        <DiagnosisExample />
         <FairPriceQuote />
+        <Businesses />
+        <Pricing />
+        <Faq />
         <WaitlistForm />
       </main>
       <Footer />

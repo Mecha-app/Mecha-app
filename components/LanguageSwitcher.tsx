@@ -43,7 +43,7 @@ export function LanguageSwitcher() {
         aria-haspopup="listbox"
         aria-expanded={open}
         aria-label={t.header.languageLabel}
-        className="inline-flex h-9 items-center gap-1.5 rounded-full border border-line bg-surface px-3 text-[13px] font-medium text-ink-2 transition-colors duration-200 hover:text-ink-1 hover:border-ink-3"
+        className="inline-flex h-12 items-center gap-1.5 rounded-full border border-line bg-surface px-3.5 text-[13px] font-medium text-ink-2 transition-colors duration-200 hover:text-ink-1 hover:border-ink-3"
       >
         <GlobeIcon />
         <span className="hidden sm:inline">{current?.label}</span>
@@ -65,7 +65,7 @@ export function LanguageSwitcher() {
                   setLocale(l.code);
                   setOpen(false);
                 }}
-                className={`flex w-full items-center justify-between px-3 py-2 text-left text-sm transition-colors duration-150 hover:bg-inset ${
+                className={`flex min-h-[48px] w-full items-center justify-between px-3 py-3 text-left text-sm transition-colors duration-150 hover:bg-inset ${
                   l.code === locale ? "text-accent" : "text-ink-2"
                 }`}
               >

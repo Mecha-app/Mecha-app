@@ -57,7 +57,7 @@ export function ThemeToggle({ label }: { label: string }) {
       aria-label={label}
       title={label}
       aria-pressed={mounted && theme === "light"}
-      className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-line bg-surface text-ink-2 transition-colors duration-200 hover:text-ink-1 hover:border-ink-3"
+      className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-line bg-surface text-ink-2 transition-colors duration-200 hover:text-ink-1 hover:border-ink-3"
     >
       {/* Render moon in dark (tap → light), sun in light (tap → dark). */}
       {mounted && theme === "light" ? <MoonIcon /> : <SunIcon />}

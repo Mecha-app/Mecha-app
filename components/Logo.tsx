@@ -55,12 +55,20 @@ export function GaugeMMark({
   );
 }
 
-export function LogoLockup({ markSize = 36 }: { markSize?: number }) {
+export function LogoLockup({
+  markSize = 36,
+  wordmarkClassName,
+}: {
+  markSize?: number;
+  /** Lets a tight chrome slot (the mobile header) collapse to the mark
+   *  alone below a breakpoint without forking the lockup. */
+  wordmarkClassName?: string;
+}) {
   return (
     <span className="inline-flex items-center gap-2.5 text-ink-1">
       <GaugeMMark size={markSize} />
       <span
-        className="font-display text-[22px] font-bold leading-none"
+        className={`font-display text-[22px] font-bold leading-none ${wordmarkClassName ?? ""}`}
         style={{ letterSpacing: "0.04em" }}
       >
         MECHA
