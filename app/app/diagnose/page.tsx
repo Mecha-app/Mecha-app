@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState, type FormEvent } from "react";
+import PartsNextSteps from "@/components/PartsNextSteps";
 import { authHeaders, clearSession, getToken } from "@/lib/client/auth";
 import type { DiagnosisReport } from "@/lib/server/ai";
 import { DIAGNOSE_PREFILL_KEY, type ScanDiagnosePrefill } from "@/lib/server/scan";
@@ -313,7 +314,7 @@ export default function DiagnosePage() {
           {report.steps.length > 0 && (
             <div className="mt-5">
               <h3 className="text-sm font-semibold uppercase tracking-eyebrow text-ink-2">
-                What to do next
+                Next steps
               </h3>
               <ol className="mt-2 flex list-decimal flex-col gap-1 pl-5">
                 {report.steps.map((step) => (
@@ -330,6 +331,11 @@ export default function DiagnosePage() {
           <p className="mt-5 text-sm leading-relaxed text-ink-3">{report.disclaimer}</p>
         </section>
       )}
+
+      {/* After the verdict, the causes, and the next steps — never
+          above them: the parts / shops block built from this finished
+          report (parts affiliate package; see lib/server/parts.ts). */}
+      {report && <PartsNextSteps report={report} vehicleInfo={vehicleInfo} />}
     </main>
   );
 }
