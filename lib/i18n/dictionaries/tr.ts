@@ -18,6 +18,8 @@ const tr: DeepPartial<Dictionary> = {
     createAccount: "Hesap oluştur",
     themeToggleLabel: "Açık ve koyu tema arasında geçiş yap",
     languageLabel: "Dil",
+    logoHomeLabel: "MECHA — ana sayfa",
+    logoAppLabel: "MECHA — uygulama ana sayfası",
   },
   hero: {
     eyebrow: "Aracınızın yapay zekâ yol arkadaşı",

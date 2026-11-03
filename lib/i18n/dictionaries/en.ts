@@ -21,6 +21,8 @@ const en = {
     createAccount: "Create account",
     themeToggleLabel: "Switch between light and dark theme",
     languageLabel: "Language",
+    logoHomeLabel: "MECHA — home",
+    logoAppLabel: "MECHA — app home",
   },
   hero: {
     eyebrow: "Your car's AI co-pilot",

@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { saveSession, type StoredUser } from "@/lib/client/auth";
+import { MinimalTopBar } from "@/components/MinimalTopBar";
 import { RETURN_TO_KEY } from "@/lib/server/scan";
 
 /**
@@ -61,10 +62,13 @@ export default function GoogleCompletePage() {
   }, []);
 
   return (
-    <main className="mx-auto w-full max-w-md px-4 py-16">
-      <p className="text-center text-base text-ink-2" role="status">
-        Signing you in…
-      </p>
-    </main>
+    <>
+      <MinimalTopBar />
+      <main className="mx-auto w-full max-w-md px-4 py-16">
+        <p className="text-center text-base text-ink-2" role="status">
+          Signing you in…
+        </p>
+      </main>
+    </>
   );
 }

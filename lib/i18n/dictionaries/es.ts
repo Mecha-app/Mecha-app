@@ -16,6 +16,8 @@ const es: DeepPartial<Dictionary> = {
     createAccount: "Crear cuenta",
     themeToggleLabel: "Cambiar entre tema claro y oscuro",
     languageLabel: "Idioma",
+    logoHomeLabel: "MECHA — inicio",
+    logoAppLabel: "MECHA — inicio de la app",
   },
   hero: {
     eyebrow: "El copiloto de IA de tu coche",

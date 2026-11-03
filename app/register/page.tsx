@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState, type FormEvent } from "react";
 import { SocialSignIn } from "@/components/SocialSignIn";
+import { MinimalTopBar } from "@/components/MinimalTopBar";
 import { saveSession } from "@/lib/client/auth";
 import { useLocale } from "@/lib/i18n/LocaleProvider";
 import { RETURN_TO_KEY } from "@/lib/server/scan";
@@ -106,131 +107,134 @@ export default function RegisterPage() {
   const labelClass = "block text-sm font-medium text-ink-2";
 
   return (
-    <main className="mx-auto w-full max-w-md px-4 py-10 sm:py-16">
-      <h1 className="font-display text-3xl font-semibold tracking-[-0.01em] text-ink-1">
-        Create your account
-      </h1>
-      <p className="mt-3 text-base leading-relaxed text-ink-2">
-        Your first 5 diagnoses are free. After that, MECHA Pro keeps you covered — we will
-        always tell you exactly how many free diagnoses you have left.
-      </p>
+    <>
+      <MinimalTopBar />
+      <main className="mx-auto w-full max-w-md px-4 py-10 sm:py-16">
+        <h1 className="font-display text-3xl font-semibold tracking-[-0.01em] text-ink-1">
+          Create your account
+        </h1>
+        <p className="mt-3 text-base leading-relaxed text-ink-2">
+          Your first 5 diagnoses are free. After that, MECHA Pro keeps you covered — we will
+          always tell you exactly how many free diagnoses you have left.
+        </p>
 
-      <SocialSignIn />
+        <SocialSignIn />
 
-      <form onSubmit={onSubmit} className="mt-8 flex flex-col gap-5" noValidate>
-        <div>
-          <label htmlFor="reg-name" className={labelClass}>
-            Name
-          </label>
-          <input
-            id="reg-name"
-            className={inputClass}
-            autoComplete="name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            required
-          />
-        </div>
-        <div>
-          <label htmlFor="reg-email" className={labelClass}>
-            Email
-          </label>
-          <input
-            id="reg-email"
-            type="email"
-            className={inputClass}
-            autoComplete="email"
-            inputMode="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-        </div>
-        <div>
-          <label htmlFor="reg-phone" className={labelClass}>
-            Phone
-          </label>
-          <input
-            id="reg-phone"
-            type="tel"
-            className={inputClass}
-            autoComplete="tel"
-            inputMode="tel"
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-          />
-        </div>
-        <div>
-          <label htmlFor="reg-password" className={labelClass}>
-            Password
-          </label>
-          <input
-            id="reg-password"
-            type="password"
-            className={inputClass}
-            autoComplete="new-password"
-            value={password}
-            onChange={(e) => {
-              setPassword(e.target.value);
-              if (state === "mismatch") setState("idle");
-            }}
-            required
-          />
-          <p className="mt-2 text-sm text-ink-3">At least 8 characters.</p>
-        </div>
-        <div>
-          <label htmlFor="reg-password-confirm" className={labelClass}>
-            {t.auth.register.confirmPassword}
-          </label>
-          <input
-            id="reg-password-confirm"
-            type="password"
-            className={inputClass}
-            autoComplete="new-password"
-            value={confirmPassword}
-            onChange={(e) => {
-              setConfirmPassword(e.target.value);
-              if (state === "mismatch") setState("idle");
-            }}
-            required
-          />
-        </div>
+        <form onSubmit={onSubmit} className="mt-8 flex flex-col gap-5" noValidate>
+          <div>
+            <label htmlFor="reg-name" className={labelClass}>
+              Name
+            </label>
+            <input
+              id="reg-name"
+              className={inputClass}
+              autoComplete="name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+            />
+          </div>
+          <div>
+            <label htmlFor="reg-email" className={labelClass}>
+              Email
+            </label>
+            <input
+              id="reg-email"
+              type="email"
+              className={inputClass}
+              autoComplete="email"
+              inputMode="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </div>
+          <div>
+            <label htmlFor="reg-phone" className={labelClass}>
+              Phone
+            </label>
+            <input
+              id="reg-phone"
+              type="tel"
+              className={inputClass}
+              autoComplete="tel"
+              inputMode="tel"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+            />
+          </div>
+          <div>
+            <label htmlFor="reg-password" className={labelClass}>
+              Password
+            </label>
+            <input
+              id="reg-password"
+              type="password"
+              className={inputClass}
+              autoComplete="new-password"
+              value={password}
+              onChange={(e) => {
+                setPassword(e.target.value);
+                if (state === "mismatch") setState("idle");
+              }}
+              required
+            />
+            <p className="mt-2 text-sm text-ink-3">At least 8 characters.</p>
+          </div>
+          <div>
+            <label htmlFor="reg-password-confirm" className={labelClass}>
+              {t.auth.register.confirmPassword}
+            </label>
+            <input
+              id="reg-password-confirm"
+              type="password"
+              className={inputClass}
+              autoComplete="new-password"
+              value={confirmPassword}
+              onChange={(e) => {
+                setConfirmPassword(e.target.value);
+                if (state === "mismatch") setState("idle");
+              }}
+              required
+            />
+          </div>
 
-        {state === "mismatch" && (
-          <p className="rounded-xl border border-line bg-surface px-4 py-3 text-base text-verdict-rip" role="alert">
-            {t.auth.register.passwordMismatch}
-          </p>
-        )}
+          {state === "mismatch" && (
+            <p className="rounded-xl border border-line bg-surface px-4 py-3 text-base text-verdict-rip" role="alert">
+              {t.auth.register.passwordMismatch}
+            </p>
+          )}
 
-        {state === "conflict" && (
-          <p className="rounded-xl border border-line bg-surface px-4 py-3 text-base text-ink-1" role="alert">
-            {detail}{" "}
-            <Link href="/login" className="font-semibold text-accent underline">
-              Sign in
-            </Link>
-          </p>
-        )}
-        {state === "error" && (
-          <p className="rounded-xl border border-line bg-surface px-4 py-3 text-base text-verdict-rip" role="alert">
-            {detail}
-          </p>
-        )}
+          {state === "conflict" && (
+            <p className="rounded-xl border border-line bg-surface px-4 py-3 text-base text-ink-1" role="alert">
+              {detail}{" "}
+              <Link href="/login" className="font-semibold text-accent underline">
+                Sign in
+              </Link>
+            </p>
+          )}
+          {state === "error" && (
+            <p className="rounded-xl border border-line bg-surface px-4 py-3 text-base text-verdict-rip" role="alert">
+              {detail}
+            </p>
+          )}
 
-        <button
-          type="submit"
-          disabled={state === "sending"}
-          className="h-12 w-full rounded-full bg-accent px-6 text-base font-semibold text-accent-ink disabled:opacity-60"
-        >
-          {state === "sending" ? "Creating account…" : "Create account"}
-        </button>
-      </form>
+          <button
+            type="submit"
+            disabled={state === "sending"}
+            className="h-12 w-full rounded-full bg-accent px-6 text-base font-semibold text-accent-ink disabled:opacity-60"
+          >
+            {state === "sending" ? "Creating account…" : "Create account"}
+          </button>
+        </form>
 
-      <p className="mt-8 text-base text-ink-2">
-        Already have an account?{" "}
-        <Link href="/login" className="font-semibold text-accent underline">
-          Sign in
-        </Link>
-      </p>
-    </main>
+        <p className="mt-8 text-base text-ink-2">
+          Already have an account?{" "}
+          <Link href="/login" className="font-semibold text-accent underline">
+            Sign in
+          </Link>
+        </p>
+      </main>
+    </>
   );
 }

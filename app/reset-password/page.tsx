@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState, type FormEvent } from "react";
 import { saveSession } from "@/lib/client/auth";
+import { MinimalTopBar } from "@/components/MinimalTopBar";
 
 /**
  * /reset-password (0011) — MOBILE-FIRST reset completion: the same
@@ -65,83 +66,86 @@ export default function ResetPasswordPage() {
   const labelClass = "block text-sm font-medium text-ink-2";
 
   return (
-    <main className="mx-auto w-full max-w-md px-4 py-10 sm:py-16">
-      <h1 className="font-display text-3xl font-semibold tracking-[-0.01em] text-ink-1">
-        Set a new password
-      </h1>
-      <p className="mt-3 text-base leading-relaxed text-ink-2">
-        Enter the same email or phone number you started with, the 6-digit code from your
-        email, and your new password.
-      </p>
+    <>
+      <MinimalTopBar />
+      <main className="mx-auto w-full max-w-md px-4 py-10 sm:py-16">
+        <h1 className="font-display text-3xl font-semibold tracking-[-0.01em] text-ink-1">
+          Set a new password
+        </h1>
+        <p className="mt-3 text-base leading-relaxed text-ink-2">
+          Enter the same email or phone number you started with, the 6-digit code from your
+          email, and your new password.
+        </p>
 
-      <form onSubmit={onSubmit} className="mt-8 flex flex-col gap-5" noValidate>
-        <div>
-          <label htmlFor="reset-identifier" className={labelClass}>
-            Email or phone number
-          </label>
-          <input
-            id="reset-identifier"
-            className={inputClass}
-            autoComplete="username"
-            value={identifier}
-            onChange={(e) => setIdentifier(e.target.value)}
-            required
-          />
-        </div>
-        <div>
-          <label htmlFor="reset-code" className={labelClass}>
-            Reset code
-          </label>
-          <input
-            id="reset-code"
-            className={`${inputClass} font-mono`}
-            inputMode="numeric"
-            autoComplete="one-time-code"
-            maxLength={6}
-            placeholder="123456"
-            value={code}
-            onChange={(e) => setCode(e.target.value)}
-            required
-          />
-          <p className="mt-2 text-sm text-ink-3">The code lasts 15 minutes and works once.</p>
-        </div>
-        <div>
-          <label htmlFor="reset-password" className={labelClass}>
-            New password
-          </label>
-          <input
-            id="reset-password"
-            type="password"
-            className={inputClass}
-            autoComplete="new-password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-          <p className="mt-2 text-sm text-ink-3">At least 8 characters.</p>
-        </div>
+        <form onSubmit={onSubmit} className="mt-8 flex flex-col gap-5" noValidate>
+          <div>
+            <label htmlFor="reset-identifier" className={labelClass}>
+              Email or phone number
+            </label>
+            <input
+              id="reset-identifier"
+              className={inputClass}
+              autoComplete="username"
+              value={identifier}
+              onChange={(e) => setIdentifier(e.target.value)}
+              required
+            />
+          </div>
+          <div>
+            <label htmlFor="reset-code" className={labelClass}>
+              Reset code
+            </label>
+            <input
+              id="reset-code"
+              className={`${inputClass} font-mono`}
+              inputMode="numeric"
+              autoComplete="one-time-code"
+              maxLength={6}
+              placeholder="123456"
+              value={code}
+              onChange={(e) => setCode(e.target.value)}
+              required
+            />
+            <p className="mt-2 text-sm text-ink-3">The code lasts 15 minutes and works once.</p>
+          </div>
+          <div>
+            <label htmlFor="reset-password" className={labelClass}>
+              New password
+            </label>
+            <input
+              id="reset-password"
+              type="password"
+              className={inputClass}
+              autoComplete="new-password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+            <p className="mt-2 text-sm text-ink-3">At least 8 characters.</p>
+          </div>
 
-        {state === "error" && (
-          <p className="rounded-xl border border-line bg-surface px-4 py-3 text-base text-verdict-rip" role="alert">
-            {detail}
-          </p>
-        )}
+          {state === "error" && (
+            <p className="rounded-xl border border-line bg-surface px-4 py-3 text-base text-verdict-rip" role="alert">
+              {detail}
+            </p>
+          )}
 
-        <button
-          type="submit"
-          disabled={state === "sending"}
-          className="h-12 w-full rounded-full bg-accent px-6 text-base font-semibold text-accent-ink disabled:opacity-60"
-        >
-          {state === "sending" ? "Saving…" : "Set password and sign in"}
-        </button>
-      </form>
+          <button
+            type="submit"
+            disabled={state === "sending"}
+            className="h-12 w-full rounded-full bg-accent px-6 text-base font-semibold text-accent-ink disabled:opacity-60"
+          >
+            {state === "sending" ? "Saving…" : "Set password and sign in"}
+          </button>
+        </form>
 
-      <p className="mt-8 text-base text-ink-2">
-        No code yet?{" "}
-        <Link href="/forgot-password" className="font-semibold text-accent underline">
-          Request one
-        </Link>
-      </p>
-    </main>
+        <p className="mt-8 text-base text-ink-2">
+          No code yet?{" "}
+          <Link href="/forgot-password" className="font-semibold text-accent underline">
+            Request one
+          </Link>
+        </p>
+      </main>
+    </>
   );
 }

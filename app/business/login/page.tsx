@@ -64,7 +64,7 @@ export default function BusinessLoginPage() {
 
   return (
     <>
-      <AppNav business />
+      <AppNav business logoHref="/" />
       <main className="mx-auto w-full max-w-md px-4 py-8">
         <h1 className="font-display text-3xl font-semibold tracking-[-0.01em] text-ink-1">
           {b.loginTitle}

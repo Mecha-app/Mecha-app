@@ -18,6 +18,8 @@ const uk: DeepPartial<Dictionary> = {
     createAccount: "Створити акаунт",
     themeToggleLabel: "Перемкнути світлу й темну тему",
     languageLabel: "Мова",
+    logoHomeLabel: "MECHA — на головну",
+    logoAppLabel: "MECHA — на головний екран застосунку",
   },
   hero: {
     eyebrow: "ШІ-копілот вашого автомобіля",

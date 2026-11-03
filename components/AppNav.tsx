@@ -10,9 +10,20 @@ import { GaugeMMark } from "./Logo";
  * App chrome for the signed-in surfaces (WP6): the Gauge M, the four
  * working destinations, and sign-out. Sparse on purpose — the app is
  * used one-handed, often roadside, so the bar carries navigation and
- * nothing else. Every target is ≥48px.
+ * nothing else. Every target is ≥48px. The lockup is the home link
+ * (owner directive 2026-11-03: logo on every page, one click back to
+ * the main page) — it targets /app here, the signed-in main page.
  */
-export function AppNav({ business = false }: { business?: boolean }) {
+export function AppNav({
+  business = false,
+  logoHref = "/app",
+}: {
+  business?: boolean;
+  /** Where the logo returns to. The app shell's main page is /app;
+   *  the pre-sign-in business pages that borrow this chrome (business
+   *  login/register) pass "/" — the public main page. */
+  logoHref?: string;
+}) {
   const { t } = useLocale();
   const router = useRouter();
 
@@ -40,7 +51,11 @@ export function AppNav({ business = false }: { business?: boolean }) {
   return (
     <header className="border-b border-line bg-surface">
       <div className="mx-auto flex w-full max-w-5xl flex-wrap items-center gap-x-2 gap-y-1 px-4 py-2">
-        <Link href="/app" className="flex h-12 items-center gap-2 pe-2" aria-label="MECHA">
+        <Link
+          href={logoHref}
+          className="flex h-12 items-center gap-2 pe-2"
+          aria-label={logoHref === "/app" ? t.header.logoAppLabel : t.header.logoHomeLabel}
+        >
           <GaugeMMark size={28} className="text-ink-1" />
           <span className="font-display text-lg font-bold tracking-[0.04em] text-ink-1">MECHA</span>
         </Link>

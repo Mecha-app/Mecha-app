@@ -17,6 +17,8 @@ const ht: DeepPartial<Dictionary> = {
     createAccount: "Kreye yon kont",
     themeToggleLabel: "Chanje ant tèm klè ak tèm fènwa",
     languageLabel: "Lang",
+    logoHomeLabel: "MECHA — akèy",
+    logoAppLabel: "MECHA — akèy app la",
   },
   hero: {
     eyebrow: "Kopilòt IA pou machin ou",

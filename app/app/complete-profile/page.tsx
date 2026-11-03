@@ -2,6 +2,7 @@
 
 import { useEffect, useState, type FormEvent } from "react";
 import { apiDetail, apiFetch } from "@/lib/client/api";
+import { MinimalTopBar } from "@/components/MinimalTopBar";
 import { getStoredUser, getToken, saveSession, type StoredUser } from "@/lib/client/auth";
 import { useLocale } from "@/lib/i18n/LocaleProvider";
 
@@ -51,43 +52,46 @@ export default function CompleteProfilePage() {
   }
 
   return (
-    <main className="mx-auto w-full max-w-md px-4 py-10 sm:py-16">
-      <h1 className="font-display text-3xl font-semibold tracking-[-0.01em] text-ink-1">
-        {copy.title}
-      </h1>
-      <p className="mt-3 text-base leading-relaxed text-ink-2">{copy.body}</p>
+    <>
+      <MinimalTopBar />
+      <main className="mx-auto w-full max-w-md px-4 py-10 sm:py-16">
+        <h1 className="font-display text-3xl font-semibold tracking-[-0.01em] text-ink-1">
+          {copy.title}
+        </h1>
+        <p className="mt-3 text-base leading-relaxed text-ink-2">{copy.body}</p>
 
-      <form onSubmit={onSubmit} className="mt-8 flex flex-col gap-5" noValidate>
-        <div>
-          <label htmlFor="complete-phone" className="block text-sm font-medium text-ink-2">
-            {copy.phoneLabel}
-          </label>
-          <input
-            id="complete-phone"
-            type="tel"
-            className="h-12 w-full rounded-xl border border-line bg-surface px-4 text-base text-ink-1 placeholder:text-ink-3"
-            autoComplete="tel"
-            inputMode="tel"
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-            required
-          />
-        </div>
+        <form onSubmit={onSubmit} className="mt-8 flex flex-col gap-5" noValidate>
+          <div>
+            <label htmlFor="complete-phone" className="block text-sm font-medium text-ink-2">
+              {copy.phoneLabel}
+            </label>
+            <input
+              id="complete-phone"
+              type="tel"
+              className="h-12 w-full rounded-xl border border-line bg-surface px-4 text-base text-ink-1 placeholder:text-ink-3"
+              autoComplete="tel"
+              inputMode="tel"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              required
+            />
+          </div>
 
-        {state === "error" && (
-          <p className="rounded-xl border border-line bg-surface px-4 py-3 text-base text-verdict-rip" role="alert">
-            {detail}
-          </p>
-        )}
+          {state === "error" && (
+            <p className="rounded-xl border border-line bg-surface px-4 py-3 text-base text-verdict-rip" role="alert">
+              {detail}
+            </p>
+          )}
 
-        <button
-          type="submit"
-          disabled={state === "sending" || phone.trim().length === 0}
-          className="h-12 w-full rounded-full bg-accent px-6 text-base font-semibold text-accent-ink disabled:opacity-60"
-        >
-          {state === "sending" ? copy.saving : copy.submit}
-        </button>
-      </form>
-    </main>
+          <button
+            type="submit"
+            disabled={state === "sending" || phone.trim().length === 0}
+            className="h-12 w-full rounded-full bg-accent px-6 text-base font-semibold text-accent-ink disabled:opacity-60"
+          >
+            {state === "sending" ? copy.saving : copy.submit}
+          </button>
+        </form>
+      </main>
+    </>
   );
 }

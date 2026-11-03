@@ -18,6 +18,8 @@ const he: DeepPartial<Dictionary> = {
     createAccount: "צור חשבון",
     themeToggleLabel: "מעבר בין תצוגה בהירה לכהה",
     languageLabel: "שפה",
+    logoHomeLabel: "MECHA — דף הבית",
+    logoAppLabel: "MECHA — מסך הבית של האפליקציה",
   },
   hero: {
     eyebrow: "חבר ה-AI של הרכב שלך",

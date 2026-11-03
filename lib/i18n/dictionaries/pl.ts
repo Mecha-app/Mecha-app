@@ -18,6 +18,8 @@ const pl: DeepPartial<Dictionary> = {
     createAccount: "Załóż konto",
     themeToggleLabel: "Przełącz między jasnym a ciemnym motywem",
     languageLabel: "Język",
+    logoHomeLabel: "MECHA — strona główna",
+    logoAppLabel: "MECHA — ekran główny aplikacji",
   },
   hero: {
     eyebrow: "Kopilot AI twojego auta",

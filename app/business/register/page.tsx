@@ -108,7 +108,7 @@ export default function BusinessRegisterPage() {
 
   return (
     <>
-      <AppNav business />
+      <AppNav business logoHref="/" />
       <main className="mx-auto w-full max-w-2xl px-4 py-8">
         <h1 className="font-display text-3xl font-semibold tracking-[-0.01em] text-ink-1">
           {b.registerTitle}
