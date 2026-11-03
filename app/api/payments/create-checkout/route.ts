@@ -13,8 +13,11 @@ export const dynamic = "force-dynamic";
 
 /**
  * POST /api/payments/create-checkout — parity with the repo's
- * POST /api/payments/create-checkout (subscription session, card,
- * legacy price envs + URLs).
+ * POST /api/payments/create-checkout (subscription session, legacy
+ * price envs + URLs). One deliberate departure from the repo: the
+ * session is NOT restricted to card — no payment_method_types is
+ * sent, so Checkout surfaces every method enabled on the account,
+ * including Apple Pay and Google Pay (owner spec, Nov 3 2026).
  *
  * LEGACY BUG FIXED: the repo read `customer_email` from req.user.email,
  * but the JWT payload is {id, type} — the value was always undefined.

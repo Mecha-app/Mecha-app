@@ -57,6 +57,10 @@ function seller(id: string, name: string, email: string): UserRecord {
     authMethod: "email",
     plan: "free",
     stripeCustomerId: null,
+    stripeSubscriptionId: null,
+    subscriptionStatus: null,
+    currentPeriodEnd: null,
+    cancelAtPeriodEnd: false,
     freeDiagnosesUsed: 0,
     createdAt: new Date().toISOString(),
   };

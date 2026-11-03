@@ -19,7 +19,21 @@ import type { AccountType } from "./jwt";
  * is exhausted and the AI provider is never called.
  */
 
-export interface UserRecord {
+/**
+ * Subscription display state (migration 0010) — the webhook's cache of
+ * what Stripe says about the account's subscription, so the billing
+ * screens can state plan + status + period end in plain words without
+ * a live Stripe call. Stripe remains the system of record.
+ */
+export interface BillingFields {
+  stripeSubscriptionId: string | null;
+  subscriptionStatus: string | null;
+  /** ISO timestamp; while active this is the renewal date. */
+  currentPeriodEnd: string | null;
+  cancelAtPeriodEnd: boolean;
+}
+
+export interface UserRecord extends BillingFields {
   id: string;
   name: string;
   email: string;
@@ -40,6 +54,24 @@ export interface ShopRecord {
   email: string;
   plan: string;
   stripeCustomerId: string | null;
+  // Optional: records seeded before 0010 (ETL rows, older tests) may
+  // not carry the billing fields yet; readers treat absent as empty.
+  stripeSubscriptionId?: string | null;
+  subscriptionStatus?: string | null;
+  currentPeriodEnd?: string | null;
+  cancelAtPeriodEnd?: boolean;
+}
+
+export interface TowingRecord {
+  id: string;
+  companyName: string;
+  email: string;
+  plan: string;
+  stripeCustomerId: string | null;
+  stripeSubscriptionId?: string | null;
+  subscriptionStatus?: string | null;
+  currentPeriodEnd?: string | null;
+  cancelAtPeriodEnd?: boolean;
 }
 
 export interface CachedDiagnosis {
@@ -77,8 +109,13 @@ export class IdentityConflictError extends Error {
 export interface PlanUpdate {
   accountType: AccountType;
   accountId: string;
-  plan: string;
+  /** null = leave the plan unchanged (status-only subscription events). */
+  plan: string | null;
   stripeCustomerId?: string | null;
+  stripeSubscriptionId?: string | null;
+  subscriptionStatus?: string | null;
+  currentPeriodEnd?: string | null;
+  cancelAtPeriodEnd?: boolean;
 }
 
 export interface IdentityStore {
@@ -102,6 +139,15 @@ export interface IdentityStore {
     aiResult: unknown;
   }): Promise<{ id: string }>;
   findShopById(id: string): Promise<ShopRecord | null>;
+  findTowingById(id: string): Promise<TowingRecord | null>;
+  /**
+   * Resolve whoever owns a Stripe customer id — the subscription
+   * lifecycle events carry ONLY the customer, no account metadata, so
+   * the webhook finds its account this way.
+   */
+  findAccountByStripeCustomerId(
+    customerId: string,
+  ): Promise<{ accountType: AccountType; accountId: string } | null>;
   /** Stripe webhook sink — drivers, shops AND towing (legacy bug fix). */
   applyPlanUpdate(update: PlanUpdate): Promise<boolean>;
 }
@@ -129,12 +175,21 @@ interface UserRow {
   auth_method: "email" | "google" | "both";
   plan: PlanTier;
   stripe_customer_id: string | null;
+  stripe_subscription_id: string | null;
+  subscription_status: string | null;
+  current_period_end: Date | string | null;
+  cancel_at_period_end: boolean;
   free_diagnoses_used: number;
   created_at: Date | string;
 }
 
 const USER_COLUMNS =
-  "id, name, email, phone, phone_normalized, password_hash, google_sub, auth_method, plan, stripe_customer_id, free_diagnoses_used, created_at";
+  "id, name, email, phone, phone_normalized, password_hash, google_sub, auth_method, plan, stripe_customer_id, stripe_subscription_id, subscription_status, current_period_end, cancel_at_period_end, free_diagnoses_used, created_at";
+
+function toIso(value: Date | string | null): string | null {
+  if (value === null) return null;
+  return value instanceof Date ? value.toISOString() : String(value);
+}
 
 function toUserRecord(row: UserRow): UserRecord {
   return {
@@ -148,8 +203,31 @@ function toUserRecord(row: UserRow): UserRecord {
     authMethod: row.auth_method,
     plan: row.plan,
     stripeCustomerId: row.stripe_customer_id,
+    stripeSubscriptionId: row.stripe_subscription_id,
+    subscriptionStatus: row.subscription_status,
+    currentPeriodEnd: toIso(row.current_period_end),
+    cancelAtPeriodEnd: row.cancel_at_period_end ?? false,
     freeDiagnosesUsed: row.free_diagnoses_used,
     createdAt: row.created_at instanceof Date ? row.created_at.toISOString() : String(row.created_at),
+  };
+}
+
+interface BillingRow {
+  stripe_subscription_id: string | null;
+  subscription_status: string | null;
+  current_period_end: Date | string | null;
+  cancel_at_period_end: boolean;
+}
+
+const BILLING_COLUMNS =
+  "stripe_subscription_id, subscription_status, current_period_end, cancel_at_period_end";
+
+function billingFromRow(row: BillingRow): BillingFields {
+  return {
+    stripeSubscriptionId: row.stripe_subscription_id,
+    subscriptionStatus: row.subscription_status,
+    currentPeriodEnd: toIso(row.current_period_end),
+    cancelAtPeriodEnd: row.cancel_at_period_end ?? false,
   };
 }
 
@@ -279,38 +357,105 @@ export class PgIdentityStore implements IdentityStore {
   }
 
   async findShopById(id: string): Promise<ShopRecord | null> {
-    const { rows } = await getPool().query<{
-      id: string;
-      shop_name: string;
-      email: string;
-      plan: string;
-      stripe_customer_id: string | null;
-    }>("SELECT id, shop_name, email, plan, stripe_customer_id FROM shops WHERE id = $1 LIMIT 1", [id]);
+    const { rows } = await getPool().query<
+      {
+        id: string;
+        shop_name: string;
+        email: string;
+        plan: string;
+        stripe_customer_id: string | null;
+      } & BillingRow
+    >(
+      `SELECT id, shop_name, email, plan, stripe_customer_id, ${BILLING_COLUMNS} FROM shops WHERE id = $1 LIMIT 1`,
+      [id],
+    );
     if (rows.length === 0) return null;
     const r = rows[0];
-    return { id: r.id, shopName: r.shop_name, email: r.email, plan: r.plan, stripeCustomerId: r.stripe_customer_id };
+    return {
+      id: r.id,
+      shopName: r.shop_name,
+      email: r.email,
+      plan: r.plan,
+      stripeCustomerId: r.stripe_customer_id,
+      ...billingFromRow(r),
+    };
+  }
+
+  async findTowingById(id: string): Promise<TowingRecord | null> {
+    const { rows } = await getPool().query<
+      {
+        id: string;
+        company_name: string;
+        email: string;
+        plan: string;
+        stripe_customer_id: string | null;
+      } & BillingRow
+    >(
+      `SELECT id, company_name, email, plan, stripe_customer_id, ${BILLING_COLUMNS} FROM towing_companies WHERE id = $1 LIMIT 1`,
+      [id],
+    );
+    if (rows.length === 0) return null;
+    const r = rows[0];
+    return {
+      id: r.id,
+      companyName: r.company_name,
+      email: r.email,
+      plan: r.plan,
+      stripeCustomerId: r.stripe_customer_id,
+      ...billingFromRow(r),
+    };
+  }
+
+  async findAccountByStripeCustomerId(
+    customerId: string,
+  ): Promise<{ accountType: AccountType; accountId: string } | null> {
+    const pool = getPool();
+    const tables: Array<[AccountType, string]> = [
+      ["driver", "users"],
+      ["shop", "shops"],
+      ["towing", "towing_companies"],
+    ];
+    for (const [accountType, table] of tables) {
+      const { rows } = await pool.query<{ id: string }>(
+        `SELECT id FROM ${table} WHERE stripe_customer_id = $1 LIMIT 1`,
+        [customerId],
+      );
+      if (rows.length > 0) return { accountType, accountId: rows[0].id };
+    }
+    return null;
   }
 
   async applyPlanUpdate(update: PlanUpdate): Promise<boolean> {
     const pool = getPool();
-    if (update.accountType === "driver") {
-      const plan = update.plan === "pro" ? "pro" : "free";
-      const { rowCount } = await pool.query(
-        "UPDATE users SET plan = $2, stripe_customer_id = COALESCE($3, stripe_customer_id) WHERE id = $1",
-        [update.accountId, plan, update.stripeCustomerId ?? null],
-      );
-      return (rowCount ?? 0) > 0;
+    const table =
+      update.accountType === "driver"
+        ? "users"
+        : update.accountType === "shop"
+          ? "shops"
+          : "towing_companies";
+    // Only the fields the event actually carries are written; a null
+    // plan (status-only subscription event) leaves the plan untouched,
+    // and a null customer/subscription id never erases the stored one
+    // (the semantics the original COALESCE form had).
+    const sets: string[] = [];
+    const params: unknown[] = [update.accountId];
+    const push = (column: string, value: unknown) => {
+      params.push(value);
+      sets.push(`${column} = $${params.length}`);
+    };
+    if (update.plan !== null && update.plan !== undefined) {
+      // Drivers store the plan_tier enum: anything but "pro" is free.
+      push("plan", update.accountType === "driver" ? (update.plan === "pro" ? "pro" : "free") : update.plan);
     }
-    if (update.accountType === "shop") {
-      const { rowCount } = await pool.query(
-        "UPDATE shops SET plan = $2, stripe_customer_id = COALESCE($3, stripe_customer_id) WHERE id = $1",
-        [update.accountId, update.plan, update.stripeCustomerId ?? null],
-      );
-      return (rowCount ?? 0) > 0;
-    }
+    if (update.stripeCustomerId) push("stripe_customer_id", update.stripeCustomerId);
+    if (update.stripeSubscriptionId) push("stripe_subscription_id", update.stripeSubscriptionId);
+    if (update.subscriptionStatus !== undefined) push("subscription_status", update.subscriptionStatus);
+    if (update.currentPeriodEnd !== undefined) push("current_period_end", update.currentPeriodEnd);
+    if (update.cancelAtPeriodEnd !== undefined) push("cancel_at_period_end", update.cancelAtPeriodEnd);
+    if (sets.length === 0) return false;
     const { rowCount } = await pool.query(
-      "UPDATE towing_companies SET plan = $2, stripe_customer_id = COALESCE($3, stripe_customer_id) WHERE id = $1",
-      [update.accountId, update.plan, update.stripeCustomerId ?? null],
+      `UPDATE ${table} SET ${sets.join(", ")} WHERE id = $1`,
+      params,
     );
     return (rowCount ?? 0) > 0;
   }
@@ -325,7 +470,7 @@ export class PgIdentityStore implements IdentityStore {
 export class MemoryIdentityStore implements IdentityStore {
   readonly users = new Map<string, UserRecord>();
   readonly shops = new Map<string, ShopRecord & { phone?: string }>();
-  readonly towing = new Map<string, { id: string; plan: string; stripeCustomerId: string | null }>();
+  readonly towing = new Map<string, TowingRecord>();
   readonly cache = new Map<string, CachedDiagnosis>();
   readonly diagnoses: Array<{ id: string } & Record<string, unknown>> = [];
   private seq = 0;
@@ -365,6 +510,10 @@ export class MemoryIdentityStore implements IdentityStore {
       authMethod: input.authMethod ?? "email",
       plan: "free",
       stripeCustomerId: null,
+      stripeSubscriptionId: null,
+      subscriptionStatus: null,
+      currentPeriodEnd: null,
+      cancelAtPeriodEnd: false,
       freeDiagnosesUsed: 0,
       createdAt: new Date().toISOString(),
     };
@@ -406,26 +555,58 @@ export class MemoryIdentityStore implements IdentityStore {
     return this.shops.get(id) ?? null;
   }
 
+  async findTowingById(id: string): Promise<TowingRecord | null> {
+    return this.towing.get(id) ?? null;
+  }
+
+  async findAccountByStripeCustomerId(
+    customerId: string,
+  ): Promise<{ accountType: AccountType; accountId: string } | null> {
+    for (const u of this.users.values()) {
+      if (u.stripeCustomerId === customerId) return { accountType: "driver", accountId: u.id };
+    }
+    for (const s of this.shops.values()) {
+      if (s.stripeCustomerId === customerId) return { accountType: "shop", accountId: s.id };
+    }
+    for (const t of this.towing.values()) {
+      if (t.stripeCustomerId === customerId) return { accountType: "towing", accountId: t.id };
+    }
+    return null;
+  }
+
   async applyPlanUpdate(update: PlanUpdate): Promise<boolean> {
+    // Same partial-write semantics as the Pg implementation: only the
+    // fields the event carries are applied; a null plan leaves the
+    // plan untouched, a null id never erases the stored one.
+    const applyTo = (record: {
+      plan: string;
+      stripeCustomerId: string | null;
+      stripeSubscriptionId?: string | null;
+      subscriptionStatus?: string | null;
+      currentPeriodEnd?: string | null;
+      cancelAtPeriodEnd?: boolean;
+    }): boolean => {
+      if (update.plan !== null && update.plan !== undefined) {
+        record.plan =
+          update.accountType === "driver" ? (update.plan === "pro" ? "pro" : "free") : update.plan;
+      }
+      if (update.stripeCustomerId) record.stripeCustomerId = update.stripeCustomerId;
+      if (update.stripeSubscriptionId) record.stripeSubscriptionId = update.stripeSubscriptionId;
+      if (update.subscriptionStatus !== undefined) record.subscriptionStatus = update.subscriptionStatus;
+      if (update.currentPeriodEnd !== undefined) record.currentPeriodEnd = update.currentPeriodEnd;
+      if (update.cancelAtPeriodEnd !== undefined) record.cancelAtPeriodEnd = update.cancelAtPeriodEnd;
+      return true;
+    };
     if (update.accountType === "driver") {
       const user = this.users.get(update.accountId);
-      if (!user) return false;
-      user.plan = update.plan === "pro" ? "pro" : "free";
-      if (update.stripeCustomerId) user.stripeCustomerId = update.stripeCustomerId;
-      return true;
+      return user ? applyTo(user) : false;
     }
     if (update.accountType === "shop") {
       const shop = this.shops.get(update.accountId);
-      if (!shop) return false;
-      shop.plan = update.plan;
-      if (update.stripeCustomerId) shop.stripeCustomerId = update.stripeCustomerId;
-      return true;
+      return shop ? applyTo(shop) : false;
     }
     const tow = this.towing.get(update.accountId);
-    if (!tow) return false;
-    tow.plan = update.plan;
-    if (update.stripeCustomerId) tow.stripeCustomerId = update.stripeCustomerId;
-    return true;
+    return tow ? applyTo(tow) : false;
   }
 }
 

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { AppNav } from "@/components/AppNav";
+import { BillingSection } from "@/components/BillingSection";
 import { apiFetch } from "@/lib/client/api";
 import { getStoredUser, getToken } from "@/lib/client/auth";
 import { useLocale } from "@/lib/i18n/LocaleProvider";
@@ -212,6 +213,8 @@ export default function DashboardPage() {
                 ))}
               </ul>
             )}
+
+            {quota && <BillingSection kind="driver" fallbackPlan={quota.plan} />}
           </>
         )}
 
@@ -252,6 +255,10 @@ export default function DashboardPage() {
               </Link>
             </div>
           </section>
+        )}
+
+        {kind === "business" && business && (
+          <BillingSection kind="business" fallbackPlan={business.plan} />
         )}
       </main>
     </>
