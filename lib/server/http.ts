@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { DatabaseNotConfiguredError } from "./db";
+import { ForbiddenError, NotFoundError } from "./errors";
 import { AuthNotConfiguredError } from "./jwt";
 import { IdentityConflictError } from "./store";
 import { InvalidCredentialsError, ValidationError } from "./authService";
@@ -44,6 +45,12 @@ export function apiError(err: unknown): NextResponse {
   }
   if (err instanceof InvalidCredentialsError) {
     return NextResponse.json({ error: err.code, detail: err.message }, { status: 401 });
+  }
+  if (err instanceof NotFoundError) {
+    return NextResponse.json({ error: err.code, detail: err.message }, { status: 404 });
+  }
+  if (err instanceof ForbiddenError) {
+    return NextResponse.json({ error: err.code, detail: err.message }, { status: 403 });
   }
   if (err instanceof DatabaseNotConfiguredError) {
     return NextResponse.json(
