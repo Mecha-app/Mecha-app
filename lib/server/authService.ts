@@ -116,6 +116,18 @@ export async function registerDriver(
   return toAuthResult(user);
 }
 
+// Timing equalization (security pass): when the account does not exist
+// (or has no password hash), login still runs one bcrypt compare against
+// a dummy hash, so the response time does not reveal whether the email
+// is registered. The error is already identical on every failure path.
+let dummyHashPromise: Promise<string> | null = null;
+function dummyHash(): Promise<string> {
+  if (!dummyHashPromise) {
+    dummyHashPromise = hashPassword("mecha-timing-equalization-dummy");
+  }
+  return dummyHashPromise;
+}
+
 export async function loginDriver(
   store: IdentityStore,
   input: { email?: unknown; password?: unknown },
@@ -124,9 +136,8 @@ export async function loginDriver(
   const password = typeof input.password === "string" ? input.password : "";
   if (!email || password.length === 0) throw new InvalidCredentialsError();
   const user = await store.findUserByEmail(email);
-  if (!user || !user.passwordHash) throw new InvalidCredentialsError();
-  const ok = await verifyPassword(password, user.passwordHash);
-  if (!ok) throw new InvalidCredentialsError();
+  const ok = await verifyPassword(password, user?.passwordHash ?? (await dummyHash()));
+  if (!user || !user.passwordHash || !ok) throw new InvalidCredentialsError();
   return toAuthResult(user);
 }
 

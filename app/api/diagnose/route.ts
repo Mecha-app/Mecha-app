@@ -5,7 +5,7 @@ import {
   executeDiagnosis,
   type DiagnoseServiceEvent,
 } from "@/lib/server/diagnoseService";
-import { apiError } from "@/lib/server/http";
+import { PayloadTooLargeError, apiError, readJsonBody } from "@/lib/server/http";
 import { AuthNotConfiguredError, bearerPayload, isAuthConfigured } from "@/lib/server/jwt";
 import { getDiagnosisProvider } from "@/lib/server/provider";
 import { QuotaExhaustedError } from "@/lib/server/quota";
@@ -73,14 +73,23 @@ function sseChunk(event: DiagnoseServiceEvent): string {
 }
 
 export async function POST(request: Request) {
-  let body: unknown;
+  // Capped JSON read (security pass): a diagnosis request is a few KB
+  // of text fields — anything larger is abuse, answered 413.
+  let body: Record<string, unknown> | null;
   try {
-    body = await request.json();
-  } catch {
-    return NextResponse.json({ error: "invalid_json" }, { status: 400 });
+    body = await readJsonBody(request);
+  } catch (err) {
+    if (err instanceof PayloadTooLargeError) {
+      return NextResponse.json(
+        { error: err.code, detail: "Request body too large." },
+        { status: 413 },
+      );
+    }
+    throw err;
   }
+  if (!body) return NextResponse.json({ error: "invalid_json" }, { status: 400 });
 
-  const b = (body ?? {}) as Partial<DiagnosisRequest> & { vehicleId?: unknown };
+  const b = body as Partial<DiagnosisRequest> & { vehicleId?: unknown };
   const problem = typeof b.problem === "string" ? b.problem.trim() : "";
   if (!problem) {
     return badRequest('Body must include a non-empty "problem" string (the repo /ai field).');

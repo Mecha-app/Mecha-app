@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { DatabaseNotConfiguredError, isDatabaseConfigured, waitlistStore } from "@/lib/server/db";
+import { PayloadTooLargeError, readJsonBody } from "@/lib/server/http";
 
 /**
  * POST /api/waitlist — email-only waitlist capture (blueprint route `/`).
@@ -11,14 +12,20 @@ import { DatabaseNotConfiguredError, isDatabaseConfigured, waitlistStore } from 
  * fake-stored.
  */
 export async function POST(request: Request) {
-  let body: { email?: unknown; source?: unknown; locale?: unknown };
+  let body: Record<string, unknown> | null;
   try {
-    body = (await request.json()) as typeof body;
-  } catch {
+    body = await readJsonBody(request);
+  } catch (err) {
+    if (err instanceof PayloadTooLargeError) {
+      return NextResponse.json({ error: err.code }, { status: 413 });
+    }
+    throw err;
+  }
+  if (!body) {
     return NextResponse.json({ error: "invalid_json" }, { status: 400 });
   }
 
-  const email = typeof body?.email === "string" ? body.email.trim().toLowerCase() : "";
+  const email = typeof body.email === "string" ? body.email.trim().toLowerCase() : "";
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     return NextResponse.json({ error: "invalid_email" }, { status: 400 });
   }

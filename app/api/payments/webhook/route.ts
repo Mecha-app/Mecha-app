@@ -32,6 +32,11 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "missing_signature" }, { status: 400 });
     }
     const rawBody = await request.text();
+    // Sanity cap (security pass): genuine Stripe events are a few KB;
+    // an oversized body is refused before any parsing or DB work.
+    if (rawBody.length > 262_144) {
+      return NextResponse.json({ error: "payload_too_large" }, { status: 413 });
+    }
     let event;
     try {
       event = stripe.constructEvent(rawBody, signature);

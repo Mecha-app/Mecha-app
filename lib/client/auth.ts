@@ -8,6 +8,28 @@
  * monthly in the browser, one of the two reasons the old quota leaked.
  * The countdown always comes from the server (/api/auth/me, and the
  * quota events on the diagnosis stream).
+ *
+ * TOKEN STORAGE DECISION (security pass, 2026-11-03 — explicit):
+ * the session JWT lives in localStorage and is sent ONLY as an
+ * Authorization: Bearer header on same-origin /api/* calls made by
+ * this module's consumers. Rationale for keeping the legacy contract:
+ * (1) byte-compatibility with the legacy backend — tokens minted
+ * there verify here and vice versa, which the cutover plan depends
+ * on; (2) the payload is minimal ({id, type} + iat/exp — NO email,
+ * NO secrets, nothing an inspector could reuse beyond the session
+ * itself); (3) no server secret of any kind is ever present in the
+ * browser — the Anthropic/Stripe/DB/JWT-signing secrets exist only
+ * in server env, verified by the bundle audit in STATUS.md.
+ * RESIDUAL RISK, stated plainly: a localStorage token is readable by
+ * any script running on the origin, so XSS would equal session theft.
+ * Mitigations in place: React's default output escaping, exactly one
+ * inline script in the app (the static theme bootstrap — a constant
+ * string with no interpolation), and the Content-Security-Policy in
+ * next.config.mjs (default-src 'self'). RECOMMENDED FUTURE MOVE
+ * (Edison/owner call at cutover, not silently changed here): migrate
+ * to an httpOnly + Secure + SameSite=Lax cookie session, accepting
+ * the break from the legacy Bearer contract once the legacy backend
+ * is retired.
  */
 
 export interface StoredUser {

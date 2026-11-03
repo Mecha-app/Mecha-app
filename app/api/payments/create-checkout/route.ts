@@ -22,7 +22,12 @@ export const dynamic = "force-dynamic";
  * taken from it. Drivers buy "pro"; shops buy "business".
  */
 export async function POST(request: Request) {
-  const body = await readJsonBody(request);
+  let body;
+  try {
+    body = await readJsonBody(request);
+  } catch (err) {
+    return apiError(err);
+  }
   if (!body) return NextResponse.json({ error: "invalid_json" }, { status: 400 });
   try {
     if (!isAuthConfigured()) throw new AuthNotConfiguredError();
