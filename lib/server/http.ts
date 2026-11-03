@@ -100,6 +100,26 @@ export function apiError(err: unknown): NextResponse {
       { status: 501 },
     );
   }
+  // Postgres invalid-text-representation (SQLSTATE 22P02): a malformed
+  // id — a non-UUID string, an empty string — compared against a uuid
+  // column makes the driver throw instead of returning zero rows. Such
+  // a value cannot name a row, so the honest answer is the same 404 the
+  // typed NotFoundError produces, never a 500. (Click-audit find,
+  // 2026-11-03: the in-memory store's string comparisons never raise
+  // this, so the suite alone could not see the live behavior. Probed
+  // live: messages post/thread, listing get, vehicle get/patch/delete
+  // all answered 500 for garbage ids while well-formed unknown ids
+  // answered the correct 404.)
+  if (
+    typeof err === "object" &&
+    err !== null &&
+    (err as { code?: unknown }).code === "22P02"
+  ) {
+    return NextResponse.json(
+      { error: "not_found", detail: "The requested item does not exist." },
+      { status: 404 },
+    );
+  }
   return NextResponse.json(
     { status: "error", error: "internal_error", detail: "Something went wrong on our side." },
     { status: 500 },
