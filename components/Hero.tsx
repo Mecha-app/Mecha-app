@@ -54,7 +54,7 @@ export function Hero() {
   }
 
   return (
-    <section className="hero-scope relative overflow-hidden">
+    <section className="relative overflow-hidden">
       {/* The promise — centered, oversized, unhurried, ABOVE the film. */}
       <div className="relative z-10 mx-auto w-full max-w-6xl px-4 pt-28 text-center sm:px-6">
         <p className="text-xs font-semibold uppercase tracking-eyebrow text-accent">

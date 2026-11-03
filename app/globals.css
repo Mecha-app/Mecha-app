@@ -50,58 +50,56 @@
 }
 
 :root[data-theme="light"] {
-  /* Light theme — paper ramp (DESIGN_SYSTEM §1.2) */
+  /* Light theme — paper ramp (DESIGN_SYSTEM §1.2). Foreground values
+     re-set 2026-11-03 on the owner's direct order ("make sure the text
+     look nice, they bold, you could read everything"): measured on
+     --color-bg #f7f8fa, ink-1 17.4:1, ink-2 10.4:1, ink-3 6.9:1,
+     accent 4.9:1 with 5.2:1 for white text on it. The previous ink-3
+     (#6b7582, 4.4:1) and accent (#b97a0f, 3.4:1) were the pale-gray /
+     washed-label values he was looking at. tests/theme.test.ts pins
+     these floors. */
   --color-bg: #f7f8fa; /* paper-50 — page background */
   --color-surface: #ffffff; /* paper-0 — raised surface */
   --color-surface-raised: #ffffff;
   --color-inset: #eef1f4; /* paper-100 — wells, inputs, gauge tracks */
   --color-line: #dce1e8; /* line-light */
-  --color-ink-1: #14181e; /* ink-900 — primary text */
-  --color-ink-2: #47505c; /* ink-600 — secondary text */
-  --color-ink-3: #6b7582; /* ink-450 — muted text (≥14px only) */
+  --color-ink-1: #10141b; /* near-black — headlines, primary text */
+  --color-ink-2: #333d49; /* body copy — genuinely dark, never pale gray */
+  --color-ink-3: #4d5764; /* captions/labels — still 6.9:1 on paper */
 
-  /* Accent shifts with the theme (§1.5): deep amber holds AA on white. */
-  --color-accent: #b97a0f; /* signal-amber-deep */
-  --color-accent-bright: #f5a524;
-  --color-accent-deep: #b97a0f;
+  /* Accent deepens with the theme (§1.5): labels and the kicker meet
+     the same contrast floor as text, and the white CTA text keeps
+     ≥4.5:1 on both the accent and its hover step. */
+  --color-accent: #96620a;
+  --color-accent-bright: #9c6608;
+  --color-accent-deep: #96620a;
   --color-accent-ink: #ffffff;
 
   color-scheme: light;
 }
 
 /*
- * Cinematic scopes (design-elevation pass 1, 2026-11-03).
- * The hero film/poster is a dark night-cockpit image in BOTH themes, and
- * the header floats over it before scroll — so these scopes locally
- * re-point the semantic tokens at the dark-theme values on the elements
- * that sit on top of the imagery. The token architecture (§1.5) makes
- * this a variable swap, not a restyle; the light theme is untouched
- * everywhere else.
+ * THEME ATOMICITY RULE (2026-11-03, owner-caught production defect).
+ * The ONLY rules in this stylesheet that may ASSIGN a --color-* token are
+ * the two theme blocks above (:root/[data-theme="dark"] and
+ * [data-theme="light"]). No scoped override may re-point tokens: the old
+ * design-elevation "cinematic scopes" (.hero-scope / .header-overlay)
+ * pinned the dark theme's near-white ink tokens unconditionally for copy
+ * that once sat on the full-bleed hero film; after the hero moved its
+ * copy onto the plain page background, a light-theme render paired the
+ * light --color-bg with those forced near-white inks — white-on-white
+ * headline, ghosted logo and header pills on mechatech.io. Background
+ * and foreground tokens must always resolve from the SAME theme set,
+ * selected solely by [data-theme] on <html>. tests/theme.test.ts guards
+ * this structurally. On-image treatments (the video play chip) use
+ * self-contained literal colors on the element itself, never tokens.
  */
-.hero-scope,
-.header-overlay {
-  --color-surface: transparent;
-  --color-surface-raised: #171b21; /* dropdowns stay opaque */
-  --color-inset: rgb(242 244 247 / 0.08);
-  --color-line: rgb(242 244 247 / 0.22);
-  --color-ink-1: #f2f4f7;
-  --color-ink-2: rgb(242 244 247 / 0.8);
-  --color-ink-3: rgb(242 244 247 / 0.58);
-  --color-accent: #f5a524;
-  --color-accent-bright: #ffb84d;
-  --color-accent-ink: #0b0d10;
-}
 
-/* Flat scrim over the hero film — a single tonal layer for legibility.
-   Deliberately NOT a gradient (§1.2: no gradients on brand surfaces). */
-.hero-scrim {
-  background: rgb(11 13 16 / 0.55);
-}
-
-/* Ghost button for use on the hero imagery. */
+/* Secondary hero action — a quiet filled well in the ACTIVE theme's
+   tokens (was an on-film ghost treatment; the film is a framed player
+   now, so the button sits on the page background like everything else). */
 .btn-ghost {
-  background: rgb(242 244 247 / 0.07);
-  backdrop-filter: blur(6px);
+  background: var(--color-inset);
 }
 
 /*
@@ -146,6 +144,15 @@ body {
   font-size: 16px;
   line-height: 1.55;
   -webkit-font-smoothing: antialiased;
+}
+
+/* Light-theme type weight (owner add-on, 2026-11-03): body copy renders
+   in Inter Medium — a real loaded weight (layout.tsx imports Inter 500),
+   not synthesis — so text reads bold and clear on paper. Elements with
+   their own weight (headlines, buttons) are unaffected, and the dark
+   theme is untouched: it already reads strong on contrast alone. */
+:root[data-theme="light"] body {
+  font-weight: 500;
 }
 
 /* Numbers are the typography (§1.1): tabular figures wherever a value shows. */
