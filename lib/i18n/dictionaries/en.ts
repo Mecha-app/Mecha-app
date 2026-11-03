@@ -18,7 +18,7 @@ const en = {
     navPricing: "Pricing",
     navShops: "For Shops",
     signIn: "Sign in",
-    joinWaitlist: "Join the waitlist",
+    createAccount: "Create account",
     themeToggleLabel: "Switch between light and dark theme",
     languageLabel: "Language",
   },
@@ -556,17 +556,12 @@ const en = {
       pricingCta: "See full pricing",
     },
   },
-  waitlist: {
-    eyebrow: "Private beta",
-    heading: "Get in before the doors open.",
-    body: "MECHA is in private beta. Join the waitlist with your email — early members get 3 months of Pro free and their launch pricing locked for life.",
-    placeholder: "you@example.com",
-    button: "Join the waitlist",
-    note: "One email when your invite is ready. Nothing else, ever.",
-    success: "You're on the list. Watch your inbox for the invite.",
-    errorInvalid: "That email doesn't look complete — check it and try again.",
-    errorStub:
-      "The waitlist opens with the new site — your email wasn't stored yet. (WP2 foundation build.)",
+  finalCta: {
+    eyebrow: "Free to start",
+    heading: "Your first 5 diagnoses are on us.",
+    body: "Create a free account and MECHA rides with you from the first warning light. Describe the symptom, photograph the dashboard, or scan the VIN — you get the plain-language answer, how serious it is, and the fair price, before a shop quotes you theirs.",
+    cta: "Create your free account",
+    note: "No card required. MECHA always tells you exactly how many free diagnoses you have left.",
   },
   footer: {
     tagline: "Your car's AI co-pilot — diagnosis, fair-price protection, and a memory for your car.",

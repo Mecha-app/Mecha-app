@@ -13,7 +13,7 @@ const es: DeepPartial<Dictionary> = {
     navPricing: "Precios",
     navShops: "Para talleres",
     signIn: "Iniciar sesión",
-    joinWaitlist: "Únete a la lista de espera",
+    createAccount: "Crear cuenta",
     themeToggleLabel: "Cambiar entre tema claro y oscuro",
     languageLabel: "Idioma",
   },
@@ -551,17 +551,12 @@ const es: DeepPartial<Dictionary> = {
       pricingCta: "Ver precios completos",
     },
   },
-  waitlist: {
-    eyebrow: "Beta privada",
-    heading: "Entra antes de que se abran las puertas.",
-    body: "MECHA está en beta privada. Únete a la lista de espera con tu correo — los primeros miembros reciben 3 meses de Pro gratis y su precio de lanzamiento bloqueado de por vida.",
-    placeholder: "tu@ejemplo.com",
-    button: "Únete a la lista de espera",
-    note: "Un solo correo cuando tu invitación esté lista. Nada más, nunca.",
-    success: "Ya estás en la lista. Revisa tu bandeja para la invitación.",
-    errorInvalid: "Ese correo parece incompleto — revísalo e inténtalo de nuevo.",
-    errorStub:
-      "La lista de espera abre con el sitio nuevo — tu correo aún no se guardó. (Versión base WP2.)",
+  finalCta: {
+    eyebrow: "Gratis para empezar",
+    heading: "Tus primeros 5 diagnósticos corren por nuestra cuenta.",
+    body: "Crea una cuenta gratuita y MECHA viaja contigo desde la primera luz de advertencia. Describe el síntoma, fotografía el tablero o escanea el VIN — recibes la respuesta en lenguaje sencillo, qué tan grave es y el precio justo, antes de que un taller te dé el suyo.",
+    cta: "Crea tu cuenta gratuita",
+    note: "No se requiere tarjeta. MECHA siempre te dice exactamente cuántos diagnósticos gratuitos te quedan.",
   },
   footer: {
     tagline: "El copiloto de IA de tu coche — diagnóstico, protección de precio justo y una memoria para tu coche.",

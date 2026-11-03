@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useLocale } from "@/lib/i18n/LocaleProvider";
 import { Reveal } from "./Reveal";
-import { WaitlistForm } from "./WaitlistForm";
+import { FinalCta } from "./FinalCta";
 
 /**
  * /scan landing (blueprint route 3, Scan package) — what Scan does,
@@ -147,9 +147,9 @@ export function ScanLanding() {
         </div>
       </section>
 
-      {/* Finale — also gives this page the #waitlist anchor the header
-          CTA points at, so it resolves here exactly like on `/`. */}
-      <WaitlistForm />
+      {/* Finale — the open sign-up close: sticker curiosity converts
+          into a free account here, exactly like on `/`. */}
+      <FinalCta />
     </>
   );
 }

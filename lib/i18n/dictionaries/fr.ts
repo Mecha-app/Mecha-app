@@ -14,7 +14,7 @@ const fr: DeepPartial<Dictionary> = {
     navPricing: "Tarifs",
     navShops: "Pour les ateliers",
     signIn: "Se connecter",
-    joinWaitlist: "Rejoindre la liste d'attente",
+    createAccount: "Créer un compte",
     themeToggleLabel: "Basculer entre le thème clair et le thème sombre",
     languageLabel: "Langue",
   },
@@ -552,17 +552,12 @@ const fr: DeepPartial<Dictionary> = {
       pricingCta: "Voir les tarifs complets",
     },
   },
-  waitlist: {
-    eyebrow: "Bêta privée",
-    heading: "Entrez avant l'ouverture des portes.",
-    body: "MECHA est en bêta privée. Rejoignez la liste d'attente avec votre e-mail — les premiers membres reçoivent 3 mois de Pro gratuits et leur tarif de lancement bloqué à vie.",
-    placeholder: "vous@exemple.com",
-    button: "Rejoindre la liste d'attente",
-    note: "Un seul e-mail quand votre invitation est prête. Rien d'autre, jamais.",
-    success: "Vous êtes sur la liste. Surveillez votre boîte pour l'invitation.",
-    errorInvalid: "Cet e-mail semble incomplet — vérifiez-le et réessayez.",
-    errorStub:
-      "La liste d'attente ouvre avec le nouveau site — votre e-mail n'a pas encore été enregistré. (Version de base WP2.)",
+  finalCta: {
+    eyebrow: "Gratuit pour commencer",
+    heading: "Vos 5 premiers diagnostics sont offerts.",
+    body: "Créez un compte gratuit et MECHA vous accompagne dès le premier voyant. Décrivez le symptôme, photographiez le tableau de bord ou scannez le VIN — vous obtenez la réponse en langage clair, sa gravité et le juste prix, avant qu'un garage ne vous donne le sien.",
+    cta: "Créez votre compte gratuit",
+    note: "Aucune carte requise. MECHA vous dit toujours exactement combien de diagnostics gratuits il vous reste.",
   },
   footer: {
     tagline: "Le copilote IA de votre voiture — diagnostic, protection du juste prix, et une mémoire pour votre voiture.",

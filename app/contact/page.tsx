@@ -9,8 +9,7 @@ import { Header } from "@/components/Header";
  * the footer linked here and the route did not exist.
  *
  * Honesty note: the legacy contact form faked its send (a "Message
- * Sent!" state with nothing behind it — the same class of fake as the
- * old waitlist). This rebuild has no mail-sending backend route yet,
+ * Sent!" state with nothing behind it). This rebuild has no mail-sending backend route yet,
  * so the form does the real thing available today: it composes the
  * message in the visitor's own email app, addressed to the support
  * mailbox — and says exactly that on the button. The mailboxes below

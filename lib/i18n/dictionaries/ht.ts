@@ -14,7 +14,7 @@ const ht: DeepPartial<Dictionary> = {
     navPricing: "Pri yo",
     navShops: "Pou atelye yo",
     signIn: "Konekte",
-    joinWaitlist: "Antre nan lis atant la",
+    createAccount: "Kreye yon kont",
     themeToggleLabel: "Chanje ant tèm klè ak tèm fènwa",
     languageLabel: "Lang",
   },
@@ -552,17 +552,12 @@ const ht: DeepPartial<Dictionary> = {
       pricingCta: "Gade pri konplè yo",
     },
   },
-  waitlist: {
-    eyebrow: "Beta prive",
-    heading: "Antre anvan pòt yo louvri.",
-    body: "MECHA nan beta prive. Antre nan lis atant la avèk imèl ou — premye manm yo jwenn 3 mwa Pro gratis ak pri lansman yo bloke pou lavi.",
-    placeholder: "ou@egzanp.com",
-    button: "Antre nan lis atant la",
-    note: "Yon sèl imèl lè envitasyon w pare. Anyen lòt, janm.",
-    success: "Ou sou lis la. Veye bwat imèl ou pou envitasyon an.",
-    errorInvalid: "Imèl sa a sanble pa konplè — verifye l epi eseye ankò.",
-    errorStub:
-      "Lis atant la ap louvri avèk nouvo sit la — imèl ou poko anrejistre. (Vèsyon baz WP2.)",
+  finalCta: {
+    eyebrow: "Gratis pou kòmanse",
+    heading: "5 premye dyagnostik ou yo se kado nou.",
+    body: "Kreye yon kont gratis epi MECHA ap woule avèk ou depi premye limyè avètisman an. Dekri sentòm nan, pran foto tablo a, oswa eskane VIN nan — ou jwenn repons lan an lang klè, jan li grav, ak pri jis la, anvan yon atelye ba ou pri pa yo.",
+    cta: "Kreye kont gratis ou a",
+    note: "Ou pa bezwen kat. MECHA toujou di w egzakteman konbyen dyagnostik gratis ki rete w.",
   },
   footer: {
     tagline: "Kopilòt IA pou machin ou — dyagnostik, pwoteksyon pri jis, ak yon memwa pou machin ou.",

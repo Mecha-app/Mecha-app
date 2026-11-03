@@ -31,5 +31,5 @@
     "test": "tsc -p tsconfig.test.json && node --test \"tests/.build/tests/*.test.js\"",
     "typecheck": "tsc --noEmit"
   },
-  "version": "0.4.12-theme-atomic"
+  "version": "0.4.13-no-waitlist"
 }
