@@ -31,5 +31,5 @@
     "test": "tsc -p tsconfig.test.json && node --test \"tests/.build/tests/*.test.js\"",
     "typecheck": "tsc --noEmit"
   },
-  "version": "0.4.14-logo-everywhere"
+  "version": "0.4.15-code-auth"
 }

@@ -17,8 +17,11 @@ import { IdentityConflictError, type IdentityStore, type UserRecord } from "./st
  * shared by the HTTP routes and the test-suite.
  *
  * THE IDENTITY RULE (owner's hard rule): an identity is recognized by
- * its email AND its phone number. Registration checks BOTH keys before
- * creating anything:
+ * its email AND its phone number. Registration checks the email
+ * always, and the phone whenever one is given (0013: phone is OPTIONAL
+ * at sign-up — but an account with no phone on file cannot consume a
+ * diagnosis until the phone is added; see diagnoseService's phone
+ * gate):
  *   - same email → the identity already exists (IdentityConflictError)
  *   - same phone, different email → the identity already exists
  * In both cases NOTHING is created and NOTHING is reset — the person
@@ -160,7 +163,7 @@ export async function registerDriver(
     password?: unknown;
     confirmPassword?: unknown;
   },
-  deps: { mailer?: Mailer } = {},
+  deps: { mailer?: Mailer; emailPreVerified?: boolean } = {},
 ): Promise<AuthResult> {
   const name = typeof input.name === "string" ? input.name.trim() : "";
   if (name.length === 0 || name.length > 120) {
@@ -212,6 +215,15 @@ export async function registerDriver(
     passwordHash,
     authMethod: "email",
   });
+  // Code-first sign-up (0013): the visitor already proved control of
+  // this inbox with a code BEFORE the account existed, so the account
+  // is created already verified — stamping it is earned, and NO
+  // verification email is sent (there is nothing left to verify).
+  if (deps.emailPreVerified) {
+    await store.markEmailVerified(user.id);
+    const stamped = await store.findUserById(user.id);
+    return toAuthResult(stamped ?? user);
+  }
   const result = toAuthResult(user);
   // Verification code (0011) — issued + emailed best-effort. A mail
   // failure NEVER fails the registration: the account works from this

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState, type FormEvent } from "react";
 import { SocialSignIn } from "@/components/SocialSignIn";
+import { EmailCodeAuth } from "@/components/EmailCodeAuth";
 import { MinimalTopBar } from "@/components/MinimalTopBar";
 import { saveSession } from "@/lib/client/auth";
 import { useLocale } from "@/lib/i18n/LocaleProvider";
@@ -41,6 +42,14 @@ function postAuthDestination(): string {
  * single-field form testing sign-up himself): the confirm field must
  * match before the form sends anything, and the API enforces the same
  * match server-side.
+ *
+ * Layout (owner, 2026-11-03 — "easy, just like the big brand"):
+ * social first (when configured), then the EMAIL-CODE door up front —
+ * one field, then a code, then the details — with the classic
+ * password form one tap away behind "Sign up with a password
+ * instead". Phone is OPTIONAL in both doors (the label says so); an
+ * account without a phone is refused at the diagnosis gate until the
+ * number is added — it is never silently required here.
  */
 export default function RegisterPage() {
   const { t } = useLocale();
@@ -53,6 +62,7 @@ export default function RegisterPage() {
     "idle",
   );
   const [detail, setDetail] = useState("");
+  const [usePassword, setUsePassword] = useState(false);
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
@@ -120,113 +130,128 @@ export default function RegisterPage() {
 
         <SocialSignIn />
 
-        <form onSubmit={onSubmit} className="mt-8 flex flex-col gap-5" noValidate>
-          <div>
-            <label htmlFor="reg-name" className={labelClass}>
-              Name
-            </label>
-            <input
-              id="reg-name"
-              className={inputClass}
-              autoComplete="name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-            />
-          </div>
-          <div>
-            <label htmlFor="reg-email" className={labelClass}>
-              Email
-            </label>
-            <input
-              id="reg-email"
-              type="email"
-              className={inputClass}
-              autoComplete="email"
-              inputMode="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-          </div>
-          <div>
-            <label htmlFor="reg-phone" className={labelClass}>
-              Phone
-            </label>
-            <input
-              id="reg-phone"
-              type="tel"
-              className={inputClass}
-              autoComplete="tel"
-              inputMode="tel"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-            />
-          </div>
-          <div>
-            <label htmlFor="reg-password" className={labelClass}>
-              Password
-            </label>
-            <input
-              id="reg-password"
-              type="password"
-              className={inputClass}
-              autoComplete="new-password"
-              value={password}
-              onChange={(e) => {
-                setPassword(e.target.value);
-                if (state === "mismatch") setState("idle");
-              }}
-              required
-            />
-            <p className="mt-2 text-sm text-ink-3">At least 8 characters.</p>
-          </div>
-          <div>
-            <label htmlFor="reg-password-confirm" className={labelClass}>
-              {t.auth.register.confirmPassword}
-            </label>
-            <input
-              id="reg-password-confirm"
-              type="password"
-              className={inputClass}
-              autoComplete="new-password"
-              value={confirmPassword}
-              onChange={(e) => {
-                setConfirmPassword(e.target.value);
-                if (state === "mismatch") setState("idle");
-              }}
-              required
-            />
-          </div>
+        {usePassword ? (
+          <form onSubmit={onSubmit} className="mt-8 flex flex-col gap-5" noValidate>
+            <div>
+              <label htmlFor="reg-name" className={labelClass}>
+                Name
+              </label>
+              <input
+                id="reg-name"
+                className={inputClass}
+                autoComplete="name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+              />
+            </div>
+            <div>
+              <label htmlFor="reg-email" className={labelClass}>
+                Email
+              </label>
+              <input
+                id="reg-email"
+                type="email"
+                className={inputClass}
+                autoComplete="email"
+                inputMode="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </div>
+            <div>
+              <label htmlFor="reg-phone" className={labelClass}>
+                {t.auth.register.phoneOptional}
+              </label>
+              <input
+                id="reg-phone"
+                type="tel"
+                className={inputClass}
+                autoComplete="tel"
+                inputMode="tel"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+              />
+              <p className="mt-2 text-sm text-ink-3">{t.auth.register.phoneOptionalHint}</p>
+            </div>
+            <div>
+              <label htmlFor="reg-password" className={labelClass}>
+                Password
+              </label>
+              <input
+                id="reg-password"
+                type="password"
+                className={inputClass}
+                autoComplete="new-password"
+                value={password}
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  if (state === "mismatch") setState("idle");
+                }}
+                required
+              />
+              <p className="mt-2 text-sm text-ink-3">At least 8 characters.</p>
+            </div>
+            <div>
+              <label htmlFor="reg-password-confirm" className={labelClass}>
+                {t.auth.register.confirmPassword}
+              </label>
+              <input
+                id="reg-password-confirm"
+                type="password"
+                className={inputClass}
+                autoComplete="new-password"
+                value={confirmPassword}
+                onChange={(e) => {
+                  setConfirmPassword(e.target.value);
+                  if (state === "mismatch") setState("idle");
+                }}
+                required
+              />
+            </div>
 
-          {state === "mismatch" && (
-            <p className="rounded-xl border border-line bg-surface px-4 py-3 text-base text-verdict-rip" role="alert">
-              {t.auth.register.passwordMismatch}
-            </p>
-          )}
+            {state === "mismatch" && (
+              <p className="rounded-xl border border-line bg-surface px-4 py-3 text-base text-verdict-rip" role="alert">
+                {t.auth.register.passwordMismatch}
+              </p>
+            )}
 
-          {state === "conflict" && (
-            <p className="rounded-xl border border-line bg-surface px-4 py-3 text-base text-ink-1" role="alert">
-              {detail}{" "}
-              <Link href="/login" className="font-semibold text-accent underline">
-                Sign in
-              </Link>
-            </p>
-          )}
-          {state === "error" && (
-            <p className="rounded-xl border border-line bg-surface px-4 py-3 text-base text-verdict-rip" role="alert">
-              {detail}
-            </p>
-          )}
+            {state === "conflict" && (
+              <p className="rounded-xl border border-line bg-surface px-4 py-3 text-base text-ink-1" role="alert">
+                {detail}{" "}
+                <Link href="/login" className="font-semibold text-accent underline">
+                  Sign in
+                </Link>
+              </p>
+            )}
+            {state === "error" && (
+              <p className="rounded-xl border border-line bg-surface px-4 py-3 text-base text-verdict-rip" role="alert">
+                {detail}
+              </p>
+            )}
 
+            <button
+              type="submit"
+              disabled={state === "sending"}
+              className="h-12 w-full rounded-full bg-accent px-6 text-base font-semibold text-accent-ink disabled:opacity-60"
+            >
+              {state === "sending" ? "Creating account…" : "Create account"}
+            </button>
+          </form>
+        ) : (
+          <EmailCodeAuth mode="register" getDestination={postAuthDestination} />
+        )}
+
+        <p className="mt-6 text-base">
           <button
-            type="submit"
-            disabled={state === "sending"}
-            className="h-12 w-full rounded-full bg-accent px-6 text-base font-semibold text-accent-ink disabled:opacity-60"
+            type="button"
+            onClick={() => setUsePassword(!usePassword)}
+            className="font-medium text-accent underline"
           >
-            {state === "sending" ? "Creating account…" : "Create account"}
+            {usePassword ? t.auth.register.codeInstead : t.auth.register.passwordInstead}
           </button>
-        </form>
+        </p>
 
         <p className="mt-8 text-base text-ink-2">
           Already have an account?{" "}

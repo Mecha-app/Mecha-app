@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState, type FormEvent } from "react";
 import { SocialSignIn } from "@/components/SocialSignIn";
+import { EmailCodeAuth } from "@/components/EmailCodeAuth";
 import { MinimalTopBar } from "@/components/MinimalTopBar";
 import { saveSession } from "@/lib/client/auth";
 import { useLocale } from "@/lib/i18n/LocaleProvider";
@@ -29,6 +30,13 @@ function postAuthDestination(): string {
  * /login (WP5) — MOBILE-FIRST sign-in. Signing back in returns you to
  * the SAME account and the SAME diagnosis count — that is the point of
  * the server-side identity: nothing resets, ever.
+ *
+ * Layout (owner, 2026-11-03 — "easy, just like the big brand"):
+ * social first (when configured), then the EMAIL-CODE door — type an
+ * email, get a code, you're in, no password needed — then the classic
+ * password form below the divider. The code door is the same one as
+ * /register's: a new visitor who lands here is walked into account
+ * creation instead of a dead end.
  */
 export default function LoginPage() {
   const { t } = useLocale();
@@ -109,6 +117,14 @@ export default function LoginPage() {
             {t.auth.social.failed}
           </p>
         )}
+
+        <EmailCodeAuth mode="login" getDestination={postAuthDestination} />
+
+        <div className="mt-8 flex items-center gap-4" aria-hidden="true">
+          <span className="h-px flex-1 bg-line" />
+          <span className="text-sm font-medium text-ink-3">{t.auth.social.or}</span>
+          <span className="h-px flex-1 bg-line" />
+        </div>
 
         <form onSubmit={onSubmit} className="mt-8 flex flex-col gap-5" noValidate>
           <div>

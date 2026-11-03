@@ -51,11 +51,30 @@ export interface UserRecord extends BillingFields {
 }
 
 /**
- * One live account code (0011) — email verification or password reset.
- * Only the SHA-256 hash is ever stored; the plaintext exists in the
- * issued email and the user's input, nowhere else.
+ * One live account code (0011) — email verification, password reset,
+ * or email-code sign-in (0013). Only the SHA-256 hash is ever stored;
+ * the plaintext exists in the issued email and the user's input,
+ * nowhere else.
  */
-export type AuthCodePurpose = "verify_email" | "reset_password";
+export type AuthCodePurpose = "verify_email" | "reset_password" | "signin";
+
+/**
+ * One live PRE-ACCOUNT signup code (0013) — the code-first sign-up
+ * door: a visitor with no account yet proves control of an email
+ * before the account exists, so the code cannot hang off a user row.
+ * Same discipline as auth_codes: only the SHA-256 hash (keyed on the
+ * normalized email + purpose + code), 15 minutes, at most 5 attempts,
+ * single-use, a fresh issue replaces the old one. Keyed by the
+ * normalized email — the identity key the account will be created
+ * under.
+ */
+export interface PendingSignupCodeRecord {
+  email: string;
+  codeHash: string;
+  attempts: number;
+  createdAt: string;
+  expiresAt: string;
+}
 
 export interface AuthCodeRecord {
   userId: string;
@@ -180,6 +199,17 @@ export interface IdentityStore {
   /** Increment the attempt count; returns the new count (0 = no live code). */
   recordAuthCodeAttempt(userId: string, purpose: AuthCodePurpose): Promise<number>;
   deleteAuthCode(userId: string, purpose: AuthCodePurpose): Promise<void>;
+  // Pre-account signup codes (0013) — the pending twin of the four
+  // methods above, keyed by normalized email instead of a user id.
+  savePendingSignupCode(input: {
+    email: string;
+    codeHash: string;
+    expiresAt: string;
+  }): Promise<void>;
+  getPendingSignupCode(email: string): Promise<PendingSignupCodeRecord | null>;
+  /** Increment the attempt count; returns the new count (0 = no live code). */
+  recordPendingSignupCodeAttempt(email: string): Promise<number>;
+  deletePendingSignupCode(email: string): Promise<void>;
   /** Stamp email_verified_at (+ the legacy is_verified flag, ETL parity). */
   markEmailVerified(userId: string): Promise<void>;
   /** Replace the password hash (password reset). False = no such user. */
@@ -568,6 +598,56 @@ export class PgIdentityStore implements IdentityStore {
     ]);
   }
 
+  async savePendingSignupCode(input: {
+    email: string;
+    codeHash: string;
+    expiresAt: string;
+  }): Promise<void> {
+    await getPool().query(
+      `INSERT INTO pending_signup_codes (email, code_hash, attempts, created_at, expires_at)
+       VALUES ($1, $2, 0, now(), $3)
+       ON CONFLICT (email) DO UPDATE
+         SET code_hash = EXCLUDED.code_hash, attempts = 0,
+             created_at = now(), expires_at = EXCLUDED.expires_at`,
+      [input.email, input.codeHash, input.expiresAt],
+    );
+  }
+
+  async getPendingSignupCode(email: string): Promise<PendingSignupCodeRecord | null> {
+    const { rows } = await getPool().query<{
+      email: string;
+      code_hash: string;
+      attempts: number;
+      created_at: Date | string;
+      expires_at: Date | string;
+    }>(
+      "SELECT email, code_hash, attempts, created_at, expires_at FROM pending_signup_codes WHERE email = $1 LIMIT 1",
+      [email],
+    );
+    if (rows.length === 0) return null;
+    const r = rows[0];
+    return {
+      email: r.email,
+      codeHash: r.code_hash,
+      attempts: r.attempts,
+      createdAt: toIso(r.created_at) as string,
+      expiresAt: toIso(r.expires_at) as string,
+    };
+  }
+
+  async recordPendingSignupCodeAttempt(email: string): Promise<number> {
+    const { rows } = await getPool().query<{ attempts: number }>(
+      `UPDATE pending_signup_codes SET attempts = attempts + 1
+        WHERE email = $1 RETURNING attempts`,
+      [email],
+    );
+    return rows[0]?.attempts ?? 0;
+  }
+
+  async deletePendingSignupCode(email: string): Promise<void> {
+    await getPool().query("DELETE FROM pending_signup_codes WHERE email = $1", [email]);
+  }
+
   async markEmailVerified(userId: string): Promise<void> {
     await getPool().query(
       "UPDATE users SET email_verified_at = now(), is_verified = true WHERE id = $1",
@@ -632,6 +712,7 @@ export class MemoryIdentityStore implements IdentityStore {
   readonly cache = new Map<string, CachedDiagnosis>();
   readonly diagnoses: Array<{ id: string } & Record<string, unknown>> = [];
   readonly authCodes = new Map<string, AuthCodeRecord>();
+  readonly pendingSignupCodes = new Map<string, PendingSignupCodeRecord>();
   private seq = 0;
 
   private nextId(prefix: string): string {
@@ -714,6 +795,35 @@ export class MemoryIdentityStore implements IdentityStore {
 
   async deleteAuthCode(userId: string, purpose: AuthCodePurpose): Promise<void> {
     this.authCodes.delete(this.authCodeKey(userId, purpose));
+  }
+
+  async savePendingSignupCode(input: {
+    email: string;
+    codeHash: string;
+    expiresAt: string;
+  }): Promise<void> {
+    this.pendingSignupCodes.set(input.email, {
+      email: input.email,
+      codeHash: input.codeHash,
+      attempts: 0,
+      createdAt: new Date().toISOString(),
+      expiresAt: input.expiresAt,
+    });
+  }
+
+  async getPendingSignupCode(email: string): Promise<PendingSignupCodeRecord | null> {
+    return this.pendingSignupCodes.get(email) ?? null;
+  }
+
+  async recordPendingSignupCodeAttempt(email: string): Promise<number> {
+    const record = this.pendingSignupCodes.get(email);
+    if (!record) return 0;
+    record.attempts += 1;
+    return record.attempts;
+  }
+
+  async deletePendingSignupCode(email: string): Promise<void> {
+    this.pendingSignupCodes.delete(email);
   }
 
   async markEmailVerified(userId: string): Promise<void> {

@@ -25,6 +25,12 @@ import type { AuthCodePurpose, IdentityStore, UserRecord } from "./store";
  *     not the identifier matches an account, and a reset attempt fails
  *     with ONE generic error for every bad path (unknown identifier,
  *     no live code, expired, wrong code, attempts exhausted).
+ *
+ * The primitives (generateCode / hashCode / issueCode / consumeCode)
+ * are exported for ONE consumer: lib/server/codeAuth.ts, the
+ * code-first sign-up + code sign-in door (0013), which reuses this
+ * exact discipline — same TTL, same attempt cap, same single-use —
+ * for its 'signin' purpose and its pre-account pending codes.
  */
 
 export const CODE_TTL_MS = 15 * 60_000;
@@ -33,11 +39,11 @@ export const RESEND_COOLDOWN_MS = 60_000;
 
 export type CodeDeliveryStatus = "sent" | "not_configured" | "failed";
 
-function hashCode(userId: string, purpose: AuthCodePurpose, code: string): string {
+export function hashCode(userId: string, purpose: string, code: string): string {
   return createHash("sha256").update(`${userId}:${purpose}:${code}`).digest("hex");
 }
 
-function generateCode(): string {
+export function generateCode(): string {
   return String(randomInt(0, 1_000_000)).padStart(6, "0");
 }
 
@@ -52,7 +58,7 @@ function hashesEqual(a: string, b: string): boolean {
  * hand the plaintext to the mailer. Returns the delivery status; the
  * code itself never leaves this module except inside the email body.
  */
-async function issueCode(
+export async function issueCode(
   store: IdentityStore,
   mailer: Mailer,
   user: UserRecord,
@@ -88,7 +94,7 @@ async function issueCode(
  * Consume a code: every failure path throws the SAME InvalidCodeError
  * (see errors.ts). On success the code is deleted (single-use).
  */
-async function consumeCode(
+export async function consumeCode(
   store: IdentityStore,
   userId: string,
   purpose: AuthCodePurpose,
