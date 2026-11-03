@@ -9,7 +9,7 @@ import {
 } from "./errors";
 import { AuthNotConfiguredError } from "./jwt";
 import { IdentityConflictError } from "./store";
-import { InvalidCredentialsError, ValidationError } from "./authService";
+import { InvalidCredentialsError, GoogleOnlyAccountError, ValidationError } from "./authService";
 
 /**
  * Shared error → HTTP mapping for the WP5 API routes. The stance is the
@@ -50,6 +50,11 @@ export function apiError(err: unknown): NextResponse {
     return NextResponse.json({ error: err.code, detail: err.message }, { status: 400 });
   }
   if (err instanceof InvalidCredentialsError) {
+    return NextResponse.json({ error: err.code, detail: err.message }, { status: 401 });
+  }
+  if (err instanceof GoogleOnlyAccountError) {
+    // Password attempt on a Google-only account: the specific, honest
+    // answer (the client maps this code to its dictionary copy).
     return NextResponse.json({ error: err.code, detail: err.message }, { status: 401 });
   }
   if (err instanceof InvalidCodeError) {

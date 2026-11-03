@@ -63,6 +63,11 @@ export default function DashboardPage() {
   // Email verification (0011, SOFT GATE): the banner shows until the
   // server says the email is verified; nothing else waits on it.
   const [emailVerified, setEmailVerified] = useState<boolean | null>(null);
+  // Phone completion (social login package): a Google-created account
+  // starts phone-less; the banner below mirrors the verify banner —
+  // visible until the number is on file, because diagnoses stay
+  // locked until then (the identity is email AND phone).
+  const [phoneMissing, setPhoneMissing] = useState(false);
   const [verifyCode, setVerifyCode] = useState("");
   const [verifyState, setVerifyState] = useState<
     "idle" | "working" | "done" | "sent" | "unavailable" | "error"
@@ -86,9 +91,10 @@ export default function DashboardPage() {
     setKind("driver");
     void (async () => {
       const [me, veh, diag] = await Promise.all([
-        apiFetch<{ user: { name: string; emailVerified: boolean }; quota: QuotaView }>(
-          "/api/auth/me",
-        ),
+        apiFetch<{
+          user: { name: string; emailVerified: boolean; phone: string | null };
+          quota: QuotaView;
+        }>("/api/auth/me"),
         apiFetch<{ vehicles: Vehicle[] }>("/api/vehicles"),
         apiFetch<{ diagnoses: Diagnosis[] }>("/api/diagnoses/recent"),
       ]);
@@ -96,6 +102,7 @@ export default function DashboardPage() {
         setName(me.data.user.name);
         setQuota(me.data.quota);
         setEmailVerified(me.data.user.emailVerified);
+        setPhoneMissing(me.data.user.phone === null);
       }
       if (veh.status === 200) setVehicles(veh.data.vehicles);
       if (diag.status === 200) setDiagnoses(diag.data.diagnoses);
@@ -188,6 +195,23 @@ export default function DashboardPage() {
                 </div>
               </>
             )}
+          </section>
+        )}
+
+        {kind === "driver" && phoneMissing && (
+          <section className="mt-6 rounded-2xl border border-line bg-surface px-5 py-4">
+            <h2 className="font-display text-lg font-semibold text-ink-1">
+              {t.auth.completeProfile.bannerTitle}
+            </h2>
+            <p className="mt-2 text-base leading-relaxed text-ink-2">
+              {t.auth.completeProfile.bannerBody}
+            </p>
+            <Link
+              href="/app/complete-profile"
+              className="mt-4 flex h-12 items-center justify-center rounded-full bg-accent px-6 text-base font-semibold text-accent-ink"
+            >
+              {t.auth.completeProfile.bannerCta}
+            </Link>
           </section>
         )}
 

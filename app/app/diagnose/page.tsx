@@ -69,8 +69,20 @@ export default function DiagnosePage() {
           window.location.href = "/login";
           return;
         }
-        const data = (await res.json()) as { quota?: QuotaView; message?: string };
+        const data = (await res.json()) as {
+          quota?: QuotaView;
+          message?: string;
+          user?: { phone: string | null };
+        };
         if (cancelled) return;
+        // Phone gate (social login package): a phone-less account
+        // (Google sign-in before profile completion) completes its
+        // profile first — diagnoseService would refuse the run
+        // anyway, so route there instead of letting it fail.
+        if (data.user && data.user.phone === null) {
+          window.location.href = "/app/complete-profile";
+          return;
+        }
         if (data.quota) {
           setQuota(data.quota);
           setMessage(data.message ?? "");
@@ -111,6 +123,16 @@ export default function DiagnosePage() {
       if (res.status === 401) {
         clearSession();
         window.location.href = "/login";
+        return;
+      }
+      if (res.status === 403) {
+        const data = (await res.json().catch(() => ({}))) as { error?: string; detail?: string };
+        if (data.error === "phone_required") {
+          window.location.href = "/app/complete-profile";
+          return;
+        }
+        setDetail(data.detail ?? "The diagnosis could not be completed. Please try again.");
+        setPhase("error");
         return;
       }
       if (!res.ok || !res.body) {

@@ -184,6 +184,22 @@ export interface IdentityStore {
   markEmailVerified(userId: string): Promise<void>;
   /** Replace the password hash (password reset). False = no such user. */
   updatePasswordHash(userId: string, passwordHash: string): Promise<boolean>;
+  // Google sign-in (social login package) — drivers only.
+  findUserByGoogleSub(googleSub: string): Promise<UserRecord | null>;
+  /**
+   * Link a Google identity to an existing account: sets google_sub,
+   * lifts auth_method to "both" when the account has a password
+   * ("google" when it doesn't), and stamps email_verified_at when it
+   * is still null (the link only ever happens on Google's verified
+   * email, so the stamp is earned). Null = no such user.
+   */
+  linkGoogleAccount(userId: string, googleSub: string): Promise<UserRecord | null>;
+  /** Set/replace the account's phone (profile completion). Null = no such user. */
+  updateUserPhone(
+    userId: string,
+    phone: string,
+    phoneNormalized: string,
+  ): Promise<UserRecord | null>;
 }
 
 // ---------------------------------------------------------------------------
@@ -566,6 +582,41 @@ export class PgIdentityStore implements IdentityStore {
     );
     return (rowCount ?? 0) > 0;
   }
+
+  async findUserByGoogleSub(googleSub: string): Promise<UserRecord | null> {
+    const { rows } = await getPool().query<UserRow>(
+      `SELECT ${USER_COLUMNS} FROM users WHERE google_sub = $1 LIMIT 1`,
+      [googleSub],
+    );
+    return rows[0] ? toUserRecord(rows[0]) : null;
+  }
+
+  async linkGoogleAccount(userId: string, googleSub: string): Promise<UserRecord | null> {
+    const { rows } = await getPool().query<UserRow>(
+      `UPDATE users
+          SET google_sub = $2,
+              auth_method = CASE WHEN password_hash IS NULL THEN 'google' ELSE 'both' END,
+              email_verified_at = COALESCE(email_verified_at, now()),
+              is_verified = true
+        WHERE id = $1
+        RETURNING ${USER_COLUMNS}`,
+      [userId, googleSub],
+    );
+    return rows[0] ? toUserRecord(rows[0]) : null;
+  }
+
+  async updateUserPhone(
+    userId: string,
+    phone: string,
+    phoneNormalized: string,
+  ): Promise<UserRecord | null> {
+    const { rows } = await getPool().query<UserRow>(
+      `UPDATE users SET phone = $2, phone_normalized = $3 WHERE id = $1
+        RETURNING ${USER_COLUMNS}`,
+      [userId, phone, phoneNormalized],
+    );
+    return rows[0] ? toUserRecord(rows[0]) : null;
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -675,6 +726,32 @@ export class MemoryIdentityStore implements IdentityStore {
     if (!user) return false;
     user.passwordHash = passwordHash;
     return true;
+  }
+
+  async findUserByGoogleSub(googleSub: string): Promise<UserRecord | null> {
+    for (const u of this.users.values()) if (u.googleSub === googleSub) return u;
+    return null;
+  }
+
+  async linkGoogleAccount(userId: string, googleSub: string): Promise<UserRecord | null> {
+    const user = this.users.get(userId);
+    if (!user) return null;
+    user.googleSub = googleSub;
+    user.authMethod = user.passwordHash === null ? "google" : "both";
+    if (user.emailVerifiedAt === null) user.emailVerifiedAt = new Date().toISOString();
+    return user;
+  }
+
+  async updateUserPhone(
+    userId: string,
+    phone: string,
+    phoneNormalized: string,
+  ): Promise<UserRecord | null> {
+    const user = this.users.get(userId);
+    if (!user) return null;
+    user.phone = phone;
+    user.phoneNormalized = phoneNormalized;
+    return user;
   }
 
   async consumeFreeDiagnosis(userId: string): Promise<{ consumed: boolean; used: number }> {

@@ -904,6 +904,25 @@ const de: DeepPartial<Dictionary> = {
       planLabel: "Plan",
     },
   },
+  auth: {
+    social: {
+      continueWithGoogle: "Mit Google fortfahren",
+      or: "oder",
+      failed: "Die Anmeldung mit Google hat nicht funktioniert. Bitte versuchen Sie es erneut — oder melden Sie sich unten mit Ihrer E-Mail und Ihrem Passwort an.",
+      googleOnly: "Dieses Konto nutzt die Anmeldung mit Google, daher gibt es kein Passwort zu prüfen. Verwenden Sie oben „Mit Google fortfahren“.",
+    },
+    completeProfile: {
+      title: "Noch eines — Ihre Telefonnummer",
+      body: "MECHA erkennt Ihr Konto an Ihrer E-Mail UND Ihrer Telefonnummer — gemeinsam schützen sie Ihre 5 kostenlosen Diagnosen, damit niemand Ihren Zähler durch eine erneute Registrierung zurücksetzen kann. Fügen Sie Ihre Nummer hinzu, um die Einrichtung Ihres Kontos abzuschließen.",
+      phoneLabel: "Telefonnummer",
+      submit: "Speichern und weiter",
+      saving: "Wird gespeichert…",
+      failed: "Diese Telefonnummer konnte nicht gespeichert werden. Prüfen Sie die Nummer und versuchen Sie es erneut.",
+      bannerTitle: "Schließen Sie die Einrichtung Ihres Kontos ab",
+      bannerBody: "Fügen Sie Ihre Telefonnummer hinzu, um Ihre kostenlosen Diagnosen freizuschalten. Das dauert zehn Sekunden und schützt den Diagnosezähler Ihres Kontos.",
+      bannerCta: "Meine Telefonnummer hinzufügen",
+    },
+  },
 };
 
 export default de;

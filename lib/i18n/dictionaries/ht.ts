@@ -678,6 +678,25 @@ const ht: DeepPartial<Dictionary> = {
         "Esplikasyon an lanse kòm yon dyagnostik konplè nan ekran apre a — koz, ijans, ak pri jis la.",
     },
   },
+  auth: {
+    social: {
+      continueWithGoogle: "Kontinye ak Google",
+      or: "oubyen",
+      failed: "Koneksyon ak Google la pa t mache. Tanpri eseye ankò — oubyen konekte ak imèl ou ak modpas ou anba a.",
+      googleOnly: "Kont sa a sèvi ak koneksyon Google, kidonk pa gen modpas pou tcheke. Sèvi ak « Kontinye ak Google » anwo a.",
+    },
+    completeProfile: {
+      title: "Yon dènye bagay — nimewo telefòn ou",
+      body: "MECHA rekonèt kont ou a pa imèl ou AK nimewo telefòn ou — ansanm yo pwoteje 5 dyagnostik gratis ou yo, konsa pèsòn pa ka reyentè kontè ou a lè yo enskri ankò. Ajoute nimewo ou pou fini konfigirasyon kont ou a.",
+      phoneLabel: "Nimewo telefòn",
+      submit: "Anrejistre epi kontinye",
+      saving: "N ap anrejistre…",
+      failed: "Nou pa t ka anrejistre nimewo telefòn sa a. Tcheke nimewo a epi eseye ankò.",
+      bannerTitle: "Fini konfigirasyon kont ou a",
+      bannerBody: "Ajoute nimewo telefòn ou pou debloke dyagnostik gratis ou yo. Sa pran dis segonn, epi li pwoteje kontè dyagnostik kont ou a.",
+      bannerCta: "Ajoute nimewo telefòn mwen",
+    },
+  },
 };
 
 export default ht;

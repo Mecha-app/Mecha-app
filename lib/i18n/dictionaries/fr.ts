@@ -678,6 +678,25 @@ const fr: DeepPartial<Dictionary> = {
         "L'explication se lance comme un diagnostic complet à l'écran suivant — causes, urgence et juste prix.",
     },
   },
+  auth: {
+    social: {
+      continueWithGoogle: "Continuer avec Google",
+      or: "ou",
+      failed: "La connexion avec Google n'a pas fonctionné. Réessayez, ou connectez-vous avec votre e-mail et votre mot de passe ci-dessous.",
+      googleOnly: "Ce compte utilise la connexion avec Google, il n'y a donc aucun mot de passe à vérifier. Utilisez « Continuer avec Google » ci-dessus.",
+    },
+    completeProfile: {
+      title: "Encore une chose : votre numéro de téléphone",
+      body: "MECHA reconnaît votre compte par votre e-mail ET votre numéro de téléphone — ensemble, ils protègent vos 5 diagnostics gratuits, pour que personne ne puisse remettre votre compteur à zéro en se réinscrivant. Ajoutez votre numéro pour terminer la configuration de votre compte.",
+      phoneLabel: "Numéro de téléphone",
+      submit: "Enregistrer et continuer",
+      saving: "Enregistrement…",
+      failed: "Ce numéro de téléphone n'a pas pu être enregistré. Vérifiez le numéro et réessayez.",
+      bannerTitle: "Terminez la configuration de votre compte",
+      bannerBody: "Ajoutez votre numéro de téléphone pour débloquer vos diagnostics gratuits. Cela prend dix secondes et protège le compteur de diagnostics de votre compte.",
+      bannerCta: "Ajouter mon numéro de téléphone",
+    },
+  },
 };
 
 export default fr;

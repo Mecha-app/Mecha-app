@@ -677,6 +677,25 @@ const es: DeepPartial<Dictionary> = {
         "La explicación se ejecuta como un diagnóstico completo en la siguiente pantalla: causas, urgencia y el precio justo.",
     },
   },
+  auth: {
+    social: {
+      continueWithGoogle: "Continuar con Google",
+      or: "o",
+      failed: "El inicio de sesión con Google no funcionó. Inténtalo de nuevo, o inicia sesión con tu correo y contraseña abajo.",
+      googleOnly: "Esta cuenta usa el inicio de sesión con Google, así que no hay contraseña que comprobar. Usa «Continuar con Google» arriba.",
+    },
+    completeProfile: {
+      title: "Una cosa más: tu número de teléfono",
+      body: "MECHA reconoce tu cuenta por tu correo Y tu número de teléfono: juntos protegen tus 5 diagnósticos gratuitos, para que nadie pueda reiniciar tu contador registrándose otra vez. Agrega tu número para terminar de configurar tu cuenta.",
+      phoneLabel: "Número de teléfono",
+      submit: "Guardar y continuar",
+      saving: "Guardando…",
+      failed: "Ese número de teléfono no se pudo guardar. Revisa el número e inténtalo de nuevo.",
+      bannerTitle: "Termina de configurar tu cuenta",
+      bannerBody: "Agrega tu número de teléfono para desbloquear tus diagnósticos gratuitos. Toma diez segundos y protege el contador de diagnósticos de tu cuenta.",
+      bannerCta: "Agregar mi número de teléfono",
+    },
+  },
 };
 
 export default es;

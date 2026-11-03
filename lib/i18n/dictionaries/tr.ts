@@ -904,6 +904,25 @@ const tr: DeepPartial<Dictionary> = {
       planLabel: "Plan",
     },
   },
+  auth: {
+    social: {
+      continueWithGoogle: "Google ile devam et",
+      or: "veya",
+      failed: "Google ile oturum açma işe yaramadı. Lütfen tekrar deneyin — ya da aşağıdan e-postanız ve şifrenizle oturum açın.",
+      googleOnly: "Bu hesap Google ile oturum açmayı kullanıyor, bu yüzden denetlenecek bir şifre yok. Yukarıdaki «Google ile devam et» düğmesini kullanın.",
+    },
+    completeProfile: {
+      title: "Son bir şey — telefon numaranız",
+      body: "MECHA hesabınızı e-postanız VE telefon numaranızla tanır — ikisi birlikte 5 ücretsiz teşhisinizi korur, böylece kimse yeniden kaydolarak sayacınızı sıfırlayamaz. Hesabınızın kurulumunu tamamlamak için numaranızı ekleyin.",
+      phoneLabel: "Telefon numarası",
+      submit: "Kaydet ve devam et",
+      saving: "Kaydediliyor…",
+      failed: "O telefon numarası kaydedilemedi. Numarayı kontrol edip tekrar deneyin.",
+      bannerTitle: "Hesabınızın kurulumunu tamamlayın",
+      bannerBody: "Ücretsiz teşhislerinizin kilidini açmak için telefon numaranızı ekleyin. On saniye sürer ve hesabınızın teşhis sayacını korur.",
+      bannerCta: "Telefon numaramı ekle",
+    },
+  },
 };
 
 export default tr;

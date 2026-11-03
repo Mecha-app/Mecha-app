@@ -1,4 +1,10 @@
 import { sendVerificationCode, type CodeDeliveryStatus } from "./accountCodes";
+import { NotFoundError } from "./errors";
+import {
+  GoogleTokenVerificationError,
+  type GoogleIdTokenClaims,
+  type GoogleTokenVerifier,
+} from "./googleAuth";
 import { normalizeEmail, normalizePhone } from "./identity";
 import { signToken } from "./jwt";
 import { getMailer, type Mailer } from "./mailer";
@@ -54,6 +60,52 @@ export class InvalidCredentialsError extends Error {
   constructor() {
     super("Email or password is incorrect.");
     this.name = "InvalidCredentialsError";
+  }
+}
+
+/**
+ * Password sign-in attempted against a GOOGLE-ONLY account (the
+ * legacy Google customers the ETL carries: google_sub set, password
+ * hash NULL). This is NOT "wrong password" — there is no password on
+ * the account to be wrong about, and telling the customer that sends
+ * them into a reset flow that can never work. The honest, specific
+ * answer: this account uses Google sign-in. (The login page renders
+ * the dictionary copy for this code; this message is the API's text.)
+ */
+export class GoogleOnlyAccountError extends Error {
+  readonly code = "google_signin_required";
+  constructor() {
+    super("This account uses Google sign-in — continue with Google instead of a password.");
+    this.name = "GoogleOnlyAccountError";
+  }
+}
+
+/**
+ * A Google sign-in whose email matches an existing account but whose
+ * email Google has NOT verified. Linking on an unverified email would
+ * hand the account to whoever controls an unverified claim — refused,
+ * honestly, with nothing linked and nothing created.
+ */
+export class GoogleLinkRefusedError extends Error {
+  readonly code = "google_link_refused";
+  constructor() {
+    super(
+      "Google didn't verify that email address, so it can't be linked to the existing account. Sign in with your password instead.",
+    );
+    this.name = "GoogleLinkRefusedError";
+  }
+}
+
+/**
+ * The OAuth callback's state didn't match the state cookie (or either
+ * was missing). The flow stops here — a mismatched state is treated
+ * as a forged or stale callback, never as a sign-in.
+ */
+export class GoogleStateMismatchError extends Error {
+  readonly code = "google_state_mismatch";
+  constructor() {
+    super("The Google sign-in state did not match — the sign-in was not completed.");
+    this.name = "GoogleStateMismatchError";
   }
 }
 
@@ -164,8 +216,137 @@ export async function loginDriver(
   if (!email || password.length === 0) throw new InvalidCredentialsError();
   const user = await store.findUserByEmail(email);
   const ok = await verifyPassword(password, user?.passwordHash ?? (await dummyHash()));
-  if (!user || !user.passwordHash || !ok) throw new InvalidCredentialsError();
+  if (!user) throw new InvalidCredentialsError();
+  // Google-only account (hash NULL): the honest, specific error — the
+  // timing-equalized compare above already ran, so this reveal costs
+  // no timing signal beyond what the account type requires.
+  if (!user.passwordHash) throw new GoogleOnlyAccountError();
+  if (!ok) throw new InvalidCredentialsError();
   return toAuthResult(user);
+}
+
+// ---------------------------------------------------------------------------
+// Google sign-in (social login package) — DRIVERS ONLY. Shops and
+// towing keep email/password in this package: a business's identity is
+// its listing + plan, and the owner has not ordered social sign-in for
+// them.
+//
+// Account resolution, in order:
+//   (a) google_sub match — the stable Google identity wins, even if
+//       the Google profile's email has changed since the link.
+//   (b) email match on a GOOGLE-VERIFIED email — link (set google_sub,
+//       stamp email_verified_at if null) and sign in. An unverified
+//       email claim links NOTHING (GoogleLinkRefusedError).
+//   (c) no match — create the driver account from the Google profile:
+//       password_hash NULL, email_verified_at stamped (Google verified
+//       it), phone NULL. The account is INCOMPLETE until the phone is
+//       added: the owner's quota identity is email AND phone, so
+//       diagnoseService refuses a diagnosis until then (see
+//       completePhone + /app/complete-profile).
+// ---------------------------------------------------------------------------
+
+export async function resolveGoogleAccount(
+  store: IdentityStore,
+  claims: GoogleIdTokenClaims,
+): Promise<AuthResult> {
+  // (a) The Google identity itself.
+  const bySub = await store.findUserByGoogleSub(claims.sub);
+  if (bySub) return toAuthResult(bySub);
+
+  const email = normalizeEmail(claims.email);
+  if (!email) throw new GoogleTokenVerificationError();
+
+  // (b) Link by verified email.
+  const byEmail = await store.findUserByEmail(email);
+  if (byEmail) {
+    if (!claims.emailVerified) throw new GoogleLinkRefusedError();
+    const linked = await store.linkGoogleAccount(byEmail.id, claims.sub);
+    return toAuthResult(linked ?? byEmail);
+  }
+
+  // (c) A new driver account from the Google profile.
+  const name =
+    claims.name.trim().length > 0 ? claims.name.trim().slice(0, 120) : email.split("@")[0];
+  const user = await store.createUser({
+    name,
+    email,
+    phone: null,
+    phoneNormalized: null,
+    passwordHash: null,
+    googleSub: claims.sub,
+    authMethod: "google",
+  });
+  // Google proved the person controls this Google account — the sub
+  // is the identity, so the account is created either way. The
+  // verified stamp is applied only when Google actually asserted the
+  // email as verified; otherwise the account starts unverified like
+  // any other signup and the soft-gate banner offers the code flow.
+  if (claims.emailVerified) {
+    await store.markEmailVerified(user.id);
+    const stamped = await store.findUserById(user.id);
+    return toAuthResult(stamped ?? user);
+  }
+  return toAuthResult(user);
+}
+
+export interface GoogleCallbackDeps {
+  verifier: GoogleTokenVerifier;
+  exchangeCode: (code: string) => Promise<string>;
+}
+
+/**
+ * The callback's core, with the state check FIRST (a mismatch stops
+ * everything — no exchange, no verification, no account work), then
+ * the code exchange, then ID-token verification through the injected
+ * verifier, then account resolution. The route is a thin adapter over
+ * this; tests drive it with the stub verifier + a stub exchange.
+ */
+export async function completeGoogleSignIn(
+  store: IdentityStore,
+  input: { code?: string | null; state?: string | null; expectedState?: string | null },
+  deps: GoogleCallbackDeps,
+): Promise<AuthResult> {
+  if (
+    !input.code ||
+    !input.state ||
+    !input.expectedState ||
+    input.state !== input.expectedState
+  ) {
+    throw new GoogleStateMismatchError();
+  }
+  const idToken = await deps.exchangeCode(input.code);
+  const claims = await deps.verifier.verifyIdToken(idToken);
+  return resolveGoogleAccount(store, claims);
+}
+
+// ---------------------------------------------------------------------------
+// Phone completion — a Google-created account starts phone-less, and
+// the owner's identity rule (email AND phone) means it cannot consume
+// a diagnosis until the phone is on file. Completing it here checks
+// the phone identity key exactly like registration does: a number
+// that already belongs to a DIFFERENT account is an honest conflict —
+// accounts are never silently merged.
+// ---------------------------------------------------------------------------
+
+export async function completePhone(
+  store: IdentityStore,
+  userId: string,
+  input: { phone?: unknown },
+): Promise<AuthResult> {
+  const user = await store.findUserById(userId);
+  if (!user) throw new NotFoundError("The signed-in account no longer exists.");
+  const phoneNormalized = normalizePhone(input.phone);
+  if (!phoneNormalized) {
+    throw new ValidationError('"phone" could not be read — include the full number.');
+  }
+  const existing = await store.findUserByPhone(phoneNormalized);
+  if (existing && existing.id !== userId) throw new IdentityConflictError("phone");
+  const updated = await store.updateUserPhone(
+    userId,
+    typeof input.phone === "string" ? input.phone.trim() : phoneNormalized,
+    phoneNormalized,
+  );
+  return toAuthResult(updated ?? user);
 }
 
 export function publicUser(user: UserRecord): PublicUser {

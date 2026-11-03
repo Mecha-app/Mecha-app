@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState, type FormEvent } from "react";
+import { SocialSignIn } from "@/components/SocialSignIn";
 import { saveSession } from "@/lib/client/auth";
 import { RETURN_TO_KEY } from "@/lib/server/scan";
 
@@ -91,6 +92,8 @@ export default function RegisterPage() {
         Your first 5 diagnoses are free. After that, MECHA Pro keeps you covered — we will
         always tell you exactly how many free diagnoses you have left.
       </p>
+
+      <SocialSignIn />
 
       <form onSubmit={onSubmit} className="mt-8 flex flex-col gap-5" noValidate>
         <div>

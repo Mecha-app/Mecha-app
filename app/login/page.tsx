@@ -1,8 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
+import { SocialSignIn } from "@/components/SocialSignIn";
 import { saveSession } from "@/lib/client/auth";
+import { useLocale } from "@/lib/i18n/LocaleProvider";
 import { RETURN_TO_KEY } from "@/lib/server/scan";
 
 /**
@@ -28,15 +30,30 @@ function postAuthDestination(): string {
  * the server-side identity: nothing resets, ever.
  */
 export default function LoginPage() {
+  const { t } = useLocale();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [state, setState] = useState<"idle" | "sending" | "error">("idle");
   const [detail, setDetail] = useState("");
+  const [googleFailed, setGoogleFailed] = useState(false);
+
+  // Google sign-in returns here with ?error=google on ANY failure
+  // (the callback deliberately carries no provider detail) — show the
+  // one generic, honest message.
+  useEffect(() => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("error") === "google") setGoogleFailed(true);
+    } catch {
+      // No query to read — the plain form.
+    }
+  }, []);
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
     setState("sending");
     setDetail("");
+    setGoogleFailed(false);
     try {
       const res = await fetch("/api/auth/login", {
         method: "POST",
@@ -47,6 +64,7 @@ export default function LoginPage() {
         token?: string;
         user?: Parameters<typeof saveSession>[1];
         detail?: string;
+        error?: string;
       };
       if (res.ok && data.token && data.user) {
         saveSession(data.token, data.user);
@@ -54,6 +72,12 @@ export default function LoginPage() {
         return;
       }
       setState("error");
+      // A Google-only account gets the specific, honest answer from
+      // the dictionary — never a misleading "wrong password."
+      if (data.error === "google_signin_required") {
+        setDetail(t.auth.social.googleOnly);
+        return;
+      }
       setDetail(data.detail ?? "Sign-in could not be completed. Please try again.");
     } catch {
       setState("error");
@@ -74,6 +98,14 @@ export default function LoginPage() {
         Sign in to your account — your cars, your history, and your remaining free diagnoses
         are right where you left them.
       </p>
+
+      <SocialSignIn />
+
+      {googleFailed && (
+        <p className="mt-6 rounded-xl border border-line bg-surface px-4 py-3 text-base text-verdict-rip" role="alert">
+          {t.auth.social.failed}
+        </p>
+      )}
 
       <form onSubmit={onSubmit} className="mt-8 flex flex-col gap-5" noValidate>
         <div>

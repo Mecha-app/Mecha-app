@@ -904,6 +904,25 @@ const pt: DeepPartial<Dictionary> = {
       planLabel: "Plano",
     },
   },
+  auth: {
+    social: {
+      continueWithGoogle: "Continuar com o Google",
+      or: "ou",
+      failed: "O login com o Google não funcionou. Tente novamente ou entre com seu e-mail e senha abaixo.",
+      googleOnly: "Esta conta usa o login com o Google, portanto não há senha para verificar. Use «Continuar com o Google» acima.",
+    },
+    completeProfile: {
+      title: "Só mais uma coisa — seu número de telefone",
+      body: "A MECHA reconhece sua conta pelo seu e-mail E pelo seu número de telefone — juntos, eles protegem seus 5 diagnósticos gratuitos, para que ninguém possa zerar sua contagem inscrevendo-se novamente. Adicione seu número para concluir a configuração da sua conta.",
+      phoneLabel: "Número de telefone",
+      submit: "Salvar e continuar",
+      saving: "Salvando…",
+      failed: "Não foi possível salvar esse número de telefone. Verifique o número e tente novamente.",
+      bannerTitle: "Conclua a configuração da sua conta",
+      bannerBody: "Adicione seu número de telefone para desbloquear seus diagnósticos gratuitos. Leva dez segundos e protege a contagem de diagnósticos da sua conta.",
+      bannerCta: "Adicionar meu número de telefone",
+    },
+  },
 };
 
 export default pt;

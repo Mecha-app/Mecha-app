@@ -687,6 +687,28 @@ const en = {
         "The explanation runs as a full diagnosis on the next screen — causes, urgency, and the fair price.",
     },
   },
+  auth: {
+    social: {
+      continueWithGoogle: "Continue with Google",
+      or: "or",
+      failed:
+        "Google sign-in didn't work. Please try again — or sign in with your email and password below.",
+      googleOnly:
+        "This account uses Google sign-in, so there's no password to check. Use Continue with Google above.",
+    },
+    completeProfile: {
+      title: "One more thing — your phone number",
+      body: "MECHA recognizes your account by your email AND your phone number — together they protect your 5 free diagnoses, so nobody can reset your count by signing up again. Add your number to finish setting up your account.",
+      phoneLabel: "Phone number",
+      submit: "Save and continue",
+      saving: "Saving…",
+      failed: "That phone number couldn't be saved. Check the number and try again.",
+      bannerTitle: "Finish setting up your account",
+      bannerBody:
+        "Add your phone number to unlock your free diagnoses. It takes ten seconds, and it protects your account's diagnosis count.",
+      bannerCta: "Add my phone number",
+    },
+  },
   wp6: {
     nav: {
       dashboard: "Dashboard",
