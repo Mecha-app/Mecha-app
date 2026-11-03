@@ -11,11 +11,13 @@ import { WaitlistForm } from "@/components/WaitlistForm";
  * the Fair Price vs Their Quote signature block (+ fair-price film),
  * and the real email-only waitlist finale. The live diagnosis demo card
  * and shops band land in WP6 against the WP3 API.
+ * Design-elevation pass 1 (2026-11-03): the header floats over the
+ * full-viewport hero film (Header `overlay` mode).
  */
 export default function HomePage() {
   return (
     <>
-      <Header />
+      <Header overlay />
       <main>
         <Hero />
         <Pillars />

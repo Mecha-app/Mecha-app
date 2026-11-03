@@ -1,6 +1,7 @@
 "use client";
 
 import { useLocale } from "@/lib/i18n/LocaleProvider";
+import { Reveal } from "./Reveal";
 
 /**
  * "Fair Price vs Their Quote" — MECHA's signature visual block
@@ -87,30 +88,22 @@ export function FairPriceQuote() {
   const f = t.fairPrice;
 
   return (
-    <section id="fair-price" className="border-b border-line">
-      <div className="mx-auto grid max-w-6xl items-start gap-10 px-4 py-14 sm:px-6 lg:grid-cols-2 lg:py-20">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-eyebrow text-accent">{f.eyebrow}</p>
-          <h2 className="mt-3 font-display text-[32px] font-semibold tracking-[-0.02em] text-ink-1">
-            {f.heading}
-          </h2>
-          <p className="mt-4 max-w-xl text-[17px] leading-relaxed text-ink-2">{f.body}</p>
+    <section id="fair-price" className="scroll-mt-16">
+      <div className="mx-auto max-w-6xl px-4 py-24 sm:px-6 lg:py-36">
+        <Reveal>
+          <div className="mx-auto max-w-2xl text-center">
+            <p className="text-xs font-semibold uppercase tracking-eyebrow text-accent">{f.eyebrow}</p>
+            <h2 className="mt-4 font-display text-[clamp(2.1rem,4.5vw,3.25rem)] font-semibold leading-[1.08] tracking-[-0.02em] text-ink-1">
+              {f.heading}
+            </h2>
+            <p className="mt-5 text-[17px] leading-relaxed text-ink-2">{f.body}</p>
+          </div>
+        </Reveal>
 
-          <figure className="mt-8 overflow-hidden rounded-xl border border-line bg-surface">
-            <video
-              className="aspect-video w-full bg-black"
-              controls
-              preload="none"
-              poster="/videos/mecha-fair-price-poster.webp"
-              aria-label={f.eyebrow}
-            >
-              <source src="/videos/mecha-fair-price-explainer.mp4" type="video/mp4" />
-            </video>
-          </figure>
-        </div>
-
-        {/* The comparison card — the signature block itself. */}
-        <div className="rounded-xl border border-line bg-surface p-6">
+        <div className="mt-16 grid items-center gap-12 lg:mt-20 lg:grid-cols-2 lg:gap-16">
+        {/* The comparison card — the signature block itself, given the stage. */}
+        <Reveal>
+        <div className="rounded-2xl border border-line bg-surface p-6 sm:p-8">
           <div className="flex flex-wrap items-baseline justify-between gap-2">
             <h3 className="font-display text-xl font-medium text-ink-1">{f.jobLabel}</h3>
             <span className="rounded border border-line bg-inset px-2 py-1 text-[11px] font-medium uppercase tracking-eyebrow text-ink-3">
@@ -163,7 +156,7 @@ export function FairPriceQuote() {
           <div className="border-t border-line pt-4">
             <div className="flex flex-wrap items-baseline justify-between gap-x-3">
               <p className="font-display text-base font-semibold text-ink-1">{f.total}</p>
-              <p className="tnum font-display text-[22px] font-semibold text-ink-1">
+              <p className="tnum font-display text-[26px] font-semibold text-ink-1">
                 {money(TOTAL.quote)}
                 <span className="ml-2 text-sm font-normal text-ink-3">
                   {f.fairRange} {money(TOTAL.fairLow)}–{money(TOTAL.fairHigh)}
@@ -182,6 +175,23 @@ export function FairPriceQuote() {
               {f.verdictText}
             </p>
           </div>
+        </div>
+        </Reveal>
+
+        {/* The fair-price film — frameless beside the card, controls kept. */}
+        <Reveal delay={130}>
+          <figure className="overflow-hidden rounded-2xl border border-line">
+            <video
+              className="aspect-video w-full bg-black"
+              controls
+              preload="none"
+              poster="/videos/mecha-fair-price-poster.webp"
+              aria-label={f.eyebrow}
+            >
+              <source src="/videos/mecha-fair-price-explainer.mp4" type="video/mp4" />
+            </video>
+          </figure>
+        </Reveal>
         </div>
       </div>
     </section>

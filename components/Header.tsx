@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { useLocale } from "@/lib/i18n/LocaleProvider";
 import { LogoLockup } from "./Logo";
 import { LanguageSwitcher } from "./LanguageSwitcher";
@@ -8,15 +9,45 @@ import { ThemeToggle } from "./ThemeToggle";
 
 /**
  * Site header: logo lockup, primary nav, language switcher + theme toggle
- * (both owner hard requirements), sign-in, waitlist CTA. The crosshatch
- * band is the one permitted texture (§1.6) — header only, ≤3% opacity.
+ * (both owner hard requirements), sign-in, waitlist CTA.
+ *
+ * `overlay` mode (homepage, design-elevation pass 1): the header floats
+ * transparent over the hero film — sparse chrome on the imagery — and
+ * settles into the solid surface bar once the visitor scrolls. Token
+ * values over the film come from the .header-overlay scope in
+ * globals.css; the settled state is the standard token bar. The
+ * crosshatch band is the one permitted texture (§1.6) — settled state
+ * only, so the film stays clean.
  */
-export function Header() {
+export function Header({ overlay = false }: { overlay?: boolean }) {
   const { t } = useLocale();
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    if (!overlay) return;
+    const onScroll = () => setScrolled(window.scrollY > 32);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, [overlay]);
+
+  const floating = overlay && !scrolled;
 
   return (
-    <header className="sticky top-0 z-40 border-b border-line bg-surface">
-      <div className="crosshatch pointer-events-none absolute inset-0" aria-hidden="true" />
+    <header
+      className={
+        overlay
+          ? `fixed inset-x-0 top-0 z-50 transition-colors duration-300 ${
+              floating
+                ? "header-overlay border-b border-transparent"
+                : "border-b border-line bg-surface"
+            }`
+          : "sticky top-0 z-40 border-b border-line bg-surface"
+      }
+    >
+      {(!overlay || scrolled) && (
+        <div className="crosshatch pointer-events-none absolute inset-0" aria-hidden="true" />
+      )}
       <div className="relative mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4 sm:px-6">
         <Link href="/" aria-label="MECHA — home" className="shrink-0">
           <LogoLockup />
@@ -45,7 +76,7 @@ export function Header() {
           </Link>
           <a
             href="#waitlist"
-            className="inline-flex h-9 items-center rounded-md bg-accent px-3.5 text-sm font-semibold text-[var(--color-accent-ink)] transition-colors duration-150 hover:bg-accent-bright"
+            className="inline-flex h-9 items-center rounded-full bg-accent px-4 text-sm font-semibold text-[var(--color-accent-ink)] transition-colors duration-150 hover:bg-accent-bright"
           >
             {t.header.joinWaitlist}
           </a>

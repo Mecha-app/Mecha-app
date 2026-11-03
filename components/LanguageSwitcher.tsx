@@ -43,7 +43,7 @@ export function LanguageSwitcher() {
         aria-haspopup="listbox"
         aria-expanded={open}
         aria-label={t.header.languageLabel}
-        className="inline-flex h-9 items-center gap-1.5 rounded-md border border-line bg-surface px-2.5 text-[13px] font-medium text-ink-2 transition-colors duration-200 hover:text-ink-1 hover:border-ink-3"
+        className="inline-flex h-9 items-center gap-1.5 rounded-full border border-line bg-surface px-3 text-[13px] font-medium text-ink-2 transition-colors duration-200 hover:text-ink-1 hover:border-ink-3"
       >
         <GlobeIcon />
         <span className="hidden sm:inline">{current?.label}</span>

@@ -2,6 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 import { useLocale } from "@/lib/i18n/LocaleProvider";
+import { Reveal } from "./Reveal";
 
 /**
  * Email-only waitlist capture (blueprint route `/` finale — the waitlist IS
@@ -38,21 +39,22 @@ export function WaitlistForm() {
   }
 
   return (
-    <section id="waitlist">
-      <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6 lg:py-20">
+    <section id="waitlist" className="scroll-mt-16">
+      <div className="mx-auto max-w-6xl px-4 py-24 sm:px-6 lg:py-36">
+        <Reveal>
         <div className="mx-auto max-w-2xl text-center">
           <p className="text-xs font-semibold uppercase tracking-eyebrow text-accent">{w.eyebrow}</p>
-          <h2 className="mt-3 font-display text-[32px] font-semibold tracking-[-0.02em] text-ink-1">
+          <h2 className="mt-4 font-display text-[clamp(2.1rem,4.5vw,3.25rem)] font-semibold leading-[1.08] tracking-[-0.02em] text-ink-1">
             {w.heading}
           </h2>
-          <p className="mt-4 text-[17px] leading-relaxed text-ink-2">{w.body}</p>
+          <p className="mx-auto mt-5 max-w-xl text-[17px] leading-relaxed text-ink-2">{w.body}</p>
 
           {state === "done" ? (
-            <p className="mt-8 rounded-lg border border-line bg-surface px-5 py-4 font-medium text-verdict-fair" role="status">
+            <p className="mx-auto mt-10 max-w-xl rounded-2xl border border-line bg-surface px-5 py-4 font-medium text-verdict-fair" role="status">
               {w.success}
             </p>
           ) : (
-            <form onSubmit={onSubmit} className="mt-8" noValidate>
+            <form onSubmit={onSubmit} className="mx-auto mt-10 max-w-xl" noValidate>
               <div className="flex flex-col gap-3 sm:flex-row">
                 <label htmlFor="waitlist-email" className="sr-only">
                   {w.placeholder}
@@ -64,12 +66,12 @@ export function WaitlistForm() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder={w.placeholder}
-                  className="h-12 flex-1 rounded-md border border-line bg-inset px-4 text-ink-1 placeholder:text-ink-3 focus:border-accent focus:outline-none"
+                  className="h-14 flex-1 rounded-full border border-line bg-inset px-6 text-ink-1 placeholder:text-ink-3 focus:border-accent focus:outline-none"
                 />
                 <button
                   type="submit"
                   disabled={state === "sending"}
-                  className="inline-flex h-12 items-center justify-center rounded-md bg-accent px-6 font-display text-base font-semibold text-[var(--color-accent-ink)] transition-colors duration-150 hover:bg-accent-bright disabled:opacity-60"
+                  className="inline-flex h-14 items-center justify-center rounded-full bg-accent px-8 font-display text-base font-semibold text-[var(--color-accent-ink)] transition-colors duration-150 hover:bg-accent-bright disabled:opacity-60"
                 >
                   {w.button}
                 </button>
@@ -88,6 +90,7 @@ export function WaitlistForm() {
             </form>
           )}
         </div>
+        </Reveal>
       </div>
     </section>
   );

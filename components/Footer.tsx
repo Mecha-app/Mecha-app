@@ -16,8 +16,8 @@ export function Footer() {
   const f = t.footer;
 
   return (
-    <footer className="border-t border-line bg-surface">
-      <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
+    <footer className="border-t border-line">
+      <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 lg:py-20">
         <div className="flex flex-col gap-10 md:flex-row md:items-start md:justify-between">
           <div className="max-w-sm">
             <LogoLockup />
@@ -50,7 +50,7 @@ export function Footer() {
           </nav>
         </div>
 
-        <div className="mt-10 border-t border-line pt-6">
+        <div className="mt-14 border-t border-line pt-7">
           <p className="text-[13px] leading-relaxed text-ink-3">{f.disclaimer}</p>
           <p className="mt-3 text-[13px] text-ink-3">
             © 2026 {f.operator} {f.rights}

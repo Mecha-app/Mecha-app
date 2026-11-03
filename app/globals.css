@@ -61,6 +61,72 @@
   color-scheme: light;
 }
 
+/*
+ * Cinematic scopes (design-elevation pass 1, 2026-11-03).
+ * The hero film/poster is a dark night-cockpit image in BOTH themes, and
+ * the header floats over it before scroll — so these scopes locally
+ * re-point the semantic tokens at the dark-theme values on the elements
+ * that sit on top of the imagery. The token architecture (§1.5) makes
+ * this a variable swap, not a restyle; the light theme is untouched
+ * everywhere else.
+ */
+.hero-scope,
+.header-overlay {
+  --color-surface: transparent;
+  --color-surface-raised: #171b21; /* dropdowns stay opaque */
+  --color-inset: rgb(242 244 247 / 0.08);
+  --color-line: rgb(242 244 247 / 0.22);
+  --color-ink-1: #f2f4f7;
+  --color-ink-2: rgb(242 244 247 / 0.8);
+  --color-ink-3: rgb(242 244 247 / 0.58);
+  --color-accent: #f5a524;
+  --color-accent-bright: #ffb84d;
+  --color-accent-ink: #0b0d10;
+}
+
+/* Flat scrim over the hero film — a single tonal layer for legibility.
+   Deliberately NOT a gradient (§1.2: no gradients on brand surfaces). */
+.hero-scrim {
+  background: rgb(11 13 16 / 0.55);
+}
+
+/* Ghost button for use on the hero imagery. */
+.btn-ghost {
+  background: rgb(242 244 247 / 0.07);
+  backdrop-filter: blur(6px);
+}
+
+/*
+ * Scroll reveals (design-elevation pass 1) — quiet, state-conveying motion:
+ * content settles up once as it enters the viewport. CSS-only mechanics;
+ * the .js gate is set pre-paint by ThemeScript, so no-JS and pre-hydration
+ * rendering NEVER hide content. Honors prefers-reduced-motion below.
+ */
+.js .reveal {
+  opacity: 0;
+  transform: translateY(26px);
+  transition: opacity 700ms ease-out, transform 700ms cubic-bezier(0.22, 0.61, 0.21, 1);
+}
+.js .reveal[data-revealed="true"] {
+  opacity: 1;
+  transform: none;
+}
+
+@keyframes scroll-cue {
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.55;
+  }
+  50% {
+    transform: translateY(7px);
+    opacity: 1;
+  }
+}
+.scroll-cue {
+  animation: scroll-cue 2.4s ease-in-out infinite;
+}
+
 html {
   scroll-behavior: smooth;
 }
@@ -117,6 +183,14 @@ body {
     scroll-behavior: auto;
   }
   .bar-anim {
+    animation: none;
+  }
+  .js .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  .scroll-cue {
     animation: none;
   }
   *,
