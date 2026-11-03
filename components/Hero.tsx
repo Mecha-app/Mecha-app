@@ -1,13 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { useLocale } from "@/lib/i18n/LocaleProvider";
 
 /** Play glyph — MECHA line set (§1.6). */
 function PlayIcon() {
   return (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
       <path d="M8 5.5v13l11-6.5-11-6.5z" />
     </svg>
   );
@@ -23,62 +23,40 @@ function ChevronDownIcon() {
 }
 
 /**
- * Homepage hero (route `/`, blueprint §2.1) — design-elevation pass 1.
- * Full-viewport cinematic treatment of the produced hero film
- * (files/videos/): the film runs as a muted, looping backdrop — the
- * product moment (driver, warning light, phone) IS the hero — under a
- * flat tonal scrim (§1.2: no gradients) and MECHA's own display type at
- * full confidence. "Watch how it works" promotes the same film to a
- * controlled, audible playback. Minimal words: eyebrow, the two-line
- * promise, one sentence, two actions. No stats, no testimonials
- * (§1.6 claims discipline). prefers-reduced-motion: no autoplay.
+ * Homepage hero (route `/`, blueprint §2.1) — the dialogue film.
+ *
+ * The hero film is now the spoken-dialogue film (VIDEO_SET_3): its
+ * value is hearing the driver, his friend, and the mechanic talk, so
+ * it plays ONLY on demand — poster-first, click-to-play WITH SOUND,
+ * native controls once playing, back to the poster when it ends. No
+ * muted autoplay backdrop, and per the owner's hard rule nothing is
+ * laid over the picture: the promise copy and actions live in the
+ * layout above the player, exactly like every big-brand hero. One
+ * film in the hero, ever — this replaced the set-#1 explainer.
  */
 export function Hero() {
   const { t } = useLocale();
   const videoRef = useRef<HTMLVideoElement>(null);
-  const [watching, setWatching] = useState(false);
+  const [playing, setPlaying] = useState(false);
 
-  useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      video.pause();
-    }
-  }, []);
-
-  function watchFilm() {
+  function playFilm() {
     const video = videoRef.current;
     if (!video) return;
     video.muted = false;
-    video.loop = false;
-    video.controls = true;
     video.currentTime = 0;
     void video.play();
-    setWatching(true);
+    setPlaying(true);
+  }
+
+  function filmEnded() {
+    videoRef.current?.load(); // back to the poster
+    setPlaying(false);
   }
 
   return (
-    <section className="hero-scope relative flex min-h-[100svh] items-center overflow-hidden">
-      {/* The film — full-bleed backdrop (poster first, for slow networks). */}
-      <div className="absolute inset-0" aria-hidden={watching ? undefined : true}>
-        <video
-          ref={videoRef}
-          className="h-full w-full object-cover"
-          autoPlay
-          muted
-          loop
-          playsInline
-          preload="metadata"
-          poster="/videos/mecha-hero-poster.webp"
-          aria-label={watching ? t.hero.watchCta : undefined}
-        >
-          <source src="/videos/mecha-hero-explainer.mp4" type="video/mp4" />
-        </video>
-      </div>
-      <div className="hero-scrim absolute inset-0" aria-hidden="true" />
-
-      {/* The promise — centered, oversized, unhurried. */}
-      <div className="relative z-10 mx-auto w-full max-w-6xl px-4 pb-24 pt-28 text-center sm:px-6">
+    <section className="hero-scope relative overflow-hidden">
+      {/* The promise — centered, oversized, unhurried, ABOVE the film. */}
+      <div className="relative z-10 mx-auto w-full max-w-6xl px-4 pt-28 text-center sm:px-6">
         <p className="text-xs font-semibold uppercase tracking-eyebrow text-accent">
           {t.hero.eyebrow}
         </p>
@@ -105,31 +83,52 @@ export function Hero() {
             {t.hero.filmFairPrice}
           </a>
         </div>
+      </div>
 
-        {!watching && (
-          <button
-            type="button"
-            onClick={watchFilm}
-            className="mt-9 inline-flex min-h-[48px] items-center gap-2.5 px-3 text-sm font-medium text-ink-2 transition-colors duration-150 hover:text-ink-1"
+      {/* The film — a framed player under the copy. Poster first; the
+          only thing on the poster is the standard play affordance. */}
+      <div className="relative z-10 mx-auto mt-14 w-full max-w-5xl px-4 sm:px-6">
+        <figure className="relative overflow-hidden rounded-2xl border border-line">
+          <video
+            ref={videoRef}
+            className="aspect-video w-full bg-black"
+            playsInline
+            preload="none"
+            poster="/videos/hero-dialogue-poster.webp"
+            controls={playing}
+            onEnded={filmEnded}
+            aria-label={t.hero.watchCta}
           >
-            <span className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-line">
-              <PlayIcon />
-            </span>
-            {t.hero.watchCta}
-          </button>
-        )}
+            <source src="/videos/hero-dialogue.mp4" type="video/mp4" />
+          </video>
+          {!playing && (
+            <button
+              type="button"
+              onClick={playFilm}
+              aria-label={t.hero.watchCta}
+              className="absolute inset-0 flex items-center justify-center"
+            >
+              <span className="inline-flex min-h-[56px] items-center gap-3 rounded-full bg-[rgb(11_13_16/0.72)] px-7 font-display text-base font-semibold text-white shadow-lg transition-transform duration-150 hover:scale-[1.03]">
+                <PlayIcon />
+                {t.hero.watchCta}
+              </span>
+            </button>
+          )}
+        </figure>
       </div>
 
       {/* Scroll cue — the page continues below the film. */}
-      <a
-        href="#pillars"
-        aria-label={t.pillars.eyebrow}
-        className="absolute bottom-4 left-1/2 z-10 flex h-12 w-12 -translate-x-1/2 items-center justify-center text-ink-2 transition-colors duration-150 hover:text-ink-1"
-      >
-        <span className="scroll-cue block">
-          <ChevronDownIcon />
-        </span>
-      </a>
+      <div className="relative z-10 flex justify-center pb-6 pt-8">
+        <a
+          href="#pillars"
+          aria-label={t.pillars.eyebrow}
+          className="flex h-12 w-12 items-center justify-center text-ink-2 transition-colors duration-150 hover:text-ink-1"
+        >
+          <span className="scroll-cue block">
+            <ChevronDownIcon />
+          </span>
+        </a>
+      </div>
     </section>
   );
 }
