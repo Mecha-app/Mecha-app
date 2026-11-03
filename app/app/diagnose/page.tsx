@@ -210,10 +210,10 @@ export default function DiagnosePage() {
             {message ||
               "You've used all 5 of your free diagnoses. A MECHA Pro subscription is required to run more diagnoses — nothing is charged until you choose a plan."}
           </p>
-          {/* Sweep fix: /pricing is not a route yet — the pricing
-              section on the homepage carries the plans today. */}
+          {/* The standalone pricing route carries the full plans,
+              meter explanation, and billing FAQ. */}
           <Link
-            href="/#pricing"
+            href="/pricing"
             className="mt-5 flex h-12 w-full items-center justify-center rounded-full bg-accent px-6 text-base font-semibold text-accent-ink"
           >
             See MECHA Pro

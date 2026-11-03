@@ -262,6 +262,296 @@ const fr: DeepPartial<Dictionary> = {
       },
     },
   },
+  diagnosePage: {
+    eyebrow: "MECHA Diagnose",
+    heading: "Partez du symptôme. Repartez avec un plan.",
+    sub: "Un voyant, un bruit étrange, un code donné par un magasin de pièces — quelle que soit la façon dont le problème se manifeste, MECHA le transforme en causes classées, en verdict de gravité clair, en juste prix et en prochaines étapes.",
+    primaryCta: "Diagnostiquer ma voiture",
+    scanCta: "Explorer Scan",
+    accountNote:
+      "Scanner un VIN, identifier un voyant et vérifier un code sont gratuits. Un diagnostic complet utilise l'un de vos 5 diagnostics gratuits, et le compteur est toujours affiché avant et après.",
+    modes: {
+      eyebrow: "Trois façons de commencer",
+      heading: "Commencez avec ce que la voiture vous donne.",
+      body: "Vous n'avez besoin ni du vocabulaire exact ni d'un outil à vous. Commencez depuis une description, une photo, un VIN ou un code défaut — chaque chemin rassemble un type de preuve différent pour le même rapport.",
+      describe: {
+        kicker: "01 — Décrire",
+        title: "Dites-le avec vos mots",
+        body: "Écrivez ce que vous voyez, entendez, ressentez ou sentez, et quand cela se produit. « Ça tremble quand je m'arrête », « ça clique quand je tourne » et « ça sent le sucre après un trajet » sont de bons points de départ.",
+        detail:
+          "Ajoutez la voiture et tout ce qui a changé — une réparation récente, un bruit nouveau, un voyant apparu puis disparu. Le diagnostic pèse le symptôme contre le véhicule et son historique, au lieu de traiter chaque voiture comme la même.",
+        point1: "Idéal pour les bruits, vibrations, odeurs, fuites et problèmes intermittents",
+        point2: "Aucun vocabulaire technique requis",
+        point3: "S'exécute comme un diagnostic complet, avec le rapport entier",
+        cta: "Décrire un symptôme",
+      },
+      photo: {
+        kicker: "02 — Photographie",
+        title: "Laissez le tableau de bord parler",
+        body: "Photographiez le combiné d'instruments et MECHA nomme chaque voyant qu'il peut identifier, l'explique en langage clair et en note l'urgence.",
+        detail:
+          "Une photo identifie le voyant — pas la panne cachée dessous. Quand le voyant pointe vers quelque chose de plus profond, le parcours transmet ces éléments à un diagnostic complet au lieu de prétendre que l'image a tout répondu.",
+        point1: "Nomme et explique les symboles allumés",
+        point2: "Note l'urgence avec les mêmes trois verdicts de gravité",
+        point3: "Peut passer à un diagnostic complet en un toucher",
+        cta: "Photographier un tableau de bord",
+      },
+      scan: {
+        kicker: "03 — Scanner ou saisir un code",
+        title: "Utilisez les identifiants de la voiture",
+        body: "Décodez le VIN de 17 caractères pour identifier le véhicule exact et vérifier les rappels ouverts, ou saisissez un code défaut comme P0420 pour une traduction en langage clair.",
+        detail:
+          "Le VIN ancre la compatibilité, les causes probables et les prix de réparation à la bonne année, marque, modèle et moteur. Un code ajoute un indice de système ; le diagnostic complet transforme cet indice en causes classées et en fourchette juste.",
+        point1: "Décodage du VIN et vérification des rappels NHTSA ouverts",
+        point2: "Format du code défaut vérifié instantanément",
+        point3: "Enregistrez la voiture décodée dans votre Coffre Santé",
+        cta: "Voir comment Scan fonctionne",
+      },
+    },
+    report: {
+      eyebrow: "Dans le rapport",
+      heading: "Huit choses que chaque diagnostic complet vous donne.",
+      body: "Le résumé de la page d'accueil n'est que le plan. Un rapport complet explique le raisonnement et les conséquences pratiques, pour que la réponse serve à la maison, sur la route ou au comptoir d'un atelier.",
+      items: {
+        explanation: {
+          title: "Explication en langage clair",
+          body: "Ce qui se passe probablement dans la voiture, pourquoi cela produit le symptôme que vous avez remarqué, et où subsiste l'incertitude. Les termes techniques sont traduits au lieu de vous être répétés.",
+        },
+        causes: {
+          title: "Causes probables, classées",
+          body: "Les causes probables sont ordonnées de la plus à la moins probable. Chacune nomme la pièce concernée, ce que la réparation implique et son coût estimé, pour qu'un contrôle moins cher ne soit pas enterré sous une supposition plus lourde.",
+        },
+        severity: {
+          title: "Verdict de gravité",
+          body: "L'une de trois réponses explicites — Roulez, Roulez prudemment ou Arrêtez-vous — avec sa raison. Un verdict n'est jamais porté par la couleur seule, et il est lié aux symptômes du rapport.",
+        },
+        cost: {
+          title: "Fourchette de prix juste",
+          body: "Une fourchette pour la réparation de votre voiture, pièces et main-d'œuvre comprises. Elle vous donne une comparaison avant qu'un atelier écrive un devis, et non la promesse que chaque atelier facturera le même montant.",
+        },
+        labor: {
+          title: "Temps de main-d'œuvre juste",
+          body: "Le temps de main-d'œuvre qu'un atelier juste devrait prendre pour le travail. Quand un devis dépend d'une main-d'œuvre anormalement élevée, c'est la ligne qui rend la différence visible.",
+        },
+        steps: {
+          title: "Quoi faire ensuite, dans l'ordre",
+          body: "L'action immédiate, les contrôles à demander en premier, et ce qui peut attendre. L'ordre compte : il favorise la vérification la plus probable et la moins chère avant les gros travaux.",
+        },
+        tip: {
+          title: "Conseil du technicien",
+          body: "Une note pratique sur quoi dire à l'atelier, quoi surveiller en conduisant, ou quel changement du symptôme signifie que la situation est devenue plus urgente.",
+        },
+        saved: {
+          title: "Enregistré dans le Coffre Santé",
+          body: "Le rapport rejoint l'historique de la voiture, aux côtés des vérifications de rappels et des futurs entretiens. Le prochain diagnostic, et une future conversation de réparation, peuvent commencer avec du contexte plutôt qu'une page blanche.",
+        },
+      },
+    },
+    severity: {
+      eyebrow: "Guide de gravité",
+      heading: "Trois verdicts. Plus besoin de deviner ce qu'un voyant veut dire.",
+      body: "Chaque diagnostic utilise les mêmes mots. Ce sont des repères tirés des preuves du rapport — si la voiture semble dangereuse, perd de la puissance, surchauffe, fume, ou si un voyant se met à clignoter, l'action la plus sûre gagne.",
+      drive: {
+        title: "Roulez",
+        body: "Le rapport ne pointe vers aucune raison de s'arrêter immédiatement. Gardez le symptôme à l'œil et programmez le contrôle recommandé dans le cours normal de l'entretien.",
+        detail:
+          "Roulez n'est pas une garantie que rien ne va mal. Cela signifie que les preuves permettent de continuer tout en surveillant les changements et en suivant les prochaines étapes.",
+      },
+      careful: {
+        title: "Roulez prudemment",
+        body: "Le problème mérite une attention rapide. Limitez la conduite exigeante, évitez les lourdes charges quand le rapport le dit, et réservez l'inspection bientôt.",
+        detail:
+          "Si le symptôme s'aggrave, si un nouveau voyant apparaît ou si la voiture commence à perdre de la puissance, traitez la situation comme plus urgente que le verdict initial.",
+      },
+      stop: {
+        title: "Arrêtez-vous",
+        body: "Ne continuez pas à rouler avec ce problème. Arrêtez-vous dans un endroit sûr, coupez le moteur quand c'est conseillé, et utilisez l'aide à proximité ou un remorquage au lieu d'essayer de rentrer.",
+        detail:
+          "Ce verdict existe pour les problèmes où continuer à rouler peut créer un risque de sécurité ou transformer une panne réparable en dommage bien plus important.",
+      },
+    },
+    speed: {
+      eyebrow: "Pensé pour le bord de la route",
+      heading: "La réponse commence à arriver en flux.",
+      body: "Un diagnostic est livré en flux : le rapport commence à apparaître pendant que le reste s'écrit encore, au lieu de vous laisser devant un écran d'attente vide jusqu'à la fin de chaque mot.",
+      detail:
+        "C'est la réponse directe de la reconstruction à l'ancienne expérience — un parcours moderne unique, du symptôme au rapport, avec la gravité, les causes et la fourchette juste arrivant comme une seule réponse structurée.",
+      note: "Le temps réel dépend de la connexion et de la complexité du problème. MECHA ne remplit pas une attente avec un résultat inventé.",
+    },
+    meter: {
+      title: "Cinq diagnostics complets, gratuits",
+      body: "Votre compte gratuit est lié à l'identité de votre compte — e-mail et téléphone — et survit à la déconnexion. Après chaque diagnostic, MECHA indique combien il en reste. À zéro, les diagnostics se mettent en pause jusqu'à ce que vous choisissiez Pro ; rien n'est facturé automatiquement.",
+    },
+    final: {
+      eyebrow: "Commencez gratuitement",
+      heading: "Apportez à MECHA le problème que vous avez aujourd'hui.",
+      body: "Créez le compte gratuit, ajoutez la voiture et lancez le premier diagnostic. Le rapport, la fourchette juste et l'historique sont à vous.",
+      cta: "Créez un compte gratuit",
+      secondaryCta: "Diagnostiquer maintenant",
+    },
+  },
+  pricingPage: {
+    eyebrow: "Tarifs, en entier",
+    heading: "Choisissez selon le travail devant vous.",
+    sub: "Les forfaits sont simples à dessein : commencez gratuitement, supprimez le compteur de diagnostics avec Pro, ou placez un établissement devant les conducteurs proches avec Ateliers. Les détails — y compris la facturation — sont sur cette page, pas enterrés après le paiement.",
+    decision: {
+      eyebrow: "À qui chaque forfait convient",
+      heading: "La bonne taille, sans labyrinthe de niveaux.",
+      body: "La différence entre les forfaits est le travail qu'ils résolvent, pas un paquet de limites artificielles.",
+      free: {
+        title: "Gratuit — savoir ce qui ne va pas",
+        body: "Pour un conducteur face à un voyant ou un symptôme inconnu, qui a besoin d'une première réponse crédible avant de payer une réparation.",
+        detail:
+          "Vous recevez 5 diagnostics complets, la fourchette de prix juste sur chaque rapport et le Coffre Santé. Aucune carte n'est requise pour commencer, et le compte restant est toujours visible.",
+      },
+      pro: {
+        title: "Pro — supprimer le compteur",
+        body: "Pour les conducteurs qui diagnostiquent plus qu'un problème occasionnel, traquent une panne intermittente ou veulent le niveau d'analyse approfondie disponible quand une première réponse ne suffit pas.",
+        detail:
+          "Pro offre des diagnostics standard illimités et une analyse approfondie pour les problèmes résistants, tout en gardant le Coffre et la protection du juste prix de Gratuit.",
+      },
+      shops: {
+        title: "Ateliers — être là quand ça compte",
+        body: "Pour un établissement de réparation ou de remorquage qui veut apparaître dans les résultats de proximité de MECHA quand un conducteur est prêt à appeler.",
+        detail:
+          "Le forfait est par établissement, et non par entreprise dans l'abstrait. Le nom de votre entreprise mène l'annonce, la distance est affichée, et le numéro de téléphone est l'action d'appel en un toucher.",
+      },
+    },
+    billing: {
+      eyebrow: "Facturation, sans pièges",
+      heading: "Abonnez-vous quand vous choisissez. Annulez quand vous choisissez.",
+      body: "Les forfaits payants passent par le paiement web de MECHA et les outils de facturation du compte. Le forfait, le statut et la période en cours sont affichés dans le tableau de bord en mots clairs.",
+      point1: "Le paiement web peut proposer les cartes, ainsi qu'Apple Pay et Google Pay, quand ces portefeuilles sont disponibles sur l'appareil et le navigateur",
+      point2: "Une seule action, « Gérer ou annuler à tout moment », ouvre la facturation pour un abonné",
+      point3: "Une annulation programmée s'affiche comme date de fin, au lieu d'être cachée derrière une étiquette de renouvellement",
+      point4: "Gratuit ne demande aucune carte, et épuiser les 5 diagnostics gratuits ne lance jamais un forfait payant tout seul",
+      note: "La disponibilité des portefeuilles est décidée par l'appareil de paiement, le navigateur et les réglages du compte Stripe. MECHA ne promet pas un bouton de portefeuille là où la plateforme ne peut pas l'offrir.",
+    },
+    faq: {
+      eyebrow: "Questions de tarifs",
+      heading: "La facturation, expliquée avant le paiement.",
+      items: {
+        card: {
+          q: "Faut-il une carte bancaire pour le forfait gratuit ?",
+          a: "Non. Gratuit commence sans carte. Vous recevez 5 diagnostics complets, et MECHA affiche le compte restant après chacun.",
+        },
+        cancel: {
+          q: "Comment annuler un forfait payant ?",
+          a: "Ouvrez la section facturation de votre tableau de bord et choisissez « Gérer ou annuler à tout moment ». Le compte affiche le statut du forfait et, quand une annulation est programmée, la date de fin de la période payée.",
+        },
+        payments: {
+          q: "Puis-je payer avec Apple Pay ou Google Pay ?",
+          a: "Au paiement web, Stripe peut proposer Apple Pay et Google Pay à côté des cartes quand le portefeuille est activé et disponible sur votre appareil et votre navigateur. Si un portefeuille n'est pas disponible, l'option carte reste là.",
+        },
+        freeEnd: {
+          q: "Que se passe-t-il quand les diagnostics gratuits arrivent à zéro ?",
+          a: "Les diagnostics se mettent en pause. Votre compte, vos voitures, vos rapports et l'historique de votre Coffre restent disponibles, et rien n'est facturé automatiquement. Vous choisissez de commencer Pro ou non.",
+        },
+        early: {
+          q: "Que reçoivent les premiers membres ?",
+          a: "L'offre permanente des premiers membres est 3 mois de Pro offerts et le tarif de lancement bloqué à vie. Elle est attachée au forfait Pro de cette page ; MECHA n'ajoute pas un niveau surprise séparé au paiement.",
+        },
+        business: {
+          q: "Le forfait Ateliers est-il facturé par entreprise ou par établissement ?",
+          a: "Par établissement — 149 $ par mois pour chaque atelier ou dépanneuse listée. Une entreprise qui veut lister un autre établissement utilise un forfait pour cet établissement.",
+        },
+      },
+    },
+    final: {
+      eyebrow: "Aucune carte pour commencer",
+      heading: "Utilisez d'abord les diagnostics gratuits.",
+      body: "Laissez le produit faire ses preuves sur un vrai problème. Ne changez de forfait que lorsque le compteur ou l'annonce d'entreprise résout un problème que vous avez réellement.",
+      cta: "Commencer gratuitement",
+      businessCta: "Lister une entreprise",
+    },
+  },
+  shopsPage: {
+    eyebrow: "Pour ateliers et remorquage",
+    heading: "Soyez le nom qu'un conducteur peut appeler.",
+    sub: "Quand MECHA dit à un conducteur de s'arrêter ou de chercher de l'aide bientôt, les entreprises proches deviennent l'étape suivante. Une annonce est pensée pour ce moment : votre nom en premier, votre distance clairement affichée, et votre numéro prêt à toucher.",
+    primaryCta: "Créez un compte entreprise",
+    nearbyCta: "Voir la recherche de proximité",
+    listing: {
+      eyebrow: "Ce que l'annonce vous apporte",
+      heading: "Un profil pensé pour un conducteur sous pression, pas une page d'annuaire.",
+      body: "L'annonce porte les faits dont un conducteur a besoin pour choisir et appeler. Elle n'enterre pas le numéro de téléphone sous du texte marketing et ne fait pas concourir le nom de l'entreprise avec des notes décoratives.",
+      profile: {
+        title: "L'identité de l'entreprise",
+        body: "Le nom de votre entreprise, votre numéro de téléphone et votre position basée sur le code postal identifient l'annonce. Le nom est l'élément principal, parce que la reconnaissance et la confiance commencent là.",
+      },
+      serviceArea: {
+        title: "La bonne zone de service",
+        body: "Les ateliers de réparation sont présentés autour de la voiture ; les dépanneuses portent en plus la zone de service qu'elles choisissent, pour diriger les conducteurs vers une aide qui peut vraiment les atteindre.",
+      },
+      presentation: {
+        title: "Nom, distance, appel",
+        body: "Les résultats sont classés par distance et s'ouvrent sur un compte clair. Chaque résultat commence par le nom de l'entreprise, indique sa distance, et fait du numéro de téléphone l'action d'appel.",
+      },
+      control: {
+        title: "Votre compte reste le vôtre",
+        body: "Le tableau de bord de l'entreprise porte le profil et l'état du forfait. Le statut de facturation est visible, et l'abonnement peut être géré ou annulé depuis le parcours de facturation du compte.",
+      },
+    },
+    plan: {
+      eyebrow: "Le forfait Ateliers",
+      heading: "Un établissement. Un prix mensuel clair.",
+      body: "Le forfait Ateliers place un établissement de réparation ou de remorquage dans l'expérience de proximité de MECHA, pour les conducteurs qui utilisent le parcours de diagnostic et la recherche au bord de la route.",
+      priceLabel: "Par mois, par établissement",
+      point1: "Une annonce de proximité pour un établissement de réparation ou de remorquage",
+      point2: "Une présentation nom d'abord, avec distance et appel en un toucher",
+      point3: "Des conducteurs qui peuvent arriver avec un diagnostic et la fourchette de prix juste déjà en main",
+      point4: "Tableau de bord entreprise, statut du forfait et contrôles pour gérer ou annuler la facturation",
+      note: "Une annonce rend l'entreprise repérable dans les résultats de proximité. Elle ne garantit ni un nombre d'appels, ni des travaux, ni des revenus — la demande des conducteurs et la distance décident qui appelle.",
+      cta: "Inscrivez votre entreprise",
+    },
+    parts: {
+      eyebrow: "Commande de pièces",
+      heading: "De la pièce nommée au lien de commande.",
+      body: "Quand un diagnostic terminé nomme une pièce, MECHA peut construire des liens de détaillants pour ce travail et ce véhicule exacts. Pour un atelier, cela devient un chemin de commande pratique depuis le rapport, au lieu d'une recherche fraîche tapée de mémoire.",
+      point1: "Les liens portent l'année, la marque, le modèle et le moteur du véhicule quand ces détails sont connus",
+      point2: "La même liste de pièces sert les conducteurs bricoleurs, les propriétaires expérimentés et les commandes d'ateliers",
+      point3: "Le prix réel se vérifie chez le détaillant ; MECHA étiquette son propre chiffre comme une estimation, pas comme un prix de magasin",
+      disclosure:
+        "Les liens de pièces peuvent rapporter une commission à MECHA. L'avis accompagne le bloc, le lien ne change pas le prix chez le détaillant, et les liens affiliés n'influencent jamais le diagnostic — ils sont construits seulement une fois le verdict terminé. Un rabais acheteur n'est affiché que lorsque les conditions réelles du programme d'un détaillant en offrent un.",
+    },
+    faq: {
+      eyebrow: "Questions des propriétaires",
+      heading: "Pour ateliers et remorquage, répondu franchement.",
+      items: {
+        eligibility: {
+          q: "Quelles entreprises peuvent s'inscrire ?",
+          a: "Les ateliers de réparation et les dépanneuses peuvent créer un compte entreprise avec le nom de l'entreprise, le numéro de téléphone et le code postal. Le type de compte contrôle la façon dont l'entreprise est présentée dans les résultats de proximité.",
+        },
+        guarantee: {
+          q: "MECHA garantit-il des appels ou des travaux ?",
+          a: "Non. Une annonce place l'entreprise dans les résultats de proximité, classés par distance, quand les conducteurs cherchent. MECHA ne garantit ni volume d'appels, ni travaux réservés, ni revenus.",
+        },
+        prepared: {
+          q: "Que sait un conducteur avant d'appeler ?",
+          a: "Un conducteur peut arriver avec le rapport de diagnostic : les causes probables, un verdict de gravité, la fourchette de réparation juste et les prochaines étapes. La première conversation peut alors commencer par des preuves plutôt qu'un symptôme vague.",
+        },
+        cost: {
+          q: "Combien coûte le forfait entreprise ?",
+          a: "Le forfait Ateliers coûte 149 $ par mois, par établissement. Un atelier de réparation et une dépanneuse utilisent le même forfait entreprise par établissement.",
+        },
+        cancel: {
+          q: "Une entreprise peut-elle annuler ?",
+          a: "Oui. La section facturation du tableau de bord offre le parcours pour gérer ou annuler, et le statut du forfait ainsi que la fin de période sont affichés en mots clairs.",
+        },
+        parts: {
+          q: "Comment les liens de pièces aident-ils un atelier ?",
+          a: "Un rapport terminé peut transformer les pièces nommées en liens de détaillants adaptés au véhicule, ce qui évite une recherche séparée et garde les détails du véhicule attachés au chemin de commande. Le prix réel et la disponibilité se confirment chez le détaillant.",
+        },
+      },
+    },
+    final: {
+      eyebrow: "Lister l'établissement",
+      heading: "Placez l'entreprise là où le besoin apparaît.",
+      body: "Créez le compte entreprise, ajoutez l'établissement que les conducteurs doivent trouver, et soyez prêt pour l'appel qui commence par un diagnostic.",
+      cta: "Créez un compte entreprise",
+      pricingCta: "Voir les tarifs complets",
+    },
+  },
   waitlist: {
     eyebrow: "Bêta privée",
     heading: "Entrez avant l'ouverture des portes.",

@@ -266,6 +266,296 @@ const en = {
       },
     },
   },
+  diagnosePage: {
+    eyebrow: "MECHA Diagnose",
+    heading: "Start with the symptom. Leave with a plan.",
+    sub: "A warning light, a strange sound, a code from a parts store — however the problem announces itself, MECHA turns it into ranked causes, a plain severity verdict, the fair price, and what to do next.",
+    primaryCta: "Diagnose my car",
+    scanCta: "Explore Scan",
+    accountNote:
+      "Scanning a VIN, identifying a light, and checking a code are free. A full diagnosis uses one of your 5 free diagnoses, and the meter is always shown before and after.",
+    modes: {
+      eyebrow: "Three ways in",
+      heading: "Begin with whatever the car gives you.",
+      body: "You do not need the right vocabulary or a tool of your own. Start from a description, a photograph, a VIN, or a fault code — each path gathers a different kind of evidence for the same report.",
+      describe: {
+        kicker: "01 — Describe",
+        title: "Say it in your own words",
+        body: "Type what you see, hear, feel, or smell, and when it happens. “Shakes when I stop,” “clicks when I turn,” and “smells sweet after a drive” are useful starting points.",
+        detail:
+          "Add the car and anything that changed — a recent repair, a new sound, a light that came and went. The diagnosis weighs the symptom against the vehicle and its history instead of treating every car as the same car.",
+        point1: "Best for sounds, shaking, smells, leaks, and intermittent problems",
+        point2: "No technical vocabulary required",
+        point3: "Runs as a full diagnosis with the complete report",
+        cta: "Describe a symptom",
+      },
+      photo: {
+        kicker: "02 — Photograph",
+        title: "Let the dashboard speak",
+        body: "Photograph the instrument cluster and MECHA names each warning light it can identify, explains it in plain language, and grades the urgency.",
+        detail:
+          "A photo identifies the light — not the hidden fault underneath it. When the light points to something deeper, the flow hands those findings into a full diagnosis instead of pretending the picture answered everything.",
+        point1: "Names and explains the lit symbols",
+        point2: "Grades urgency on the same three severity verdicts",
+        point3: "Can hand off into a full diagnosis in one tap",
+        cta: "Photograph a dashboard",
+      },
+      scan: {
+        kicker: "03 — Scan or enter a code",
+        title: "Use the car's own identifiers",
+        body: "Decode the 17-character VIN to identify the exact vehicle and check open recalls, or enter a fault code such as P0420 for a plain-language translation.",
+        detail:
+          "The VIN anchors fitment, likely causes, and repair pricing to the right year, make, model, and engine. A code adds a system clue; the full diagnosis turns that clue into ranked causes and a fair range.",
+        point1: "VIN decode plus NHTSA open-recall check",
+        point2: "Fault-code format checked instantly",
+        point3: "Save the decoded car to your Health Vault",
+        cta: "See how Scan works",
+      },
+    },
+    report: {
+      eyebrow: "Inside the report",
+      heading: "Eight things every full diagnosis gives you.",
+      body: "The homepage summary is only the outline. A full report explains the reasoning and the practical consequences, so the answer can be used at home, on the road, or across a shop counter.",
+      items: {
+        explanation: {
+          title: "Plain-language explanation",
+          body: "What is probably happening inside the car, why it produces the symptom you noticed, and where the uncertainty remains. Technical terms are translated instead of repeated back at you.",
+        },
+        causes: {
+          title: "Likely causes, ranked",
+          body: "The probable causes are ordered most likely first. Each one names the part involved, what the repair entails, and its own estimated cost, so a cheaper check is not buried under a larger guess.",
+        },
+        severity: {
+          title: "Severity verdict",
+          body: "One of three explicit answers — Drive, Drive carefully, or Stop now — with the reason. A verdict is never carried by color alone, and it is tied to the symptoms in the report.",
+        },
+        cost: {
+          title: "Fair price range",
+          body: "A range for the repair on your car, covering parts and labor. It gives you a comparison before a shop writes a quote, not a promise that every shop will charge the same amount.",
+        },
+        labor: {
+          title: "Fair labor time",
+          body: "The labor time a fair shop should need for the job. When a quote depends on unusually high labor, this is the line that makes the difference visible.",
+        },
+        steps: {
+          title: "What to do next, in order",
+          body: "The immediate action, the checks to ask for first, and what can wait. The order matters: it favors the most likely and least expensive verification before major work.",
+        },
+        tip: {
+          title: "Technician's tip",
+          body: "A practical note on what to say at the shop, what to watch while driving, or which change in the symptom means the situation has become more urgent.",
+        },
+        saved: {
+          title: "Saved to the Health Vault",
+          body: "The report becomes part of the car's history, alongside recall checks and later service records. The next diagnosis, and a future repair conversation, can start with context instead of a blank page.",
+        },
+      },
+    },
+    severity: {
+      eyebrow: "Severity guide",
+      heading: "Three verdicts. No guessing what a light means.",
+      body: "Every diagnosis uses the same words. They are guidance from the report's evidence — if the car feels unsafe, loses power, overheats, smokes, or a warning starts flashing, the safer action wins.",
+      drive: {
+        title: "Drive",
+        body: "The report does not point to a reason to stop immediately. Keep the symptom in view and schedule the recommended check in the normal course of maintenance.",
+        detail:
+          "Drive is not a guarantee that nothing is wrong. It means the evidence supports continuing while you monitor for changes and follow the next steps.",
+      },
+      careful: {
+        title: "Drive carefully",
+        body: "The problem deserves prompt attention. Limit demanding driving, avoid heavy loads where the report says to, and book the inspection soon.",
+        detail:
+          "If the symptom worsens, a new warning appears, or the car begins to lose power, treat the situation as more urgent than the original verdict.",
+      },
+      stop: {
+        title: "Stop now",
+        body: "Do not keep driving on this problem. Pull somewhere safe, turn the car off when advised, and use nearby help or towing instead of trying to make it home.",
+        detail:
+          "This verdict exists for problems where continued driving can create a safety risk or turn a repairable fault into much larger damage.",
+      },
+    },
+    speed: {
+      eyebrow: "Built for the roadside",
+      heading: "The answer starts streaming in.",
+      body: "A diagnosis is delivered as a stream: the report begins appearing while the rest is still being written, instead of leaving you on a blank waiting screen until every word is finished.",
+      detail:
+        "That is the rebuild's direct answer to the old experience — one modern flow from symptom to report, with the severity, causes, and fair range arriving as one structured answer.",
+      note: "Actual timing depends on the connection and the complexity of the problem. MECHA does not fill a delay with a made-up result.",
+    },
+    meter: {
+      title: "Five full diagnoses, free",
+      body: "Your free count belongs to your account identity — email and phone — and survives signing out. After each diagnosis, MECHA states how many remain. At zero, diagnoses pause until you choose Pro; nothing is charged automatically.",
+    },
+    final: {
+      eyebrow: "Start free",
+      heading: "Bring MECHA the problem you have today.",
+      body: "Create the free account, add the car, and run the first diagnosis. The report, fair range, and history are yours to keep.",
+      cta: "Create a free account",
+      secondaryCta: "Diagnose now",
+    },
+  },
+  pricingPage: {
+    eyebrow: "Pricing, in full",
+    heading: "Choose by the job in front of you.",
+    sub: "The plans are simple on purpose: start free, remove the diagnosis meter with Pro, or put one business location in front of nearby drivers with Shops. The details — including billing — are on this page, not buried after checkout.",
+    decision: {
+      eyebrow: "Who each plan is for",
+      heading: "The right size, without a maze of tiers.",
+      body: "The difference between the plans is the job they solve, not a bundle of artificial limits.",
+      free: {
+        title: "Free — learn what is wrong",
+        body: "For a driver facing a warning light or an unfamiliar symptom who needs a credible first answer before paying for a repair.",
+        detail:
+          "You get 5 full diagnoses, the fair-price range on every report, and the Health Vault. No card is required to start, and the remaining count is always visible.",
+      },
+      pro: {
+        title: "Pro — remove the meter",
+        body: "For drivers who diagnose more than an occasional problem, are chasing an intermittent fault, or want the deeper analysis tier available whenever a first answer is not enough.",
+        detail:
+          "Pro gives unlimited standard diagnoses and deep-dive analysis for resistant problems, while keeping the Vault and fair-price protection from Free.",
+      },
+      shops: {
+        title: "Shops — be nearby when it matters",
+        body: "For one repair-shop or towing location that wants to appear in MECHA's nearby results when a driver is ready to call.",
+        detail:
+          "The plan is per location, not per company in the abstract. Your business name leads the listing, distance is shown, and the phone number is the tap-to-call action.",
+      },
+    },
+    billing: {
+      eyebrow: "Billing, without traps",
+      heading: "Subscribe when you choose. Cancel when you choose.",
+      body: "Paid plans are handled through MECHA's web checkout and account billing tools. The plan, status, and current period are shown in the dashboard in plain words.",
+      point1: "Web checkout can surface cards plus Apple Pay and Google Pay when those wallets are available on the device and browser",
+      point2: "A single “Manage or cancel anytime” action opens billing for a subscriber",
+      point3: "A scheduled cancellation is shown as an end date instead of being hidden behind a renewal label",
+      point4: "Free requires no card, and using all 5 free diagnoses never starts a paid plan by itself",
+      note: "Wallet availability is decided by the payment device, browser, and Stripe account settings. MECHA does not promise a wallet button where the platform cannot offer one.",
+    },
+    faq: {
+      eyebrow: "Pricing questions",
+      heading: "Billing, answered before checkout.",
+      items: {
+        card: {
+          q: "Do I need a credit card for the free plan?",
+          a: "No. Free starts without a card. You receive 5 full diagnoses, and MECHA shows the remaining count after each one.",
+        },
+        cancel: {
+          q: "How do I cancel a paid plan?",
+          a: "Open the billing section in your dashboard and choose “Manage or cancel anytime.” The account shows the plan status and, when a cancellation is scheduled, the date the paid period ends.",
+        },
+        payments: {
+          q: "Can I pay with Apple Pay or Google Pay?",
+          a: "On web checkout, Stripe can offer Apple Pay and Google Pay alongside cards when the wallet is enabled and available on your device and browser. If a wallet is not available, the card option remains.",
+        },
+        freeEnd: {
+          q: "What happens when the free diagnoses reach zero?",
+          a: "Diagnoses pause. Your account, cars, reports, and Vault history remain available, and nothing is charged automatically. You choose whether to start Pro.",
+        },
+        early: {
+          q: "What do early members receive?",
+          a: "The standing early-member offer is 3 months of Pro free and launch pricing locked for life. It is attached to the Pro plan shown on this page; MECHA does not add a separate surprise tier at checkout.",
+        },
+        business: {
+          q: "Is the Shops plan priced per company or per location?",
+          a: "Per location — $149 per month for each listed shop or towing location. A business that wants another location listed uses a plan for that location.",
+        },
+      },
+    },
+    final: {
+      eyebrow: "No card to start",
+      heading: "Use the free diagnoses first.",
+      body: "Let the product prove itself on a real problem. Upgrade only when the meter or the business listing solves a problem you actually have.",
+      cta: "Start free",
+      businessCta: "List a business",
+    },
+  },
+  shopsPage: {
+    eyebrow: "For shops & towing",
+    heading: "Be the name a driver can call.",
+    sub: "When MECHA tells a driver to stop now or get help soon, nearby businesses become the next step. A listing is built for that moment: your name first, your distance clearly shown, and your phone number ready to tap.",
+    primaryCta: "Create a business account",
+    nearbyCta: "See nearby search",
+    listing: {
+      eyebrow: "What listing gets you",
+      heading: "A profile built for a stressed driver, not a directory page.",
+      body: "The listing carries the facts a driver needs to choose and call. It does not bury the phone number under marketing copy or make the business name compete with decorative ratings.",
+      profile: {
+        title: "The business identity",
+        body: "Your business name, phone number, and ZIP-based location identify the listing. The name is the lead element because recognition and trust start there.",
+      },
+      serviceArea: {
+        title: "The right service area",
+        body: "Repair shops are presented around the car; towing companies also carry the service area they choose, so drivers are pointed toward help that can actually reach them.",
+      },
+      presentation: {
+        title: "Name, distance, call",
+        body: "Results are ordered by distance and open with a plain count. Each result leads with the business name, shows how far away it is, and makes the phone number the call action.",
+      },
+      control: {
+        title: "Your account stays yours",
+        body: "The business dashboard carries the profile and plan state. Billing status is visible, and the subscription can be managed or canceled from the account's billing path.",
+      },
+    },
+    plan: {
+      eyebrow: "The Shops plan",
+      heading: "One location. One clear monthly price.",
+      body: "The Shops plan puts a repair or towing location into MECHA's nearby experience for drivers using the diagnosis flow and roadside search.",
+      priceLabel: "Per month, per location",
+      point1: "A nearby listing for one repair-shop or towing location",
+      point2: "Name-first presentation with distance and tap-to-call",
+      point3: "Drivers can arrive with a diagnosis and the fair-price range already in hand",
+      point4: "Business dashboard, plan status, and manage-or-cancel billing controls",
+      note: "A listing makes the business discoverable in nearby results. It does not guarantee a particular number of calls, jobs, or revenue — driver demand and distance decide who calls.",
+      cta: "List your business",
+    },
+    parts: {
+      eyebrow: "Parts ordering",
+      heading: "From the named part to the order link.",
+      body: "When a finished diagnosis names a part, MECHA can build retailer links for that exact job and vehicle. For a shop, that becomes a practical ordering path from the report instead of a fresh search typed from memory.",
+      point1: "Links carry the vehicle's year, make, model, and engine when those details are known",
+      point2: "The same part list supports DIY drivers, hands-on owners, and shop ordering",
+      point3: "Live price is checked at the retailer; MECHA labels its own figure as an estimate, not a store price",
+      disclosure:
+        "Parts links may earn MECHA a commission. The disclosure travels with the block, the price at the retailer is unchanged by the link, and affiliate links never influence the diagnosis — they are built only after the verdict is complete. A buyer discount is shown only when a retailer's real program terms provide one.",
+    },
+    faq: {
+      eyebrow: "Owner questions",
+      heading: "For shops and towing, answered straight.",
+      items: {
+        eligibility: {
+          q: "Which businesses can list?",
+          a: "Repair shops and towing companies can create a business account with the business name, phone number, and ZIP code. The account type controls how the business is presented in nearby results.",
+        },
+        guarantee: {
+          q: "Does MECHA guarantee calls or jobs?",
+          a: "No. A listing puts the business into nearby, distance-ordered results when drivers search. MECHA does not guarantee call volume, booked work, or revenue.",
+        },
+        prepared: {
+          q: "What does a driver know before calling?",
+          a: "A driver may arrive with the diagnosis report: the likely causes, a severity verdict, the fair repair range, and the next steps. That can make the first conversation start from evidence instead of a vague symptom.",
+        },
+        cost: {
+          q: "What does the business plan cost?",
+          a: "The Shops plan is $149 per month, per location. A repair shop and a towing company use the same per-location business plan.",
+        },
+        cancel: {
+          q: "Can a business cancel?",
+          a: "Yes. The dashboard's billing section provides the manage-or-cancel path, and the plan status and period end are shown in plain words.",
+        },
+        parts: {
+          q: "How do parts links help a shop?",
+          a: "A finished report can turn the named parts into fitment-aware retailer links, saving a separate search and keeping the vehicle details attached to the order path. The live price and availability are confirmed at the retailer.",
+        },
+      },
+    },
+    final: {
+      eyebrow: "List the location",
+      heading: "Put the business where the need appears.",
+      body: "Create the business account, add the location drivers should find, and be ready for the call that starts with a diagnosis.",
+      cta: "Create a business account",
+      pricingCta: "See full pricing",
+    },
+  },
   waitlist: {
     eyebrow: "Private beta",
     heading: "Get in before the doors open.",

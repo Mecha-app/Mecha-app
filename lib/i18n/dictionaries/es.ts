@@ -261,6 +261,296 @@ const es: DeepPartial<Dictionary> = {
       },
     },
   },
+  diagnosePage: {
+    eyebrow: "MECHA Diagnose",
+    heading: "Empieza por el síntoma. Termina con un plan.",
+    sub: "Una luz de advertencia, un sonido extraño, un código de una tienda de repuestos — como sea que se anuncie el problema, MECHA lo convierte en causas ordenadas, un veredicto claro de gravedad, el precio justo y qué hacer después.",
+    primaryCta: "Diagnosticar mi coche",
+    scanCta: "Explorar Scan",
+    accountNote:
+      "Escanear un VIN, identificar una luz y comprobar un código son gratis. Un diagnóstico completo usa uno de tus 5 diagnósticos gratis, y el medidor siempre se muestra antes y después.",
+    modes: {
+      eyebrow: "Tres formas de entrar",
+      heading: "Empieza con lo que sea que te dé el coche.",
+      body: "No necesitas el vocabulario correcto ni una herramienta propia. Empieza desde una descripción, una fotografía, un VIN o un código de falla — cada camino reúne un tipo distinto de evidencia para el mismo informe.",
+      describe: {
+        kicker: "01 — Describir",
+        title: "Dilo con tus propias palabras",
+        body: "Escribe lo que ves, oyes, sientes o hueles, y cuándo ocurre. “Vibra cuando me detengo”, “hace clic cuando giro” y “huele dulce después de conducir” son buenos puntos de partida.",
+        detail:
+          "Agrega el coche y todo lo que haya cambiado — una reparación reciente, un sonido nuevo, una luz que apareció y desapareció. El diagnóstico pesa el síntoma contra el vehículo y su historial, en lugar de tratar a todos los coches como si fueran el mismo.",
+        point1: "Ideal para sonidos, vibraciones, olores, fugas y problemas intermitentes",
+        point2: "No se requiere vocabulario técnico",
+        point3: "Se ejecuta como un diagnóstico completo, con el informe entero",
+        cta: "Describir un síntoma",
+      },
+      photo: {
+        kicker: "02 — Fotografía",
+        title: "Deja que el tablero hable",
+        body: "Fotografía el panel de instrumentos y MECHA nombra cada luz de advertencia que pueda identificar, la explica en lenguaje claro y califica la urgencia.",
+        detail:
+          "Una foto identifica la luz — no la falla oculta debajo de ella. Cuando la luz apunta a algo más profundo, el flujo pasa esos hallazgos a un diagnóstico completo, en lugar de fingir que la imagen respondió todo.",
+        point1: "Nombra y explica los símbolos encendidos",
+        point2: "Califica la urgencia con los mismos tres veredictos de gravedad",
+        point3: "Puede pasar a un diagnóstico completo con un toque",
+        cta: "Fotografiar un tablero",
+      },
+      scan: {
+        kicker: "03 — Escanear o ingresar un código",
+        title: "Usa los identificadores del propio coche",
+        body: "Decodifica el VIN de 17 caracteres para identificar el vehículo exacto y consultar retiros abiertos, o ingresa un código de falla como P0420 para obtener una traducción en lenguaje claro.",
+        detail:
+          "El VIN ancla la compatibilidad, las causas probables y los precios de reparación al año, la marca, el modelo y el motor correctos. Un código agrega una pista del sistema; el diagnóstico completo convierte esa pista en causas ordenadas y un rango justo.",
+        point1: "Decodificación de VIN más consulta de retiros abiertos de NHTSA",
+        point2: "Formato del código de falla comprobado al instante",
+        point3: "Guarda el coche decodificado en tu Bóveda de Salud",
+        cta: "Ver cómo funciona Scan",
+      },
+    },
+    report: {
+      eyebrow: "Dentro del informe",
+      heading: "Ocho cosas que te da cada diagnóstico completo.",
+      body: "El resumen de la página principal es solo el esquema. Un informe completo explica el razonamiento y las consecuencias prácticas, para que la respuesta pueda usarse en casa, en la carretera o frente al mostrador de un taller.",
+      items: {
+        explanation: {
+          title: "Explicación en lenguaje claro",
+          body: "Lo que probablemente está pasando dentro del coche, por qué produce el síntoma que notaste y dónde permanece la incertidumbre. Los términos técnicos se traducen en lugar de repetírtelos.",
+        },
+        causes: {
+          title: "Causas probables, ordenadas",
+          body: "Las causas probables se ordenan de la más a la menos probable. Cada una nombra la pieza, lo que implica la reparación y su costo estimado, para que una revisión más barata no quede enterrada bajo una suposición mayor.",
+        },
+        severity: {
+          title: "Veredicto de gravedad",
+          body: "Una de tres respuestas explícitas — Conduce, Conduce con cuidado o Detente ahora — con su razón. El veredicto nunca se comunica solo por color, y está vinculado a los síntomas del informe.",
+        },
+        cost: {
+          title: "Rango de precio justo",
+          body: "Un rango para la reparación de tu coche, incluyendo piezas y mano de obra. Te da una comparación antes de que un taller escriba una cotización, no una promesa de que todos los talleres cobrarán lo mismo.",
+        },
+        labor: {
+          title: "Tiempo justo de mano de obra",
+          body: "El tiempo de mano de obra que un taller justo debería necesitar para el trabajo. Cuando una cotización depende de una mano de obra inusualmente alta, esta es la línea que hace visible la diferencia.",
+        },
+        steps: {
+          title: "Qué hacer después, en orden",
+          body: "La acción inmediata, las revisiones que conviene pedir primero y lo que puede esperar. El orden importa: favorece la verificación más probable y menos costosa antes del trabajo mayor.",
+        },
+        tip: {
+          title: "Consejo del técnico",
+          body: "Una nota práctica sobre qué decir en el taller, qué vigilar mientras conduces o qué cambio en el síntoma significa que la situación se volvió más urgente.",
+        },
+        saved: {
+          title: "Guardado en la Bóveda de Salud",
+          body: "El informe pasa a formar parte del historial del coche, junto con las consultas de retiros y los registros de servicio posteriores. El próximo diagnóstico, y una futura conversación de reparación, pueden empezar con contexto en lugar de una página en blanco.",
+        },
+      },
+    },
+    severity: {
+      eyebrow: "Guía de gravedad",
+      heading: "Tres veredictos. Nada de adivinar qué significa una luz.",
+      body: "Cada diagnóstico usa las mismas palabras. Son una guía a partir de la evidencia del informe — si el coche se siente inseguro, pierde potencia, se sobrecalienta, echa humo o una advertencia empieza a parpadear, gana la acción más segura.",
+      drive: {
+        title: "Conduce",
+        body: "El informe no señala una razón para detenerte de inmediato. Mantén el síntoma en observación y programa la revisión recomendada dentro del mantenimiento normal.",
+        detail:
+          "Conducir no es una garantía de que no pasa nada. Significa que la evidencia respalda continuar mientras vigilas los cambios y sigues los pasos siguientes.",
+      },
+      careful: {
+        title: "Conduce con cuidado",
+        body: "El problema merece atención pronta. Limita la conducción exigente, evita las cargas pesadas cuando el informe lo indique y reserva la inspección pronto.",
+        detail:
+          "Si el síntoma empeora, aparece una nueva advertencia o el coche empieza a perder potencia, trata la situación como más urgente que el veredicto original.",
+      },
+      stop: {
+        title: "Detente ahora",
+        body: "No sigas conduciendo con este problema. Detente en un lugar seguro, apaga el coche cuando se te aconseje y usa la ayuda cercana o una grúa, en lugar de tratar de llegar a casa.",
+        detail:
+          "Este veredicto existe para problemas en los que seguir conduciendo puede crear un riesgo de seguridad o convertir una falla reparable en un daño mucho mayor.",
+      },
+    },
+    speed: {
+      eyebrow: "Hecho para la carretera",
+      heading: "La respuesta empieza a llegar en vivo.",
+      body: "Un diagnóstico se entrega como un flujo: el informe empieza a aparecer mientras el resto aún se está escribiendo, en lugar de dejarte ante una pantalla de espera en blanco hasta que termine cada palabra.",
+      detail:
+        "Esa es la respuesta directa de la reconstrucción a la experiencia anterior — un flujo moderno, del síntoma al informe, con la gravedad, las causas y el rango justo llegando como una sola respuesta estructurada.",
+      note: "El tiempo real depende de la conexión y de la complejidad del problema. MECHA no rellena una espera con un resultado inventado.",
+    },
+    meter: {
+      title: "Cinco diagnósticos completos, gratis",
+      body: "Tu cuenta gratuita pertenece a la identidad de tu cuenta — correo y teléfono — y sobrevive al cierre de sesión. Después de cada diagnóstico, MECHA indica cuántos quedan. Al llegar a cero, los diagnósticos se pausan hasta que elijas Pro; no se cobra nada automáticamente.",
+    },
+    final: {
+      eyebrow: "Empieza gratis",
+      heading: "Tráele a MECHA el problema que tienes hoy.",
+      body: "Crea la cuenta gratuita, agrega el coche y ejecuta el primer diagnóstico. El informe, el rango justo y el historial son tuyos para conservarlos.",
+      cta: "Crea una cuenta gratuita",
+      secondaryCta: "Diagnosticar ahora",
+    },
+  },
+  pricingPage: {
+    eyebrow: "Precios, por completo",
+    heading: "Elige según el trabajo que tienes enfrente.",
+    sub: "Los planes son sencillos a propósito: empieza gratis, elimina el medidor de diagnósticos con Pro, o coloca una ubicación de negocio frente a conductores cercanos con Talleres. Los detalles — incluida la facturación — están en esta página, no enterrados después del pago.",
+    decision: {
+      eyebrow: "Para quién es cada plan",
+      heading: "El tamaño correcto, sin un laberinto de niveles.",
+      body: "La diferencia entre los planes es el trabajo que resuelven, no un paquete de límites artificiales.",
+      free: {
+        title: "Gratis — descubre qué está mal",
+        body: "Para un conductor frente a una luz de advertencia o un síntoma desconocido que necesita una primera respuesta creíble antes de pagar una reparación.",
+        detail:
+          "Recibes 5 diagnósticos completos, el rango de precio justo en cada informe y la Bóveda de Salud. No se requiere tarjeta para empezar, y la cuenta restante siempre es visible.",
+      },
+      pro: {
+        title: "Pro — elimina el medidor",
+        body: "Para conductores que diagnostican más que un problema ocasional, persiguen una falla intermitente o quieren el nivel de análisis profundo disponible cuando una primera respuesta no basta.",
+        detail:
+          "Pro ofrece diagnósticos estándar ilimitados y análisis profundo para problemas resistentes, manteniendo la Bóveda y la protección de precio justo de Gratis.",
+      },
+      shops: {
+        title: "Talleres — estar cerca cuando importa",
+        body: "Para una ubicación de taller de reparación o de grúa que quiere aparecer en los resultados cercanos de MECHA cuando un conductor está listo para llamar.",
+        detail:
+          "El plan es por ubicación, no por empresa en abstracto. El nombre de tu negocio encabeza el anuncio, la distancia se muestra y el número de teléfono es la acción de llamada con un toque.",
+      },
+    },
+    billing: {
+      eyebrow: "Facturación, sin trampas",
+      heading: "Suscríbete cuando quieras. Cancela cuando quieras.",
+      body: "Los planes pagados se gestionan mediante el pago web y las herramientas de facturación de la cuenta de MECHA. El plan, el estado y el período actual se muestran en el panel con palabras claras.",
+      point1: "El pago web puede mostrar tarjetas, además de Apple Pay y Google Pay, cuando esas billeteras estén disponibles en el dispositivo y el navegador",
+      point2: "Una sola acción, “Administrar o cancelar en cualquier momento”, abre la facturación para un suscriptor",
+      point3: "Una cancelación programada se muestra como fecha de finalización, en lugar de ocultarse detrás de una etiqueta de renovación",
+      point4: "Gratis no requiere tarjeta, y agotar los 5 diagnósticos gratis nunca inicia un plan pagado por sí solo",
+      note: "La disponibilidad de las billeteras la decide el dispositivo de pago, el navegador y la configuración de la cuenta de Stripe. MECHA no promete un botón de billetera donde la plataforma no pueda ofrecerlo.",
+    },
+    faq: {
+      eyebrow: "Preguntas de precios",
+      heading: "Facturación, respondida antes del pago.",
+      items: {
+        card: {
+          q: "¿Necesito una tarjeta de crédito para el plan gratuito?",
+          a: "No. Gratis empieza sin tarjeta. Recibes 5 diagnósticos completos, y MECHA muestra la cuenta restante después de cada uno.",
+        },
+        cancel: {
+          q: "¿Cómo cancelo un plan pagado?",
+          a: "Abre la sección de facturación en tu panel y elige “Administrar o cancelar en cualquier momento”. La cuenta muestra el estado del plan y, cuando una cancelación está programada, la fecha en que termina el período pagado.",
+        },
+        payments: {
+          q: "¿Puedo pagar con Apple Pay o Google Pay?",
+          a: "En el pago web, Stripe puede ofrecer Apple Pay y Google Pay junto a las tarjetas cuando la billetera esté activada y disponible en tu dispositivo y navegador. Si una billetera no está disponible, la opción de tarjeta permanece.",
+        },
+        freeEnd: {
+          q: "¿Qué pasa cuando los diagnósticos gratis llegan a cero?",
+          a: "Los diagnósticos se pausan. Tu cuenta, tus coches, tus informes y tu historial de la Bóveda siguen disponibles, y no se cobra nada automáticamente. Tú eliges si quieres empezar Pro.",
+        },
+        early: {
+          q: "¿Qué reciben los miembros tempranos?",
+          a: "La oferta vigente para miembros tempranos es 3 meses de Pro gratis y el precio de lanzamiento bloqueado de por vida. Está vinculada al plan Pro de esta página; MECHA no agrega un nivel sorpresa por separado al pagar.",
+        },
+        business: {
+          q: "¿El plan Talleres se cobra por empresa o por ubicación?",
+          a: "Por ubicación — $149 al mes por cada ubicación anunciada de taller o grúa. Un negocio que quiere anunciar otra ubicación usa un plan para esa ubicación.",
+        },
+      },
+    },
+    final: {
+      eyebrow: "Sin tarjeta para empezar",
+      heading: "Usa primero los diagnósticos gratis.",
+      body: "Deja que el producto se pruebe con un problema real. Mejora tu plan solo cuando el medidor o el anuncio de negocio resuelvan un problema que de verdad tienes.",
+      cta: "Empieza gratis",
+      businessCta: "Anuncia un negocio",
+    },
+  },
+  shopsPage: {
+    eyebrow: "Para talleres y grúas",
+    heading: "Sé el nombre al que un conductor puede llamar.",
+    sub: "Cuando MECHA le dice a un conductor que se detenga ahora o que busque ayuda pronto, los negocios cercanos pasan a ser el siguiente paso. Un anuncio está hecho para ese momento: tu nombre primero, tu distancia claramente mostrada y tu número de teléfono listo para tocar.",
+    primaryCta: "Crea una cuenta de negocio",
+    nearbyCta: "Ver la búsqueda cercana",
+    listing: {
+      eyebrow: "Qué te da el anuncio",
+      heading: "Un perfil hecho para un conductor bajo presión, no una página de directorio.",
+      body: "El anuncio lleva los datos que un conductor necesita para elegir y llamar. No entierra el número de teléfono bajo texto de marketing ni hace que el nombre del negocio compita con calificaciones decorativas.",
+      profile: {
+        title: "La identidad del negocio",
+        body: "El nombre de tu negocio, tu número de teléfono y tu ubicación basada en el código postal identifican el anuncio. El nombre es el elemento principal, porque el reconocimiento y la confianza empiezan ahí.",
+      },
+      serviceArea: {
+        title: "El área de servicio correcta",
+        body: "Los talleres de reparación se presentan alrededor del coche; las compañías de grúa además llevan el área de servicio que eligen, para que los conductores sean dirigidos a una ayuda que realmente puede llegar hasta ellos.",
+      },
+      presentation: {
+        title: "Nombre, distancia, llamada",
+        body: "Los resultados se ordenan por distancia y se abren con una cuenta clara. Cada resultado encabeza con el nombre del negocio, muestra a qué distancia está y convierte el número de teléfono en la acción de llamada.",
+      },
+      control: {
+        title: "Tu cuenta sigue siendo tuya",
+        body: "El panel del negocio lleva el perfil y el estado del plan. El estado de facturación es visible, y la suscripción puede administrarse o cancelarse desde el camino de facturación de la cuenta.",
+      },
+    },
+    plan: {
+      eyebrow: "El plan Talleres",
+      heading: "Una ubicación. Un precio mensual claro.",
+      body: "El plan Talleres coloca una ubicación de reparación o grúa dentro de la experiencia cercana de MECHA para conductores que usan el flujo de diagnóstico y la búsqueda de carretera.",
+      priceLabel: "Por mes, por ubicación",
+      point1: "Un anuncio cercano para una ubicación de taller de reparación o de grúa",
+      point2: "Presentación con el nombre primero, distancia y llamada con un toque",
+      point3: "Conductores que pueden llegar con un diagnóstico y el rango de precio justo ya en mano",
+      point4: "Panel del negocio, estado del plan y controles para administrar o cancelar la facturación",
+      note: "Un anuncio hace que el negocio se pueda descubrir en los resultados cercanos. No garantiza una cantidad particular de llamadas, trabajos o ingresos — la demanda de los conductores y la distancia deciden quién llama.",
+      cta: "Anuncia tu negocio",
+    },
+    parts: {
+      eyebrow: "Pedido de piezas",
+      heading: "De la pieza nombrada al enlace de pedido.",
+      body: "Cuando un diagnóstico terminado nombra una pieza, MECHA puede construir enlaces de minoristas para ese trabajo y vehículo exactos. Para un taller, eso se convierte en un camino práctico de pedido desde el informe, en lugar de una búsqueda nueva escrita de memoria.",
+      point1: "Los enlaces llevan el año, la marca, el modelo y el motor del vehículo cuando esos datos se conocen",
+      point2: "La misma lista de piezas sirve a conductores que lo hacen ellos mismos, propietarios con experiencia y pedidos de talleres",
+      point3: "El precio en vivo se comprueba en el minorista; MECHA etiqueta su propia cifra como una estimación, no como un precio de tienda",
+      disclosure:
+        "Los enlaces de piezas pueden hacer que MECHA gane una comisión. El aviso acompaña al bloque, el enlace no cambia el precio en el minorista, y los enlaces de afiliados nunca influyen en el diagnóstico — se construyen solo después de que el veredicto está completo. Un descuento para el comprador se muestra solo cuando los términos reales del programa de un minorista lo ofrecen.",
+    },
+    faq: {
+      eyebrow: "Preguntas de propietarios",
+      heading: "Para talleres y grúas, respondido sin rodeos.",
+      items: {
+        eligibility: {
+          q: "¿Qué negocios pueden anunciarse?",
+          a: "Los talleres de reparación y las compañías de grúa pueden crear una cuenta de negocio con el nombre del negocio, el número de teléfono y el código postal. El tipo de cuenta controla cómo se presenta el negocio en los resultados cercanos.",
+        },
+        guarantee: {
+          q: "¿MECHA garantiza llamadas o trabajos?",
+          a: "No. Un anuncio coloca el negocio en los resultados cercanos, ordenados por distancia, cuando los conductores buscan. MECHA no garantiza volumen de llamadas, trabajo reservado ni ingresos.",
+        },
+        prepared: {
+          q: "¿Qué sabe un conductor antes de llamar?",
+          a: "Un conductor puede llegar con el informe de diagnóstico: las causas probables, un veredicto de gravedad, el rango justo de reparación y los pasos siguientes. Eso puede hacer que la primera conversación empiece desde la evidencia, en lugar de un síntoma vago.",
+        },
+        cost: {
+          q: "¿Cuánto cuesta el plan para negocios?",
+          a: "El plan Talleres cuesta $149 al mes, por ubicación. Un taller de reparación y una compañía de grúa usan el mismo plan de negocio por ubicación.",
+        },
+        cancel: {
+          q: "¿Un negocio puede cancelar?",
+          a: "Sí. La sección de facturación del panel ofrece el camino para administrar o cancelar, y el estado del plan y el fin del período se muestran con palabras claras.",
+        },
+        parts: {
+          q: "¿Cómo ayudan los enlaces de piezas a un taller?",
+          a: "Un informe terminado puede convertir las piezas nombradas en enlaces de minoristas ajustados al vehículo, lo que ahorra una búsqueda por separado y mantiene los datos del vehículo vinculados al camino de pedido. El precio en vivo y la disponibilidad se confirman en el minorista.",
+        },
+      },
+    },
+    final: {
+      eyebrow: "Anuncia la ubicación",
+      heading: "Pon el negocio donde aparece la necesidad.",
+      body: "Crea la cuenta de negocio, agrega la ubicación que los conductores deben encontrar y prepárate para la llamada que empieza con un diagnóstico.",
+      cta: "Crea una cuenta de negocio",
+      pricingCta: "Ver precios completos",
+    },
+  },
   waitlist: {
     eyebrow: "Beta privada",
     heading: "Entra antes de que se abran las puertas.",

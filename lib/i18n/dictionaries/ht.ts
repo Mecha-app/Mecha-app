@@ -262,6 +262,296 @@ const ht: DeepPartial<Dictionary> = {
       },
     },
   },
+  diagnosePage: {
+    eyebrow: "MECHA Diagnose",
+    heading: "Kòmanse avèk sentòm lan. Fini avèk yon plan.",
+    sub: "Yon limyè avètisman, yon son etranj, yon kòd yon magazen pyès ba w — nenpòt jan pwoblèm lan anonse tèt li, MECHA transfòme l nan kòz ki klase, yon vèdik gravite ki klè, pri ki jis la, ak sa pou w fè apre.",
+    primaryCta: "Dyagnostike machin mwen",
+    scanCta: "Eksplore Scan",
+    accountNote:
+      "Eskane yon VIN, idantifye yon limyè, ak verifye yon kòd gratis. Yon dyagnostik konplè itilize youn nan 5 dyagnostik gratis ou yo, epi kontè a toujou parèt anvan ak apre.",
+    modes: {
+      eyebrow: "Twa fason pou antre",
+      heading: "Kòmanse avèk sa machin nan ba w.",
+      body: "Ou pa bezwen bon vokabilè a ni yon zouti pa w. Kòmanse apati yon deskripsyon, yon foto, yon VIN, oswa yon kòd erè — chak chemen rasanble yon kalite prèv diferan pou menm rapò a.",
+      describe: {
+        kicker: "01 — Dekri",
+        title: "Di l nan pawòl pa w",
+        body: "Ekri sa w wè, tande, santi, oswa pran sant, epi kilè sa rive. “Li vibre lè m rete”, “li fè klik lè m vire”, ak “li pran sant sikre apre m kondi” se bon pwen depa.",
+        detail:
+          "Ajoute machin nan ak tout sa ki chanje — yon reparasyon resan, yon nouvo son, yon limyè ki te parèt epi ki ale. Dyagnostik la peze sentòm lan kont machin nan ak istwa li, olye li trete chak machin kòm menm machin.",
+        point1: "Pi bon pou son, vibrasyon, sant, fuit, ak pwoblèm ki vini epi ki ale",
+        point2: "Ou pa bezwen vokabilè teknik",
+        point3: "Li mache kòm yon dyagnostik konplè, avèk rapò antye a",
+        cta: "Dekri yon sentòm",
+      },
+      photo: {
+        kicker: "02 — Foto",
+        title: "Kite tablodbò a pale",
+        body: "Pran foto gwoup enstriman an epi MECHA nonmen chak limyè avètisman li ka idantifye, eksplike l nan langaj klè, epi ba l yon nivo ijans.",
+        detail:
+          "Yon foto idantifye limyè a — pa fòt kache ki anba l la. Lè limyè a lonje dwèt sou yon bagay ki pi pwofon, chemen an pase rezilta sa yo nan yon dyagnostik konplè, olye li pretann foto a te reponn tout bagay.",
+        point1: "Li nonmen epi eksplike senbòl ki limen yo",
+        point2: "Li bay ijans lan avèk menm twa vèdik gravite yo",
+        point3: "Li ka pase nan yon dyagnostik konplè avèk yon sèl touch",
+        cta: "Pran foto yon tablodbò",
+      },
+      scan: {
+        kicker: "03 — Eskane oswa antre yon kòd",
+        title: "Itilize idantifyan machin nan menm",
+        body: "Dekode VIN 17 karaktè a pou idantifye machin egzak la epi verifye rapèl ki louvri, oswa antre yon kòd erè tankou P0420 pou yon tradiksyon nan langaj klè.",
+        detail:
+          "VIN lan mare konpatibilite, kòz pwobab yo, ak pri reparasyon yo ak bon ane, mak, modèl, ak motè a. Yon kòd ajoute yon endis sou sistèm lan; dyagnostik konplè a transfòme endis sa a nan kòz ki klase ak yon entèval pri ki jis.",
+        point1: "Dekodaj VIN epi verifikasyon rapèl NHTSA ki louvri",
+        point2: "Fòma kòd erè a verifye touswit",
+        point3: "Anrejistre machin dekode a nan Vout Sante w",
+        cta: "Gade kijan Scan mache",
+      },
+    },
+    report: {
+      eyebrow: "Anndan rapò a",
+      heading: "Uit bagay chak dyagnostik konplè ba w.",
+      body: "Rezime paj akèy la se plan an sèlman. Yon rapò konplè eksplike rezònman an ak konsekans pratik yo, konsa repons lan ka sèvi lakay, sou wout la, oswa devan kontwa yon atelye.",
+      items: {
+        explanation: {
+          title: "Eksplikasyon nan langaj klè",
+          body: "Sa k ap pase pwobableman anndan machin nan, pouki sa li pwodui sentòm ou remake a, ak kote ensètitid la rete. Tèm teknik yo tradui olye yo repete yo ba w.",
+        },
+        causes: {
+          title: "Kòz pwobab yo, klase",
+          body: "Kòz pwobab yo ranje soti nan sa ki pi pwobab rive nan sa ki mwens pwobab. Chak youn nonmen pyès la, sa reparasyon an mande, ak estimasyon pri pa li, konsa yon verifikasyon ki pi bon mache pa antere anba yon sipozisyon ki pi gwo.",
+        },
+        severity: {
+          title: "Vèdik gravite",
+          body: "Youn nan twa repons ki klè — Kondi, Kondi avèk prekosyon, oswa Rete kounye a — avèk rezon an. Yo pa janm kominike yon vèdik pa koulè sèlman, epi li mare ak sentòm ki nan rapò a.",
+        },
+        cost: {
+          title: "Entèval pri ki jis",
+          body: "Yon entèval pou reparasyon machin ou an, pyès ak men-dèv ladan. Li ba w yon konparezon anvan yon atelye ekri yon estimasyon, li pa yon pwomès chak atelye ap chaje menm kantite a.",
+        },
+        labor: {
+          title: "Tan men-dèv ki jis",
+          body: "Tan men-dèv yon atelye ki jis ta dwe bezwen pou travay la. Lè yon estimasyon depann sou men-dèv ki wo anpil, se liy sa a ki fè diferans lan parèt.",
+        },
+        steps: {
+          title: "Sa pou w fè apre, nan lòd",
+          body: "Aksyon touswit la, verifikasyon pou w mande an premye yo, ak sa ki ka tann. Lòd la enpòtan: li favorize verifikasyon ki pi pwobab epi ki pi bon mache a anvan gwo travay.",
+        },
+        tip: {
+          title: "Konsèy teknisyen an",
+          body: "Yon nòt pratik sou sa pou w di nan atelye a, sa pou w veye pandan w ap kondi, oswa ki chanjman nan sentòm lan ki vle di sitiyasyon an vin pi ijan.",
+        },
+        saved: {
+          title: "Anrejistre nan Vout Sante a",
+          body: "Rapò a vin fè pati istwa machin nan, ansanm ak verifikasyon rapèl yo ak dosye sèvis ki vin apre. Pwochen dyagnostik la, ak yon konvèsasyon reparasyon nan avni, ka kòmanse avèk kontèks olye yon paj vid.",
+        },
+      },
+    },
+    severity: {
+      eyebrow: "Gid gravite",
+      heading: "Twa vèdik. Pa gen devine sa yon limyè vle di.",
+      body: "Chak dyagnostik itilize menm pawòl yo. Yo se gid apati prèv ki nan rapò a — si machin nan sanble danjere, li pèdi fòs, li chofe twòp, li fè lafimen, oswa yon avètisman kòmanse flache, aksyon ki pi an sekirite a genyen.",
+      drive: {
+        title: "Kondi",
+        body: "Rapò a pa lonje dwèt sou yon rezon pou w rete touswit. Kenbe sentòm lan anba je w epi pwograme verifikasyon yo rekòmande a nan antretyen nòmal.",
+        detail:
+          "Kondi pa yon garanti anyen pa mal. Li vle di prèv yo sipòte kontinye pandan w ap veye chanjman epi swiv etap ki vin apre yo.",
+      },
+      careful: {
+        title: "Kondi avèk prekosyon",
+        body: "Pwoblèm lan merite atansyon rapid. Limite kondi ki mande anpil, evite gwo chay lè rapò a di sa, epi pran randevou enspeksyon an byento.",
+        detail:
+          "Si sentòm lan vin pi mal, yon nouvo avètisman parèt, oswa machin nan kòmanse pèdi fòs, trete sitiyasyon an kòm pi ijan pase vèdik orijinal la.",
+      },
+      stop: {
+        title: "Rete kounye a",
+        body: "Pa kontinye kondi avèk pwoblèm sa a. Rete yon kote ki an sekirite, etenn machin nan lè yo konseye w sa, epi itilize èd ki tou pre a oswa remòkaj olye w eseye rive lakay.",
+        detail:
+          "Vèdik sa a egziste pou pwoblèm kote kontinye kondi ka kreye yon risk sekirite oswa transfòme yon fòt ou ka repare nan domaj ki pi gwo anpil.",
+      },
+    },
+    speed: {
+      eyebrow: "Fèt pou bò wout la",
+      heading: "Repons lan kòmanse rive an dirèk.",
+      body: "Yo livre yon dyagnostik kòm yon kouran: rapò a kòmanse parèt pandan rès la ap ekri toujou, olye li kite w devan yon ekran atant vid jouktan chak mo fini.",
+      detail:
+        "Sa se repons dirèk rekonstriksyon an bay ansyen eksperyans lan — yon sèl chemen modèn, depi sentòm rive rapò, avèk gravite, kòz, ak entèval pri ki jis la k ap rive kòm yon sèl repons estriktire.",
+      note: "Tan reyèl la depann de koneksyon an ak konpleksite pwoblèm lan. MECHA pa ranpli yon atant avèk yon rezilta envante.",
+    },
+    meter: {
+      title: "Senk dyagnostik konplè, gratis",
+      body: "Kont gratis ou a mare ak idantite kont ou — imèl ak telefòn — epi li rete apre w dekonekte. Apre chak dyagnostik, MECHA di w konbyen ki rete. Lè l rive zewo, dyagnostik yo pran yon poz jouktan ou chwazi Pro; yo pa chaje w anyen otomatikman.",
+    },
+    final: {
+      eyebrow: "Kòmanse gratis",
+      heading: "Pote bay MECHA pwoblèm ou gen jodi a.",
+      body: "Kreye kont gratis la, ajoute machin nan, epi lanse premye dyagnostik la. Rapò a, entèval pri ki jis la, ak istwa a se pou w konsève.",
+      cta: "Kreye yon kont gratis",
+      secondaryCta: "Dyagnostike kounye a",
+    },
+  },
+  pricingPage: {
+    eyebrow: "Pri yo, an antye",
+    heading: "Chwazi dapre travay ou gen devan w lan.",
+    sub: "Plan yo senp esprè: kòmanse gratis, retire kontè dyagnostik la avèk Pro, oswa mete yon lokal biznis devan chofè ki tou pre yo avèk Atelye yo. Detay yo — faktirasyon ladan — sou paj sa a, yo pa antere apre peman.",
+    decision: {
+      eyebrow: "Pou ki moun chak plan ye",
+      heading: "Bon gwosè a, san yon labirent nivo.",
+      body: "Diferans ant plan yo se travay yo rezoud la, pa yon pakè limit atifisyèl.",
+      free: {
+        title: "Gratis — konnen sa ki pa mache",
+        body: "Pou yon chofè ki devan yon limyè avètisman oswa yon sentòm li pa konnen, ki bezwen yon premye repons kredib anvan li peye yon reparasyon.",
+        detail:
+          "Ou jwenn 5 dyagnostik konplè, entèval pri ki jis la sou chak rapò, ak Vout Sante a. Ou pa bezwen kat pou kòmanse, epi kantite ki rete a toujou parèt.",
+      },
+      pro: {
+        title: "Pro — retire kontè a",
+        body: "Pou chofè ki dyagnostike plis pase yon pwoblèm okazyonèl, k ap kouri dèyè yon fòt ki vini epi ki ale, oswa ki vle nivo analiz apwofondi a disponib lè yon premye repons pa ase.",
+        detail:
+          "Pro bay dyagnostik estanda san limit ak analiz apwofondi pou pwoblèm ki reziste, pandan li kenbe Vout la ak pwoteksyon pri ki jis la ki nan Gratis.",
+      },
+      shops: {
+        title: "Atelye yo — rete tou pre lè sa konte",
+        body: "Pou yon lokal atelye reparasyon oswa remòkaj ki vle parèt nan rezilta tou pre MECHA yo lè yon chofè pare pou rele.",
+        detail:
+          "Plan an se pa lokal, pa pa konpayi nan abstrè. Non biznis ou an mennen anons lan, distans la parèt, epi nimewo telefòn lan se aksyon apèl yon sèl touch la.",
+      },
+    },
+    billing: {
+      eyebrow: "Faktirasyon, san pyèj",
+      heading: "Abòne lè w chwazi. Anile lè w chwazi.",
+      body: "Plan peye yo pase nan peman entènèt MECHA ak zouti faktirasyon kont la. Plan an, estati a, ak peryòd aktyèl la parèt nan tablodbò a nan pawòl klè.",
+      point1: "Peman entènèt ka montre kat, ansanm ak Apple Pay ak Google Pay, lè bous sa yo disponib sou aparèy la ak navigatè a",
+      point2: "Yon sèl aksyon, “Jere oswa anile nenpòt ki lè”, louvri faktirasyon pou yon abòne",
+      point3: "Yon anilasyon ki pwograme parèt kòm yon dat fen, olye li kache dèyè yon etikèt renouvèlman",
+      point4: "Gratis pa mande kat, epi fini 5 dyagnostik gratis yo pa janm kòmanse yon plan peye pou kont li",
+      note: "Se aparèy peman an, navigatè a, ak reglaj kont Stripe la ki deside si bous yo disponib. MECHA pa pwomèt yon bouton bous kote platfòm lan pa ka ofri l.",
+    },
+    faq: {
+      eyebrow: "Kesyon sou pri yo",
+      heading: "Faktirasyon, yo reponn anvan peman.",
+      items: {
+        card: {
+          q: "Èske m bezwen yon kat kredi pou plan gratis la?",
+          a: "Non. Gratis kòmanse san kat. Ou resevwa 5 dyagnostik konplè, epi MECHA montre kantite ki rete a apre chak youn.",
+        },
+        cancel: {
+          q: "Kijan pou m anile yon plan peye?",
+          a: "Louvri seksyon faktirasyon an nan tablodbò w epi chwazi “Jere oswa anile nenpòt ki lè”. Kont la montre estati plan an epi, lè yon anilasyon pwograme, dat peryòd peye a fini.",
+        },
+        payments: {
+          q: "Èske m ka peye avèk Apple Pay oswa Google Pay?",
+          a: "Nan peman entènèt, Stripe ka ofri Apple Pay ak Google Pay ansanm ak kat yo lè bous la aktive epi li disponib sou aparèy ou ak navigatè w. Si yon bous pa disponib, opsyon kat la rete la.",
+        },
+        freeEnd: {
+          q: "Kisa k ap pase lè dyagnostik gratis yo rive zewo?",
+          a: "Dyagnostik yo pran yon poz. Kont ou, machin ou yo, rapò w yo, ak istwa Vout ou a rete disponib, epi yo pa chaje w anyen otomatikman. Ou chwazi si w ap kòmanse Pro.",
+        },
+        early: {
+          q: "Kisa premye manm yo resevwa?",
+          a: "Òf premye manm ki an plas la se 3 mwa Pro gratis ak pri lansman bloke pou lavi. Li mare ak plan Pro ki sou paj sa a; MECHA pa ajoute yon nivo sipriz apa nan peman.",
+        },
+        business: {
+          q: "Èske plan Atelye yo chaje pa konpayi oswa pa lokal?",
+          a: "Pa lokal — $149 pa mwa pou chak lokal atelye oswa remòkaj ki anrejistre. Yon biznis ki vle anrejistre yon lòt lokal itilize yon plan pou lokal sa a.",
+        },
+      },
+    },
+    final: {
+      eyebrow: "Pa bezwen kat pou kòmanse",
+      heading: "Itilize dyagnostik gratis yo an premye.",
+      body: "Kite pwodui a pwouve tèt li sou yon vrè pwoblèm. Chanje plan sèlman lè kontè a oswa anons biznis la rezoud yon pwoblèm ou vrèman genyen.",
+      cta: "Kòmanse gratis",
+      businessCta: "Anrejistre yon biznis",
+    },
+  },
+  shopsPage: {
+    eyebrow: "Pou atelye ak remòkaj",
+    heading: "Se non yon chofè ka rele.",
+    sub: "Lè MECHA di yon chofè rete kounye a oswa chèche èd byento, biznis ki tou pre yo vin pwochen etap la. Yon anons fèt pou moman sa a: non w an premye, distans ou parèt klè, epi nimewo telefòn ou pare pou touch.",
+    primaryCta: "Kreye yon kont biznis",
+    nearbyCta: "Gade rechèch tou pre a",
+    listing: {
+      eyebrow: "Sa anons lan ba w",
+      heading: "Yon pwofil yo fè pou yon chofè anba presyon, pa yon paj anyè.",
+      body: "Anons lan pote enfòmasyon yon chofè bezwen pou chwazi epi rele. Li pa antere nimewo telefòn lan anba tèks maketing epi li pa fè non biznis la fè konpetisyon avèk evalyasyon dekoratif.",
+      profile: {
+        title: "Idantite biznis la",
+        body: "Non biznis ou, nimewo telefòn ou, ak pozisyon w ki baze sou kòd postal idantifye anons lan. Non an se eleman prensipal la, paske rekonesans ak konfyans kòmanse la.",
+      },
+      serviceArea: {
+        title: "Bon zòn sèvis la",
+        body: "Yo prezante atelye reparasyon yo alantou machin nan; konpayi remòkaj yo pote tou zòn sèvis yo chwazi a, konsa yo dirije chofè yo vè èd ki vrèman ka rive jwenn yo.",
+      },
+      presentation: {
+        title: "Non, distans, apèl",
+        body: "Rezilta yo klase pa distans epi yo louvri avèk yon kantite ki klè. Chak rezilta kòmanse avèk non biznis la, montre ki distans li ye, epi fè nimewo telefòn lan tounen aksyon apèl la.",
+      },
+      control: {
+        title: "Kont ou rete pou ou",
+        body: "Tablodbò biznis la pote pwofil la ak estati plan an. Estati faktirasyon an parèt, epi yo ka jere oswa anile abònman an apati chemen faktirasyon kont la.",
+      },
+    },
+    plan: {
+      eyebrow: "Plan Atelye yo",
+      heading: "Yon lokal. Yon pri mansyèl ki klè.",
+      body: "Plan Atelye yo mete yon lokal reparasyon oswa remòkaj nan eksperyans tou pre MECHA a pou chofè k ap itilize chemen dyagnostik la ak rechèch bò wout la.",
+      priceLabel: "Pa mwa, pa lokal",
+      point1: "Yon anons tou pre pou yon lokal atelye reparasyon oswa remòkaj",
+      point2: "Prezantasyon ki kòmanse avèk non, avèk distans ak apèl yon sèl touch",
+      point3: "Chofè ki ka rive avèk yon dyagnostik ak entèval pri ki jis la deja nan men yo",
+      point4: "Tablodbò biznis, estati plan, ak kontwòl pou jere oswa anile faktirasyon",
+      note: "Yon anons fè biznis la ka dekouvri nan rezilta tou pre yo. Li pa garanti yon kantite apèl, travay, oswa revni patikilye — demann chofè yo ak distans deside ki moun ki rele.",
+      cta: "Anrejistre biznis ou",
+    },
+    parts: {
+      eyebrow: "Kòmand pyès",
+      heading: "Apati pyès yo nonmen an rive nan lyen kòmand lan.",
+      body: "Lè yon dyagnostik ki fini nonmen yon pyès, MECHA ka konstwi lyen detayan pou travay ak machin egzak sa a. Pou yon atelye, sa vin yon chemen kòmand pratik apati rapò a, olye yon nouvo rechèch ou tape apati memwa.",
+      point1: "Lyen yo pote ane, mak, modèl, ak motè machin nan lè yo konnen detay sa yo",
+      point2: "Menm lis pyès la sèvi chofè ki fè l yo menm, pwopriyetè ki gen eksperyans, ak kòmand atelye yo",
+      point3: "Yo verifye pri aktyèl la nan detayan an; MECHA make pwòp chif li kòm yon estimasyon, pa yon pri magazen",
+      disclosure:
+        "Lyen pyès yo ka fè MECHA touche yon komisyon. Avètisman an vwayaje avèk blòk la, lyen an pa chanje pri a nan detayan an, epi lyen afilye yo pa janm enfliyanse dyagnostik la — yo konstwi sèlman apre vèdik la fini. Yo montre yon rabè pou achtè sèlman lè kondisyon reyèl pwogram yon detayan ofri youn.",
+    },
+    faq: {
+      eyebrow: "Kesyon pwopriyetè yo",
+      heading: "Pou atelye ak remòkaj, yo reponn dwat.",
+      items: {
+        eligibility: {
+          q: "Ki biznis ki ka anrejistre?",
+          a: "Atelye reparasyon ak konpayi remòkaj ka kreye yon kont biznis avèk non biznis la, nimewo telefòn lan, ak kòd postal la. Kalite kont la kontwole jan yo prezante biznis la nan rezilta tou pre yo.",
+        },
+        guarantee: {
+          q: "Èske MECHA garanti apèl oswa travay?",
+          a: "Non. Yon anons mete biznis la nan rezilta tou pre yo, klase pa distans, lè chofè yo chèche. MECHA pa garanti volim apèl, travay rezève, oswa revni.",
+        },
+        prepared: {
+          q: "Kisa yon chofè konnen anvan li rele?",
+          a: "Yon chofè ka rive avèk rapò dyagnostik la: kòz pwobab yo, yon vèdik gravite, entèval reparasyon ki jis la, ak etap ki vin apre yo. Sa ka fè premye konvèsasyon an kòmanse apati prèv olye yon sentòm vag.",
+        },
+        cost: {
+          q: "Konbyen plan biznis la koute?",
+          a: "Plan Atelye yo koute $149 pa mwa, pa lokal. Yon atelye reparasyon ak yon konpayi remòkaj itilize menm plan biznis pa lokal la.",
+        },
+        cancel: {
+          q: "Èske yon biznis ka anile?",
+          a: "Wi. Seksyon faktirasyon tablodbò a bay chemen pou jere oswa anile, epi estati plan an ak fen peryòd la parèt nan pawòl klè.",
+        },
+        parts: {
+          q: "Kijan lyen pyès yo ede yon atelye?",
+          a: "Yon rapò ki fini ka transfòme pyès yo nonmen yo nan lyen detayan ki adapte ak machin nan, sa ekonomize yon rechèch apa epi kenbe detay machin nan mare ak chemen kòmand lan. Yo konfime pri aktyèl la ak disponiblite a nan detayan an.",
+        },
+      },
+    },
+    final: {
+      eyebrow: "Anrejistre lokal la",
+      heading: "Mete biznis la kote bezwen an parèt.",
+      body: "Kreye kont biznis la, ajoute lokal chofè yo dwe jwenn lan, epi pare pou apèl ki kòmanse avèk yon dyagnostik la.",
+      cta: "Kreye yon kont biznis",
+      pricingCta: "Gade pri konplè yo",
+    },
+  },
   waitlist: {
     eyebrow: "Beta prive",
     heading: "Antre anvan pòt yo louvri.",
