@@ -3,6 +3,24 @@
 import Link from "next/link";
 import { useState, type FormEvent } from "react";
 import { saveSession } from "@/lib/client/auth";
+import { RETURN_TO_KEY } from "@/lib/server/scan";
+
+/**
+ * Where a successful sign-in lands: the page that sent the visitor
+ * here (e.g. /app/scan sets a return-to before bouncing), else the
+ * diagnosis screen. Only in-app paths are honored, and the key is
+ * cleared on use so it can never redirect a later sign-in.
+ */
+function postAuthDestination(): string {
+  try {
+    const target = sessionStorage.getItem(RETURN_TO_KEY);
+    sessionStorage.removeItem(RETURN_TO_KEY);
+    if (target && target.startsWith("/app/")) return target;
+  } catch {
+    // Private mode — default destination.
+  }
+  return "/app/diagnose";
+}
 
 /**
  * /login (WP5) — MOBILE-FIRST sign-in. Signing back in returns you to
@@ -32,7 +50,7 @@ export default function LoginPage() {
       };
       if (res.ok && data.token && data.user) {
         saveSession(data.token, data.user);
-        window.location.href = "/app/diagnose";
+        window.location.href = postAuthDestination();
         return;
       }
       setState("error");

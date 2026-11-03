@@ -58,13 +58,18 @@ export function Header({ overlay = false }: { overlay?: boolean }) {
         </Link>
 
         <nav className="hidden items-center gap-7 text-sm font-medium text-ink-2 md:flex" aria-label="Primary">
-          <Link href="/diagnose" className="transition-colors duration-150 hover:text-ink-1">
+          {/* Nav targets are the homepage sections carrying that exact
+              content today (dead-link sweep, Scan package): the
+              dedicated /diagnose, /pricing, /shops marketing routes
+              are still WP6 builds, and a nav link must never 404.
+              Repoint to the dedicated routes when they land. */}
+          <Link href="/#how-it-works" className="transition-colors duration-150 hover:text-ink-1">
             {t.header.navDiagnose}
           </Link>
-          <Link href="/pricing" className="transition-colors duration-150 hover:text-ink-1">
+          <Link href="/#pricing" className="transition-colors duration-150 hover:text-ink-1">
             {t.header.navPricing}
           </Link>
-          <Link href="/shops" className="transition-colors duration-150 hover:text-ink-1">
+          <Link href="/#nearby" className="transition-colors duration-150 hover:text-ink-1">
             {t.header.navShops}
           </Link>
         </nav>

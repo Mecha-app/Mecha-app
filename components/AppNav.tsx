@@ -30,6 +30,7 @@ export function AppNav({ business = false }: { business?: boolean }) {
     : [
         { href: "/app", label: t.wp6.nav.dashboard },
         { href: "/app/diagnose", label: t.wp6.nav.diagnose },
+        { href: "/app/scan", label: t.wp6.nav.scan },
         { href: "/app/vault", label: t.wp6.nav.vault },
         { href: "/app/nearby", label: t.wp6.nav.nearby },
         { href: "/app/messages", label: t.wp6.nav.messages },

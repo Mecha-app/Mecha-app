@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState, type FormEvent } from "react";
 import { authHeaders, clearSession, getToken } from "@/lib/client/auth";
 import type { DiagnosisReport } from "@/lib/server/ai";
+import { DIAGNOSE_PREFILL_KEY, type ScanDiagnosePrefill } from "@/lib/server/scan";
 
 /**
  * /app/diagnose (WP5) — the roadside diagnosis screen, MOBILE-FIRST:
@@ -39,6 +40,21 @@ export default function DiagnosePage() {
   const [detail, setDetail] = useState("");
 
   useEffect(() => {
+    // Scan handoff (Scan package): /app/scan may arrive here with a
+    // prefilled problem + vehicle (a decoded VIN, an identified light,
+    // a fault code). Read it once, apply it, clear it — a stale
+    // prefill must never leak into a later, unrelated diagnosis.
+    try {
+      const raw = sessionStorage.getItem(DIAGNOSE_PREFILL_KEY);
+      if (raw) {
+        sessionStorage.removeItem(DIAGNOSE_PREFILL_KEY);
+        const prefill = JSON.parse(raw) as Partial<ScanDiagnosePrefill>;
+        if (typeof prefill.problem === "string") setProblem(prefill.problem);
+        if (typeof prefill.vehicleInfo === "string") setVehicleInfo(prefill.vehicleInfo);
+      }
+    } catch {
+      // Private mode or a corrupt value — the page just opens unfilled.
+    }
     let cancelled = false;
     (async () => {
       if (!getToken()) {
@@ -193,8 +209,10 @@ export default function DiagnosePage() {
             {message ||
               "You've used all 5 of your free diagnoses. A MECHA Pro subscription is required to run more diagnoses — nothing is charged until you choose a plan."}
           </p>
+          {/* Sweep fix: /pricing is not a route yet — the pricing
+              section on the homepage carries the plans today. */}
           <Link
-            href="/pricing"
+            href="/#pricing"
             className="mt-5 flex h-12 w-full items-center justify-center rounded-full bg-accent px-6 text-base font-semibold text-accent-ink"
           >
             See MECHA Pro

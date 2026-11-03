@@ -284,6 +284,109 @@ const es: DeepPartial<Dictionary> = {
     disclaimer:
       "Los diagnósticos de MECHA son solo informativos y no sustituyen la inspección de un mecánico certificado.",
   },
+  scan: {
+    landing: {
+      eyebrow: "MECHA Scan",
+      heading: "Apunta. Escanea. Descubre qué está mal.",
+      sub: "Tu auto ya te está diciendo qué está mal: en un código de barras, en las luces del tablero, en los códigos de falla. Scan lee los tres y responde en lenguaje claro, con el precio justo incluido.",
+      startCta: "Iniciar un escaneo",
+      registerCta: "Crea una cuenta gratuita",
+      accountNote:
+        "Cuenta gratuita: tus primeros 5 diagnósticos son gratis, y MECHA siempre te dice exactamente cuántos te quedan.",
+      vinKicker: "01 — Escaneo de VIN",
+      vinHeading: "El código de barras es el acta de nacimiento del auto",
+      vinBody:
+        "Cada auto lleva su identidad en un VIN de 17 caracteres. Decodifícalo y MECHA sabe exactamente qué auto está mirando: el motor correcto, las piezas correctas, los precios de reparación correctos, y consulta NHTSA para ver si ese vehículo exacto tiene recalls abiertos. Guárdalo y el auto se convierte en un registro permanente en tu Health Vault.",
+      vinSteps: [
+        "Encuentra el código de barras: en el marco de la puerta del conductor o en la esquina inferior del parabrisas.",
+        "Escribe los 17 caracteres, o fotografía la placa para verificarlos.",
+        "Ve el auto exacto: año, marca, modelo, motor, además de los recalls abiertos.",
+      ],
+      photoKicker: "02 — Foto del tablero",
+      photoHeading: "Una luz de advertencia, explicada en lenguaje claro",
+      photoBody:
+        "Las luces de advertencia hablan en símbolos, y el manual nunca está en el auto. Fotografía el tablero y MECHA nombra cada símbolo encendido, explica lo que significa y califica la urgencia: detente ahora, repáralo pronto, o mantente atento. Cuando una luz merece una respuesta más profunda, un toque convierte la foto en un diagnóstico completo.",
+      photoSteps: [
+        "Fotografía el tablero: encendido puesto, cerca y sin moverte.",
+        "Recibe el nombre y el significado: cada luz encendida, en lenguaje claro, con su urgencia.",
+        "Profundiza cuando importa: pasa a un diagnóstico completo con las luces ya incluidas.",
+      ],
+      photoHonestTitle: "Lo que una foto puede — y no puede — hacer",
+      photoHonestBody:
+        "Una foto muestra qué luz está encendida, no el código de falla que hay debajo. MECHA identifica la luz y la explica; el diagnóstico completo investiga las causas. Eso es una evaluación inicial, no magia, y no lo disfrazaremos de otra cosa.",
+      codeKicker: "03 — Código de falla",
+      codeHeading: "¿Tienes un código como P0420? Recibe la traducción",
+      codeBody:
+        "Una tienda de repuestos escanea tu auto gratis y te entrega un código, y luego te deja adivinando cuánto cuesta. Escribe el código en MECHA y recibe la traducción en lenguaje claro: qué significa en tu auto, las causas probables en orden, si puedes seguir conduciendo y el precio justo, antes de que cualquier taller te cotice.",
+      codeSteps: [
+        "Haz que lean el código: la mayoría de las tiendas de repuestos escanean gratis, o un lector de códigos lo muestra directamente.",
+        "Escríbelo: MECHA verifica el formato al instante.",
+        "Lee la traducción: como un diagnóstico completo, con causas, urgencia y precio justo.",
+      ],
+      stickerEyebrow: "La calcomanía MECHA",
+      stickerHeading: "“Este auto está protegido por MECHA”",
+      stickerBody:
+        "Los propietarios de MECHA ponen la calcomanía QR en su auto. Significa que el historial de este auto — diagnósticos, recalls, servicio — vive en el Health Vault de su propietario, donde pertenece. Si el auto se vende algún día, ese historial puede viajar con él al próximo dueño.",
+      stickerBody2:
+        "¿Escaneaste la calcomanía de otra persona? Ya sabes lo que MECHA hace. Tu auto puede llevar la misma protección: la cuenta es gratis, y tus primeros 5 diagnósticos también.",
+      stickerCta: "Crea tu cuenta gratuita",
+    },
+    app: {
+      title: "Escanear",
+      intro:
+        "Empieza por lo que el auto ya te está mostrando: su VIN, sus luces de advertencia o un código de falla.",
+      freeNote:
+        "Decodificar un VIN, identificar una luz y verificar un código es gratis. Solo un diagnóstico completo cuenta contra tus diagnósticos gratuitos.",
+      tabVin: "VIN",
+      tabPhoto: "Foto del tablero",
+      tabCode: "Código de falla",
+      vinLabel: "Número de identificación del vehículo (VIN)",
+      vinHint:
+        "17 caracteres, en el marco de la puerta del conductor o en la esquina inferior del parabrisas. Los VIN nunca usan las letras I, O ni Q.",
+      vinPhotoLabel: "Fotografía la placa del VIN",
+      vinPhotoHint: "Para tu referencia: verifica el VIN escrito contra la foto antes de decodificar.",
+      decodeCta: "Decodificar este VIN",
+      decoding: "Decodificando…",
+      decodeFailed: "Ese VIN no pudo decodificarse. Revisa los caracteres e inténtalo de nuevo.",
+      recallsHeading: "Recalls abiertos (NHTSA)",
+      recallsNone: "No hay recalls abiertos registrados en NHTSA para este vehículo.",
+      recallsUnavailable:
+        "La consulta de recalls no está disponible ahora; la decodificación anterior sigue siendo exacta.",
+      diagnoseCarCta: "Diagnosticar este auto",
+      saveVaultCta: "Guardar en mi vault",
+      savedVault: "Guardado en tu Health Vault.",
+      viewVault: "Ver vault",
+      saveFailed: "Ese vehículo no pudo guardarse. Inténtalo de nuevo.",
+      vaultUnwired: "El vault aún no está conectado en este entorno: no se guardó nada.",
+      photoLabel: "Foto del tablero",
+      photoHint:
+        "Encendido puesto, motor en marcha si es seguro. Acércate lo suficiente para que las luces se vean nítidas. La foto se lee en el momento y nunca se guarda.",
+      identifyCta: "Identificar las luces",
+      identifying: "Leyendo el tablero…",
+      photoUnwiredTitle: "La identificación por foto aún no está activada aquí",
+      photoUnwiredBody:
+        "Este entorno no tiene el lector de fotos conectado, así que no se puede mostrar ningún resultado, nunca uno inventado. Aun así puedes escribir el nombre de la luz en la página de diagnóstico y obtener la respuesta completa.",
+      photoFailed:
+        "Esa foto no pudo leerse. Prueba con una toma más clara y cercana del tablero, con el encendido puesto.",
+      photoNone:
+        "No se identificaron luces de advertencia en esa foto. Si hay luces encendidas, tómala más cerca con el encendido puesto: varias luces encendidas con el motor apagado son una comprobación normal de bombillas.",
+      odometerRead: "Odómetro leído de tu foto",
+      runDiagnosisCta: "Ejecutar el diagnóstico completo",
+      retakeCta: "Usar otra foto",
+      vehicleOptionalLabel: "Tu auto (opcional)",
+      vehicleOptionalPlaceholder: "ej. Honda Accord 2019",
+      codeLabel: "Código de falla",
+      codeHint:
+        "De un lector de códigos o de un escaneo gratuito en una tienda de repuestos: una letra (P, B, C o U) más cuatro caracteres, como P0420.",
+      codeInvalid: "Eso aún no parece un código de falla: debería verse como P0420.",
+      codeExplainCta: "Explicar este código",
+      codeSystemSuffix: "sistema",
+      codeGeneric: "código OBD-II estándar",
+      codeManufacturer: "código específico del fabricante",
+      diagnosisNote:
+        "La explicación se ejecuta como un diagnóstico completo en la siguiente pantalla: causas, urgencia y el precio justo.",
+    },
+  },
 };
 
 export default es;

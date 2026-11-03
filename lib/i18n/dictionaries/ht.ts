@@ -285,6 +285,109 @@ const ht: DeepPartial<Dictionary> = {
     disclaimer:
       "Dyagnostik MECHA yo se enfòmasyon sèlman epi yo pa ranplase enspeksyon yon mekanisyen sètifye.",
   },
+  scan: {
+    landing: {
+      eyebrow: "MECHA Scan",
+      heading: "Lonje. Eskane. Konnen sa ki pa mache.",
+      sub: "Machin ou deja ap di ou sa ki pa mache — nan yon kòd bar, nan limyè avètisman yo, nan kòd erè yo. Scan li tout twa epi li reponn nan langaj klè, ak pri jis la ladan.",
+      startCta: "Kòmanse yon scan",
+      registerCta: "Kreye yon kont gratis",
+      accountNote:
+        "Kont gratis — 5 premye dyagnostik ou yo gratis, epi MECHA toujou di ou egzakteman konbyen ki rete ou.",
+      vinKicker: "01 — Scan VIN",
+      vinHeading: "Kòd bar la se batistè machin nan",
+      vinBody:
+        "Chak machin pote idantite li nan yon VIN 17 karaktè. Dekode li epi MECHA konnen egzakteman ki machin lap gade — bon motè a, bon pyès yo, bon pri reparasyon yo — epi li tcheke NHTSA pou recall ki louvri sou machin presi sa a. Anrejistre li, epi machin nan vin yon dosye pèmanan nan Health Vault ou.",
+      vinSteps: [
+        "Jwenn kòd bar la — sou poto pòt chofè a, oswa nan kwen anba vit devan an.",
+        "Tape 17 karaktè yo, oswa pran foto plak la pou verifye yo.",
+        "Wè machin presi a — ane, mak, modèl, motè — ansanm ak recall ki louvri yo.",
+      ],
+      photoKicker: "02 — Foto tablodbò",
+      photoHeading: "Yon limyè avètisman, esplike nan langaj klè",
+      photoBody:
+        "Limyè avètisman yo pale an senbòl, epi manyèl la pa janm nan machin nan. Pran foto tablodbò a epi MECHA bay chak senbòl ki limen non li, esplike sa li vle di, epi klase ijans la — kanpe kounye a, repare byento, oswa veye li. Lè yon limyè bezwen yon repons ki pi pwofon, yon sèl tape transfòme foto a an yon dyagnostik konplè.",
+      photoSteps: [
+        "Pran foto tablodbò a — kontak limen, pre, san bouje.",
+        "Resevwa non ak siyifikasyon an — chak limyè ki limen, nan langaj klè, ak ijans li klase.",
+        "Ale pi lwen lè sa enpòtan — pase nan yon dyagnostik konplè ak limyè yo deja ranpli.",
+      ],
+      photoHonestTitle: "Sa yon foto ka fè — ak sa li pa ka fè",
+      photoHonestBody:
+        "Yon foto montre ki limyè ki limen, pa kòd erè ki anba li a. MECHA idantifye limyè a epi li esplike li; dyagnostik konplè a fouye koz yo. Sa se triyaj, pa majik — epi nou pap prezante li kòm plis pase sa.",
+      codeKicker: "03 — Kòd erè",
+      codeHeading: "Ou gen yon kòd tankou P0420? Resevwa tradiksyon an",
+      codeBody:
+        "Yon magazen pyès ap scan machin ou gratis epi li ba ou yon kòd — apre sa li kite ou devine konbyen sa koute. Tape kòd la nan MECHA epi resevwa tradiksyon an nan langaj klè: sa li vle di sou machin ou, koz ki pi pwobab yo nan lòd, si ou ka kontinye kondwi, ak pri jis la, anvan nenpòt atelye ba ou yon pri.",
+      codeSteps: [
+        "Fè yo li kòd la — pifò magazen pyès scan gratis, oswa yon lektè kòd montre li dirèkteman.",
+        "Tape li — MECHA verifye fòma a imedyatman.",
+        "Li tradiksyon an — kòm yon dyagnostik konplè: koz, ijans, pri jis.",
+      ],
+      stickerEyebrow: "Otokolan MECHA a",
+      stickerHeading: "“Machin sa a pwoteje pa MECHA”",
+      stickerBody:
+        "Mèt MECHA yo mete otokolan QR la sou machin yo. Li vle di istwa machin sa a — dyagnostik, recall, sèvis — rete nan Health Vault mèt li, kote li dwe ye. Si machin nan vann yon jou, istwa sa a ka vwayaje ak li bay nouvo mèt la.",
+      stickerBody2:
+        "Ou scan otokolan yon lòt moun? Kounye a ou konnen sa MECHA fè. Machin ou ka pote menm pwoteksyon an — kont la gratis, epi 5 premye dyagnostik ou yo gratis tou.",
+      stickerCta: "Kreye kont gratis ou",
+    },
+    app: {
+      title: "Scan",
+      intro:
+        "Kòmanse ak sa machin nan deja ap montre ou — VIN li, limyè avètisman li yo, oswa yon kòd erè.",
+      freeNote:
+        "Dekode yon VIN, idantifye yon limyè, ak verifye yon kòd gratis. Se sèlman yon dyagnostik konplè ki konte nan dyagnostik gratis ou yo.",
+      tabVin: "VIN",
+      tabPhoto: "Foto tablodbò",
+      tabCode: "Kòd erè",
+      vinLabel: "Nimewo idantifikasyon machin nan (VIN)",
+      vinHint:
+        "17 karaktè, sou poto pòt chofè a oswa nan kwen anba vit devan an. VIN yo pa janm itilize lèt I, O, oswa Q.",
+      vinPhotoLabel: "Pran foto plak VIN nan",
+      vinPhotoHint: "Pou referans ou — verifye VIN ou tape a ak foto a anvan ou dekode.",
+      decodeCta: "Dekode VIN sa a",
+      decoding: "Ap dekode…",
+      decodeFailed: "VIN sa a pa t ka dekode. Verifye karaktè yo epi eseye ankò.",
+      recallsHeading: "Recall ki louvri (NHTSA)",
+      recallsNone: "Pa gen recall ki louvri anrejistre nan NHTSA pou machin sa a.",
+      recallsUnavailable:
+        "Rechèch recall la pa disponib kounye a — dekodaj ki anwo a rete egzak.",
+      diagnoseCarCta: "Dyagnostike machin sa a",
+      saveVaultCta: "Anrejistre nan vault mwen",
+      savedVault: "Anrejistre nan Health Vault ou.",
+      viewVault: "Wè vault",
+      saveFailed: "Machin sa a pa t ka anrejistre. Tanpri eseye ankò.",
+      vaultUnwired: "Vault la poko konekte nan anviwònman sa a — anyen pa anrejistre.",
+      photoLabel: "Foto tablodbò",
+      photoHint:
+        "Kontak limen, motè ap mache si sa san danje. Pwoche ase pou limyè yo parèt nèt. Foto a li nan moman an epi li pa janm estoke.",
+      identifyCta: "Idantifye limyè yo",
+      identifying: "Ap li tablodbò a…",
+      photoUnwiredTitle: "Idantifikasyon pa foto poko aktive isit la",
+      photoUnwiredBody:
+        "Anviwònman sa a pa gen lektè foto a konekte, kidonk okenn rezilta pa ka parèt — janm yon rezilta envante. Ou ka toujou tape non limyè a nan paj dyagnostik la epi resevwa repons konplè a.",
+      photoFailed:
+        "Foto sa a pa t ka li. Eseye yon foto ki pi klè, pi pre tablodbò a, ak kontak la limen.",
+      photoNone:
+        "Pa gen limyè avètisman ki te idantifye nan foto sa a. Si limyè yo limen, repran li pi pre ak kontak la limen — plizyè limyè ki limen ak motè a etenn se yon verifikasyon ampoul nòmal.",
+      odometerRead: "Odomèt yo li nan foto ou a",
+      runDiagnosisCta: "Lanse dyagnostik konplè a",
+      retakeCta: "Itilize yon lòt foto",
+      vehicleOptionalLabel: "Machin ou (opsyonèl)",
+      vehicleOptionalPlaceholder: "egz. Honda Accord 2019",
+      codeLabel: "Kòd erè",
+      codeHint:
+        "Soti nan yon lektè kòd oswa yon scan gratis nan magazen pyès — yon lèt (P, B, C, oswa U) plis kat karaktè, tankou P0420.",
+      codeInvalid: "Sa poko sanble yon kòd erè — li dwe sanble ak P0420.",
+      codeExplainCta: "Esplike kòd sa a",
+      codeSystemSuffix: "sistèm",
+      codeGeneric: "kòd OBD-II estanda",
+      codeManufacturer: "kòd espesifik fabrikan an",
+      diagnosisNote:
+        "Esplikasyon an lanse kòm yon dyagnostik konplè nan ekran apre a — koz, ijans, ak pri jis la.",
+    },
+  },
 };
 
 export default ht;

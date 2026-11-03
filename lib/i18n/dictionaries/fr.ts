@@ -285,6 +285,109 @@ const fr: DeepPartial<Dictionary> = {
     disclaimer:
       "Les diagnostics de MECHA sont fournis à titre informatif uniquement et ne remplacent pas l'inspection d'un mécanicien certifié.",
   },
+  scan: {
+    landing: {
+      eyebrow: "MECHA Scan",
+      heading: "Visez. Scannez. Sachez ce qui ne va pas.",
+      sub: "Votre voiture vous dit déjà ce qui ne va pas — dans un code-barres, dans les voyants du tableau de bord, dans les codes défauts. Scan lit les trois et répond en langage clair, avec le juste prix à la clé.",
+      startCta: "Lancer un scan",
+      registerCta: "Créez un compte gratuit",
+      accountNote:
+        "Compte gratuit — vos 5 premiers diagnostics sont offerts, et MECHA vous dit toujours exactement combien il vous en reste.",
+      vinKicker: "01 — Scan du VIN",
+      vinHeading: "Le code-barres est l'acte de naissance de la voiture",
+      vinBody:
+        "Chaque voiture porte son identité dans un VIN de 17 caractères. Décodez-le et MECHA sait exactement quelle voiture elle regarde — le bon moteur, les bonnes pièces, les bons prix de réparation — et vérifie auprès de la NHTSA les rappels ouverts sur ce véhicule précis. Enregistrez-le, et la voiture devient un dossier permanent dans votre Health Vault.",
+      vinSteps: [
+        "Trouvez le code-barres — montant de la porte conducteur ou coin inférieur du pare-brise.",
+        "Saisissez les 17 caractères, ou photographiez la plaque pour les vérifier.",
+        "Voyez la voiture exacte — année, marque, modèle, moteur — plus les rappels ouverts.",
+      ],
+      photoKicker: "02 — Photo du tableau de bord",
+      photoHeading: "Un voyant, expliqué en langage clair",
+      photoBody:
+        "Les voyants parlent en symboles, et le manuel n'est jamais dans la voiture. Photographiez le tableau de bord : MECHA nomme chaque symbole allumé, explique ce qu'il signifie et évalue l'urgence — arrêtez-vous maintenant, réparez bientôt, ou gardez un œil dessus. Quand un voyant mérite une réponse plus profonde, un geste transforme la photo en diagnostic complet.",
+      photoSteps: [
+        "Photographiez le combiné — contact mis, de près, sans bouger.",
+        "Recevez le nom et la signification — chaque voyant allumé, en langage clair, urgence évaluée.",
+        "Allez plus loin quand ça compte — passez au diagnostic complet avec les voyants déjà remplis.",
+      ],
+      photoHonestTitle: "Ce qu'une photo peut — et ne peut pas — faire",
+      photoHonestBody:
+        "Une photo montre quel voyant est allumé, pas le code défaut en dessous. MECHA identifie le voyant et l'explique ; le diagnostic complet cherche les causes. C'est du tri, pas de la magie — et nous ne le présenterons pas comme davantage.",
+      codeKicker: "03 — Code défaut",
+      codeHeading: "Un code comme P0420 ? Recevez la traduction",
+      codeBody:
+        "Un magasin de pièces scanne votre voiture gratuitement et vous remet un code — puis vous laisse deviner ce que ça coûte. Saisissez le code dans MECHA et recevez la traduction en langage clair : ce qu'il signifie sur votre voiture, les causes probables dans l'ordre, si vous pouvez continuer à rouler, et le juste prix, avant qu'un garage ne vous fasse un devis.",
+      codeSteps: [
+        "Faites lire le code — la plupart des magasins de pièces scannent gratuitement, ou un lecteur de codes l'affiche directement.",
+        "Saisissez-le — MECHA vérifie le format instantanément.",
+        "Lisez la traduction — sous forme de diagnostic complet : causes, urgence, juste prix.",
+      ],
+      stickerEyebrow: "L'autocollant MECHA",
+      stickerHeading: "« Cette voiture est protégée par MECHA »",
+      stickerBody:
+        "Les propriétaires MECHA posent l'autocollant QR sur leur voiture. Il signifie que l'historique de cette voiture — diagnostics, rappels, entretien — vit dans le Health Vault de son propriétaire, là où il doit être. Si la voiture est vendue un jour, cet historique peut la suivre chez le prochain propriétaire.",
+      stickerBody2:
+        "Vous avez scanné l'autocollant de quelqu'un d'autre ? Vous savez maintenant ce que MECHA fait. Votre voiture peut porter la même protection — le compte est gratuit, et vos 5 premiers diagnostics aussi.",
+      stickerCta: "Créez votre compte gratuit",
+    },
+    app: {
+      title: "Scan",
+      intro:
+        "Partez de ce que la voiture vous montre déjà — son VIN, ses voyants ou un code défaut.",
+      freeNote:
+        "Décoder un VIN, identifier un voyant et vérifier un code sont gratuits. Seul un diagnostic complet compte dans vos diagnostics gratuits.",
+      tabVin: "VIN",
+      tabPhoto: "Photo du tableau de bord",
+      tabCode: "Code défaut",
+      vinLabel: "Numéro d'identification du véhicule (VIN)",
+      vinHint:
+        "17 caractères, sur le montant de la porte conducteur ou le coin inférieur du pare-brise. Les VIN n'utilisent jamais les lettres I, O ou Q.",
+      vinPhotoLabel: "Photographiez la plaque du VIN",
+      vinPhotoHint: "Pour votre référence — vérifiez le VIN saisi par rapport à la photo avant de décoder.",
+      decodeCta: "Décoder ce VIN",
+      decoding: "Décodage…",
+      decodeFailed: "Ce VIN n'a pas pu être décodé. Vérifiez les caractères et réessayez.",
+      recallsHeading: "Rappels ouverts (NHTSA)",
+      recallsNone: "Aucun rappel ouvert enregistré auprès de la NHTSA pour ce véhicule.",
+      recallsUnavailable:
+        "La recherche de rappels est indisponible pour le moment — le décodage ci-dessus reste exact.",
+      diagnoseCarCta: "Diagnostiquer cette voiture",
+      saveVaultCta: "Enregistrer dans mon vault",
+      savedVault: "Enregistré dans votre Health Vault.",
+      viewVault: "Voir le vault",
+      saveFailed: "Ce véhicule n'a pas pu être enregistré. Veuillez réessayer.",
+      vaultUnwired: "Le vault n'est pas encore relié dans cet environnement — rien n'a été enregistré.",
+      photoLabel: "Photo du tableau de bord",
+      photoHint:
+        "Contact mis, moteur en marche si c'est sans danger. Approchez-vous assez pour que les voyants soient nets. La photo est lue sur le moment et n'est jamais conservée.",
+      identifyCta: "Identifier les voyants",
+      identifying: "Lecture du tableau de bord…",
+      photoUnwiredTitle: "L'identification par photo n'est pas encore activée ici",
+      photoUnwiredBody:
+        "Cet environnement n'a pas le lecteur de photos relié, donc aucun résultat ne peut être affiché — jamais un résultat inventé. Vous pouvez toujours saisir le nom du voyant sur la page de diagnostic et obtenir la réponse complète.",
+      photoFailed:
+        "Cette photo n'a pas pu être lue. Essayez une prise plus claire et plus proche du tableau de bord, contact mis.",
+      photoNone:
+        "Aucun voyant n'a été identifié sur cette photo. Si des voyants sont allumés, reprenez-la de plus près, contact mis — plusieurs voyants allumés moteur éteint sont un contrôle normal des ampoules.",
+      odometerRead: "Compteur lu sur votre photo",
+      runDiagnosisCta: "Lancer le diagnostic complet",
+      retakeCta: "Utiliser une autre photo",
+      vehicleOptionalLabel: "Votre voiture (optionnel)",
+      vehicleOptionalPlaceholder: "ex. Honda Accord 2019",
+      codeLabel: "Code défaut",
+      codeHint:
+        "D'un lecteur de codes ou d'un scan gratuit en magasin de pièces — une lettre (P, B, C ou U) plus quatre caractères, comme P0420.",
+      codeInvalid: "Cela ne ressemble pas encore à un code défaut — il doit ressembler à P0420.",
+      codeExplainCta: "Expliquer ce code",
+      codeSystemSuffix: "système",
+      codeGeneric: "code OBD-II standard",
+      codeManufacturer: "code spécifique au constructeur",
+      diagnosisNote:
+        "L'explication se lance comme un diagnostic complet à l'écran suivant — causes, urgence et juste prix.",
+    },
+  },
 };
 
 export default fr;

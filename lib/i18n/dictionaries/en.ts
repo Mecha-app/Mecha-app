@@ -289,10 +289,114 @@ const en = {
     disclaimer:
       "MECHA's diagnoses are informational only and are not a substitute for inspection by a certified mechanic.",
   },
+  scan: {
+    landing: {
+      eyebrow: "MECHA Scan",
+      heading: "Point. Scan. Know what's wrong.",
+      sub: "Your car is already telling you what's wrong — in a barcode, in warning lights, in fault codes. Scan reads all three and answers in plain language, with the fair price attached.",
+      startCta: "Start a scan",
+      registerCta: "Create a free account",
+      accountNote:
+        "Free account — your first 5 diagnoses are free, and MECHA always tells you exactly how many you have left.",
+      vinKicker: "01 — VIN scan",
+      vinHeading: "The barcode is the car's birth certificate",
+      vinBody:
+        "Every car carries its identity in a 17-character VIN. Decode it and MECHA knows exactly which car it is looking at — the right engine, the right parts, the right repair prices — and checks NHTSA for open recalls on that exact vehicle. Save it, and the car becomes a permanent record in your Health Vault.",
+      vinSteps: [
+        "Find the barcode — driver's door jamb, or the bottom corner of the windshield.",
+        "Type the 17 characters, or photograph the plate to check them against.",
+        "See the exact car — year, make, model, engine — plus any open recalls.",
+      ],
+      photoKicker: "02 — Dashboard photo",
+      photoHeading: "A warning light, explained in plain language",
+      photoBody:
+        "Warning lights speak in symbols, and the manual is never in the car. Photograph the dashboard and MECHA names each lit symbol, explains what it means, and grades the urgency — stop now, fix soon, or keep an eye on it. When a light deserves a deeper answer, one tap turns the photo into a full diagnosis.",
+      photoSteps: [
+        "Photograph the cluster — ignition on, close and steady.",
+        "Get the name and the meaning — every lit light, in plain language, urgency graded.",
+        "Go deeper when it matters — hand off to a full diagnosis with the lights already filled in.",
+      ],
+      photoHonestTitle: "What a photo can — and can't — do",
+      photoHonestBody:
+        "A photo shows which light is on, not the fault code underneath it. MECHA identifies the light and explains it; the full diagnosis digs into causes. That is triage, not magic — and we won't dress it up as more.",
+      codeKicker: "03 — Fault code",
+      codeHeading: "Got a code like P0420? Get the translation",
+      codeBody:
+        "A parts store will scan your car for free and hand you a code — then leave you to guess what it costs. Type the code into MECHA and get the plain-language translation: what it means on your car, the likely causes in order, whether you can keep driving, and the fair price, before any shop quotes you.",
+      codeSteps: [
+        "Get the code read — most parts stores scan for free, or a code reader shows it directly.",
+        "Type it in — MECHA checks the format instantly.",
+        "Read the translation — as a full diagnosis: causes, urgency, fair price.",
+      ],
+      stickerEyebrow: "The MECHA sticker",
+      stickerHeading: "“This car is protected by MECHA”",
+      stickerBody:
+        "MECHA owners put the QR sticker on their car. It means this car's history — diagnoses, recalls, service — lives in the owner's MECHA Health Vault, where it belongs. If the car is ever sold, that history can travel with it to the next owner.",
+      stickerBody2:
+        "Scanned someone else's sticker? Now you know what MECHA does. Your car can carry the same protection — the account is free, and so are your first 5 diagnoses.",
+      stickerCta: "Create your free account",
+    },
+    app: {
+      title: "Scan",
+      intro:
+        "Start from what the car is already showing you — its VIN, its warning lights, or a fault code.",
+      freeNote:
+        "Decoding a VIN, identifying a light, and checking a code are free. Only a full diagnosis counts against your free diagnoses.",
+      tabVin: "VIN",
+      tabPhoto: "Dashboard photo",
+      tabCode: "Fault code",
+      vinLabel: "Vehicle Identification Number (VIN)",
+      vinHint:
+        "17 characters, on the driver's door jamb or the bottom corner of the windshield. VINs never use the letters I, O, or Q.",
+      vinPhotoLabel: "Photograph the VIN plate",
+      vinPhotoHint: "For your reference — check the typed VIN against the photo before you decode.",
+      decodeCta: "Decode this VIN",
+      decoding: "Decoding…",
+      decodeFailed: "That VIN could not be decoded. Check the characters and try again.",
+      recallsHeading: "Open recalls (NHTSA)",
+      recallsNone: "No open recalls on file with NHTSA for this vehicle.",
+      recallsUnavailable:
+        "The recall lookup is unavailable right now — the decode above is still exact.",
+      diagnoseCarCta: "Diagnose this car",
+      saveVaultCta: "Save to my vault",
+      savedVault: "Saved to your Health Vault.",
+      viewVault: "View vault",
+      saveFailed: "That vehicle could not be saved. Please try again.",
+      vaultUnwired: "The vault is not wired in this environment yet — nothing was saved.",
+      photoLabel: "Dashboard photo",
+      photoHint:
+        "Ignition on, engine running if it is safe. Get close enough that the lights are sharp. The photo is read in the moment and never stored.",
+      identifyCta: "Identify the lights",
+      identifying: "Reading the dashboard…",
+      photoUnwiredTitle: "Photo identification isn't switched on here yet",
+      photoUnwiredBody:
+        "This environment doesn't have the photo reader wired, so no result can be shown — never a made-up one. You can still type the light's name on the diagnosis page and get the full answer.",
+      photoFailed:
+        "That photo could not be read. Try a clearer, closer shot of the dashboard with the ignition on.",
+      photoNone:
+        "No warning lights were identified in that photo. If lights are on, retake it closer with the ignition on — several lights showing with the engine off is a normal bulb check.",
+      odometerRead: "Odometer read from your photo",
+      runDiagnosisCta: "Run the full diagnosis",
+      retakeCta: "Use a different photo",
+      vehicleOptionalLabel: "Your car (optional)",
+      vehicleOptionalPlaceholder: "e.g. 2019 Honda Accord",
+      codeLabel: "Fault code",
+      codeHint:
+        "From a code reader or a free parts-store scan — a letter (P, B, C, or U) plus four characters, like P0420.",
+      codeInvalid: "That doesn't look like a fault code yet — it should look like P0420.",
+      codeExplainCta: "Explain this code",
+      codeSystemSuffix: "system",
+      codeGeneric: "standard OBD-II code",
+      codeManufacturer: "manufacturer-specific code",
+      diagnosisNote:
+        "The explanation runs as a full diagnosis on the next screen — causes, urgency, and the fair price.",
+    },
+  },
   wp6: {
     nav: {
       dashboard: "Dashboard",
       diagnose: "Diagnose",
+      scan: "Scan",
       vault: "Health Vault",
       nearby: "Near me",
       marketplace: "Marketplace",
