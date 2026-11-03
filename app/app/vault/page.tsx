@@ -21,8 +21,19 @@ interface Vehicle {
   model: string;
   trim: string | null;
   vin: string | null;
+  engine: string | null;
   mileage: number | null;
+  color: string | null;
+  licensePlate: string | null;
   nickname: string | null;
+}
+
+interface VinEnrichment {
+  year: string | null;
+  make: string | null;
+  model: string | null;
+  trim: string | null;
+  engine: string | null;
 }
 
 interface Diagnosis {
@@ -55,13 +66,20 @@ export default function VaultPage() {
   const [recallsState, setRecallsState] = useState<"idle" | "working" | "done" | "failed">("idle");
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
+  // Post-registration onboarding (?welcome=1): the same add form,
+  // presented as "Add your first vehicle" with a Skip — never a trap.
+  const [welcome, setWelcome] = useState(false);
+  const [prefilling, setPrefilling] = useState(false);
   const [form, setForm] = useState({
     year: "",
     make: "",
     model: "",
     trim: "",
     vin: "",
+    engine: "",
     mileage: "",
+    color: "",
+    licensePlate: "",
     nickname: "",
   });
 
@@ -74,6 +92,9 @@ export default function VaultPage() {
     if (!getToken()) {
       window.location.href = "/login";
       return;
+    }
+    if (new URLSearchParams(window.location.search).get("welcome") === "1") {
+      setWelcome(true);
     }
     void loadVehicles();
   }, [loadVehicles]);
@@ -98,14 +119,59 @@ export default function VaultPage() {
         model: form.model,
         trim: form.trim || undefined,
         vin: form.vin || undefined,
+        engine: form.engine,
         mileage: form.mileage ? Number(form.mileage) : undefined,
+        color: form.color || undefined,
+        licensePlate: form.licensePlate || undefined,
         nickname: form.nickname || undefined,
       }),
     });
     if (res.status === 201) {
-      setForm({ year: "", make: "", model: "", trim: "", vin: "", mileage: "", nickname: "" });
+      setForm({
+        year: "",
+        make: "",
+        model: "",
+        trim: "",
+        vin: "",
+        engine: "",
+        mileage: "",
+        color: "",
+        licensePlate: "",
+        nickname: "",
+      });
       setNotice(v.saved);
+      setWelcome(false);
       await loadVehicles();
+    } else {
+      setError(apiDetail(res.data, t.wp6.common.somethingWrong));
+    }
+  }
+
+  /**
+   * VIN prefill (owner spec): when a VIN is typed and NHTSA decode
+   * data exists, year/make/model/trim/engine fill from the decode —
+   * the owner checks them over; mileage is always theirs to enter.
+   */
+  async function onPrefillFromVin() {
+    if (form.vin.trim().length < 11) return;
+    setPrefilling(true);
+    setError("");
+    const res = await apiFetch<{ enrichment: VinEnrichment | null }>(`/api/vin/decode`, {
+      method: "POST",
+      body: JSON.stringify({ vin: form.vin }),
+    });
+    setPrefilling(false);
+    if (res.status === 200 && res.data.enrichment) {
+      const d = res.data.enrichment;
+      setForm((f) => ({
+        ...f,
+        year: d.year ?? f.year,
+        make: d.make ?? f.make,
+        model: d.model ?? f.model,
+        trim: d.trim ?? f.trim,
+        engine: d.engine ?? f.engine,
+      }));
+      setNotice(v.prefilledNote);
     } else {
       setError(apiDetail(res.data, t.wp6.common.somethingWrong));
     }
@@ -182,6 +248,13 @@ export default function VaultPage() {
               {selected.year} {selected.make} {selected.model}
               {selected.trim ? ` ${selected.trim}` : ""}
             </h2>
+            {(selected.engine || selected.color || selected.licensePlate) && (
+              <p className="mt-2 text-base text-ink-2">
+                {[selected.engine, selected.color, selected.licensePlate]
+                  .filter(Boolean)
+                  .join(" · ")}
+              </p>
+            )}
             {selected.vin && (
               <>
                 <p className="mt-2 font-mono text-base text-ink-2">
@@ -261,8 +334,27 @@ export default function VaultPage() {
         )}
 
         <section className="mt-10">
-          <h2 className="font-display text-xl font-semibold text-ink-1">{v.addTitle}</h2>
+          <h2 className="font-display text-xl font-semibold text-ink-1">
+            {welcome ? v.firstTitle : v.addTitle}
+          </h2>
+          {welcome && <p className="mt-2 text-base leading-relaxed text-ink-2">{v.firstBody}</p>}
+          <p className="mt-2 text-sm text-ink-3">{v.requiredNote}</p>
           <form onSubmit={onAdd} className="mt-4 flex flex-col gap-4" noValidate>
+            <div>
+              <label htmlFor="veh-vin" className={labelCls}>{v.vin}</label>
+              <input id="veh-vin" className={`${inputCls} font-mono`} placeholder="1HGCV1F34KA000000"
+                value={form.vin} onChange={(e) => setForm({ ...form, vin: e.target.value })} />
+              {form.vin.trim().length >= 11 && (
+                <button
+                  type="button"
+                  onClick={() => void onPrefillFromVin()}
+                  disabled={prefilling}
+                  className="mt-3 flex h-12 items-center rounded-full border border-line px-5 text-base font-semibold text-ink-1 disabled:opacity-60"
+                >
+                  {prefilling ? v.decoding : v.prefillFromVin}
+                </button>
+              )}
+            </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label htmlFor="veh-year" className={labelCls}>{v.year}</label>
@@ -272,7 +364,7 @@ export default function VaultPage() {
               <div>
                 <label htmlFor="veh-mileage" className={labelCls}>{v.mileage}</label>
                 <input id="veh-mileage" className={inputCls} inputMode="numeric" placeholder="85000"
-                  value={form.mileage} onChange={(e) => setForm({ ...form, mileage: e.target.value })} />
+                  value={form.mileage} onChange={(e) => setForm({ ...form, mileage: e.target.value })} required />
               </div>
             </div>
             <div>
@@ -284,6 +376,11 @@ export default function VaultPage() {
               <label htmlFor="veh-model" className={labelCls}>{v.model}</label>
               <input id="veh-model" className={inputCls} placeholder="Accord"
                 value={form.model} onChange={(e) => setForm({ ...form, model: e.target.value })} required />
+            </div>
+            <div>
+              <label htmlFor="veh-engine" className={labelCls}>{v.engine}</label>
+              <input id="veh-engine" className={inputCls} placeholder={v.enginePlaceholder}
+                value={form.engine} onChange={(e) => setForm({ ...form, engine: e.target.value })} required />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
@@ -297,10 +394,17 @@ export default function VaultPage() {
                   value={form.nickname} onChange={(e) => setForm({ ...form, nickname: e.target.value })} />
               </div>
             </div>
-            <div>
-              <label htmlFor="veh-vin" className={labelCls}>{v.vin}</label>
-              <input id="veh-vin" className={`${inputCls} font-mono`} placeholder="1HGCV1F34KA000000"
-                value={form.vin} onChange={(e) => setForm({ ...form, vin: e.target.value })} />
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label htmlFor="veh-color" className={labelCls}>{v.color}</label>
+                <input id="veh-color" className={inputCls} placeholder="Silver"
+                  value={form.color} onChange={(e) => setForm({ ...form, color: e.target.value })} />
+              </div>
+              <div>
+                <label htmlFor="veh-plate" className={labelCls}>{v.licensePlate}</label>
+                <input id="veh-plate" className={`${inputCls} font-mono`}
+                  value={form.licensePlate} onChange={(e) => setForm({ ...form, licensePlate: e.target.value })} />
+              </div>
             </div>
             {error && (
               <p className="rounded-xl border border-line bg-surface px-4 py-3 text-base text-verdict-rip" role="alert">
@@ -314,6 +418,14 @@ export default function VaultPage() {
             >
               {v.addButton}
             </button>
+            {welcome && (
+              <a
+                href="/app/diagnose"
+                className="flex h-12 w-full items-center justify-center rounded-full border border-line px-6 text-base font-semibold text-ink-1"
+              >
+                {v.skipFirst}
+              </a>
+            )}
           </form>
         </section>
       </main>

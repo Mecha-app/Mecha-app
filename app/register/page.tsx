@@ -8,8 +8,10 @@ import { RETURN_TO_KEY } from "@/lib/server/scan";
 /**
  * Where a successful registration lands: the page that sent the
  * visitor here (e.g. /app/scan sets a return-to before bouncing to
- * sign-in), else the diagnosis screen. Only in-app paths are honored,
- * and the key is cleared on use.
+ * sign-in) still wins — that flow had an intent. Otherwise the owner
+ * ordered onboarding: land on "Add your first vehicle" (the vault add
+ * form in welcome mode, with a clear Skip — never a trap). Only
+ * in-app paths are honored, and the key is cleared on use.
  */
 function postAuthDestination(): string {
   try {
@@ -19,7 +21,7 @@ function postAuthDestination(): string {
   } catch {
     // Private mode — default destination.
   }
-  return "/app/diagnose";
+  return "/app/vault?welcome=1";
 }
 
 /**

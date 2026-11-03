@@ -31,7 +31,13 @@ export interface VehicleRecord {
   model: string;
   trim: string | null;
   vin: string | null;
+  /** Engine/cylinders free text ("2.0L 4-cylinder", "3.5L V6") — 0012.
+   * Required for NEW vehicles at the service layer; nullable here
+   * because converted legacy rows may not know theirs yet. */
+  engine: string | null;
   mileage: number | null;
+  color: string | null;
+  licensePlate: string | null;
   nickname: string | null;
   createdAt: string;
   updatedAt: string;
@@ -188,12 +194,18 @@ export interface CreateVehicleInput {
   model: string;
   trim?: string | null;
   vin?: string | null;
+  engine?: string | null;
   mileage?: number | null;
+  color?: string | null;
+  licensePlate?: string | null;
   nickname?: string | null;
 }
 
 export type VehiclePatch = Partial<
-  Pick<VehicleRecord, "year" | "make" | "model" | "trim" | "vin" | "mileage" | "nickname">
+  Pick<
+    VehicleRecord,
+    "year" | "make" | "model" | "trim" | "vin" | "engine" | "mileage" | "color" | "licensePlate" | "nickname"
+  >
 >;
 
 export interface CreateListingInput {
@@ -386,14 +398,17 @@ interface VehicleRow {
   model: string;
   trim: string | null;
   vin: string | null;
+  engine: string | null;
   mileage: number | null;
+  color: string | null;
+  license_plate: string | null;
   nickname: string | null;
   created_at: Date | string;
   updated_at: Date | string;
 }
 
 const VEHICLE_COLUMNS =
-  "id, owner_id, year, make, model, trim, vin, mileage, nickname, created_at, updated_at";
+  "id, owner_id, year, make, model, trim, vin, engine, mileage, color, license_plate, nickname, created_at, updated_at";
 
 function toVehicle(row: VehicleRow): VehicleRecord {
   return {
@@ -404,7 +419,10 @@ function toVehicle(row: VehicleRow): VehicleRecord {
     model: row.model,
     trim: row.trim,
     vin: row.vin,
+    engine: row.engine,
     mileage: row.mileage,
+    color: row.color,
+    licensePlate: row.license_plate,
     nickname: row.nickname,
     createdAt: iso(row.created_at),
     updatedAt: iso(row.updated_at),
@@ -685,8 +703,8 @@ export class PgAppStore implements AppStore {
   // -- Vehicles -------------------------------------------------------------
   async createVehicle(input: CreateVehicleInput): Promise<VehicleRecord> {
     const { rows } = await getPool().query<VehicleRow>(
-      `INSERT INTO vehicles (owner_id, year, make, model, trim, vin, mileage, nickname)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING ${VEHICLE_COLUMNS}`,
+      `INSERT INTO vehicles (owner_id, year, make, model, trim, vin, engine, mileage, color, license_plate, nickname)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING ${VEHICLE_COLUMNS}`,
       [
         input.ownerId,
         input.year,
@@ -694,7 +712,10 @@ export class PgAppStore implements AppStore {
         input.model,
         input.trim ?? null,
         input.vin ?? null,
+        input.engine ?? null,
         input.mileage ?? null,
+        input.color ?? null,
+        input.licensePlate ?? null,
         input.nickname ?? null,
       ],
     );
@@ -724,7 +745,10 @@ export class PgAppStore implements AppStore {
       model: "model",
       trim: "trim",
       vin: "vin",
+      engine: "engine",
       mileage: "mileage",
+      color: "color",
+      licensePlate: "license_plate",
       nickname: "nickname",
     }, 3);
     if (!clause) return this.findVehicleById(id).then((v) => (v && v.ownerId === ownerId ? v : null));
@@ -1239,7 +1263,10 @@ export class MemoryAppStore implements AppStore {
       model: input.model,
       trim: input.trim ?? null,
       vin: input.vin ?? null,
+      engine: input.engine ?? null,
       mileage: input.mileage ?? null,
+      color: input.color ?? null,
+      licensePlate: input.licensePlate ?? null,
       nickname: input.nickname ?? null,
       createdAt: ts,
       updatedAt: ts,

@@ -54,6 +54,36 @@ function parseMileage(value: unknown): number | null {
   return Math.round(n);
 }
 
+/**
+ * The owner's add-a-vehicle spec (Nov 3 2026), enforced HERE — the
+ * server is the enforcement; the form only mirrors it:
+ *   REQUIRED: year, make, model, engine/cylinders, current mileage.
+ *   OPTIONAL: trim, VIN, color, license plate, nickname.
+ */
+function parseRequiredEngine(value: unknown): string {
+  const engine = cleanString(value, 80);
+  if (!engine) {
+    throw new ValidationError(
+      'An "engine" is required — e.g. "2.0L 4-cylinder" or "3.5L V6".',
+    );
+  }
+  return engine;
+}
+
+function parseRequiredMileage(value: unknown): number {
+  const mileage = parseMileage(value);
+  if (mileage === null) {
+    throw new ValidationError('"mileage" is required — the current odometer reading.');
+  }
+  return mileage;
+}
+
+/** Plates store trimmed + uppercase, like VINs. */
+function optionalPlate(value: unknown): string | null {
+  const plate = optionalString(value, 16);
+  return plate ? plate.toUpperCase() : null;
+}
+
 export async function createVehicle(
   store: AppStore,
   ownerId: string,
@@ -75,7 +105,10 @@ export async function createVehicle(
     model,
     trim: optionalString(body.trim, 80),
     vin,
-    mileage: parseMileage(body.mileage),
+    engine: parseRequiredEngine(body.engine),
+    mileage: parseRequiredMileage(body.mileage),
+    color: optionalString(body.color, 40),
+    licensePlate: optionalPlate(body.licensePlate),
     nickname: optionalString(body.nickname, 80),
   });
 }
@@ -115,6 +148,9 @@ export async function updateVehicle(
   }
   if (body.trim !== undefined) patch.trim = optionalString(body.trim, 80);
   if (body.nickname !== undefined) patch.nickname = optionalString(body.nickname, 80);
+  if (body.engine !== undefined) patch.engine = parseRequiredEngine(body.engine);
+  if (body.color !== undefined) patch.color = optionalString(body.color, 40);
+  if (body.licensePlate !== undefined) patch.licensePlate = optionalPlate(body.licensePlate);
   if (body.mileage !== undefined) patch.mileage = parseMileage(body.mileage);
   if (body.vin !== undefined) {
     if (body.vin === null || body.vin === "") {

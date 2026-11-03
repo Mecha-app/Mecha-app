@@ -20,3 +20,36 @@ export class ForbiddenError extends Error {
     this.name = "ForbiddenError";
   }
 }
+
+/**
+ * Account-code errors (0011) — email-verification and password-reset
+ * codes. The InvalidCodeError message is deliberately ONE generic text
+ * for every failure (unknown identifier, no live code, expired, wrong
+ * code, attempts exhausted): the reset flow must never reveal which
+ * part failed, or it becomes an account-existence oracle.
+ */
+export class InvalidCodeError extends Error {
+  readonly code = "invalid_code";
+  constructor() {
+    super("That code doesn't match, or it has expired. Request a new code and try again.");
+    this.name = "InvalidCodeError";
+  }
+}
+
+export class AlreadyVerifiedError extends Error {
+  readonly code = "already_verified";
+  constructor() {
+    super("This email is already verified.");
+    this.name = "AlreadyVerifiedError";
+  }
+}
+
+export class ResendTooSoonError extends Error {
+  readonly code = "resend_too_soon";
+  readonly retryAfterSeconds: number;
+  constructor(retryAfterSeconds: number) {
+    super("A code was just sent — give it a moment, then try again.");
+    this.name = "ResendTooSoonError";
+    this.retryAfterSeconds = retryAfterSeconds;
+  }
+}

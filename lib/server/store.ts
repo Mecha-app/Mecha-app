@@ -44,8 +44,26 @@ export interface UserRecord extends BillingFields {
   authMethod: "email" | "google" | "both";
   plan: PlanTier;
   stripeCustomerId: string | null;
+  /** When the account email was verified by code (0011); NULL = not yet. */
+  emailVerifiedAt: string | null;
   freeDiagnosesUsed: number;
   createdAt: string;
+}
+
+/**
+ * One live account code (0011) — email verification or password reset.
+ * Only the SHA-256 hash is ever stored; the plaintext exists in the
+ * issued email and the user's input, nowhere else.
+ */
+export type AuthCodePurpose = "verify_email" | "reset_password";
+
+export interface AuthCodeRecord {
+  userId: string;
+  purpose: AuthCodePurpose;
+  codeHash: string;
+  attempts: number;
+  createdAt: string;
+  expiresAt: string;
 }
 
 export interface ShopRecord {
@@ -150,6 +168,22 @@ export interface IdentityStore {
   ): Promise<{ accountType: AccountType; accountId: string } | null>;
   /** Stripe webhook sink — drivers, shops AND towing (legacy bug fix). */
   applyPlanUpdate(update: PlanUpdate): Promise<boolean>;
+  // Account codes (0011) — one live code per (user, purpose); saving a
+  // fresh code replaces the old one and resets its attempt count.
+  saveAuthCode(input: {
+    userId: string;
+    purpose: AuthCodePurpose;
+    codeHash: string;
+    expiresAt: string;
+  }): Promise<void>;
+  getAuthCode(userId: string, purpose: AuthCodePurpose): Promise<AuthCodeRecord | null>;
+  /** Increment the attempt count; returns the new count (0 = no live code). */
+  recordAuthCodeAttempt(userId: string, purpose: AuthCodePurpose): Promise<number>;
+  deleteAuthCode(userId: string, purpose: AuthCodePurpose): Promise<void>;
+  /** Stamp email_verified_at (+ the legacy is_verified flag, ETL parity). */
+  markEmailVerified(userId: string): Promise<void>;
+  /** Replace the password hash (password reset). False = no such user. */
+  updatePasswordHash(userId: string, passwordHash: string): Promise<boolean>;
 }
 
 // ---------------------------------------------------------------------------
@@ -179,12 +213,13 @@ interface UserRow {
   subscription_status: string | null;
   current_period_end: Date | string | null;
   cancel_at_period_end: boolean;
+  email_verified_at: Date | string | null;
   free_diagnoses_used: number;
   created_at: Date | string;
 }
 
 const USER_COLUMNS =
-  "id, name, email, phone, phone_normalized, password_hash, google_sub, auth_method, plan, stripe_customer_id, stripe_subscription_id, subscription_status, current_period_end, cancel_at_period_end, free_diagnoses_used, created_at";
+  "id, name, email, phone, phone_normalized, password_hash, google_sub, auth_method, plan, stripe_customer_id, stripe_subscription_id, subscription_status, current_period_end, cancel_at_period_end, email_verified_at, free_diagnoses_used, created_at";
 
 function toIso(value: Date | string | null): string | null {
   if (value === null) return null;
@@ -207,6 +242,7 @@ function toUserRecord(row: UserRow): UserRecord {
     subscriptionStatus: row.subscription_status,
     currentPeriodEnd: toIso(row.current_period_end),
     cancelAtPeriodEnd: row.cancel_at_period_end ?? false,
+    emailVerifiedAt: toIso(row.email_verified_at),
     freeDiagnosesUsed: row.free_diagnoses_used,
     createdAt: row.created_at instanceof Date ? row.created_at.toISOString() : String(row.created_at),
   };
@@ -459,6 +495,77 @@ export class PgIdentityStore implements IdentityStore {
     );
     return (rowCount ?? 0) > 0;
   }
+
+  async saveAuthCode(input: {
+    userId: string;
+    purpose: AuthCodePurpose;
+    codeHash: string;
+    expiresAt: string;
+  }): Promise<void> {
+    await getPool().query(
+      `INSERT INTO auth_codes (user_id, purpose, code_hash, attempts, created_at, expires_at)
+       VALUES ($1, $2, $3, 0, now(), $4)
+       ON CONFLICT (user_id, purpose) DO UPDATE
+         SET code_hash = EXCLUDED.code_hash, attempts = 0,
+             created_at = now(), expires_at = EXCLUDED.expires_at`,
+      [input.userId, input.purpose, input.codeHash, input.expiresAt],
+    );
+  }
+
+  async getAuthCode(userId: string, purpose: AuthCodePurpose): Promise<AuthCodeRecord | null> {
+    const { rows } = await getPool().query<{
+      user_id: string;
+      purpose: AuthCodePurpose;
+      code_hash: string;
+      attempts: number;
+      created_at: Date | string;
+      expires_at: Date | string;
+    }>(
+      "SELECT user_id, purpose, code_hash, attempts, created_at, expires_at FROM auth_codes WHERE user_id = $1 AND purpose = $2 LIMIT 1",
+      [userId, purpose],
+    );
+    if (rows.length === 0) return null;
+    const r = rows[0];
+    return {
+      userId: r.user_id,
+      purpose: r.purpose,
+      codeHash: r.code_hash,
+      attempts: r.attempts,
+      createdAt: toIso(r.created_at) as string,
+      expiresAt: toIso(r.expires_at) as string,
+    };
+  }
+
+  async recordAuthCodeAttempt(userId: string, purpose: AuthCodePurpose): Promise<number> {
+    const { rows } = await getPool().query<{ attempts: number }>(
+      `UPDATE auth_codes SET attempts = attempts + 1
+        WHERE user_id = $1 AND purpose = $2 RETURNING attempts`,
+      [userId, purpose],
+    );
+    return rows[0]?.attempts ?? 0;
+  }
+
+  async deleteAuthCode(userId: string, purpose: AuthCodePurpose): Promise<void> {
+    await getPool().query("DELETE FROM auth_codes WHERE user_id = $1 AND purpose = $2", [
+      userId,
+      purpose,
+    ]);
+  }
+
+  async markEmailVerified(userId: string): Promise<void> {
+    await getPool().query(
+      "UPDATE users SET email_verified_at = now(), is_verified = true WHERE id = $1",
+      [userId],
+    );
+  }
+
+  async updatePasswordHash(userId: string, passwordHash: string): Promise<boolean> {
+    const { rowCount } = await getPool().query(
+      "UPDATE users SET password_hash = $2 WHERE id = $1",
+      [userId, passwordHash],
+    );
+    return (rowCount ?? 0) > 0;
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -473,6 +580,7 @@ export class MemoryIdentityStore implements IdentityStore {
   readonly towing = new Map<string, TowingRecord>();
   readonly cache = new Map<string, CachedDiagnosis>();
   readonly diagnoses: Array<{ id: string } & Record<string, unknown>> = [];
+  readonly authCodes = new Map<string, AuthCodeRecord>();
   private seq = 0;
 
   private nextId(prefix: string): string {
@@ -514,11 +622,59 @@ export class MemoryIdentityStore implements IdentityStore {
       subscriptionStatus: null,
       currentPeriodEnd: null,
       cancelAtPeriodEnd: false,
+      emailVerifiedAt: null,
       freeDiagnosesUsed: 0,
       createdAt: new Date().toISOString(),
     };
     this.users.set(user.id, user);
     return user;
+  }
+
+  private authCodeKey(userId: string, purpose: AuthCodePurpose): string {
+    return `${userId}:${purpose}`;
+  }
+
+  async saveAuthCode(input: {
+    userId: string;
+    purpose: AuthCodePurpose;
+    codeHash: string;
+    expiresAt: string;
+  }): Promise<void> {
+    this.authCodes.set(this.authCodeKey(input.userId, input.purpose), {
+      userId: input.userId,
+      purpose: input.purpose,
+      codeHash: input.codeHash,
+      attempts: 0,
+      createdAt: new Date().toISOString(),
+      expiresAt: input.expiresAt,
+    });
+  }
+
+  async getAuthCode(userId: string, purpose: AuthCodePurpose): Promise<AuthCodeRecord | null> {
+    return this.authCodes.get(this.authCodeKey(userId, purpose)) ?? null;
+  }
+
+  async recordAuthCodeAttempt(userId: string, purpose: AuthCodePurpose): Promise<number> {
+    const record = this.authCodes.get(this.authCodeKey(userId, purpose));
+    if (!record) return 0;
+    record.attempts += 1;
+    return record.attempts;
+  }
+
+  async deleteAuthCode(userId: string, purpose: AuthCodePurpose): Promise<void> {
+    this.authCodes.delete(this.authCodeKey(userId, purpose));
+  }
+
+  async markEmailVerified(userId: string): Promise<void> {
+    const user = this.users.get(userId);
+    if (user) user.emailVerifiedAt = new Date().toISOString();
+  }
+
+  async updatePasswordHash(userId: string, passwordHash: string): Promise<boolean> {
+    const user = this.users.get(userId);
+    if (!user) return false;
+    user.passwordHash = passwordHash;
+    return true;
   }
 
   async consumeFreeDiagnosis(userId: string): Promise<{ consumed: boolean; used: number }> {

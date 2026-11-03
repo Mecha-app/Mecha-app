@@ -61,6 +61,7 @@ function seller(id: string, name: string, email: string): UserRecord {
     subscriptionStatus: null,
     currentPeriodEnd: null,
     cancelAtPeriodEnd: false,
+    emailVerifiedAt: null,
     freeDiagnosesUsed: 0,
     createdAt: new Date().toISOString(),
   };
@@ -179,6 +180,7 @@ test("(b) ownership: user B cannot read, modify, or delete user A's vehicle", as
     year: 2019,
     make: "Honda",
     model: "Accord",
+    engine: "1.5L 4-cylinder",
     mileage: 62_000,
   });
   store.diagnoses.push({

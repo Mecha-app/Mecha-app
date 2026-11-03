@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { AppNav } from "@/components/AppNav";
 import { BillingSection } from "@/components/BillingSection";
-import { apiFetch } from "@/lib/client/api";
+import { apiDetail, apiFetch } from "@/lib/client/api";
 import { getStoredUser, getToken } from "@/lib/client/auth";
 import { useLocale } from "@/lib/i18n/LocaleProvider";
 
@@ -60,6 +60,14 @@ export default function DashboardPage() {
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [diagnoses, setDiagnoses] = useState<Diagnosis[]>([]);
   const [business, setBusiness] = useState<Business | null>(null);
+  // Email verification (0011, SOFT GATE): the banner shows until the
+  // server says the email is verified; nothing else waits on it.
+  const [emailVerified, setEmailVerified] = useState<boolean | null>(null);
+  const [verifyCode, setVerifyCode] = useState("");
+  const [verifyState, setVerifyState] = useState<
+    "idle" | "working" | "done" | "sent" | "unavailable" | "error"
+  >("idle");
+  const [verifyDetail, setVerifyDetail] = useState("");
 
   useEffect(() => {
     if (!getToken()) {
@@ -78,18 +86,58 @@ export default function DashboardPage() {
     setKind("driver");
     void (async () => {
       const [me, veh, diag] = await Promise.all([
-        apiFetch<{ user: { name: string }; quota: QuotaView }>("/api/auth/me"),
+        apiFetch<{ user: { name: string; emailVerified: boolean }; quota: QuotaView }>(
+          "/api/auth/me",
+        ),
         apiFetch<{ vehicles: Vehicle[] }>("/api/vehicles"),
         apiFetch<{ diagnoses: Diagnosis[] }>("/api/diagnoses/recent"),
       ]);
       if (me.status === 200) {
         setName(me.data.user.name);
         setQuota(me.data.quota);
+        setEmailVerified(me.data.user.emailVerified);
       }
       if (veh.status === 200) setVehicles(veh.data.vehicles);
       if (diag.status === 200) setDiagnoses(diag.data.diagnoses);
     })();
   }, []);
+
+  async function onVerify() {
+    setVerifyState("working");
+    setVerifyDetail("");
+    const res = await apiFetch<{ user: { emailVerified: boolean } }>("/api/auth/verify-email", {
+      method: "POST",
+      body: JSON.stringify({ code: verifyCode }),
+    });
+    if (res.status === 200) {
+      setEmailVerified(true);
+      setVerifyState("done");
+    } else {
+      setVerifyState("error");
+      setVerifyDetail(apiDetail(res.data, "That code doesn't match, or it has expired."));
+    }
+  }
+
+  async function onResendCode() {
+    setVerifyState("working");
+    setVerifyDetail("");
+    const res = await apiFetch<{ delivery?: string }>("/api/auth/resend-verification", {
+      method: "POST",
+      body: JSON.stringify({}),
+    });
+    if (res.status === 200 && res.data.delivery === "sent") {
+      setVerifyState("sent");
+    } else if (res.status === 200) {
+      // Delivery state said not_configured/failed — state it honestly.
+      setVerifyState("unavailable");
+    } else if (res.status === 409) {
+      setEmailVerified(true);
+      setVerifyState("done");
+    } else {
+      setVerifyState("error");
+      setVerifyDetail(apiDetail(res.data, "Something went wrong. Please try again."));
+    }
+  }
 
   const actions = [
     { href: "/app/diagnose", title: d.actionDiagnose, sub: d.actionDiagnoseSub },
@@ -137,6 +185,64 @@ export default function DashboardPage() {
                       }
                     />
                   ))}
+                </div>
+              </>
+            )}
+          </section>
+        )}
+
+        {kind === "driver" && (emailVerified === false || verifyState === "done") && (
+          <section className="mt-6 rounded-2xl border border-line bg-surface px-5 py-4">
+            <h2 className="font-display text-lg font-semibold text-ink-1">{d.verifyTitle}</h2>
+            {verifyState === "done" ? (
+              <p className="mt-2 text-base text-verdict-fair" role="status">
+                {d.verifyDone}
+              </p>
+            ) : (
+              <>
+                <p className="mt-2 text-base leading-relaxed text-ink-2">{d.verifyBody}</p>
+                {verifyState === "sent" && (
+                  <p className="mt-2 text-base text-ink-1" role="status">
+                    {d.verifySent}
+                  </p>
+                )}
+                {verifyState === "unavailable" && (
+                  <p className="mt-2 text-base text-ink-2" role="status">
+                    {d.verifyUnavailable}
+                  </p>
+                )}
+                {verifyState === "error" && (
+                  <p className="mt-2 text-base text-verdict-rip" role="alert">
+                    {verifyDetail}
+                  </p>
+                )}
+                <div className="mt-4 flex flex-col gap-3 sm:flex-row">
+                  <input
+                    aria-label={d.verifyCodeLabel}
+                    className="h-12 flex-1 rounded-xl border border-line bg-surface px-4 font-mono text-base text-ink-1 placeholder:text-ink-3"
+                    inputMode="numeric"
+                    autoComplete="one-time-code"
+                    maxLength={6}
+                    placeholder="123456"
+                    value={verifyCode}
+                    onChange={(e) => setVerifyCode(e.target.value)}
+                  />
+                  <button
+                    type="button"
+                    disabled={verifyState === "working" || verifyCode.trim().length !== 6}
+                    onClick={() => void onVerify()}
+                    className="h-12 rounded-full bg-accent px-6 text-base font-semibold text-accent-ink disabled:opacity-60"
+                  >
+                    {d.verifyButton}
+                  </button>
+                  <button
+                    type="button"
+                    disabled={verifyState === "working"}
+                    onClick={() => void onResendCode()}
+                    className="h-12 rounded-full border border-line px-6 text-base font-semibold text-ink-1 disabled:opacity-60"
+                  >
+                    {d.verifyResend}
+                  </button>
                 </div>
               </>
             )}

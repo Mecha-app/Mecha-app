@@ -113,6 +113,11 @@ export default function ScanPage() {
     "idle",
   );
   const [saveDetail, setSaveDetail] = useState("");
+  /* The vault's required fields the decode cannot know: the current
+   * mileage is always the driver's to enter; the engine prefills from
+   * the decode when NHTSA provides one and is typed otherwise. */
+  const [saveMileage, setSaveMileage] = useState("");
+  const [saveEngine, setSaveEngine] = useState("");
 
   /* Photo mode state */
   const [photoFile, setPhotoFile] = useState<File | null>(null);
@@ -164,6 +169,7 @@ export default function ScanPage() {
     if (res.status === 200 && res.data.enrichment) {
       setDecoded(res.data.enrichment);
       setRecalls(res.data.recalls);
+      setSaveEngine(res.data.enrichment.engine ?? "");
       setDecodeState("done");
     } else {
       setDecoded(null);
@@ -174,6 +180,13 @@ export default function ScanPage() {
 
   async function onSaveVehicle() {
     if (!decoded) return;
+    // The add-vehicle spec (owner): engine + current mileage are
+    // required — the form enforces before the server has to.
+    if (!saveEngine.trim() || !saveMileage.trim() || Number(saveMileage) < 0) {
+      setSaveDetail(s.saveNeedsDetail);
+      setSaveState("failed");
+      return;
+    }
     setSaveState("working");
     const res = await apiFetch("/api/vehicles", {
       method: "POST",
@@ -183,6 +196,8 @@ export default function ScanPage() {
         model: decoded.model ?? undefined,
         trim: decoded.trim || undefined,
         vin: decoded.vin,
+        engine: saveEngine.trim(),
+        mileage: Number(saveMileage),
       }),
     });
     if (res.status === 201) {
@@ -403,6 +418,34 @@ export default function ScanPage() {
                     ))}
                   </ul>
                 )}
+
+                <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <div>
+                    <label htmlFor="scan-save-mileage" className="block text-sm font-medium text-ink-2">
+                      {s.saveMileage}
+                    </label>
+                    <input
+                      id="scan-save-mileage"
+                      className={inputCls}
+                      inputMode="numeric"
+                      placeholder={s.saveMileagePlaceholder}
+                      value={saveMileage}
+                      onChange={(e) => setSaveMileage(e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="scan-save-engine" className="block text-sm font-medium text-ink-2">
+                      {s.saveEngine}
+                    </label>
+                    <input
+                      id="scan-save-engine"
+                      className={inputCls}
+                      placeholder={s.saveEnginePlaceholder}
+                      value={saveEngine}
+                      onChange={(e) => setSaveEngine(e.target.value)}
+                    />
+                  </div>
+                </div>
 
                 <div className="mt-6 flex flex-col gap-3 sm:flex-row">
                   <button

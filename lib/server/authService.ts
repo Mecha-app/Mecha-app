@@ -1,5 +1,7 @@
+import { sendVerificationCode, type CodeDeliveryStatus } from "./accountCodes";
 import { normalizeEmail, normalizePhone } from "./identity";
 import { signToken } from "./jwt";
+import { getMailer, type Mailer } from "./mailer";
 import { hashPassword, verifyPassword } from "./passwords";
 import { quotaStateFor, type QuotaState } from "./quota";
 import { IdentityConflictError, type IdentityStore, type UserRecord } from "./store";
@@ -25,6 +27,9 @@ export interface PublicUser {
   email: string;
   phone: string | null;
   plan: string;
+  /** Soft gate (0011): false until the email code is confirmed; the
+   * account works either way — the dashboard shows a verify banner. */
+  emailVerified: boolean;
   type: "driver";
 }
 
@@ -32,6 +37,8 @@ export interface AuthResult {
   token: string;
   user: PublicUser;
   quota: QuotaState;
+  /** Registration only: the verification email's delivery state. */
+  verificationDelivery?: CodeDeliveryStatus;
 }
 
 export class ValidationError extends Error {
@@ -57,8 +64,15 @@ function toPublicUser(user: UserRecord): PublicUser {
     email: user.email,
     phone: user.phone,
     plan: user.plan,
+    emailVerified: user.emailVerifiedAt !== null,
     type: "driver",
   };
+}
+
+/** Build the standard auth payload for an account record (login,
+ * registration, and the completed password reset all answer this). */
+export function authResultFor(user: UserRecord): AuthResult {
+  return toAuthResult(user);
 }
 
 function toAuthResult(user: UserRecord): AuthResult {
@@ -72,6 +86,7 @@ function toAuthResult(user: UserRecord): AuthResult {
 export async function registerDriver(
   store: IdentityStore,
   input: { name?: unknown; email?: unknown; phone?: unknown; password?: unknown },
+  deps: { mailer?: Mailer } = {},
 ): Promise<AuthResult> {
   const name = typeof input.name === "string" ? input.name.trim() : "";
   if (name.length === 0 || name.length > 120) {
@@ -113,7 +128,19 @@ export async function registerDriver(
     passwordHash,
     authMethod: "email",
   });
-  return toAuthResult(user);
+  const result = toAuthResult(user);
+  // Verification code (0011) — issued + emailed best-effort. A mail
+  // failure NEVER fails the registration: the account works from this
+  // moment (soft gate), the code exists server-side, and the dashboard
+  // banner offers a resend. The delivery state rides on the result so
+  // the API can state it honestly.
+  try {
+    const sent = await sendVerificationCode(store, deps.mailer ?? getMailer(), user);
+    result.verificationDelivery = sent.delivery;
+  } catch {
+    result.verificationDelivery = "failed";
+  }
+  return result;
 }
 
 // Timing equalization (security pass): when the account does not exist
