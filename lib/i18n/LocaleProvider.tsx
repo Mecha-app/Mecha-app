@@ -19,6 +19,20 @@ import {
   type LocaleCode,
 } from "./index";
 
+/**
+ * Mirror the locale into a cookie so the server-rendered <html lang dir>
+ * (app/layout.tsx) matches the visitor's choice on first paint — RTL
+ * locales (AR/HE) get dir="rtl" in the served HTML, not only after the
+ * client effect runs. localStorage stays the client source of truth.
+ */
+function syncLocaleCookie(code: LocaleCode) {
+  try {
+    document.cookie = `${LOCALE_STORAGE_KEY}=${code}; path=/; max-age=31536000; samesite=lax`;
+  } catch {
+    /* ignore */
+  }
+}
+
 interface LocaleContextValue {
   locale: LocaleCode;
   setLocale: (code: LocaleCode) => void;
@@ -43,7 +57,10 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     try {
       const saved = localStorage.getItem(LOCALE_STORAGE_KEY);
-      if (isLocaleCode(saved)) setLocaleState(saved);
+      if (isLocaleCode(saved)) {
+        setLocaleState(saved);
+        syncLocaleCookie(saved);
+      }
     } catch {
       /* private mode — session-only locale */
     }
@@ -57,6 +74,7 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
 
   const setLocale = useCallback((code: LocaleCode) => {
     setLocaleState(code);
+    syncLocaleCookie(code);
     try {
       localStorage.setItem(LOCALE_STORAGE_KEY, code);
     } catch {

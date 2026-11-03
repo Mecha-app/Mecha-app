@@ -118,7 +118,7 @@ export default function MessagesPage() {
                       onClick={() =>
                         void openThread(thread.userId, thread.shopId, thread.counterpartName)
                       }
-                      className="w-full rounded-xl border border-line bg-surface px-4 py-3 text-left"
+                      className="w-full rounded-xl border border-line bg-surface px-4 py-3 text-start"
                     >
                       <span className="flex items-baseline justify-between gap-3">
                         <span className="font-display text-lg font-semibold text-ink-1">

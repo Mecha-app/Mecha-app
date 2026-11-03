@@ -140,7 +140,7 @@ function RouteFaq({ eyebrow, heading, items }: { eyebrow: string; heading: strin
                   <span>{item.q}</span>
                   <PlusIcon />
                 </summary>
-                <p className="pb-6 pr-2 leading-relaxed text-ink-2 sm:pr-8">{item.a}</p>
+                <p className="pb-6 pe-2 leading-relaxed text-ink-2 sm:pe-8">{item.a}</p>
               </details>
             ))}
           </div>

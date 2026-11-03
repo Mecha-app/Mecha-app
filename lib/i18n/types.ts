@@ -6,7 +6,20 @@ export type DeepPartial<T> = T extends (infer U)[]
     ? { [K in keyof T]?: DeepPartial<T[K]> }
     : T;
 
-export type LocaleCode = "en" | "es" | "fr" | "ht";
+export type LocaleCode =
+  | "en"
+  | "es"
+  | "fr"
+  | "ht"
+  | "pt"
+  | "de"
+  | "it"
+  | "pl"
+  | "ru"
+  | "uk"
+  | "tr"
+  | "ar"
+  | "he";
 
 export interface LocaleMeta {
   code: LocaleCode;
@@ -28,13 +41,22 @@ export const LOCALES: LocaleMeta[] = [
   { code: "es", label: "Español", dir: "ltr", fontNote: "Space Grotesk / Inter (Latin Extended)." },
   { code: "fr", label: "Français", dir: "ltr", fontNote: "Space Grotesk / Inter (Latin Extended)." },
   { code: "ht", label: "Kreyòl", dir: "ltr", fontNote: "Space Grotesk / Inter (Latin Extended)." },
+  { code: "pt", label: "Português", dir: "ltr", fontNote: "Space Grotesk / Inter (Latin Extended)." },
+  { code: "de", label: "Deutsch", dir: "ltr", fontNote: "Space Grotesk / Inter (Latin Extended)." },
+  { code: "it", label: "Italiano", dir: "ltr", fontNote: "Space Grotesk / Inter (Latin Extended)." },
+  { code: "pl", label: "Polski", dir: "ltr", fontNote: "Space Grotesk / Inter (Latin Extended)." },
+  { code: "ru", label: "Русский", dir: "ltr", fontNote: "Inter (Cyrillic subsets loaded in layout); display headlines fall back to Inter/Noto — Space Grotesk has no Cyrillic subset." },
+  { code: "uk", label: "Українська", dir: "ltr", fontNote: "Inter (Cyrillic subsets loaded in layout); display headlines fall back to Inter/Noto — Space Grotesk has no Cyrillic subset." },
+  { code: "tr", label: "Türkçe", dir: "ltr", fontNote: "Space Grotesk / Inter (Latin Extended)." },
+  { code: "ar", label: "العربية", dir: "rtl", fontNote: "Noto Sans (Arabic) slotted in the Tailwind stacks per §1.3; loaded per-locale, never globally." },
+  { code: "he", label: "עברית", dir: "rtl", fontNote: "Noto Sans (Hebrew) slotted in the Tailwind stacks per §1.3; loaded per-locale, never globally." },
 ];
 
 export const DEFAULT_LOCALE: LocaleCode = "en";
 export const LOCALE_STORAGE_KEY = "mecha-locale";
 
 export function isLocaleCode(value: string | null | undefined): value is LocaleCode {
-  return value === "en" || value === "es" || value === "fr" || value === "ht";
+  return LOCALES.some((l) => l.code === value);
 }
 
 export function localeMeta(code: LocaleCode): LocaleMeta {

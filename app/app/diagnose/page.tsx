@@ -316,7 +316,7 @@ export default function DiagnosePage() {
               <h3 className="text-sm font-semibold uppercase tracking-eyebrow text-ink-2">
                 Next steps
               </h3>
-              <ol className="mt-2 flex list-decimal flex-col gap-1 pl-5">
+              <ol className="mt-2 flex list-decimal flex-col gap-1 ps-5">
                 {report.steps.map((step) => (
                   <li key={step} className="text-base text-ink-1">
                     {step}

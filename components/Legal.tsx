@@ -55,7 +55,7 @@ export function LegalSection({
         </p>
       ))}
       {items && (
-        <ul className="mt-2.5 flex list-disc flex-col gap-1.5 pl-5">
+        <ul className="mt-2.5 flex list-disc flex-col gap-1.5 ps-5">
           {items.map((item) => (
             <li key={item} className="text-base leading-relaxed text-ink-2">
               {item}

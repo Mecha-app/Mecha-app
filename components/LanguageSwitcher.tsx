@@ -65,7 +65,7 @@ export function LanguageSwitcher() {
                   setLocale(l.code);
                   setOpen(false);
                 }}
-                className={`flex min-h-[48px] w-full items-center justify-between px-3 py-3 text-left text-sm transition-colors duration-150 hover:bg-inset ${
+                className={`flex min-h-[48px] w-full items-center justify-between px-3 py-3 text-start text-sm transition-colors duration-150 hover:bg-inset ${
                   l.code === locale ? "text-accent" : "text-ink-2"
                 }`}
               >

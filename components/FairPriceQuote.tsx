@@ -128,13 +128,13 @@ export function FairPriceQuote() {
                 <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
                   <p className="text-sm font-medium text-ink-1">
                     {f.lines[line.key].name}
-                    <span className="ml-2 text-[12px] font-normal text-ink-3">
+                    <span className="ms-2 text-[12px] font-normal text-ink-3">
                       {f.lineTypes[line.typeKey]}
                     </span>
                   </p>
                   <p className="tnum font-display text-base font-semibold text-ink-1">
                     {money(line.quote)}
-                    <span className="ml-2 text-[13px] font-normal text-ink-3">
+                    <span className="ms-2 text-[13px] font-normal text-ink-3">
                       {f.fairRange} {money(line.fairLow)}–{money(line.fairHigh)}
                     </span>
                   </p>
@@ -158,7 +158,7 @@ export function FairPriceQuote() {
               <p className="font-display text-base font-semibold text-ink-1">{f.total}</p>
               <p className="tnum font-display text-[26px] font-semibold text-ink-1">
                 {money(TOTAL.quote)}
-                <span className="ml-2 text-sm font-normal text-ink-3">
+                <span className="ms-2 text-sm font-normal text-ink-3">
                   {f.fairRange} {money(TOTAL.fairLow)}–{money(TOTAL.fairHigh)}
                 </span>
               </p>

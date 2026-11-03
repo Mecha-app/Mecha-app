@@ -40,7 +40,7 @@ export function AppNav({ business = false }: { business?: boolean }) {
   return (
     <header className="border-b border-line bg-surface">
       <div className="mx-auto flex w-full max-w-5xl flex-wrap items-center gap-x-2 gap-y-1 px-4 py-2">
-        <Link href="/app" className="flex h-12 items-center gap-2 pr-2" aria-label="MECHA">
+        <Link href="/app" className="flex h-12 items-center gap-2 pe-2" aria-label="MECHA">
           <GaugeMMark size={28} className="text-ink-1" />
           <span className="font-display text-lg font-bold tracking-[0.04em] text-ink-1">MECHA</span>
         </Link>

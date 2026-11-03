@@ -46,7 +46,7 @@ export function DiagnosisExample() {
         </Reveal>
 
         <Reveal delay={120}>
-          <div className="mx-auto mt-10 max-w-3xl rounded-2xl border border-line bg-surface p-6 text-left sm:p-8">
+          <div className="mx-auto mt-10 max-w-3xl rounded-2xl border border-line bg-surface p-6 text-start sm:p-8">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
                 <span className="font-display text-base font-semibold text-verdict-warn">
@@ -79,7 +79,7 @@ export function DiagnosisExample() {
                   <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
                     <p className="font-medium text-ink-1">
                       {part.name}
-                      <span className="ml-2 text-[13px] font-normal text-ink-3">
+                      <span className="ms-2 text-[13px] font-normal text-ink-3">
                         {part.likelihood}
                       </span>
                     </p>
@@ -95,7 +95,7 @@ export function DiagnosisExample() {
             <h3 className="mt-6 text-sm font-semibold uppercase tracking-eyebrow text-ink-2">
               {r.stepsTitle}
             </h3>
-            <ol className="mt-2 flex list-decimal flex-col gap-1.5 pl-5 leading-relaxed text-ink-1">
+            <ol className="mt-2 flex list-decimal flex-col gap-1.5 ps-5 leading-relaxed text-ink-1">
               {steps.map((step) => (
                 <li key={step}>{step}</li>
               ))}

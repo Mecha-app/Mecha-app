@@ -220,7 +220,7 @@ export default function VaultPage() {
                   type="button"
                   onClick={() => void openVehicle(vehicle)}
                   className={
-                    "flex min-h-12 w-full items-center rounded-xl border px-4 py-3 text-left text-base " +
+                    "flex min-h-12 w-full items-center rounded-xl border px-4 py-3 text-start text-base " +
                     (selected?.id === vehicle.id
                       ? "border-accent bg-surface text-ink-1"
                       : "border-line bg-surface text-ink-1")
@@ -232,7 +232,7 @@ export default function VaultPage() {
                     {vehicle.trim ? ` ${vehicle.trim}` : ""}
                   </span>
                   {vehicle.mileage !== null && (
-                    <span className="ml-auto pl-3 font-mono text-sm text-ink-2">
+                    <span className="ms-auto ps-3 font-mono text-sm text-ink-2">
                       {vehicle.mileage.toLocaleString()} mi
                     </span>
                   )}

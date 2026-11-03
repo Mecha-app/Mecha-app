@@ -388,7 +388,7 @@ export default function ScanPage() {
                   {decoded.engine && (
                     <div className="flex justify-between gap-4">
                       <dt className="text-ink-3">Engine</dt>
-                      <dd className="text-right text-ink-1">{decoded.engine}</dd>
+                      <dd className="text-end text-ink-1">{decoded.engine}</dd>
                     </div>
                   )}
                 </dl>

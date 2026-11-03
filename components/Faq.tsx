@@ -63,7 +63,7 @@ export function Faq() {
                   <span>{item.q}</span>
                   <PlusIcon />
                 </summary>
-                <p className="pb-6 pr-8 leading-relaxed text-ink-2">{item.a}</p>
+                <p className="pb-6 pe-8 leading-relaxed text-ink-2">{item.a}</p>
               </details>
             ))}
           </div>
