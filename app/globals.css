@@ -1,0 +1,132 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/**
+ * MECHA design tokens — "Asphalt & Signal" (DESIGN_SYSTEM §1.2, §1.5).
+ * One semantic token set, two values. Dark ("night cockpit") is the brand
+ * default on :root; [data-theme="light"] is the full-parity light theme.
+ * Verdict colors are theme-INVARIANT and carry product semantics only —
+ * never decoration.
+ */
+
+:root,
+:root[data-theme="dark"] {
+  /* Dark theme — asphalt ramp (DESIGN_SYSTEM §1.2) */
+  --color-bg: #0b0d10; /* asphalt-950 — page background */
+  --color-surface: #12151a; /* asphalt-900 — cards, panels */
+  --color-surface-raised: #171b21; /* asphalt-850 — modals, sticky header */
+  --color-inset: #1e232b; /* asphalt-800 — wells, inputs, gauge tracks */
+  --color-line: #262c36; /* line-dark — all 1px rules */
+  --color-ink-1: #f2f4f7; /* ink-100 — primary text */
+  --color-ink-2: #c3cad4; /* ink-300 — secondary text */
+  --color-ink-3: #8a94a3; /* ink-500 — muted text, captions */
+
+  --color-accent: #f5a524; /* signal-amber */
+  --color-accent-bright: #ffb84d; /* signal-amber-bright — hover/glow, dark only */
+  --color-accent-deep: #b97a0f; /* signal-amber-deep (used by light theme) */
+  --color-accent-ink: #0b0d10; /* text on amber surfaces */
+
+  /* Verdict colors — identical in both themes (§1.2) */
+  --verdict-fair: #2fbf71;
+  --verdict-warn: #e8b93e;
+  --verdict-rip: #e5484d;
+
+  /* Per-locale Noto fallbacks (§1.3): loaded per-locale at WP7, never
+     globally. These vars slot the family names into the Tailwind font
+     stacks so fallback locales render in Noto, not tofu. */
+  --font-noto-sans: "Noto Sans";
+  --font-noto-display: "Noto Sans";
+
+  color-scheme: dark;
+}
+
+:root[data-theme="light"] {
+  /* Light theme — paper ramp (DESIGN_SYSTEM §1.2) */
+  --color-bg: #f7f8fa; /* paper-50 — page background */
+  --color-surface: #ffffff; /* paper-0 — raised surface */
+  --color-surface-raised: #ffffff;
+  --color-inset: #eef1f4; /* paper-100 — wells, inputs, gauge tracks */
+  --color-line: #dce1e8; /* line-light */
+  --color-ink-1: #14181e; /* ink-900 — primary text */
+  --color-ink-2: #47505c; /* ink-600 — secondary text */
+  --color-ink-3: #6b7582; /* ink-450 — muted text (≥14px only) */
+
+  /* Accent shifts with the theme (§1.5): deep amber holds AA on white. */
+  --color-accent: #b97a0f; /* signal-amber-deep */
+  --color-accent-bright: #f5a524;
+  --color-accent-deep: #b97a0f;
+  --color-accent-ink: #ffffff;
+
+  color-scheme: light;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-ink-1);
+  font-family: var(--font-sans), var(--font-noto-sans), sans-serif;
+  font-size: 16px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Numbers are the typography (§1.1): tabular figures wherever a value shows. */
+.tnum {
+  font-variant-numeric: tabular-nums;
+}
+
+/* The one permitted texture (§1.6): a machined-metal crosshatch at ≤3%
+   opacity, reserved for the header band. CSS-generated, no images. */
+.crosshatch {
+  background-image: repeating-linear-gradient(
+      45deg,
+      var(--color-ink-1) 0,
+      var(--color-ink-1) 1px,
+      transparent 1px,
+      transparent 7px
+    ),
+    repeating-linear-gradient(-45deg, var(--color-ink-1) 0, var(--color-ink-1) 1px, transparent 1px, transparent 7px);
+  background-size: 7px 7px;
+  opacity: 0.03;
+}
+
+/* Motion = product loop only (§1.6): bars slide to value, needle settles.
+   180–450ms, ease-out; reduced motion fully honored. */
+@keyframes bar-slide {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+.bar-anim {
+  transform-origin: left;
+  animation: bar-slide 450ms ease-out both;
+}
+[dir="rtl"] .bar-anim {
+  transform-origin: right;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .bar-anim {
+    animation: none;
+  }
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+  }
+}
+
+::selection {
+  background: var(--color-accent);
+  color: var(--color-accent-ink);
+}
