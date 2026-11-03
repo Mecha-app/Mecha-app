@@ -85,9 +85,11 @@ export function Hero() {
         </div>
       </div>
 
-      {/* The film — a framed player under the copy. Poster first; the
+      {/* The film — a framed player under the copy, its frame edges on
+          the same max-w-6xl grid as the promise above it (design-polish
+          pass: one container system per page). Poster first; the
           only thing on the poster is the standard play affordance. */}
-      <div className="relative z-10 mx-auto mt-14 w-full max-w-5xl px-4 sm:px-6">
+      <div className="relative z-10 mx-auto mt-14 w-full max-w-6xl px-4 sm:px-6">
         <figure className="relative overflow-hidden rounded-2xl border border-line">
           <video
             ref={videoRef}

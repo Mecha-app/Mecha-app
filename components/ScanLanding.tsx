@@ -34,8 +34,8 @@ function ModeBand({
   children?: React.ReactNode;
 }) {
   return (
-    <section className="border-t border-line">
-      <div className="mx-auto max-w-6xl px-4 py-20 sm:px-6 lg:py-28">
+    <section>
+      <div className="mx-auto max-w-6xl px-4 py-24 sm:px-6 lg:py-36">
         <div className="grid items-start gap-10 lg:grid-cols-2 lg:gap-16">
           <Reveal>
             <p className="text-xs font-semibold uppercase tracking-eyebrow text-accent">{kicker}</p>
@@ -87,13 +87,13 @@ export function ScanLanding() {
             <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
               <Link
                 href="/app/scan"
-                className="inline-flex h-14 items-center justify-center rounded-full bg-accent px-8 text-base font-semibold text-accent-ink transition-colors hover:bg-accent-bright"
+                className="inline-flex h-[52px] items-center justify-center rounded-full bg-accent px-8 font-display text-base font-semibold text-accent-ink transition-colors hover:bg-accent-bright"
               >
                 {s.startCta}
               </Link>
               <Link
                 href="/register"
-                className="inline-flex h-14 items-center justify-center rounded-full border border-line px-8 text-base font-semibold text-ink-1 transition-colors hover:bg-raised"
+                className="inline-flex h-[52px] items-center justify-center rounded-full border border-line px-8 font-display text-base font-semibold text-ink-1 transition-colors hover:bg-raised"
               >
                 {s.registerCta}
               </Link>
@@ -120,8 +120,8 @@ export function ScanLanding() {
       <ModeBand kicker={s.codeKicker} heading={s.codeHeading} body={s.codeBody} steps={s.codeSteps} />
 
       {/* QR-sticker band — for the person who scanned someone else's car. */}
-      <section className="border-t border-line bg-surface">
-        <div className="mx-auto max-w-6xl px-4 py-20 text-center sm:px-6 lg:py-28">
+      <section>
+        <div className="mx-auto max-w-6xl px-4 py-24 text-center sm:px-6 lg:py-36">
           <Reveal>
             <p className="text-xs font-semibold uppercase tracking-eyebrow text-accent">
               {s.stickerEyebrow}
@@ -138,7 +138,7 @@ export function ScanLanding() {
             <div className="mt-9">
               <Link
                 href="/register"
-                className="inline-flex h-14 items-center justify-center rounded-full bg-accent px-8 text-base font-semibold text-accent-ink transition-colors hover:bg-accent-bright"
+                className="inline-flex h-[52px] items-center justify-center rounded-full bg-accent px-8 font-display text-base font-semibold text-accent-ink transition-colors hover:bg-accent-bright"
               >
                 {s.stickerCta}
               </Link>

@@ -29,7 +29,7 @@ export function FinalCta() {
             <div className="mt-10">
               <Link
                 href="/register"
-                className="inline-flex h-14 items-center justify-center rounded-full bg-accent px-8 font-display text-base font-semibold text-[var(--color-accent-ink)] transition-colors duration-150 hover:bg-accent-bright"
+                className="inline-flex h-[52px] items-center justify-center rounded-full bg-accent px-8 font-display text-base font-semibold text-[var(--color-accent-ink)] transition-colors duration-150 hover:bg-accent-bright"
               >
                 {f.cta}
               </Link>

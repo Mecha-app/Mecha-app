@@ -662,7 +662,7 @@ const fr: DeepPartial<Dictionary> = {
       runDiagnosisCta: "Lancer le diagnostic complet",
       retakeCta: "Utiliser une autre photo",
       vehicleOptionalLabel: "Votre voiture (optionnel)",
-      vehicleOptionalPlaceholder: "ex. Honda Accord 2019",
+      vehicleOptionalPlaceholder: "Année, marque et modèle",
       codeLabel: "Code défaut",
       codeHint:
         "D'un lecteur de codes ou d'un scan gratuit en magasin de pièces — une lettre (P, B, C ou U) plus quatre caractères, comme P0420.",

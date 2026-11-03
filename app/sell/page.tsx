@@ -143,12 +143,12 @@ export default function SellPage() {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label htmlFor="sell-year" className={labelCls}>{s.year}</label>
-              <input id="sell-year" className={inputCls} inputMode="numeric" placeholder="2019"
+              <input id="sell-year" className={inputCls} inputMode="numeric" placeholder="Enter year"
                 value={form.year} onChange={set("year")} required />
             </div>
             <div>
               <label htmlFor="sell-price" className={labelCls}>{s.price}</label>
-              <input id="sell-price" className={inputCls} inputMode="decimal" placeholder="14500"
+              <input id="sell-price" className={inputCls} inputMode="decimal" placeholder="Enter price"
                 value={form.price} onChange={set("price")} required />
             </div>
           </div>
@@ -169,7 +169,7 @@ export default function SellPage() {
             </div>
             <div>
               <label htmlFor="sell-mileage" className={labelCls}>{s.mileage}</label>
-              <input id="sell-mileage" className={inputCls} inputMode="numeric" placeholder="85000"
+              <input id="sell-mileage" className={inputCls} inputMode="numeric" placeholder="Enter mileage"
                 value={form.mileage} onChange={set("mileage")} required />
             </div>
           </div>

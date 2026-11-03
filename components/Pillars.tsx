@@ -101,7 +101,7 @@ export function Pillars() {
         <Reveal>
           <div className="mx-auto max-w-2xl text-center">
             <p className="text-xs font-semibold uppercase tracking-eyebrow text-accent">{p.eyebrow}</p>
-            <h2 className="mt-4 text-balance font-display text-[clamp(2.1rem,4.5vw,3.4rem)] font-semibold leading-[1.08] tracking-[-0.02em] text-ink-1">
+            <h2 className="mt-4 text-balance font-display text-[clamp(2.1rem,4.5vw,3.25rem)] font-semibold leading-[1.08] tracking-[-0.02em] text-ink-1">
               {p.heading}
             </h2>
           </div>

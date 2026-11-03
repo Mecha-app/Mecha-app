@@ -662,7 +662,7 @@ const ht: DeepPartial<Dictionary> = {
       runDiagnosisCta: "Lanse dyagnostik konplè a",
       retakeCta: "Itilize yon lòt foto",
       vehicleOptionalLabel: "Machin ou (opsyonèl)",
-      vehicleOptionalPlaceholder: "egz. Honda Accord 2019",
+      vehicleOptionalPlaceholder: "Ane, mak ak modèl",
       codeLabel: "Kòd erè",
       codeHint:
         "Soti nan yon lektè kòd oswa yon scan gratis nan magazen pyès — yon lèt (P, B, C, oswa U) plis kat karaktè, tankou P0420.",

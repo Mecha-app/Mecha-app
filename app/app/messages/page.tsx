@@ -176,7 +176,7 @@ export default function MessagesPage() {
                     {msg.body}
                     <span
                       className={
-                        "mt-1 block text-xs " + (mine ? "text-accent-ink/70" : "text-ink-3")
+                        "mt-1 block text-xs " + (mine ? "text-accent-ink opacity-70" : "text-ink-3")
                       }
                     >
                       {new Date(msg.createdAt).toLocaleString()}

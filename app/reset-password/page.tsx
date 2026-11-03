@@ -101,7 +101,7 @@ export default function ResetPasswordPage() {
               inputMode="numeric"
               autoComplete="one-time-code"
               maxLength={6}
-              placeholder="123456"
+              placeholder="Enter the 6-digit code"
               value={code}
               onChange={(e) => setCode(e.target.value)}
               required

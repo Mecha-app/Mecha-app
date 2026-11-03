@@ -96,7 +96,7 @@ function PrimaryLink({ href, children }: { href: string; children: ReactNode }) 
   return (
     <Link
       href={href}
-      className="inline-flex min-h-14 w-full items-center justify-center rounded-full bg-accent px-8 text-base font-semibold text-accent-ink transition-colors hover:bg-accent-bright sm:w-auto"
+      className="inline-flex h-[52px] w-full items-center justify-center rounded-full bg-accent px-8 font-display text-base font-semibold text-accent-ink transition-colors hover:bg-accent-bright sm:w-auto"
     >
       {children}
     </Link>
@@ -107,7 +107,7 @@ function SecondaryLink({ href, children }: { href: string; children: ReactNode }
   return (
     <Link
       href={href}
-      className="inline-flex min-h-14 w-full items-center justify-center rounded-full border border-line px-8 text-base font-semibold text-ink-1 transition-colors hover:bg-raised sm:w-auto"
+      className="inline-flex h-[52px] w-full items-center justify-center rounded-full border border-line px-8 font-display text-base font-semibold text-ink-1 transition-colors hover:bg-raised sm:w-auto"
     >
       {children}
     </Link>
@@ -130,7 +130,7 @@ function BulletList({ points }: { points: string[] }) {
 function RouteFaq({ eyebrow, heading, items }: { eyebrow: string; heading: string; items: Qa[] }) {
   return (
     <section>
-      <div className="mx-auto max-w-6xl px-4 py-24 sm:px-6 lg:py-32">
+      <div className="mx-auto max-w-6xl px-4 py-24 sm:px-6 lg:py-36">
         <SectionHeader eyebrow={eyebrow} heading={heading} />
         <Reveal>
           <div className="mx-auto mt-14 max-w-3xl border-b border-line">
@@ -162,11 +162,11 @@ function FinalCta({
   children: ReactNode;
 }) {
   return (
-    <section className="border-t border-line bg-surface">
-      <div className="mx-auto max-w-6xl px-4 py-20 text-center sm:px-6 lg:py-28">
+    <section>
+      <div className="mx-auto max-w-6xl px-4 py-24 text-center sm:px-6 lg:py-36">
         <Reveal>
           <p className="text-xs font-semibold uppercase tracking-eyebrow text-accent">{eyebrow}</p>
-          <h2 className="mx-auto mt-4 max-w-2xl text-balance font-display text-[clamp(1.9rem,4vw,2.75rem)] font-semibold leading-[1.12] tracking-[-0.02em] text-ink-1">
+          <h2 className="mx-auto mt-4 max-w-2xl text-balance font-display text-[clamp(2.1rem,4.5vw,3.25rem)] font-semibold leading-[1.08] tracking-[-0.02em] text-ink-1">
             {heading}
           </h2>
           <p className="mx-auto mt-5 max-w-2xl text-[17px] leading-relaxed text-ink-2">{body}</p>
@@ -210,8 +210,8 @@ export function DiagnosePageContent() {
         {d.accountNote}
       </p>
 
-      <section className="border-t border-line">
-        <div className="mx-auto max-w-6xl px-4 py-24 sm:px-6 lg:py-32">
+      <section>
+        <div className="mx-auto max-w-6xl px-4 py-24 sm:px-6 lg:py-36">
           <SectionHeader eyebrow={d.modes.eyebrow} heading={d.modes.heading} body={d.modes.body} />
           <div className="mt-16 grid gap-12 lg:grid-cols-3 lg:gap-10">
             {modes.map((mode, i) => (
@@ -241,8 +241,8 @@ export function DiagnosePageContent() {
 
       <HowItWorks />
 
-      <section className="border-t border-line">
-        <div className="mx-auto max-w-6xl px-4 py-24 sm:px-6 lg:py-32">
+      <section>
+        <div className="mx-auto max-w-6xl px-4 py-24 sm:px-6 lg:py-36">
           <SectionHeader eyebrow={d.report.eyebrow} heading={d.report.heading} body={d.report.body} />
           <div className="mt-16 grid gap-x-10 gap-y-12 sm:grid-cols-2 lg:grid-cols-4">
             {reportItems.map((item, i) => (
@@ -264,8 +264,8 @@ export function DiagnosePageContent() {
 
       <DiagnosisExample />
 
-      <section className="border-t border-line">
-        <div className="mx-auto max-w-6xl px-4 py-24 sm:px-6 lg:py-32">
+      <section>
+        <div className="mx-auto max-w-6xl px-4 py-24 sm:px-6 lg:py-36">
           <SectionHeader
             eyebrow={d.severity.eyebrow}
             heading={d.severity.heading}
@@ -333,8 +333,8 @@ export function PricingPageContent() {
 
       <Pricing />
 
-      <section className="border-t border-line">
-        <div className="mx-auto max-w-6xl px-4 py-24 sm:px-6 lg:py-32">
+      <section>
+        <div className="mx-auto max-w-6xl px-4 py-24 sm:px-6 lg:py-36">
           <SectionHeader
             eyebrow={p.decision.eyebrow}
             heading={p.decision.heading}
@@ -354,8 +354,8 @@ export function PricingPageContent() {
         </div>
       </section>
 
-      <section className="border-t border-line">
-        <div className="mx-auto max-w-6xl px-4 py-24 sm:px-6 lg:py-32">
+      <section>
+        <div className="mx-auto max-w-6xl px-4 py-24 sm:px-6 lg:py-36">
           <div className="grid items-start gap-12 lg:grid-cols-2 lg:gap-16">
             <Reveal>
               <p className="text-xs font-semibold uppercase tracking-eyebrow text-accent">
@@ -410,8 +410,8 @@ export function ShopsPageContent() {
 
       <Businesses />
 
-      <section className="border-t border-line">
-        <div className="mx-auto max-w-6xl px-4 py-24 sm:px-6 lg:py-32">
+      <section>
+        <div className="mx-auto max-w-6xl px-4 py-24 sm:px-6 lg:py-36">
           <SectionHeader eyebrow={s.listing.eyebrow} heading={s.listing.heading} body={s.listing.body} />
           <div className="mt-16 grid gap-x-10 gap-y-12 sm:grid-cols-2 lg:grid-cols-4">
             {listingItems.map((item, i) => (
@@ -431,8 +431,8 @@ export function ShopsPageContent() {
         </div>
       </section>
 
-      <section className="border-t border-line">
-        <div className="mx-auto max-w-6xl px-4 py-24 sm:px-6 lg:py-32">
+      <section>
+        <div className="mx-auto max-w-6xl px-4 py-24 sm:px-6 lg:py-36">
           <div className="grid items-start gap-12 lg:grid-cols-2 lg:gap-16">
             <Reveal>
               <p className="text-xs font-semibold uppercase tracking-eyebrow text-accent">{s.plan.eyebrow}</p>
@@ -461,8 +461,8 @@ export function ShopsPageContent() {
         </div>
       </section>
 
-      <section className="border-t border-line">
-        <div className="mx-auto max-w-6xl px-4 py-24 sm:px-6 lg:py-32">
+      <section>
+        <div className="mx-auto max-w-6xl px-4 py-24 sm:px-6 lg:py-36">
           <div className="grid items-start gap-12 lg:grid-cols-2 lg:gap-16">
             <Reveal>
               <p className="text-xs font-semibold uppercase tracking-eyebrow text-accent">{s.parts.eyebrow}</p>

@@ -109,7 +109,7 @@ export default function BusinessRegisterPage() {
   return (
     <>
       <AppNav business logoHref="/" />
-      <main className="mx-auto w-full max-w-2xl px-4 py-8">
+      <main className="mx-auto w-full max-w-2xl px-4 py-10 sm:py-16">
         <h1 className="font-display text-3xl font-semibold tracking-[-0.01em] text-ink-1">
           {b.registerTitle}
         </h1>
@@ -186,7 +186,7 @@ export default function BusinessRegisterPage() {
               </div>
               <div>
                 <label htmlFor="biz-specialties" className={labelCls}>{b.specialties}</label>
-                <input id="biz-specialties" className={inputCls} placeholder="Brakes, Electrical, Tires"
+                <input id="biz-specialties" className={inputCls} placeholder="Enter your specialties"
                   value={form.specialties} onChange={set("specialties")} />
               </div>
               <div>

@@ -253,7 +253,7 @@ export default function DiagnosePage() {
               <input
                 id="diag-vehicle"
                 className="h-12 w-full rounded-xl border border-line bg-surface px-4 text-base text-ink-1 placeholder:text-ink-3"
-                placeholder="e.g. 2019 Honda Accord"
+                placeholder="Year, make, and model"
                 autoComplete="off"
                 value={vehicleInfo}
                 onChange={(e) => setVehicleInfo(e.target.value)}

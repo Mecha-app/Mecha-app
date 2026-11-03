@@ -319,7 +319,7 @@ export default function ScanPage() {
                 autoComplete="off"
                 autoCapitalize="characters"
                 spellCheck={false}
-                placeholder="1HGCV1F34KA…"
+                placeholder="Enter VIN number"
               />
               <p className="mt-2 text-sm leading-relaxed text-ink-3">{s.vinHint}</p>
             </div>
@@ -654,7 +654,7 @@ export default function ScanPage() {
                 autoComplete="off"
                 autoCapitalize="characters"
                 spellCheck={false}
-                placeholder="P0420"
+                placeholder="Enter fault code"
               />
               <p className="mt-2 text-sm leading-relaxed text-ink-3">{s.codeHint}</p>
               {code.trim() && !normalizedCode && (

@@ -25,6 +25,13 @@ const config: Config = {
           DEFAULT: "var(--color-accent)",
           bright: "var(--color-accent-bright)",
           deep: "var(--color-accent-deep)",
+          /* The ink that sits ON the accent (button labels, selected
+             tabs, message bubbles). This binding was missing, so every
+             `text-accent-ink` class in the app/auth surfaces silently
+             generated no CSS and amber buttons rendered in inherited
+             body ink — washed-out in dark, muddy in light. Bound
+             2026-11-03 (design-polish pass) to the theme token. */
+          ink: "var(--color-accent-ink)",
         },
         verdict: {
           fair: "var(--verdict-fair)",

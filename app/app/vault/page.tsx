@@ -342,7 +342,7 @@ export default function VaultPage() {
           <form onSubmit={onAdd} className="mt-4 flex flex-col gap-4" noValidate>
             <div>
               <label htmlFor="veh-vin" className={labelCls}>{v.vin}</label>
-              <input id="veh-vin" className={`${inputCls} font-mono`} placeholder="1HGCV1F34KA000000"
+              <input id="veh-vin" className={`${inputCls} font-mono`} placeholder="Enter VIN number"
                 value={form.vin} onChange={(e) => setForm({ ...form, vin: e.target.value })} />
               {form.vin.trim().length >= 11 && (
                 <button
@@ -358,23 +358,23 @@ export default function VaultPage() {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label htmlFor="veh-year" className={labelCls}>{v.year}</label>
-                <input id="veh-year" className={inputCls} inputMode="numeric" placeholder="2019"
+                <input id="veh-year" className={inputCls} inputMode="numeric" placeholder="Enter year"
                   value={form.year} onChange={(e) => setForm({ ...form, year: e.target.value })} required />
               </div>
               <div>
                 <label htmlFor="veh-mileage" className={labelCls}>{v.mileage}</label>
-                <input id="veh-mileage" className={inputCls} inputMode="numeric" placeholder="85000"
+                <input id="veh-mileage" className={inputCls} inputMode="numeric" placeholder="Enter current mileage"
                   value={form.mileage} onChange={(e) => setForm({ ...form, mileage: e.target.value })} required />
               </div>
             </div>
             <div>
               <label htmlFor="veh-make" className={labelCls}>{v.make}</label>
-              <input id="veh-make" className={inputCls} placeholder="Honda"
+              <input id="veh-make" className={inputCls} placeholder="Enter make"
                 value={form.make} onChange={(e) => setForm({ ...form, make: e.target.value })} required />
             </div>
             <div>
               <label htmlFor="veh-model" className={labelCls}>{v.model}</label>
-              <input id="veh-model" className={inputCls} placeholder="Accord"
+              <input id="veh-model" className={inputCls} placeholder="Enter model"
                 value={form.model} onChange={(e) => setForm({ ...form, model: e.target.value })} required />
             </div>
             <div>
@@ -385,7 +385,7 @@ export default function VaultPage() {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label htmlFor="veh-trim" className={labelCls}>{v.trim}</label>
-                <input id="veh-trim" className={inputCls} placeholder="EX"
+                <input id="veh-trim" className={inputCls} placeholder="Enter trim"
                   value={form.trim} onChange={(e) => setForm({ ...form, trim: e.target.value })} />
               </div>
               <div>
@@ -397,7 +397,7 @@ export default function VaultPage() {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label htmlFor="veh-color" className={labelCls}>{v.color}</label>
-                <input id="veh-color" className={inputCls} placeholder="Silver"
+                <input id="veh-color" className={inputCls} placeholder="Enter color"
                   value={form.color} onChange={(e) => setForm({ ...form, color: e.target.value })} />
               </div>
               <div>
