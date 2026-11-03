@@ -249,7 +249,7 @@ const es: DeepPartial<Dictionary> = {
       },
       languages: {
         q: "¿Qué idiomas habla MECHA?",
-        a: "El sitio y la app hablan hoy inglés, español, francés y criollo haitiano, y tu diagnóstico se responde en tu idioma. Se están agregando más idiomas — MECHA está hecho para conductores en todas partes, no solo para quienes hablan inglés.",
+        a: "MECHA habla trece idiomas: inglés, español, francés, criollo haitiano, portugués, alemán, italiano, polaco, ruso, ucraniano, turco, árabe y hebreo. El diagnóstico con IA responde en el idioma que elijas.",
       },
       privacy: {
         q: "¿Quién puede ver el historial de mi coche?",

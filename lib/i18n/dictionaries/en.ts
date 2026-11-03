@@ -254,7 +254,7 @@ const en = {
       },
       languages: {
         q: "Which languages does MECHA speak?",
-        a: "The site and the app speak English, Spanish, French, and Haitian Creole today, and your diagnosis is answered in your language. More languages are being added — MECHA is built for drivers everywhere, not only for English speakers.",
+        a: "MECHA speaks thirteen languages: English, Spanish, French, Haitian Creole, Portuguese, German, Italian, Polish, Russian, Ukrainian, Turkish, Arabic, and Hebrew. The AI diagnosis answers in the language you choose.",
       },
       privacy: {
         q: "Who can see my car's history?",

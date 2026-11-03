@@ -257,7 +257,7 @@ const de: DeepPartial<Dictionary> = {
       },
       languages: {
         q: "Welche Sprachen spricht MECHA?",
-        a: "Die Website und die App sprechen heute Englisch, Spanisch, Französisch und Haitianisch-Kreolisch, und Ihre Diagnose wird in Ihrer Sprache beantwortet. Weitere Sprachen kommen hinzu — MECHA ist für Fahrer überall gebaut, nicht nur für Englischsprachige.",
+        a: "MECHA spricht dreizehn Sprachen: Englisch, Spanisch, Französisch, Haitianisch-Kreolisch, Portugiesisch, Deutsch, Italienisch, Polnisch, Russisch, Ukrainisch, Türkisch, Arabisch und Hebräisch. Die KI-Diagnose antwortet in der Sprache Ihrer Wahl.",
       },
       privacy: {
         q: "Wer kann die Geschichte meines Autos sehen?",

@@ -250,7 +250,7 @@ const ht: DeepPartial<Dictionary> = {
       },
       languages: {
         q: "Ki lang MECHA pale?",
-        a: "Sit la ak app la pale anglè, espanyòl, fransè ak kreyòl ayisyen jodi a, epi yo reponn dyagnostik ou a nan lang ou. Plis lang ap ajoute — MECHA fèt pou chofè tout kote, pa sèlman pou moun ki pale anglè.",
+        a: "MECHA pale trèz lang: anglè, espanyòl, fransè, kreyòl ayisyen, pòtigè, alman, italyen, polonè, ris, ikrenyen, tik, arab ak ebre. Dyagnostik IA a reponn ou nan lang ou chwazi a.",
       },
       privacy: {
         q: "Ki moun ki ka wè istwa machin mwen an?",

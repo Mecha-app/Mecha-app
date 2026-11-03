@@ -257,7 +257,7 @@ const tr: DeepPartial<Dictionary> = {
       },
       languages: {
         q: "MECHA hangi dilleri konuşuyor?",
-        a: "Site ve uygulama bugün İngilizce, İspanyolca, Fransızca ve Haiti Kreolü konuşuyor ve teşhisiniz sizin dilinizde cevaplanır. Daha fazla dil ekleniyor — MECHA yalnızca İngilizce konuşanlar için değil, her yerdeki sürücüler için yapıldı.",
+        a: "MECHA on üç dil konuşur: İngilizce, İspanyolca, Fransızca, Haiti Kreolü, Portekizce, Almanca, İtalyanca, Lehçe, Rusça, Ukraynaca, Türkçe, Arapça ve İbranice. Yapay zekâ teşhisi, seçtiğiniz dilde yanıt verir.",
       },
       privacy: {
         q: "Aracımın geçmişini kim görebilir?",
