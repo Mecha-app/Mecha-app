@@ -28,6 +28,12 @@ function PlusIcon() {
  * the free meter's end, the no-reset rule, hardware, languages,
  * privacy, and the business door. Native <details> — accessible,
  * works without JS, summaries are full-height tap targets.
+ * Copy pass round 2 (2026-11-09, owner: "cut whole sections"): the
+ * homepage keeps the top three — accuracy, the free meter's end, and
+ * languages (the 13-language list, word-for-word). The rest are
+ * answered where they belong: the no-reset rule in Pricing's meter
+ * note, hardware in the hero, listing a business on /shops. All seven
+ * Q&As remain in the catalog; rendering fewer is composition only.
  */
 export function Faq() {
   const { t } = useLocale();
@@ -36,11 +42,7 @@ export function Faq() {
   const items = [
     f.items.accuracy,
     f.items.freeEnd,
-    f.items.reset,
-    f.items.hardware,
     f.items.languages,
-    f.items.privacy,
-    f.items.business,
   ];
 
   return (

@@ -6,7 +6,7 @@ import { DiagnosePageContent } from "@/components/MarketingRoutes";
 export const metadata: Metadata = {
   title: "Diagnose — MECHA",
   description:
-    "Describe a symptom, photograph a warning light, or start from a VIN or fault code. MECHA returns ranked causes, a severity verdict, the fair repair range, and the next step.",
+    "Describe a symptom, photograph a warning light, or start from a VIN or fault code. Get ranked causes, a severity verdict, and the fair repair range.",
 };
 
 /**

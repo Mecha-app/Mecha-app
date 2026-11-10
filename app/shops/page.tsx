@@ -6,7 +6,7 @@ import { ShopsPageContent } from "@/components/MarketingRoutes";
 export const metadata: Metadata = {
   title: "For Shops & Towing — MECHA",
   description:
-    "List a repair shop or towing company on MECHA: name-first nearby results, distance, tap-to-call, the $149 per-location plan, and a parts-ordering path from finished diagnoses.",
+    "List a repair shop or towing company on MECHA: name-first nearby results, distance, tap-to-call, $149 per location per month.",
 };
 
 /**

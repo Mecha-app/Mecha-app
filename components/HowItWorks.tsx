@@ -7,10 +7,14 @@ import { Reveal } from "./Reveal";
  * "How it works" — the diagnosis flow, step by step (design pass 2,
  * owner feedback 2026-11-03: the homepage was too short to convince).
  * Substance, not clutter (§1.1): four hairline columns in the pillars'
- * rhythm, then the full contents of a diagnosis as a plain checklist.
- * Every claim is the product's real behavior — the report shape is the
- * WP5 diagnosis report (severity / ranked causes / fair range / steps /
- * tip), and the severity words are the product's own three verdicts.
+ * rhythm. Every claim is the product's real behavior — the report
+ * shape is the WP5 diagnosis report (severity / ranked causes / fair
+ * range / steps / tip), and the severity words are the product's own
+ * three verdicts.
+ * Copy pass round 2 (2026-11-09, owner: "cut whole sections"): the
+ * "What every diagnosis includes" checklist that closed this section
+ * is gone — the example diagnosis directly above already shows every
+ * item on it, rendered as the report itself. Steps only.
  */
 export function HowItWorks() {
   const { t } = useLocale();
@@ -21,16 +25,6 @@ export function HowItWorks() {
     { n: "02", title: h.steps.ranked.title, body: h.steps.ranked.body },
     { n: "03", title: h.steps.severity.title, body: h.steps.severity.body },
     { n: "04", title: h.steps.price.title, body: h.steps.price.body },
-  ];
-  const includes = [
-    h.includes.explanation,
-    h.includes.causes,
-    h.includes.severity,
-    h.includes.cost,
-    h.includes.labor,
-    h.includes.steps,
-    h.includes.tip,
-    h.includes.saved,
   ];
 
   return (
@@ -61,22 +55,6 @@ export function HowItWorks() {
             </Reveal>
           ))}
         </div>
-
-        <Reveal>
-          <div className="mt-20 border-t border-line pt-10 lg:mt-24">
-            <h3 className="text-center font-display text-2xl font-medium text-ink-1">
-              {h.includesTitle}
-            </h3>
-            <ul className="mx-auto mt-9 grid max-w-4xl gap-x-10 gap-y-4 sm:grid-cols-2">
-              {includes.map((item) => (
-                <li key={item} className="flex gap-2.5 leading-relaxed text-ink-2">
-                  <span className="mt-[9px] h-1 w-1 shrink-0 rounded-full bg-accent" aria-hidden="true" />
-                  <span>{item}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </Reveal>
       </div>
     </section>
   );
