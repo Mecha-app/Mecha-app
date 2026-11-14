@@ -83,6 +83,22 @@ export function Hero() {
             {t.hero.filmFairPrice}
           </a>
         </div>
+
+        {/* The standing offer, on the first screen: the three hero
+            points from the catalog — the price hook ("First 5
+            diagnoses free — no card required") among them. These
+            strings were in the catalog but rendered nowhere until
+            copy pass round 2 (2026-11-09) put them back on the page. */}
+        <ul className="mt-8 flex flex-wrap items-center justify-center gap-x-3 gap-y-2 text-sm text-ink-2">
+          {[t.hero.points.noHardware, t.hero.points.plainLanguage, t.hero.points.freeToStart].map(
+            (point, i) => (
+              <li key={point} className="flex items-center gap-3">
+                {i > 0 && <span className="h-1 w-1 rounded-full bg-ink-3" aria-hidden="true" />}
+                <span>{point}</span>
+              </li>
+            ),
+          )}
+        </ul>
       </div>
 
       {/* The film — a framed player under the copy, its frame edges on
@@ -122,8 +138,8 @@ export function Hero() {
       {/* Scroll cue — the page continues below the film. */}
       <div className="relative z-10 flex justify-center pb-6 pt-8">
         <a
-          href="#pillars"
-          aria-label={t.pillars.eyebrow}
+          href="#how-it-works"
+          aria-label={t.howItWorks.eyebrow}
           className="flex h-12 w-12 items-center justify-center text-ink-2 transition-colors duration-150 hover:text-ink-1"
         >
           <span className="scroll-cue block">

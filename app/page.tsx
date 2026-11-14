@@ -6,7 +6,6 @@ import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
 import { Hero } from "@/components/Hero";
 import { HowItWorks } from "@/components/HowItWorks";
-import { Pillars } from "@/components/Pillars";
 import { Pricing } from "@/components/Pricing";
 import { FinalCta } from "@/components/FinalCta";
 
@@ -23,6 +22,22 @@ import { FinalCta } from "@/components/FinalCta";
  * explained, and an FAQ that answers the real objections — before the
  * sign-up finale. Substance in the same design system: section-per-
  * idea rhythm, hairlines, no card clutter, no invented claims (§1.6).
+ * Copy pass 2026-11-09 (owner feedback: "too much text… more straight
+ * to the point"): copy tightened throughout the catalog, and the two
+ * product visuals — the example diagnosis and the fair-price quote
+ * check — now sit directly under the hero, before the pillars and the
+ * how-it-works explainer, so the offer lands in seconds.
+ * Copy pass round 2, same day (owner: "go further — cut whole
+ * sections"): the Pillars section is gone — Diagnose/Protect/Remember
+ * restated what the hero, the example diagnosis, and the quote check
+ * already show (the Health Vault survives in the pricing tier). How
+ * It Works keeps only its four steps; its "what every diagnosis
+ * includes" checklist duplicated the example report above it. The
+ * businesses band is now a one-line strip with links (the full story
+ * lives on /shops), and the FAQ keeps its top three questions. Page
+ * total: 2,067 → 1,565 → ~1,014 rendered words. Cuts are composition-
+ * level: no dictionary keys were removed, so all 13 locales keep
+ * parity and the sections can return by recomposing this file.
  */
 export default function HomePage() {
   return (
@@ -30,10 +45,9 @@ export default function HomePage() {
       <Header overlay />
       <main>
         <Hero />
-        <Pillars />
-        <HowItWorks />
         <DiagnosisExample />
         <FairPriceQuote />
+        <HowItWorks />
         <Businesses />
         <Pricing />
         <Faq />
