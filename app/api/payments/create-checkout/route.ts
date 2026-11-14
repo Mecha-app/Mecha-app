@@ -50,6 +50,13 @@ export async function POST(request: Request) {
     } else if (payload.type === "shop") {
       const shop = await store.findShopById(payload.id);
       accountEmail = shop?.email ?? null;
+    } else if (payload.type === "towing") {
+      // Towing buys the same business plan (the /shops page sells to
+      // both). This branch was missing: the webhook has always applied
+      // towing payments, but a towing account could never START one —
+      // closed 2026-11-14 in the tool-stack verification pass.
+      const towing = await store.findTowingById(payload.id);
+      accountEmail = towing?.email ?? null;
     }
     if (!accountEmail) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
 
