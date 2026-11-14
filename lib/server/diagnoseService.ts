@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
-import type { DiagnosisRequest } from "./ai";
+import { DIAGNOSIS_PROMPT_VERSION, buildDiagnosisPrompt, type DiagnosisRequest } from "./ai";
 import type { DiagnosisProvider } from "./provider";
+import { startDiagnosisTrace } from "./tracing";
 import {
   QuotaExhaustedError,
   countdownMessage,
@@ -132,11 +133,21 @@ export async function* executeDiagnosis(
     return;
   }
 
-  // 4 + 5. Stream the provider, then persist.
-  for await (const event of provider.stream(request)) {
-    if (event.type === "delta") {
-      yield { type: "delta", text: event.text };
-    } else {
+  // 4 + 5. Stream the provider, then persist. The Langfuse trace handle
+  // is a no-op unless tracing is wired (lib/server/tracing.ts); cache
+  // hits above never reach it — no LLM call, nothing to trace.
+  const trace = startDiagnosisTrace({
+    userId: user.id,
+    tier,
+    language: request.language,
+    promptVersion: DIAGNOSIS_PROMPT_VERSION,
+    prompt: buildDiagnosisPrompt(request),
+  });
+  try {
+    for await (const event of provider.stream(request)) {
+      if (event.type === "delta") {
+        yield { type: "delta", text: event.text };
+      } else {
       // Persistence must never fail a diagnosis the owner already paid
       // for: cache/save errors are logged, not thrown.
       try {
@@ -162,6 +173,15 @@ export async function* executeDiagnosis(
           }),
         );
       }
+      // Trace BEFORE the done yield: consumers stop iterating at done,
+      // so anything after the yield is not guaranteed to run. The call
+      // is a no-op when Langfuse is unwired and can never throw.
+      await trace.recordSuccess({
+        model: event.model,
+        report: event.report,
+        usage: event.usage,
+        latency: event.latency,
+      });
       yield {
         type: "done",
         report: event.report,
@@ -175,6 +195,10 @@ export async function* executeDiagnosis(
         quota: quotaAfter,
         message: countdownMessage(quotaAfter.remaining),
       };
+      }
     }
+  } catch (err) {
+    await trace.recordError(err);
+    throw err;
   }
 }

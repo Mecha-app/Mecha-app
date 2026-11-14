@@ -32,6 +32,12 @@ export interface DiagnosisLatency {
   totalMs: number;
 }
 
+/** Token usage for a completed call, when the backend reports it. */
+export interface ProviderUsage {
+  inputTokens: number;
+  outputTokens: number;
+}
+
 export type ProviderEvent =
   | { type: "delta"; text: string }
   | {
@@ -40,6 +46,8 @@ export type ProviderEvent =
       model: string;
       tier: DiagnosisTier;
       latency: DiagnosisLatency;
+      /** Present when the backend streamed usage back (cost tracing). */
+      usage?: ProviderUsage;
     };
 
 export interface DiagnosisProvider {
@@ -85,7 +93,7 @@ export class OpenRouterNotConfiguredError extends AiNotConfiguredError {
 
 const NL = String.fromCharCode(10);
 
-function logLatency(model: string, tier: DiagnosisTier, latency: DiagnosisLatency): void {
+export function logLatency(model: string, tier: DiagnosisTier, latency: DiagnosisLatency): void {
   console.info(
     JSON.stringify({
       event: "diagnosis_latency",
@@ -104,6 +112,9 @@ function logLatency(model: string, tier: DiagnosisTier, latency: DiagnosisLatenc
 interface AnthropicStreamEvent {
   type?: string;
   delta?: { type?: string; text?: string };
+  /** message_start carries the opening usage; message_delta the running output count. */
+  message?: { usage?: { input_tokens?: number; output_tokens?: number } };
+  usage?: { output_tokens?: number };
 }
 
 export class AnthropicStreamingProvider implements DiagnosisProvider {
@@ -139,6 +150,8 @@ export class AnthropicStreamingProvider implements DiagnosisProvider {
     const decoder = new TextDecoder();
     let buffer = "";
     let fullText = "";
+    let usageInput = 0;
+    let usageOutput = 0;
 
     const handleLine = function* (line: string): Generator<ProviderEvent> {
       const trimmed = line.trim();
@@ -150,6 +163,12 @@ export class AnthropicStreamingProvider implements DiagnosisProvider {
         event = JSON.parse(data) as AnthropicStreamEvent;
       } catch {
         return;
+      }
+      if (event.type === "message_start" && typeof event.message?.usage?.input_tokens === "number") {
+        usageInput = event.message.usage.input_tokens;
+      }
+      if (event.type === "message_delta" && typeof event.usage?.output_tokens === "number") {
+        usageOutput = event.usage.output_tokens;
       }
       if (
         event.type === "content_block_delta" &&
@@ -183,7 +202,16 @@ export class AnthropicStreamingProvider implements DiagnosisProvider {
     const match = fullText.match(/\{[\s\S]*\}/);
     if (!match) throw new Error("diagnosis_parse_failed");
     const report = parseReport(match[0]);
-    yield { type: "done", report, model: config.model, tier, latency };
+    yield {
+      type: "done",
+      report,
+      model: config.model,
+      tier,
+      latency,
+      ...(usageInput + usageOutput > 0
+        ? { usage: { inputTokens: usageInput, outputTokens: usageOutput } }
+        : {}),
+    };
   }
 }
 
@@ -215,6 +243,8 @@ interface OpenRouterStreamEvent {
       content?: string | Array<{ type?: string; text?: string }> | null;
     };
   }>;
+  /** Present on the final chunk when usage reporting is requested. */
+  usage?: { prompt_tokens?: number; completion_tokens?: number };
 }
 
 function openRouterDeltaText(event: OpenRouterStreamEvent): string {
@@ -251,6 +281,9 @@ export class OpenRouterProvider implements DiagnosisProvider {
         // Keep token ceilings in lockstep with the Anthropic tiers.
         max_tokens: config.maxTokens,
         stream: true,
+        // Ask OpenRouter to stream token usage back on the final chunk
+        // (its documented extension) so cost tracing gets real numbers.
+        usage: { include: true },
         messages: [{ role: "user", content: buildDiagnosisPrompt(req) }],
       }),
     });
@@ -263,6 +296,7 @@ export class OpenRouterProvider implements DiagnosisProvider {
     const decoder = new TextDecoder();
     let buffer = "";
     let fullText = "";
+    let usage: ProviderUsage | undefined;
 
     const handleLine = function* (line: string): Generator<ProviderEvent> {
       const trimmed = line.trim();
@@ -274,6 +308,15 @@ export class OpenRouterProvider implements DiagnosisProvider {
         event = JSON.parse(data) as OpenRouterStreamEvent;
       } catch {
         return;
+      }
+      if (
+        typeof event.usage?.prompt_tokens === "number" ||
+        typeof event.usage?.completion_tokens === "number"
+      ) {
+        usage = {
+          inputTokens: event.usage.prompt_tokens ?? 0,
+          outputTokens: event.usage.completion_tokens ?? 0,
+        };
       }
       const text = openRouterDeltaText(event);
       if (text.length > 0) {
@@ -303,7 +346,7 @@ export class OpenRouterProvider implements DiagnosisProvider {
     const match = fullText.match(/\{[\s\S]*\}/);
     if (!match) throw new Error("diagnosis_parse_failed");
     const report = parseReport(match[0]);
-    yield { type: "done", report, model, tier, latency };
+    yield { type: "done", report, model, tier, latency, ...(usage ? { usage } : {}) };
   }
 }
 

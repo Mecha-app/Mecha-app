@@ -8,7 +8,7 @@ import {
 } from "@/lib/server/diagnoseService";
 import { PayloadTooLargeError, apiError, readJsonBody } from "@/lib/server/http";
 import { AuthNotConfiguredError, bearerPayload, isAuthConfigured } from "@/lib/server/jwt";
-import { getDiagnosisProvider } from "@/lib/server/provider";
+import { getActiveDiagnosisProvider } from "@/lib/server/providerAiSdk";
 import { QuotaExhaustedError } from "@/lib/server/quota";
 import { getIdentityStore } from "@/lib/server/store";
 
@@ -120,7 +120,9 @@ export async function POST(request: Request) {
     const user = await store.findUserById(payload.id);
     if (!user) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
 
-    const provider = getDiagnosisProvider();
+    // AI_ENGINE=sdk (with AI_PROVIDER=openrouter) selects the Vercel AI
+    // SDK engine; every other configuration is the historical provider.
+    const provider = getActiveDiagnosisProvider();
     if (!provider) throw new AiNotConfiguredError();
 
     const req: DiagnosisRequest = {

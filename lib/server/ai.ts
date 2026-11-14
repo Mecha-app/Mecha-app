@@ -127,6 +127,13 @@ export function isAiConfigured(): boolean {
 // the non-streaming runner below and the WP5 streaming provider.
 // ---------------------------------------------------------------------------
 
+/**
+ * Prompt version tag, recorded on every Langfuse trace (lib/server/
+ * tracing.ts) so a weak answer can be tied to the exact prompt that
+ * produced it. BUMP THIS whenever buildDiagnosisPrompt changes.
+ */
+export const DIAGNOSIS_PROMPT_VERSION = "diagnosis-prompt-v1";
+
 export function buildDiagnosisPrompt(req: DiagnosisRequest): string {
   const language = (req.language ?? "en").trim();
   const langInstruction =
