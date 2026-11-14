@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useLocale } from "@/lib/i18n/LocaleProvider";
+import { authClient } from "@/lib/client/authClient";
 
 /**
  * Social sign-in block (social login package) — the big-brand options
@@ -14,6 +15,12 @@ import { useLocale } from "@/lib/i18n/LocaleProvider";
  * in an unwired environment the block is simply absent and the plain
  * form stands alone. No dead Apple button ships — Apple sign-in is
  * staged behind the owner's Apple Developer account.
+ *
+ * Since the Better Auth adoption (2026-11-06) the button starts the
+ * Better Auth social flow (authClient.signIn.social →
+ * /api/auth/callback/google → /auth/google/complete) whenever the
+ * Better Auth door is wired, and falls back to the legacy
+ * /api/auth/google/start link only while it is not.
  */
 
 function GoogleMark() {
@@ -41,15 +48,21 @@ function GoogleMark() {
 
 export function SocialSignIn() {
   const { t } = useLocale();
-  const [googleEnabled, setGoogleEnabled] = useState(false);
+  // "better-auth" — the Better Auth flow (AUTH DECISION 2026-11-06),
+  // preferred whenever its env is wired; "legacy" — the hand-rolled
+  // flow, kept as the fallback during staging; null — no Google door
+  // is wired in this environment and the block stays absent.
+  const [googleDoor, setGoogleDoor] = useState<"better-auth" | "legacy" | null>(null);
 
   useEffect(() => {
     let cancelled = false;
     (async () => {
       try {
         const res = await fetch("/api/auth/providers");
-        const data = (await res.json()) as { google?: boolean };
-        if (!cancelled && data.google === true) setGoogleEnabled(true);
+        const data = (await res.json()) as { google?: boolean; betterAuthGoogle?: boolean };
+        if (cancelled) return;
+        if (data.betterAuthGoogle === true) setGoogleDoor("better-auth");
+        else if (data.google === true) setGoogleDoor("legacy");
       } catch {
         // Providers unknown — the email form stands alone.
       }
@@ -59,17 +72,33 @@ export function SocialSignIn() {
     };
   }, []);
 
-  if (!googleEnabled) return null;
+  if (!googleDoor) return null;
+
+  const buttonClass =
+    "flex h-12 w-full items-center justify-center gap-3 rounded-full border border-line bg-white px-6 text-base font-semibold text-[#3c4043]";
 
   return (
     <div className="mt-8">
-      <a
-        href="/api/auth/google/start"
-        className="flex h-12 w-full items-center justify-center gap-3 rounded-full border border-line bg-white px-6 text-base font-semibold text-[#3c4043]"
-      >
-        <GoogleMark />
-        {t.auth.social.continueWithGoogle}
-      </a>
+      {googleDoor === "better-auth" ? (
+        <button
+          type="button"
+          className={buttonClass}
+          onClick={() => {
+            void authClient.signIn.social({
+              provider: "google",
+              callbackURL: "/auth/google/complete",
+            });
+          }}
+        >
+          <GoogleMark />
+          {t.auth.social.continueWithGoogle}
+        </button>
+      ) : (
+        <a href="/api/auth/google/start" className={buttonClass}>
+          <GoogleMark />
+          {t.auth.social.continueWithGoogle}
+        </a>
+      )}
       <div className="mt-6 flex items-center gap-4" aria-hidden="true">
         <span className="h-px flex-1 bg-line" />
         <span className="text-sm font-medium text-ink-3">{t.auth.social.or}</span>
