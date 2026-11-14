@@ -8,6 +8,17 @@
 executed until the cutover gate at the bottom is cleared by Frantz's explicit
 go. No deploys, no production env changes, no `main` changes.
 
+**UPDATE 2026-11-14 (finish-everything run):** the Supabase project now
+EXISTS — org **MECHA** (Free), project **mecha-production**, ref
+**qwgxtzjahayusqcsyplw**, URL https://qwgxtzjahayusqcsyplw.supabase.co,
+region us-east-1, status Healthy (dashboard-verified 2026-11-14 14:44 ET;
+created via GitHub sign-in as Mecha-app). Migration `0014_better_auth.sql`
+is pushed to this branch (sequence 0001→0014 complete in git), and the §4
+`db.ts` driver swap is DONE. What remains: the data transfer itself (§5A —
+browser lane, because it needs the vault-held DB password + the Neon
+connection string), the §6 parity pass on a Preview deployment, and the
+owner's cutover go (§7).
+
 ---
 
 ## 1. Audit — how the app wires its database today (verified 2026-11-14)
@@ -20,12 +31,11 @@ hard-coded host anywhere in `lib/`, `app/`, or `db/`.
 | `lib/server/store.ts` (`PgIdentityStore`) | `pg` Pool | `DATABASE_URL` | `getPool()` → `new Pool({ connectionString: process.env.DATABASE_URL })`. Standard Postgres wire protocol — works against Supabase unchanged. |
 | `lib/server/appStore.ts` (`PgAppStore`) | `pg` Pool | `DATABASE_URL` | Same pattern, own cached pool. Works against Supabase unchanged. |
 | `lib/server/betterAuth.ts` (staged tree; migration `0014_better_auth.sql`) | `pg` Pool | `DATABASE_URL` + `BETTER_AUTH_SECRET` / `BETTER_AUTH_URL` | Better Auth's user model IS the app `users` table; its own tables are `ba_account` / `ba_session` / `ba_verification`. Works against Supabase Postgres unchanged — see §2. |
-| `lib/server/db.ts` (waitlist only) | **`@neondatabase/serverless`** | `DATABASE_URL` | ⚠️ **The one exception.** `getSql()` returns `neon(url)` — Neon's HTTP driver talks to Neon's proxy endpoint and **cannot** connect to a Supabase database. This module needs the single code change in §4 before cutover. |
+| `lib/server/db.ts` (waitlist only) | `pg` Pool | `DATABASE_URL` | ✅ **Swapped 2026-11-14** (was `@neondatabase/serverless` — Neon's HTTP driver, which cannot connect to Supabase). `getSql()` still returns a tagged-template function, now translated to parameterized pg queries; `@neondatabase/serverless` removed from package.json. See §4. |
 
 Schema / migrations: `db/migrations/0001_foundation.sql` …
-`0013_code_signin_signup.sql` on this branch; `0014_better_auth.sql` exists in
-the staged local tree and **must be pushed to this branch before cutover** so
-the full sequence 0001→0014 is in git.
+`0014_better_auth.sql` — the full sequence 0001→0014 is on this branch
+(0014 arrived with the Better Auth package, pushed 2026-11-14).
 
 Other env vars (verified by sweep of `lib/`, `app/`, `db/`): `JWT_SECRET`,
 `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET`, `STRIPE_SECRET_KEY` /
@@ -34,9 +44,8 @@ Other env vars (verified by sweep of `lib/`, `app/`, `db/`): `JWT_SECRET`,
 change in this migration.
 
 **Conclusion:** the connection string is already fully env-driven in every
-module. No code change is made on this staging branch; the only code work is
-the `db.ts` driver swap in §4, deliberately left for the cutover sitting so it
-can be tested against the real Supabase project.
+module. The one code change the audit found — the `db.ts` driver swap — is
+done (§4); nothing else in the codebase needs to change for the move.
 
 ## 2. Auth decision (per plan P4)
 
@@ -50,25 +59,36 @@ wired in this migration.
 
 ## 3. Prerequisites (before any step below)
 
-- [ ] Supabase project created under the Mecha-app identity (GitHub login) —
-      handled by a separate browser task; this branch carries placeholders
-      only (`.env.supabase.example`).
-- [ ] Project ref, anon key, service role key, and DB password received via
-      the Secure Vault and recorded in `hidden_files/` (never in git).
-- [ ] `0014_better_auth.sql` pushed to this branch (migration sequence
+- [x] Supabase project created under the Mecha-app identity (GitHub login) —
+      2026-11-14: org MECHA, project mecha-production, ref
+      qwgxtzjahayusqcsyplw, us-east-1, Healthy. `.env.supabase.example`
+      carries the real (non-secret) project URL/ref.
+- [ ] Anon key, service role key, and DB password: they stay in the Secure
+      Vault / Supabase dashboard by design (never in git, never recorded in
+      workspace files). They are needed at exactly two moments: the data
+      transfer (§5A, DB password) and the cutover env wiring (§7, all three
+      + the DATABASE_URL string).
+- [x] `0014_better_auth.sql` pushed to this branch (migration sequence
       complete in git: 0001→0014).
 - [ ] A Preview deployment available for the parity pass (§6) — production is
       not touched during verification.
 
-## 4. The one code change (cutover sitting, tested against the real project)
+## 4. The one code change — ✅ DONE 2026-11-14 (finish-everything run)
 
-`lib/server/db.ts`: replace the Neon serverless driver with the same `pg`
-Pool pattern the other stores use, keeping the module's exported interface
-(`getSql` callers / waitlist functions) and its honest
-`DatabaseNotConfiguredError` behavior when `DATABASE_URL` is absent. Then
-remove `@neondatabase/serverless` from `package.json` if nothing else imports
-it (verified at the sitting by grep). Full test suite + typecheck + build
-must pass before the branch is promoted.
+`lib/server/db.ts` now runs on the standard `pg` Pool (same pattern as the
+other stores). The exported interface is unchanged — `getSql()` still
+returns a tagged-template function, implemented by translating the
+template into a parameterized query (`buildParameterizedQuery`, exported
+and unit-tested in `tests/db-pg.test.ts`); the honest
+`DatabaseNotConfiguredError` behavior when `DATABASE_URL` is absent is
+preserved and pinned by test; `timestamptz` values are normalized to ISO
+strings (pg returns Date objects where the Neon driver returned strings).
+`@neondatabase/serverless` was removed from `package.json` — a grep
+verified `db.ts` was its only importer. Verified with the full suite +
+typecheck + production build on the final tree (see STATUS.md for the
+run's numbers). One behavior note: the swap is verified by construction
+and unit tests here; its first live exercise against a real database is
+the §6 parity waitlist check, by design.
 
 ## 5. Data move — Neon → Supabase (pg_dump / restore)
 
@@ -102,6 +122,34 @@ data table-by-table. Record which path was used in STATUS.md.
 **Neon stays untouched and read-only-referenced during verification** — it is
 the rollback target (§7), so nothing is written to it or deleted from it
 until Frantz closes the migration.
+
+## 5A. Transfer execution — for the browser lane (no further prep needed)
+
+The transfer itself needs two secrets that never enter git, chat, or this
+workspace: the current Neon connection string and the Supabase DB password
+(both vault/dashboard-side). That is why this step runs through the browser
+lane. Everything else is prepared; execute exactly this:
+
+1. **Get the source string (Neon):** in the Vercel browser session
+   (mecha-app-7720 account) open the production project's Settings →
+   Environment Variables and copy the current Production `DATABASE_URL`
+   value into a local shell variable `NEON_DATABASE_URL`. Do not paste it
+   anywhere else.
+2. **Get the target password (Supabase):** the DB password the owner set at
+   project creation, from the Secure Vault. Compose the target string:
+   `postgresql://postgres:<DB_PASSWORD>@db.qwgxtzjahayusqcsyplw.supabase.co:5432/postgres`
+   into a shell variable `SUPABASE_DIRECT_URL`.
+3. **Dump + restore** with the §5 commands verbatim (`pg_dump` from
+   `$NEON_DATABASE_URL` with `--no-owner --no-privileges`; `psql
+   --single-transaction` into `$SUPABASE_DIRECT_URL`). Requires
+   pg_dump/psql v15+ on the executing machine.
+4. **0014:** production Neon does not have the Better Auth tables yet (0014
+   was never applied there), so after the restore apply
+   `db/migrations/0014_better_auth.sql` to Supabase ( §5 step 4). The §6
+   row-count parity for `ba_*` tables then reads "present on Supabase,
+   absent on Neon — expected."
+5. **Record the outcome** (which path was used, dump size, restore result)
+   in STATUS.md, then run the §6 parity pass on a Preview deployment.
 
 ## 6. Parity checklist (Preview deployment pointed at Supabase)
 
