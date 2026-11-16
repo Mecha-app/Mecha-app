@@ -36,5 +36,5 @@
     "typecheck": "tsc --noEmit",
     "test:e2e": "playwright test"
   },
-  "version": "0.4.23-home-reference"
+  "version": "0.4.24-home-length"
 }

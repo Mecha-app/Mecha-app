@@ -4,7 +4,12 @@
  * everything that we have, but at least the beginning — I like
  * some of this"; reference #2 followed and he directed: #1 stays
  * the base, take SOME of #2 into it — the steps treatment and the
- * blue closing band; "I don't want the rest").
+ * blue closing band; "I don't want the rest") + design pass #6
+ * (same day, owner on the live pass #5 page: "It looks way
+ * better… but I need you to add more stuff because it's too
+ * short… go on Audi, that website, just kind of like catch a
+ * couple more stuff and put it all the way down… I want more
+ * info").
  *
  * Pinned structure, top to bottom:
  *   - The page root scopes the COMPLETE light token set (the
@@ -27,6 +32,21 @@
  *     → /diagnose.
  *   - HomeSteps: #2's treatment — "Three simple steps." + three
  *     numbered steps, bold title + ONE short line each, on white.
+ *   - Pass #6 Audi-length sections (the shared HomeFeature shape:
+ *     one full-width visual, ONE headline, ONE short line, ONE
+ *     blue button — no text walls, no card grids):
+ *       HomeDiagnosis — mechanic loop; the hero primary itself
+ *         (label, /app/diagnose, account-first return-to).
+ *       HomeFairPrice — quote loop → /diagnose.
+ *       HomeScan — warning-light loop → /scan.
+ *       HomeVault — roadside loop → /register (the line states
+ *         the live NHTSA truth only).
+ *       HomeMarketplace — the generated car-for-sale photo
+ *         → /marketplace (the line states the shipped
+ *         guided-photo truth only).
+ *       HomePlans — the clean light pricing strip: the three
+ *         real plans, every string reused from the pricing
+ *         catalog, one button → /pricing.
  *   - HomeShops: pass #4's ONE full-screen visual, restyled light
  *     (lighter scrim, the blue button to /shops).
  *   - HomeCta: #2's blue closing band directly above the footer —
@@ -37,9 +57,9 @@
  *     shared Footer is NOT on home.
  *   - NOT taken from the references: #2's left-aligned hero and
  *     example-diagnosis card, #1's form card, possible-causes
- *     card, guidance meter, and card row. The stacked marketing
- *     sections stay OFF home; their components stay in the
- *     codebase and keep serving the other routes.
+ *     card, guidance meter, and card row. The old stacked
+ *     marketing components stay OFF home; their components stay
+ *     in the codebase and keep serving the other routes.
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
@@ -49,16 +69,29 @@ import { join } from "node:path";
 const root = process.cwd();
 const read = (rel: string) => readFileSync(join(root, rel), "utf8");
 
-test("homepage composition: header, hero, steps, shops visual, blue band, minimal footer — nothing else", () => {
+const SECTIONS = [
+  "<HomeHeader",
+  "<Hero",
+  "<HomeSteps",
+  "<HomeDiagnosis",
+  "<HomeFairPrice",
+  "<HomeScan",
+  "<HomeVault",
+  "<HomeMarketplace",
+  "<HomePlans",
+  "<HomeShops",
+  "<HomeCta",
+  "<HomeFooter",
+];
+
+test("homepage composition: header, hero, steps, the Audi-length sections, shops visual, blue band, minimal footer — nothing else", () => {
   const page = read("app/page.tsx");
-  for (const shell of ["<HomeHeader", "<Hero", "<HomeSteps", "<HomeShops", "<HomeCta", "<HomeFooter"]) {
+  for (const shell of SECTIONS) {
     assert.ok(page.includes(shell), `homepage renders ${shell}`);
   }
-  // Order is the layout: steps directly under the hero, the band
-  // directly above the footer.
-  const order = ["<HomeHeader", "<Hero", "<HomeSteps", "<HomeShops", "<HomeCta", "<HomeFooter"].map(
-    (s) => page.indexOf(s),
-  );
+  // Order is the layout: the pass #6 sections sit between the
+  // steps and the shops visual; the band directly above the footer.
+  const order = SECTIONS.map((s) => page.indexOf(s));
   assert.deepEqual(order, [...order].sort((a, b) => a - b), "sections render in the pinned order");
   for (const removed of [
     "<Header",
@@ -201,6 +234,85 @@ test("home steps: Three simple steps — three numbered steps, bold title + one 
   for (const icon of ["CarIcon", "DescribeIcon", "WrenchIcon"]) {
     assert.ok(steps.includes(icon), `step icon ${icon}`);
   }
+});
+
+test("home feature shape: one full-width visual, one headline, one line, one blue button", () => {
+  const feature = read("components/HomeFeature.tsx");
+  assert.ok(feature.includes("min-h-[100svh]"), "the section is one full screen");
+  assert.ok(feature.includes("<LoopClip name={loop} fill />"), "a loop can fill the screen");
+  assert.ok(feature.includes("src={image}"), "or a photo can fill the screen");
+  assert.ok(feature.includes("bg-[#2563eb]"), "the one button is the page's blue primary");
+  // The diagnosis primary carries the account-first gate behavior.
+  assert.ok(feature.includes("RETURN_TO_KEY"), "the gated button saves the return-to");
+  assert.ok(feature.includes("getToken()"), "the return-to is saved only when signed out");
+});
+
+test("home diagnosis: mechanic loop, the hero primary as its button", () => {
+  const s = read("components/HomeDiagnosis.tsx");
+  assert.ok(s.includes('loop="mechanic"'), "the diagnosis-shown-to-a-mechanic loop is the visual");
+  assert.ok(s.includes("t.hero.diagTitle") && s.includes("t.hero.diagLine"), "headline + one line from the catalog");
+  assert.ok(s.includes("t.hero.startFreeCta"), "the button label is Start a free diagnosis");
+  assert.ok(s.includes('href="/app/diagnose"'), "the button targets the diagnosis");
+  assert.ok(s.includes("gate"), "the button carries the account-first gate behavior");
+});
+
+test("home fair price: quote loop, one button to /diagnose", () => {
+  const s = read("components/HomeFairPrice.tsx");
+  assert.ok(s.includes('loop="quote"'), "the shop-counter quote loop is the visual");
+  assert.ok(s.includes("t.hero.fairTitle") && s.includes("t.hero.fairLine"), "headline + one line from the catalog");
+  assert.ok(s.includes("t.hero.fairCta"), "the button label is Check a repair price");
+  assert.ok(s.includes('href="/diagnose"'), "the button targets /diagnose");
+});
+
+test("home scan: warning-light loop, one button to /scan", () => {
+  const s = read("components/HomeScan.tsx");
+  assert.ok(s.includes('loop="diagnose"'), "the warning-light check loop is the visual");
+  assert.ok(s.includes("t.hero.scanTitle") && s.includes("t.hero.scanLine"), "headline + one line from the catalog");
+  assert.ok(s.includes("t.hero.tryScanCta"), "the button label is Try the scan");
+  assert.ok(s.includes('href="/scan"'), "the button targets /scan");
+});
+
+test("home vault: roadside loop, the NHTSA line, one button to /register", () => {
+  const s = read("components/HomeVault.tsx");
+  assert.ok(s.includes('loop="roadside"'), "the roadside loop is the visual");
+  assert.ok(s.includes("t.hero.vaultTitle") && s.includes("t.hero.vaultLine"), "headline + one line from the catalog");
+  assert.ok(s.includes("t.hero.vaultCta"), "the button label is Create your free account");
+  assert.ok(s.includes('href="/register"'), "the button targets create account — the vault lives inside one");
+});
+
+test("home marketplace: the generated listing photo, one button to /marketplace", () => {
+  const s = read("components/HomeMarketplace.tsx");
+  assert.ok(s.includes('image="/images/marketplace-car.jpg"'), "the generated car-for-sale photo is the visual");
+  assert.ok(existsSync(join(root, "public/images/marketplace-car.jpg")), "the photo ships as a local asset");
+  assert.ok(s.includes("t.hero.marketTitle") && s.includes("t.hero.marketLine"), "headline + one line from the catalog");
+  assert.ok(s.includes("t.hero.marketCta"), "the button label is Browse cars");
+  assert.ok(s.includes('href="/marketplace"'), "the button targets the marketplace");
+});
+
+test("home plans strip: the three real plans from the pricing catalog, one button to /pricing", () => {
+  const plans = read("components/HomePlans.tsx");
+  assert.ok(plans.includes("bg-surface"), "the strip sits on the white surface — not a photo section");
+  for (const key of [
+    "t.pricing.free.name",
+    "t.pricing.free.price",
+    "t.pricing.free.period",
+    "t.pricing.free.point1",
+    "t.pricing.pro.name",
+    "t.pricing.pro.price",
+    "t.pricing.pro.period",
+    "t.pricing.pro.point1",
+    "t.pricing.shops.name",
+    "t.pricing.shops.price",
+    "t.pricing.shops.period",
+    "t.pricing.shops.point1",
+  ]) {
+    assert.ok(plans.includes(key), `plan copy is reused from the pricing catalog: ${key}`);
+  }
+  // Reused, never restated: no price literal can drift from /pricing.
+  assert.ok(!plans.includes("$9.99") && !plans.includes("$149"), "no hardcoded prices in the strip");
+  assert.ok(plans.includes('href="/pricing"'), "the one button goes to /pricing");
+  assert.ok(plans.includes("t.hero.pricingCta"), "the button label is See pricing");
+  assert.ok(plans.includes("bg-[#2563eb]"), "the button is the page's blue primary");
 });
 
 test("home shops: one more full-screen visual, one line, one blue button to /shops", () => {

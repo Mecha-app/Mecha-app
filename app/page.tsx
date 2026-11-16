@@ -1,10 +1,16 @@
 import type { CSSProperties } from "react";
 import { Hero } from "@/components/Hero";
 import { HomeCta } from "@/components/HomeCta";
+import { HomeDiagnosis } from "@/components/HomeDiagnosis";
+import { HomeFairPrice } from "@/components/HomeFairPrice";
 import { HomeFooter } from "@/components/HomeFooter";
 import { HomeHeader } from "@/components/HomeHeader";
+import { HomeMarketplace } from "@/components/HomeMarketplace";
+import { HomePlans } from "@/components/HomePlans";
+import { HomeScan } from "@/components/HomeScan";
 import { HomeShops } from "@/components/HomeShops";
 import { HomeSteps } from "@/components/HomeSteps";
+import { HomeVault } from "@/components/HomeVault";
 
 /**
  * Route `/` — marketing home (blueprint §2.1, route 1).
@@ -90,6 +96,26 @@ import { HomeSteps } from "@/components/HomeSteps";
  * from the references: #2's left-aligned hero, its example-
  * diagnosis card, #1's form card / possible-causes card / guidance
  * meter / card row — restraint stays, per the owner.
+ * Design pass #6 (2026-11-16, owner, on the live pass #5 page:
+ * "It looks way better… but I need you to add more stuff because
+ * it's too short… go on Audi, that website, just kind of like
+ * catch a couple more stuff and put it all the way down… I want
+ * more info"): LENGTH, in the same restraint. Everything pass #5
+ * shipped stays, in its order; between the steps and the shops
+ * visual the page now runs the Audi rhythm — full-width visual
+ * sections stacked all the way down, each ONE headline, ONE short
+ * line, ONE button (the shared HomeFeature shape): Diagnosis (the
+ * mechanic loop; the hero primary itself as its button), Fair
+ * Price (the quote loop → /diagnose), Scan (the warning-light
+ * loop → /scan), Health Vault & Recalls (the roadside loop →
+ * /register; the line states the live NHTSA truth only), and
+ * Marketplace (a generated car-for-sale photo → /marketplace;
+ * the line states the shipped guided-photo truth only) — then a
+ * clean light pricing strip (HomePlans: the three real plans,
+ * every string reused from the pricing catalog) before the shops
+ * visual and the blue band close the page. No text walls, no
+ * card grids, no invented claims; new copy went through the
+ * catalog in all 13 locales.
  *
  * The light page is carried by LIGHT_SCOPE below: the COMPLETE
  * light token set (the exact values of the [data-theme="light"]
@@ -122,6 +148,12 @@ export default function HomePage() {
       <main>
         <Hero />
         <HomeSteps />
+        <HomeDiagnosis />
+        <HomeFairPrice />
+        <HomeScan />
+        <HomeVault />
+        <HomeMarketplace />
+        <HomePlans />
         <HomeShops />
         <HomeCta />
       </main>
