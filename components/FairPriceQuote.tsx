@@ -96,14 +96,16 @@ export function FairPriceQuote() {
             <h2 className="mt-4 text-balance font-display text-[clamp(2.1rem,4.5vw,3.25rem)] font-semibold leading-[1.08] tracking-[-0.02em] text-ink-1">
               {f.heading}
             </h2>
-            <p className="mt-5 text-[17px] leading-relaxed text-ink-2">{f.body}</p>
           </div>
         </Reveal>
 
-        <div className="mt-16 grid items-center gap-12 lg:mt-20 lg:grid-cols-2 lg:gap-16">
-        {/* The comparison card — the signature block itself, given the stage. */}
+        {/* The comparison card — the signature block itself, given the stage.
+            Design pass "Tesla" (2026-11-16): the click-to-play explainer
+            that sat beside the card is gone — the looping quote-check
+            clip in the InUse band under the hero shows the same moment
+            in a driver's hands, with no press-play step. */}
         <Reveal>
-        <div className="rounded-2xl border border-line bg-surface p-6 sm:p-8">
+        <div className="mx-auto mt-16 max-w-3xl rounded-2xl border border-line bg-surface p-6 sm:p-8 lg:mt-20">
           <div className="flex flex-wrap items-baseline justify-between gap-2">
             <h3 className="font-display text-xl font-medium text-ink-1">{f.jobLabel}</h3>
             <span className="rounded border border-line bg-inset px-2 py-1 text-[11px] font-medium uppercase tracking-eyebrow text-ink-3">
@@ -170,29 +172,10 @@ export function FairPriceQuote() {
               scale={TOTAL_SCALE}
               verdict="warn"
             />
-            <p className="mt-1 text-sm leading-relaxed text-ink-2">
-              <span className="font-semibold text-verdict-warn">{f.verdictWord}.</span>{" "}
-              {f.verdictText}
-            </p>
+            <p className="mt-1 text-sm font-semibold text-verdict-warn">{f.verdictWord}</p>
           </div>
         </div>
         </Reveal>
-
-        {/* The fair-price film — frameless beside the card, controls kept. */}
-        <Reveal delay={130}>
-          <figure className="overflow-hidden rounded-2xl border border-line">
-            <video
-              className="aspect-video w-full bg-black"
-              controls
-              preload="none"
-              poster="/videos/mecha-fair-price-poster.webp"
-              aria-label={f.eyebrow}
-            >
-              <source src="/videos/mecha-fair-price-explainer.mp4" type="video/mp4" />
-            </video>
-          </figure>
-        </Reveal>
-        </div>
       </div>
     </section>
   );

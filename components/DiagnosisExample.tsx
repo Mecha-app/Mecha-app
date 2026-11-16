@@ -30,7 +30,6 @@ export function DiagnosisExample() {
             <h2 className="mt-4 text-balance font-display text-[clamp(2.1rem,4.5vw,3.25rem)] font-semibold leading-[1.08] tracking-[-0.02em] text-ink-1">
               {r.heading}
             </h2>
-            <p className="mt-5 text-[17px] leading-relaxed text-ink-2">{r.body}</p>
           </div>
         </Reveal>
 
@@ -87,7 +86,6 @@ export function DiagnosisExample() {
                       {part.cost}
                     </p>
                   </div>
-                  <p className="mt-1 text-sm leading-relaxed text-ink-2">{part.desc}</p>
                 </div>
               ))}
             </div>

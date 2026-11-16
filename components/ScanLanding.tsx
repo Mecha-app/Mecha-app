@@ -29,7 +29,7 @@ function ModeBand({
 }: {
   kicker: string;
   heading: string;
-  body: string;
+  body?: string;
   steps: string[];
   children?: React.ReactNode;
 }) {
@@ -42,7 +42,9 @@ function ModeBand({
             <h2 className="mt-4 text-balance font-display text-[clamp(1.9rem,4vw,2.75rem)] font-semibold leading-[1.12] tracking-[-0.02em] text-ink-1">
               {heading}
             </h2>
-            <p className="mt-5 max-w-xl text-[17px] leading-relaxed text-ink-2">{body}</p>
+            {body ? (
+              <p className="mt-5 max-w-xl text-[17px] leading-relaxed text-ink-2">{body}</p>
+            ) : null}
             {children}
           </Reveal>
           <Reveal delay={120}>
@@ -83,7 +85,6 @@ export function ScanLanding() {
             <h1 className="mx-auto mt-5 max-w-3xl text-balance font-display text-[clamp(2.4rem,6vw,4rem)] font-semibold leading-[1.05] tracking-[-0.02em] text-ink-1">
               {s.heading}
             </h1>
-            <p className="mx-auto mt-6 max-w-2xl text-[17px] leading-relaxed text-ink-2">{s.sub}</p>
             <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
               <Link
                 href="/app/scan"
@@ -98,18 +99,14 @@ export function ScanLanding() {
                 {s.registerCta}
               </Link>
             </div>
-            <p className="mx-auto mt-5 max-w-xl text-sm leading-relaxed text-ink-3">
-              {s.accountNote}
-            </p>
           </Reveal>
         </div>
       </section>
 
-      <ModeBand kicker={s.vinKicker} heading={s.vinHeading} body={s.vinBody} steps={s.vinSteps} />
+      <ModeBand kicker={s.vinKicker} heading={s.vinHeading} steps={s.vinSteps} />
       <ModeBand
         kicker={s.photoKicker}
         heading={s.photoHeading}
-        body={s.photoBody}
         steps={s.photoSteps}
       >
         <div className="mt-7 rounded-2xl border border-line bg-inset px-5 py-4">
@@ -117,7 +114,7 @@ export function ScanLanding() {
           <p className="mt-1.5 text-sm leading-relaxed text-ink-2">{s.photoHonestBody}</p>
         </div>
       </ModeBand>
-      <ModeBand kicker={s.codeKicker} heading={s.codeHeading} body={s.codeBody} steps={s.codeSteps} />
+      <ModeBand kicker={s.codeKicker} heading={s.codeHeading} steps={s.codeSteps} />
 
       {/* QR-sticker band — for the person who scanned someone else's car. */}
       <section>
@@ -129,12 +126,6 @@ export function ScanLanding() {
             <h2 className="mx-auto mt-4 max-w-2xl text-balance font-display text-[clamp(1.9rem,4vw,2.75rem)] font-semibold leading-[1.12] tracking-[-0.02em] text-ink-1">
               {s.stickerHeading}
             </h2>
-            <p className="mx-auto mt-5 max-w-2xl text-[17px] leading-relaxed text-ink-2">
-              {s.stickerBody}
-            </p>
-            <p className="mx-auto mt-4 max-w-2xl text-[17px] leading-relaxed text-ink-2">
-              {s.stickerBody2}
-            </p>
             <div className="mt-9">
               <Link
                 href="/register"

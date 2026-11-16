@@ -6,6 +6,7 @@ import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
 import { Hero } from "@/components/Hero";
 import { HowItWorks } from "@/components/HowItWorks";
+import { InUse } from "@/components/InUse";
 import { Pricing } from "@/components/Pricing";
 import { FinalCta } from "@/components/FinalCta";
 
@@ -38,6 +39,14 @@ import { FinalCta } from "@/components/FinalCta";
  * total: 2,067 → 1,565 → ~1,014 rendered words. Cuts are composition-
  * level: no dictionary keys were removed, so all 13 locales keep
  * parity and the sections can return by recomposing this file.
+ * Design pass "Tesla" (2026-11-16, owner: "still a lot of text…
+ * show people using the product, like Tesla"): explanatory
+ * paragraphs removed across every section (hero sub, section bodies,
+ * step bodies, part descriptions, the pricing meter note, the
+ * finale body); directly under the hero sits InUse — a wordless
+ * band of three looping clips from MECHA's own films showing the
+ * product in drivers' hands. Composition-level again: the catalog
+ * is untouched, flows and features unchanged.
  */
 export default function HomePage() {
   return (
@@ -45,6 +54,7 @@ export default function HomePage() {
       <Header overlay />
       <main>
         <Hero />
+        <InUse />
         <DiagnosisExample />
         <FairPriceQuote />
         <HowItWorks />

@@ -113,7 +113,6 @@ export default function BusinessRegisterPage() {
         <h1 className="font-display text-3xl font-semibold tracking-[-0.01em] text-ink-1">
           {b.registerTitle}
         </h1>
-        <p className="mt-2 text-base leading-relaxed text-ink-2">{b.registerSub}</p>
 
         <div className="mt-6 grid grid-cols-2 gap-2" role="tablist" aria-label={b.registerTitle}>
           {(["shop", "towing"] as const).map((k) => (

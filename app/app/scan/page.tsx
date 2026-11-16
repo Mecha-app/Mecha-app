@@ -302,7 +302,6 @@ export default function ScanPage() {
         <h1 className="font-display text-3xl font-semibold tracking-[-0.01em] text-ink-1">
           {s.title}
         </h1>
-        <p className="mt-2 text-base leading-relaxed text-ink-2">{s.intro}</p>
 
         {me && (
           <div className="mt-5 rounded-2xl border border-line bg-surface px-4 py-3">

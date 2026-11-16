@@ -25,7 +25,6 @@ export function FinalCta() {
             <h2 className="mt-4 text-balance font-display text-[clamp(2.1rem,4.5vw,3.25rem)] font-semibold leading-[1.08] tracking-[-0.02em] text-ink-1">
               {f.heading}
             </h2>
-            <p className="mx-auto mt-5 max-w-xl text-[17px] leading-relaxed text-ink-2">{f.body}</p>
             <div className="mt-10">
               <Link
                 href="/register"
