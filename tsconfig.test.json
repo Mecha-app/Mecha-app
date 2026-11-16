@@ -1,0 +1,1 @@
+{"compilerOptions":{"incremental":false,"jsx":"react-jsx","module":"commonjs","moduleResolution":"node","noEmit":false,"outDir":"tests/.build","rootDir":".","types":["node"]},"exclude":["node_modules","lib/server/http.ts","tests/.build"],"extends":"./tsconfig.json","include":["lib/server/**/*.ts","tests/**/*.ts"]}

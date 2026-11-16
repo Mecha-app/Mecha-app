@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
+  <!-- The Gauge M — favicon export of components/Logo.tsx (DESIGN_SYSTEM §1.4).
+       Dark tile so the mark reads on any browser chrome; needle-V stops
+       short of the baseline; amber arc sweeps the top-right vertex. -->
+  <rect width="48" height="48" rx="9" fill="#0B0D10"/>
+  <g transform="translate(4.8 4.8) scale(0.8)">
+    <path d="M6 42 V10 L24 30 L42 10 V42" fill="none" stroke="#F2F4F7" stroke-width="8" stroke-linecap="square" stroke-linejoin="miter"/>
+    <path d="M33.6 3.4 A10 10 0 0 1 46.9 5.2" fill="none" stroke="#F5A524" stroke-width="4" stroke-linecap="round"/>
+  </g>
+</svg>

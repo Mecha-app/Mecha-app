@@ -1,0 +1,59 @@
+import { Businesses } from "@/components/Businesses";
+import { DiagnosisExample } from "@/components/DiagnosisExample";
+import { FairPriceQuote } from "@/components/FairPriceQuote";
+import { Faq } from "@/components/Faq";
+import { Footer } from "@/components/Footer";
+import { Header } from "@/components/Header";
+import { Hero } from "@/components/Hero";
+import { HowItWorks } from "@/components/HowItWorks";
+import { Pricing } from "@/components/Pricing";
+import { FinalCta } from "@/components/FinalCta";
+
+/**
+ * Route `/` — marketing home (blueprint §2.1, route 1).
+ * Design-elevation pass 1: the header floats over the full-viewport
+ * hero film; pillars, Fair Price, sign-up finale.
+ * Design pass 2 (2026-11-03, owner feedback: "not enough information…
+ * not really convincing"): the page now carries the full argument —
+ * what MECHA does (pillars, deepened with per-pillar detail), how a
+ * diagnosis actually runs (four steps + what every report includes),
+ * the report itself rendered as a labeled example, the nearby shops /
+ * towing network and marketplace, honest pricing with the free meter
+ * explained, and an FAQ that answers the real objections — before the
+ * sign-up finale. Substance in the same design system: section-per-
+ * idea rhythm, hairlines, no card clutter, no invented claims (§1.6).
+ * Copy pass 2026-11-09 (owner feedback: "too much text… more straight
+ * to the point"): copy tightened throughout the catalog, and the two
+ * product visuals — the example diagnosis and the fair-price quote
+ * check — now sit directly under the hero, before the pillars and the
+ * how-it-works explainer, so the offer lands in seconds.
+ * Copy pass round 2, same day (owner: "go further — cut whole
+ * sections"): the Pillars section is gone — Diagnose/Protect/Remember
+ * restated what the hero, the example diagnosis, and the quote check
+ * already show (the Health Vault survives in the pricing tier). How
+ * It Works keeps only its four steps; its "what every diagnosis
+ * includes" checklist duplicated the example report above it. The
+ * businesses band is now a one-line strip with links (the full story
+ * lives on /shops), and the FAQ keeps its top three questions. Page
+ * total: 2,067 → 1,565 → ~1,014 rendered words. Cuts are composition-
+ * level: no dictionary keys were removed, so all 13 locales keep
+ * parity and the sections can return by recomposing this file.
+ */
+export default function HomePage() {
+  return (
+    <>
+      <Header overlay />
+      <main>
+        <Hero />
+        <DiagnosisExample />
+        <FairPriceQuote />
+        <HowItWorks />
+        <Businesses />
+        <Pricing />
+        <Faq />
+        <FinalCta />
+      </main>
+      <Footer />
+    </>
+  );
+}
