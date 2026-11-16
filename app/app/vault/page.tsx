@@ -52,6 +52,25 @@ interface Recall {
   summary: string | null;
 }
 
+interface ComplaintsResult {
+  count: number;
+  topComponents: string[];
+  recent: { component: string | null; summary: string | null }[];
+}
+
+interface SafetyRatings {
+  vehicleDescription: string | null;
+  overall: number | null;
+  frontal: number | null;
+  side: number | null;
+  rollover: number | null;
+}
+
+function stars(rating: number | null): string {
+  if (rating === null) return "—";
+  return `${"★".repeat(rating)}${"☆".repeat(Math.max(0, 5 - rating))} ${rating}/5`;
+}
+
 const inputCls =
   "h-12 w-full rounded-xl border border-line bg-surface px-4 text-base text-ink-1 placeholder:text-ink-3";
 const labelCls = "block text-sm font-medium text-ink-2";
@@ -63,6 +82,8 @@ export default function VaultPage() {
   const [selected, setSelected] = useState<Vehicle | null>(null);
   const [diagnoses, setDiagnoses] = useState<Diagnosis[]>([]);
   const [recalls, setRecalls] = useState<Recall[] | null>(null);
+  const [complaints, setComplaints] = useState<ComplaintsResult | null>(null);
+  const [safetyRatings, setSafetyRatings] = useState<SafetyRatings | null>(null);
   const [recallsState, setRecallsState] = useState<"idle" | "working" | "done" | "failed">("idle");
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
@@ -102,6 +123,8 @@ export default function VaultPage() {
   async function openVehicle(vehicle: Vehicle) {
     setSelected(vehicle);
     setRecalls(null);
+    setComplaints(null);
+    setSafetyRatings(null);
     setRecallsState("idle");
     setNotice("");
     const res = await apiFetch<{ diagnoses: Diagnosis[] }>(`/api/vehicles/${vehicle.id}`);
@@ -180,12 +203,18 @@ export default function VaultPage() {
   async function onDecode() {
     if (!selected?.vin) return;
     setRecallsState("working");
-    const res = await apiFetch<{ recalls: Recall[] | null }>(`/api/vin/decode`, {
+    const res = await apiFetch<{
+      recalls: Recall[] | null;
+      complaints: ComplaintsResult | null;
+      safetyRatings: SafetyRatings | null;
+    }>(`/api/vin/decode`, {
       method: "POST",
       body: JSON.stringify({ vin: selected.vin }),
     });
     if (res.status === 200 && Array.isArray(res.data.recalls)) {
       setRecalls(res.data.recalls);
+      setComplaints(res.data.complaints);
+      setSafetyRatings(res.data.safetyRatings);
       setRecallsState("done");
     } else {
       setRecallsState("failed");
@@ -293,6 +322,51 @@ export default function VaultPage() {
                 )}
                 {recallsState === "failed" && (
                   <p className="mt-3 text-base text-ink-2">{v.recallsUnavailable}</p>
+                )}
+                {recallsState === "done" && safetyRatings && (
+                  <div className="mt-4">
+                    <h3 className="text-sm font-semibold uppercase tracking-eyebrow text-ink-2">
+                      {v.safetyTitle}
+                    </h3>
+                    <dl className="mt-2 flex flex-col gap-2 text-base">
+                      {(
+                        [
+                          [v.safetyOverall, safetyRatings.overall],
+                          [v.safetyFrontal, safetyRatings.frontal],
+                          [v.safetySide, safetyRatings.side],
+                          [v.safetyRollover, safetyRatings.rollover],
+                        ] as const
+                      )
+                        .filter(([, value]) => value !== null)
+                        .map(([label, value]) => (
+                          <div key={label} className="flex justify-between gap-4">
+                            <dt className="text-ink-3">{label}</dt>
+                            <dd className="text-ink-1">{stars(value)}</dd>
+                          </div>
+                        ))}
+                    </dl>
+                  </div>
+                )}
+                {recallsState === "done" && complaints && (
+                  <div className="mt-4">
+                    <h3 className="text-sm font-semibold uppercase tracking-eyebrow text-ink-2">
+                      {v.complaintsTitle}
+                    </h3>
+                    {complaints.count === 0 ? (
+                      <p className="mt-2 text-base text-ink-2">{v.noComplaints}</p>
+                    ) : (
+                      <>
+                        <p className="mt-2 text-base text-ink-2">
+                          {v.complaintsCount.replace("{count}", String(complaints.count))}
+                        </p>
+                        {complaints.topComponents.length > 0 && (
+                          <p className="mt-1 text-base text-ink-2">
+                            {v.complaintsTop.replace("{components}", complaints.topComponents.join(", "))}
+                          </p>
+                        )}
+                      </>
+                    )}
+                  </div>
                 )}
               </>
             )}

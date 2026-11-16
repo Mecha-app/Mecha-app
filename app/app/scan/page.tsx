@@ -58,11 +58,36 @@ interface VinDecodeResult {
   model: string | null;
   trim: string | null;
   engine: string | null;
+  bodyClass: string | null;
+  driveType: string | null;
+  transmission: string | null;
+  fuelType: string | null;
+  doors: string | null;
+  plant: string | null;
 }
 
 interface Recall {
   component: string | null;
   summary: string | null;
+}
+
+interface ComplaintsResult {
+  count: number;
+  topComponents: string[];
+  recent: { component: string | null; summary: string | null }[];
+}
+
+interface SafetyRatings {
+  vehicleDescription: string | null;
+  overall: number | null;
+  frontal: number | null;
+  side: number | null;
+  rollover: number | null;
+}
+
+function stars(rating: number | null): string {
+  if (rating === null) return "—";
+  return `${"★".repeat(rating)}${"☆".repeat(Math.max(0, 5 - rating))} ${rating}/5`;
 }
 
 interface PhotoResult {
@@ -109,6 +134,8 @@ export default function ScanPage() {
   const [decodeState, setDecodeState] = useState<"idle" | "working" | "done" | "failed">("idle");
   const [decoded, setDecoded] = useState<VinDecodeResult | null>(null);
   const [recalls, setRecalls] = useState<Recall[] | null>(null);
+  const [complaints, setComplaints] = useState<ComplaintsResult | null>(null);
+  const [safetyRatings, setSafetyRatings] = useState<SafetyRatings | null>(null);
   const [saveState, setSaveState] = useState<"idle" | "working" | "saved" | "failed" | "unwired">(
     "idle",
   );
@@ -165,15 +192,21 @@ export default function ScanPage() {
     const res = await apiFetch<{
       enrichment: VinDecodeResult | null;
       recalls: Recall[] | null;
+      complaints: ComplaintsResult | null;
+      safetyRatings: SafetyRatings | null;
     }>("/api/vin/decode", { method: "POST", body: JSON.stringify({ vin }) });
     if (res.status === 200 && res.data.enrichment) {
       setDecoded(res.data.enrichment);
       setRecalls(res.data.recalls);
+      setComplaints(res.data.complaints);
+      setSafetyRatings(res.data.safetyRatings);
       setSaveEngine(res.data.enrichment.engine ?? "");
       setDecodeState("done");
     } else {
       setDecoded(null);
       setRecalls(null);
+      setComplaints(null);
+      setSafetyRatings(null);
       setDecodeState("failed");
     }
   }
@@ -391,6 +424,23 @@ export default function ScanPage() {
                       <dd className="text-end text-ink-1">{decoded.engine}</dd>
                     </div>
                   )}
+                  {(
+                    [
+                      ["Body", decoded.bodyClass],
+                      ["Drivetrain", decoded.driveType],
+                      ["Transmission", decoded.transmission],
+                      ["Fuel", decoded.fuelType],
+                      ["Doors", decoded.doors],
+                      ["Plant", decoded.plant],
+                    ] as const
+                  )
+                    .filter(([, value]) => value)
+                    .map(([label, value]) => (
+                      <div key={label} className="flex justify-between gap-4">
+                        <dt className="text-ink-3">{label}</dt>
+                        <dd className="text-end text-ink-1">{value}</dd>
+                      </div>
+                    ))}
                 </dl>
 
                 <h3 className="mt-6 text-sm font-semibold uppercase tracking-eyebrow text-ink-2">
@@ -417,6 +467,72 @@ export default function ScanPage() {
                       </li>
                     ))}
                   </ul>
+                )}
+
+                {safetyRatings && (
+                  <>
+                    <h3 className="mt-6 text-sm font-semibold uppercase tracking-eyebrow text-ink-2">
+                      {s.safetyHeading}
+                    </h3>
+                    {safetyRatings.vehicleDescription && (
+                      <p className="mt-1 text-sm text-ink-3">{safetyRatings.vehicleDescription}</p>
+                    )}
+                    <dl className="mt-2 flex flex-col gap-2 text-base">
+                      {(
+                        [
+                          [s.safetyOverall, safetyRatings.overall],
+                          [s.safetyFrontal, safetyRatings.frontal],
+                          [s.safetySide, safetyRatings.side],
+                          [s.safetyRollover, safetyRatings.rollover],
+                        ] as const
+                      )
+                        .filter(([, value]) => value !== null)
+                        .map(([label, value]) => (
+                          <div key={label} className="flex justify-between gap-4">
+                            <dt className="text-ink-3">{label}</dt>
+                            <dd className="text-ink-1">{stars(value)}</dd>
+                          </div>
+                        ))}
+                    </dl>
+                  </>
+                )}
+
+                {complaints && (
+                  <>
+                    <h3 className="mt-6 text-sm font-semibold uppercase tracking-eyebrow text-ink-2">
+                      {s.complaintsHeading}
+                    </h3>
+                    {complaints.count === 0 ? (
+                      <p className="mt-2 text-base leading-relaxed text-ink-2">{s.complaintsNone}</p>
+                    ) : (
+                      <>
+                        <p className="mt-2 text-base leading-relaxed text-ink-2">
+                          {s.complaintsCount.replace("{count}", String(complaints.count))}
+                        </p>
+                        {complaints.topComponents.length > 0 && (
+                          <p className="mt-1 text-base leading-relaxed text-ink-2">
+                            {s.complaintsTop.replace("{components}", complaints.topComponents.join(", "))}
+                          </p>
+                        )}
+                        {complaints.recent.length > 0 && (
+                          <ul className="mt-2 flex flex-col gap-3">
+                            {complaints.recent.slice(0, 2).map((complaint, i) => (
+                              <li key={i} className="rounded-xl bg-inset px-4 py-3">
+                                {complaint.component && (
+                                  <p className="text-base font-semibold text-ink-1">{complaint.component}</p>
+                                )}
+                                {complaint.summary && (
+                                  <p className="mt-1 text-sm leading-relaxed text-ink-2">
+                                    {complaint.summary}
+                                  </p>
+                                )}
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                      </>
+                    )}
+                  </>
                 )}
 
                 <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { apiError, readJsonBody } from "@/lib/server/http";
-import { decodeVin, fetchRecalls } from "@/lib/server/nhtsa";
+import { decodeVin, fetchComplaints, fetchRecalls, fetchSafetyRatings } from "@/lib/server/nhtsa";
 import { requireAuth } from "@/lib/server/routeAuth";
 import { ValidationError } from "@/lib/server/authService";
 import { normalizeVin } from "@/lib/server/vehicleService";
@@ -10,9 +10,12 @@ export const dynamic = "force-dynamic";
 
 /**
  * POST /api/vin/decode — VIN enrichment (FEATURE_RESEARCH #1): decode
- * the VIN through NHTSA vPIC and attach the model's open recalls,
- * both fetched server-side from the free government APIs. When NHTSA
- * is unreachable the response says so (`enrichment: null`) — the VIN
+ * the VIN through NHTSA vPIC and attach the model's NHTSA record —
+ * open recalls, owner complaints, and crash-test safety ratings —
+ * all fetched server-side from the free government APIs. Everything
+ * attached is reference data about the model, never a diagnosis of
+ * this car. When NHTSA is unreachable the response says so
+ * (`enrichment: null`) — the VIN
  * itself was still validated locally, and nothing is invented.
  */
 export async function POST(request: Request) {
@@ -38,17 +41,26 @@ export async function POST(request: Request) {
       vin,
       enrichment: null,
       recalls: null,
+      complaints: null,
+      safetyRatings: null,
       detail: "The national vehicle database didn't answer just now — your VIN is saved as entered.",
     });
   }
-  const recalls =
+  const vehicle =
     decoded.make && decoded.model && decoded.year
-      ? await fetchRecalls({ make: decoded.make, model: decoded.model, year: decoded.year })
+      ? { make: decoded.make, model: decoded.model, year: decoded.year }
       : null;
+  // Independent lookups, each degrading to null on its own — one
+  // slow NHTSA service never takes the others down with it.
+  const [recalls, complaints, safetyRatings] = vehicle
+    ? await Promise.all([fetchRecalls(vehicle), fetchComplaints(vehicle), fetchSafetyRatings(vehicle)])
+    : [null, null, null];
   return NextResponse.json({
     status: "ok",
     vin,
     enrichment: decoded,
     recalls,
+    complaints,
+    safetyRatings,
   });
 }

@@ -36,5 +36,5 @@
     "typecheck": "tsc --noEmit",
     "test:e2e": "playwright test"
   },
-  "version": "0.4.19-tool-stack"
+  "version": "0.4.20-nhtsa-data"
 }
