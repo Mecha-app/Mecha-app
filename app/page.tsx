@@ -5,6 +5,7 @@ import { Faq } from "@/components/Faq";
 import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
 import { Hero } from "@/components/Hero";
+import { HeroFilm } from "@/components/HeroFilm";
 import { HowItWorks } from "@/components/HowItWorks";
 import { InUse } from "@/components/InUse";
 import { Pricing } from "@/components/Pricing";
@@ -47,6 +48,14 @@ import { FinalCta } from "@/components/FinalCta";
  * band of three looping clips from MECHA's own films showing the
  * product in drivers' hands. Composition-level again: the catalog
  * is untouched, flows and features unchanged.
+ * Design pass "Hero" (2026-11-16, owner: "the hero is still text +
+ * buttons… put females in the GIFs"): the hero is now a
+ * full-viewport looping clip of a woman running a diagnosis in the
+ * app, headline and actions over it (Tesla pattern); the dialogue
+ * film moved to its own section (HeroFilm) directly underneath,
+ * click-to-play as before; the InUse band's first loop is a woman
+ * reading a recall alert beside her car. Media-level only — no
+ * flow, feature, or catalog change.
  */
 export default function HomePage() {
   return (
@@ -54,6 +63,7 @@ export default function HomePage() {
       <Header overlay />
       <main>
         <Hero />
+        <HeroFilm />
         <InUse />
         <DiagnosisExample />
         <FairPriceQuote />
