@@ -16,6 +16,8 @@ const tr: DeepPartial<Dictionary> = {
     navShops: "Servisler için",
     signIn: "Giriş yap",
     createAccount: "Hesap oluştur",
+    getStarted: "Başlayın",
+    openApp: "Uygulamayı aç",
     themeToggleLabel: "Açık ve koyu tema arasında geçiş yap",
     languageLabel: "Dil",
     logoHomeLabel: "MECHA — ana sayfa",
@@ -29,6 +31,9 @@ const tr: DeepPartial<Dictionary> = {
     scanCta: "Aracınızı tarayın",
     watchCta: "Nasıl çalıştığını izle",
     filmFairPrice: "Adil fiyat kontrolünü izle",
+    runCta: "Teşhis başlatın",
+    pricingCta: "Fiyatları görün",
+    shopsLine: "Tamir atölyeleri için.",
     points: {
       noHardware: "Alınacak donanım yok — telefonunuz tarayıcınızdır",
       plainLanguage: "Sade dil, sizin dilinizde",

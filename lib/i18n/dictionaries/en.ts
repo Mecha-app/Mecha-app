@@ -19,6 +19,8 @@ const en = {
     navShops: "For Shops",
     signIn: "Sign in",
     createAccount: "Create account",
+    getStarted: "Get started",
+    openApp: "Open app",
     themeToggleLabel: "Switch between light and dark theme",
     languageLabel: "Language",
     logoHomeLabel: "MECHA — home",
@@ -32,6 +34,9 @@ const en = {
     scanCta: "Scan your car",
     watchCta: "Watch how it works",
     filmFairPrice: "See the fair-price check",
+    runCta: "Run a diagnosis",
+    pricingCta: "See pricing",
+    shopsLine: "For repair shops.",
     points: {
       noHardware: "No hardware to buy — your phone is the scanner",
       plainLanguage: "Plain language, in your language",

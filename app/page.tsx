@@ -1,15 +1,7 @@
-import { Businesses } from "@/components/Businesses";
-import { DiagnosisExample } from "@/components/DiagnosisExample";
-import { FairPriceQuote } from "@/components/FairPriceQuote";
-import { Faq } from "@/components/Faq";
-import { Footer } from "@/components/Footer";
-import { Header } from "@/components/Header";
 import { Hero } from "@/components/Hero";
-import { HeroFilm } from "@/components/HeroFilm";
-import { HowItWorks } from "@/components/HowItWorks";
-import { InUse } from "@/components/InUse";
-import { Pricing } from "@/components/Pricing";
-import { FinalCta } from "@/components/FinalCta";
+import { HomeFooter } from "@/components/HomeFooter";
+import { HomeHeader } from "@/components/HomeHeader";
+import { HomeShops } from "@/components/HomeShops";
 
 /**
  * Route `/` — marketing home (blueprint §2.1, route 1).
@@ -56,24 +48,33 @@ import { FinalCta } from "@/components/FinalCta";
  * click-to-play as before; the InUse band's first loop is a woman
  * reading a recall alert beside her car. Media-level only — no
  * flow, feature, or catalog change.
+ * Design pass "One Screen" (2026-11-16, owner: "page feels
+ * polished because the layout is restrained: a simple header, one
+ * striking full-screen image/video, a short headline, and clear
+ * buttons"): the stacked sections are OFF the homepage. What
+ * remains is the slim HomeHeader floating over the hero, the hero
+ * itself (the loop, the brand line, exactly two buttons — Run a
+ * diagnosis / See pricing), ONE more full-screen visual
+ * (HomeShops: the recall-alert loop, one line, one button to
+ * /shops), and the minimal HomeFooter. Everything removed still
+ * lives where it belongs: the spoken-dialogue film stays in the
+ * codebase (HeroFilm, off home), and the diagnosis example, fair
+ * price, how-it-works, businesses, pricing, and FAQ components
+ * keep serving the /diagnose, /pricing, and /shops routes. The
+ * shared Header/Footer are untouched and keep serving every
+ * other page. New catalog keys only where the spec names the
+ * label (header.getStarted/openApp, hero.runCta/pricingCta/
+ * shopsLine), translated across all 13 locales.
  */
 export default function HomePage() {
   return (
     <>
-      <Header overlay />
+      <HomeHeader />
       <main>
         <Hero />
-        <HeroFilm />
-        <InUse />
-        <DiagnosisExample />
-        <FairPriceQuote />
-        <HowItWorks />
-        <Businesses />
-        <Pricing />
-        <Faq />
-        <FinalCta />
+        <HomeShops />
       </main>
-      <Footer />
+      <HomeFooter />
     </>
   );
 }

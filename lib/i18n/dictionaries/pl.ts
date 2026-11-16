@@ -16,6 +16,8 @@ const pl: DeepPartial<Dictionary> = {
     navShops: "Dla warsztatów",
     signIn: "Zaloguj się",
     createAccount: "Załóż konto",
+    getStarted: "Rozpocznij",
+    openApp: "Otwórz aplikację",
     themeToggleLabel: "Przełącz między jasnym a ciemnym motywem",
     languageLabel: "Język",
     logoHomeLabel: "MECHA — strona główna",
@@ -29,6 +31,9 @@ const pl: DeepPartial<Dictionary> = {
     scanCta: "Zeskanuj swoje auto",
     watchCta: "Zobacz, jak to działa",
     filmFairPrice: "Zobacz kontrolę uczciwej ceny",
+    runCta: "Uruchom diagnostykę",
+    pricingCta: "Zobacz cennik",
+    shopsLine: "Dla warsztatów.",
     points: {
       noHardware: "Bez sprzętu do kupowania — twój telefon jest skanerem",
       plainLanguage: "Prosty język, w twoim języku",

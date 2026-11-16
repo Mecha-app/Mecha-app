@@ -16,6 +16,8 @@ const he: DeepPartial<Dictionary> = {
     navShops: "למוסכים",
     signIn: "התחברות",
     createAccount: "צור חשבון",
+    getStarted: "התחילו",
+    openApp: "פתחו את האפליקציה",
     themeToggleLabel: "מעבר בין תצוגה בהירה לכהה",
     languageLabel: "שפה",
     logoHomeLabel: "MECHA — דף הבית",
@@ -29,6 +31,9 @@ const he: DeepPartial<Dictionary> = {
     scanCta: "סרוק את הרכב",
     watchCta: "צפה איך זה עובד",
     filmFairPrice: "צפה בבדיקת המחיר ההוגן",
+    runCta: "הפעילו אבחון",
+    pricingCta: "צפייה במחירים",
+    shopsLine: "למוסכים.",
     points: {
       noHardware: "אין חומרה לקנות — הטלפון שלך הוא הסורק",
       plainLanguage: "שפה פשוטה, בשפה שלך",

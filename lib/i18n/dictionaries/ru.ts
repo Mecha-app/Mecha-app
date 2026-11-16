@@ -16,6 +16,8 @@ const ru: DeepPartial<Dictionary> = {
     navShops: "Для сервисов",
     signIn: "Войти",
     createAccount: "Создать аккаунт",
+    getStarted: "Начать",
+    openApp: "Открыть приложение",
     themeToggleLabel: "Переключить светлую и темную тему",
     languageLabel: "Язык",
     logoHomeLabel: "MECHA — на главную",
@@ -29,6 +31,9 @@ const ru: DeepPartial<Dictionary> = {
     scanCta: "Сканировать автомобиль",
     watchCta: "Как это работает",
     filmFairPrice: "Смотреть проверку справедливой цены",
+    runCta: "Запустить диагностику",
+    pricingCta: "Смотреть цены",
+    shopsLine: "Для автосервисов.",
     points: {
       noHardware: "Не нужно покупать оборудование — ваш телефон и есть сканер",
       plainLanguage: "Простой язык, на вашем языке",

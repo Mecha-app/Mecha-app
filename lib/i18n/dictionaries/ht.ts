@@ -15,6 +15,8 @@ const ht: DeepPartial<Dictionary> = {
     navShops: "Pou atelye yo",
     signIn: "Konekte",
     createAccount: "Kreye yon kont",
+    getStarted: "Kòmanse",
+    openApp: "Ouvri app a",
     themeToggleLabel: "Chanje ant tèm klè ak tèm fènwa",
     languageLabel: "Lang",
     logoHomeLabel: "MECHA — akèy",
@@ -28,6 +30,9 @@ const ht: DeepPartial<Dictionary> = {
     scanCta: "Eskane machin ou",
     watchCta: "Gade kijan li mache",
     filmFairPrice: "Gade verifikasyon pri jis la",
+    runCta: "Fè yon dyagnostik",
+    pricingCta: "Gade pri yo",
+    shopsLine: "Pou atelye reparasyon yo.",
     points: {
       noHardware: "Ou pa bezwen achte okenn aparèy — telefòn ou se eskanè a",
       plainLanguage: "Langaj senp, nan lang ou",

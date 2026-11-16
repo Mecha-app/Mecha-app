@@ -16,6 +16,8 @@ const uk: DeepPartial<Dictionary> = {
     navShops: "Для сервісів",
     signIn: "Увійти",
     createAccount: "Створити акаунт",
+    getStarted: "Почати",
+    openApp: "Відкрити застосунок",
     themeToggleLabel: "Перемкнути світлу й темну тему",
     languageLabel: "Мова",
     logoHomeLabel: "MECHA — на головну",
@@ -29,6 +31,9 @@ const uk: DeepPartial<Dictionary> = {
     scanCta: "Сканувати автомобіль",
     watchCta: "Як це працює",
     filmFairPrice: "Дивитися перевірку справедливої ціни",
+    runCta: "Запустити діагностику",
+    pricingCta: "Дивитися ціни",
+    shopsLine: "Для автосервісів.",
     points: {
       noHardware: "Не треба купувати обладнання — ваш телефон і є сканер",
       plainLanguage: "Проста мова, вашою мовою",

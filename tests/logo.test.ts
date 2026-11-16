@@ -6,6 +6,9 @@
  *
  *   - marketing/public pages render <Header> (or <LegalShell>, which
  *     renders <Header>): logo lockup → "/" with a ≥48px tap target;
+ *   - the homepage renders its own slim <HomeHeader> (design pass
+ *     "One Screen", 2026-11-16): same logo contract — lockup → "/"
+ *     with a ≥48px tap target and the dictionary accessible name;
  *   - auth + standalone flow pages render <MinimalTopBar>:
  *     logo lockup → "/";
  *   - the business auth pages borrow <AppNav> but pass logoHref="/"
@@ -35,9 +38,12 @@ function walk(dir: string, suffix: string): string[] {
   return out;
 }
 
-type ShellKind = "header" | "appNav" | "minimalBar" | "businessAuth";
+type ShellKind = "header" | "homeHeader" | "appNav" | "minimalBar" | "businessAuth";
 
 function classify(route: string): ShellKind {
+  // The homepage carries its own slim header (design pass "One
+  // Screen", 2026-11-16) — same logo contract, different shell.
+  if (route === "/") return "homeHeader";
   // /app/complete-profile is an auth-flow page (the Google sign-in
   // completion step) despite living under /app — the owner's spec
   // lists it with the auth pages: its logo returns to "/".
@@ -80,6 +86,11 @@ test("logo inventory: every route renders a shell whose logo links to its main p
       assert.ok(
         source.includes("<Header") || source.includes("<LegalShell"),
         `${route} must render <Header> (or <LegalShell>, which renders it) — the logo home link`,
+      );
+    } else if (kind === "homeHeader") {
+      assert.ok(
+        source.includes("<HomeHeader"),
+        `${route} must render <HomeHeader> — the logo home link`,
       );
     } else if (kind === "appNav") {
       assert.ok(source.includes("<AppNav"), `${route} must render <AppNav> — the logo home link`);
@@ -126,6 +137,7 @@ test("logo inventory: every route renders a shell whose logo links to its main p
 test("logo link contracts: target, tap size, accessible name, theme-token mark", () => {
   const root = process.cwd();
   const header = readFileSync(join(root, "components/Header.tsx"), "utf8");
+  const homeHeader = readFileSync(join(root, "components/HomeHeader.tsx"), "utf8");
   const appNav = readFileSync(join(root, "components/AppNav.tsx"), "utf8");
   const bar = readFileSync(join(root, "components/MinimalTopBar.tsx"), "utf8");
   const legal = readFileSync(join(root, "components/Legal.tsx"), "utf8");
@@ -139,6 +151,16 @@ test("logo link contracts: target, tap size, accessible name, theme-token mark",
   assert.ok(
     header.includes("t.header.logoHomeLabel"),
     "Header logo accessible name comes from the dictionary",
+  );
+
+  // HomeHeader (homepage shell): the same logo contract as Header —
+  // lockup → "/", ≥48px tap target, dictionary accessible name.
+  assert.ok(homeHeader.includes('href="/"'), "HomeHeader logo must link to /");
+  assert.ok(homeHeader.includes("min-h-[48px]"), "HomeHeader logo link must be a ≥48px tap target");
+  assert.ok(homeHeader.includes("<LogoLockup"), "HomeHeader must render the logo lockup");
+  assert.ok(
+    homeHeader.includes("t.header.logoHomeLabel"),
+    "HomeHeader logo accessible name comes from the dictionary",
   );
 
   // AppNav (app shell): logo targets the logoHref prop, defaulting to

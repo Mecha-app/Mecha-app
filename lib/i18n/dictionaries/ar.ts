@@ -16,6 +16,8 @@ const ar: DeepPartial<Dictionary> = {
     navShops: "للورشات",
     signIn: "تسجيل الدخول",
     createAccount: "إنشاء حساب",
+    getStarted: "ابدأ الآن",
+    openApp: "افتح التطبيق",
     themeToggleLabel: "التبديل بين المظهر الفاتح والداكن",
     languageLabel: "اللغة",
     logoHomeLabel: "MECHA — الصفحة الرئيسية",
@@ -29,6 +31,9 @@ const ar: DeepPartial<Dictionary> = {
     scanCta: "امسح سيارتك",
     watchCta: "شاهد كيف يعمل",
     filmFairPrice: "شاهد فحص السعر العادل",
+    runCta: "ابدأ التشخيص",
+    pricingCta: "عرض الأسعار",
+    shopsLine: "لورش الإصلاح.",
     points: {
       noHardware: "لا عتاد تشتريه — هاتفك هو الماسح",
       plainLanguage: "لغة بسيطة، بلغتك",
