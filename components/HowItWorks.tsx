@@ -21,10 +21,10 @@ export function HowItWorks() {
   const h = t.howItWorks;
 
   const steps = [
-    { n: "01", title: h.steps.describe.title, body: h.steps.describe.body },
-    { n: "02", title: h.steps.ranked.title, body: h.steps.ranked.body },
-    { n: "03", title: h.steps.severity.title, body: h.steps.severity.body },
-    { n: "04", title: h.steps.price.title, body: h.steps.price.body },
+    { n: "01", title: h.steps.describe.title },
+    { n: "02", title: h.steps.ranked.title },
+    { n: "03", title: h.steps.severity.title },
+    { n: "04", title: h.steps.price.title },
   ];
 
   return (
@@ -36,7 +36,6 @@ export function HowItWorks() {
             <h2 className="mt-4 text-balance font-display text-[clamp(2.1rem,4.5vw,3.25rem)] font-semibold leading-[1.08] tracking-[-0.02em] text-ink-1">
               {h.heading}
             </h2>
-            <p className="mt-5 text-[17px] leading-relaxed text-ink-2">{h.body}</p>
           </div>
         </Reveal>
 
@@ -50,7 +49,6 @@ export function HowItWorks() {
                 <h3 className="mt-5 font-display text-xl font-medium leading-snug text-ink-1">
                   {s.title}
                 </h3>
-                <p className="mt-3 text-[15px] leading-relaxed text-ink-2">{s.body}</p>
               </article>
             </Reveal>
           ))}

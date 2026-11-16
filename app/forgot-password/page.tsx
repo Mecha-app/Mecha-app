@@ -63,9 +63,7 @@ export default function ForgotPasswordPage() {
           Forgot your password?
         </h1>
         <p className="mt-3 text-base leading-relaxed text-ink-2">
-          Enter the email address or phone number on your account. We will email a 6-digit
-          reset code to the address on file — the code always goes to your email, even when
-          you start with your phone number.
+          Enter your email or phone — the reset code goes to your email.
         </p>
 
         {state === "sent" ? (

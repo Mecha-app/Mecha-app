@@ -239,7 +239,6 @@ export default function VaultPage() {
         <h1 className="font-display text-3xl font-semibold tracking-[-0.01em] text-ink-1">
           {v.title}
         </h1>
-        <p className="mt-1 text-base text-ink-2">{v.subtitle}</p>
 
         {vehicles.length > 0 && (
           <ul className="mt-6 flex flex-col gap-2">

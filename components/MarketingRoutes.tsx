@@ -71,7 +71,7 @@ function PageHero({
 }: {
   eyebrow: string;
   heading: string;
-  body: string;
+  body?: string;
   children: ReactNode;
 }) {
   return (
@@ -82,7 +82,9 @@ function PageHero({
           <h1 className="mx-auto mt-5 max-w-3xl text-balance font-display text-[clamp(2.4rem,6vw,4rem)] font-semibold leading-[1.05] tracking-[-0.02em] text-ink-1">
             {heading}
           </h1>
-          <p className="mx-auto mt-6 max-w-2xl text-[17px] leading-relaxed text-ink-2">{body}</p>
+          {body ? (
+            <p className="mx-auto mt-6 max-w-2xl text-[17px] leading-relaxed text-ink-2">{body}</p>
+          ) : null}
           <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
             {children}
           </div>
@@ -158,7 +160,7 @@ function FinalCta({
 }: {
   eyebrow: string;
   heading: string;
-  body: string;
+  body?: string;
   children: ReactNode;
 }) {
   return (
@@ -169,7 +171,9 @@ function FinalCta({
           <h2 className="mx-auto mt-4 max-w-2xl text-balance font-display text-[clamp(2.1rem,4.5vw,3.25rem)] font-semibold leading-[1.08] tracking-[-0.02em] text-ink-1">
             {heading}
           </h2>
-          <p className="mx-auto mt-5 max-w-2xl text-[17px] leading-relaxed text-ink-2">{body}</p>
+          {body ? (
+            <p className="mx-auto mt-5 max-w-2xl text-[17px] leading-relaxed text-ink-2">{body}</p>
+          ) : null}
           <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
             {children}
           </div>
@@ -202,17 +206,14 @@ export function DiagnosePageContent() {
 
   return (
     <>
-      <PageHero eyebrow={d.eyebrow} heading={d.heading} body={d.sub}>
+      <PageHero eyebrow={d.eyebrow} heading={d.heading}>
         <PrimaryLink href="/app/diagnose">{d.primaryCta}</PrimaryLink>
         <SecondaryLink href="/scan">{d.scanCta}</SecondaryLink>
       </PageHero>
-      <p className="mx-auto -mt-10 max-w-2xl px-4 pb-16 text-center text-sm leading-relaxed text-ink-3 sm:px-6">
-        {d.accountNote}
-      </p>
 
       <section>
         <div className="mx-auto max-w-6xl px-4 py-24 sm:px-6 lg:py-36">
-          <SectionHeader eyebrow={d.modes.eyebrow} heading={d.modes.heading} body={d.modes.body} />
+          <SectionHeader eyebrow={d.modes.eyebrow} heading={d.modes.heading} />
           <div className="mt-16 grid gap-12 lg:grid-cols-3 lg:gap-10">
             {modes.map((mode, i) => (
               <Reveal key={mode.title} delay={i * 100} className="h-full">
@@ -223,9 +224,6 @@ export function DiagnosePageContent() {
                   <h3 className="mt-4 font-display text-2xl font-medium leading-tight text-ink-1">
                     {mode.title}
                   </h3>
-                  <p className="mt-4 leading-relaxed text-ink-2">{mode.body}</p>
-                  <p className="mt-4 leading-relaxed text-ink-2">{mode.detail}</p>
-                  <BulletList points={[mode.point1, mode.point2, mode.point3]} />
                   <Link
                     href={mode.href}
                     className="mt-7 inline-flex min-h-12 items-center font-medium text-accent transition-colors hover:text-accent-bright"
@@ -243,7 +241,7 @@ export function DiagnosePageContent() {
 
       <section>
         <div className="mx-auto max-w-6xl px-4 py-24 sm:px-6 lg:py-36">
-          <SectionHeader eyebrow={d.report.eyebrow} heading={d.report.heading} body={d.report.body} />
+          <SectionHeader eyebrow={d.report.eyebrow} heading={d.report.heading} />
           <div className="mt-16 grid gap-x-10 gap-y-12 sm:grid-cols-2 lg:grid-cols-4">
             {reportItems.map((item, i) => (
               <Reveal key={item.title} delay={(i % 4) * 80}>
@@ -254,7 +252,6 @@ export function DiagnosePageContent() {
                   <h3 className="mt-4 font-display text-xl font-medium leading-snug text-ink-1">
                     {item.title}
                   </h3>
-                  <p className="mt-3 text-[15px] leading-relaxed text-ink-2">{item.body}</p>
                 </article>
               </Reveal>
             ))}
@@ -269,15 +266,12 @@ export function DiagnosePageContent() {
           <SectionHeader
             eyebrow={d.severity.eyebrow}
             heading={d.severity.heading}
-            body={d.severity.body}
           />
           <div className="mt-16 grid gap-12 lg:grid-cols-3 lg:gap-10">
             {severityItems.map((item, i) => (
               <Reveal key={item.title} delay={i * 100}>
                 <article className="border-t border-line pt-8">
                   <h3 className="font-display text-2xl font-medium text-ink-1">{item.title}</h3>
-                  <p className="mt-4 leading-relaxed text-ink-2">{item.body}</p>
-                  <p className="mt-4 leading-relaxed text-ink-2">{item.detail}</p>
                 </article>
               </Reveal>
             ))}
@@ -288,22 +282,18 @@ export function DiagnosePageContent() {
                 {d.speed.eyebrow}
               </p>
               <h3 className="mt-4 font-display text-2xl font-medium text-ink-1">{d.speed.heading}</h3>
-              <p className="mt-4 leading-relaxed text-ink-2">{d.speed.body}</p>
-              <p className="mt-4 leading-relaxed text-ink-2">{d.speed.detail}</p>
-              <p className="mt-4 text-sm leading-relaxed text-ink-3">{d.speed.note}</p>
             </article>
             <article>
               <p className="text-xs font-semibold uppercase tracking-eyebrow text-accent">
                 {t.pricing.eyebrow}
               </p>
               <h3 className="mt-4 font-display text-2xl font-medium text-ink-1">{d.meter.title}</h3>
-              <p className="mt-4 leading-relaxed text-ink-2">{d.meter.body}</p>
             </article>
           </div>
         </div>
       </section>
 
-      <FinalCta eyebrow={d.final.eyebrow} heading={d.final.heading} body={d.final.body}>
+      <FinalCta eyebrow={d.final.eyebrow} heading={d.final.heading}>
         <PrimaryLink href="/register">{d.final.cta}</PrimaryLink>
         <SecondaryLink href="/app/diagnose">{d.final.secondaryCta}</SecondaryLink>
       </FinalCta>
@@ -326,7 +316,7 @@ export function PricingPageContent() {
 
   return (
     <>
-      <PageHero eyebrow={p.eyebrow} heading={p.heading} body={p.sub}>
+      <PageHero eyebrow={p.eyebrow} heading={p.heading}>
         <PrimaryLink href="/register">{t.pricing.free.cta}</PrimaryLink>
         <SecondaryLink href="/business/register">{t.pricing.shops.cta}</SecondaryLink>
       </PageHero>
@@ -338,15 +328,12 @@ export function PricingPageContent() {
           <SectionHeader
             eyebrow={p.decision.eyebrow}
             heading={p.decision.heading}
-            body={p.decision.body}
           />
           <div className="mt-16 grid gap-12 lg:grid-cols-3 lg:gap-10">
             {decisions.map((item, i) => (
               <Reveal key={item.title} delay={i * 100}>
                 <article className="border-t border-line pt-8">
                   <h3 className="font-display text-2xl font-medium text-ink-1">{item.title}</h3>
-                  <p className="mt-4 leading-relaxed text-ink-2">{item.body}</p>
-                  <p className="mt-4 leading-relaxed text-ink-2">{item.detail}</p>
                 </article>
               </Reveal>
             ))}
@@ -364,15 +351,11 @@ export function PricingPageContent() {
               <h2 className="mt-4 text-balance font-display text-[clamp(2rem,4vw,3rem)] font-semibold leading-[1.1] tracking-[-0.02em] text-ink-1">
                 {p.billing.heading}
               </h2>
-              <p className="mt-5 text-[17px] leading-relaxed text-ink-2">{p.billing.body}</p>
             </Reveal>
             <Reveal delay={120}>
               <BulletList
                 points={[p.billing.point1, p.billing.point2, p.billing.point3, p.billing.point4]}
               />
-              <p className="mt-6 border-t border-line pt-5 text-sm leading-relaxed text-ink-3">
-                {p.billing.note}
-              </p>
             </Reveal>
           </div>
         </div>
@@ -380,7 +363,7 @@ export function PricingPageContent() {
 
       <RouteFaq eyebrow={p.faq.eyebrow} heading={p.faq.heading} items={faqItems} />
 
-      <FinalCta eyebrow={p.final.eyebrow} heading={p.final.heading} body={p.final.body}>
+      <FinalCta eyebrow={p.final.eyebrow} heading={p.final.heading}>
         <PrimaryLink href="/register">{p.final.cta}</PrimaryLink>
         <SecondaryLink href="/business/register">{p.final.businessCta}</SecondaryLink>
       </FinalCta>
@@ -403,7 +386,7 @@ export function ShopsPageContent() {
 
   return (
     <>
-      <PageHero eyebrow={s.eyebrow} heading={s.heading} body={s.sub}>
+      <PageHero eyebrow={s.eyebrow} heading={s.heading}>
         <PrimaryLink href="/business/register">{s.primaryCta}</PrimaryLink>
         <SecondaryLink href="/app/nearby">{s.nearbyCta}</SecondaryLink>
       </PageHero>
@@ -412,7 +395,7 @@ export function ShopsPageContent() {
 
       <section>
         <div className="mx-auto max-w-6xl px-4 py-24 sm:px-6 lg:py-36">
-          <SectionHeader eyebrow={s.listing.eyebrow} heading={s.listing.heading} body={s.listing.body} />
+          <SectionHeader eyebrow={s.listing.eyebrow} heading={s.listing.heading} />
           <div className="mt-16 grid gap-x-10 gap-y-12 sm:grid-cols-2 lg:grid-cols-4">
             {listingItems.map((item, i) => (
               <Reveal key={item.title} delay={i * 80}>
@@ -423,7 +406,6 @@ export function ShopsPageContent() {
                   <h3 className="mt-4 font-display text-xl font-medium leading-snug text-ink-1">
                     {item.title}
                   </h3>
-                  <p className="mt-3 text-[15px] leading-relaxed text-ink-2">{item.body}</p>
                 </article>
               </Reveal>
             ))}
@@ -439,7 +421,6 @@ export function ShopsPageContent() {
               <h2 className="mt-4 text-balance font-display text-[clamp(2rem,4vw,3rem)] font-semibold leading-[1.1] tracking-[-0.02em] text-ink-1">
                 {s.plan.heading}
               </h2>
-              <p className="mt-5 text-[17px] leading-relaxed text-ink-2">{s.plan.body}</p>
               <p className="mt-8">
                 <span className="tnum font-display text-5xl font-semibold text-ink-1">$149</span>
                 <span className="mt-1 block text-sm text-ink-3">{s.plan.priceLabel}</span>
@@ -453,9 +434,6 @@ export function ShopsPageContent() {
             </Reveal>
             <Reveal delay={120}>
               <BulletList points={[s.plan.point1, s.plan.point2, s.plan.point3, s.plan.point4]} />
-              <p className="mt-6 border-t border-line pt-5 text-sm leading-relaxed text-ink-3">
-                {s.plan.note}
-              </p>
             </Reveal>
           </div>
         </div>
@@ -469,7 +447,6 @@ export function ShopsPageContent() {
               <h2 className="mt-4 text-balance font-display text-[clamp(2rem,4vw,3rem)] font-semibold leading-[1.1] tracking-[-0.02em] text-ink-1">
                 {s.parts.heading}
               </h2>
-              <p className="mt-5 text-[17px] leading-relaxed text-ink-2">{s.parts.body}</p>
             </Reveal>
             <Reveal delay={120}>
               <BulletList points={[s.parts.point1, s.parts.point2, s.parts.point3]} />
@@ -483,7 +460,7 @@ export function ShopsPageContent() {
 
       <RouteFaq eyebrow={s.faq.eyebrow} heading={s.faq.heading} items={faqItems} />
 
-      <FinalCta eyebrow={s.final.eyebrow} heading={s.final.heading} body={s.final.body}>
+      <FinalCta eyebrow={s.final.eyebrow} heading={s.final.heading}>
         <PrimaryLink href="/business/register">{s.final.cta}</PrimaryLink>
         <SecondaryLink href="/pricing">{s.final.pricingCta}</SecondaryLink>
       </FinalCta>

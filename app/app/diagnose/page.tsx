@@ -289,7 +289,7 @@ export default function DiagnosePage() {
             </button>
             {phase === "streaming" && (
               <p className="text-center text-sm text-ink-2" role="status">
-                Your answer is arriving now ({receivedChars} characters received)…
+                Diagnosing… ({receivedChars})
               </p>
             )}
           </form>

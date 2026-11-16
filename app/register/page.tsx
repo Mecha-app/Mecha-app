@@ -123,10 +123,6 @@ export default function RegisterPage() {
         <h1 className="font-display text-3xl font-semibold tracking-[-0.01em] text-ink-1">
           Create your account
         </h1>
-        <p className="mt-3 text-base leading-relaxed text-ink-2">
-          Your first 5 diagnoses are free. After that, MECHA Pro keeps you covered — we will
-          always tell you exactly how many free diagnoses you have left.
-        </p>
 
         <SocialSignIn />
 

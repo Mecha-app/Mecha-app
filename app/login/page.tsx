@@ -105,10 +105,6 @@ export default function LoginPage() {
         <h1 className="font-display text-3xl font-semibold tracking-[-0.01em] text-ink-1">
           Welcome back
         </h1>
-        <p className="mt-3 text-base leading-relaxed text-ink-2">
-          Sign in to your account — your cars, your history, and your remaining free diagnoses
-          are right where you left them.
-        </p>
 
         <SocialSignIn />
 

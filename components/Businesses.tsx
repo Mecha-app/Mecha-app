@@ -40,7 +40,6 @@ export function Businesses() {
             <h2 className="mt-3 font-display text-[clamp(1.6rem,3vw,2.25rem)] font-semibold leading-tight tracking-[-0.01em] text-ink-1">
               {b.heading}
             </h2>
-            <p className="mx-auto mt-3 max-w-2xl leading-relaxed text-ink-2">{b.body}</p>
             <div className="mt-6 flex flex-wrap items-center justify-center gap-x-9 gap-y-3">
               {links.map((l) => (
                 <Link

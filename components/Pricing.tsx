@@ -107,7 +107,6 @@ export function Pricing() {
             <h2 className="mt-4 text-balance font-display text-[clamp(2.1rem,4.5vw,3.25rem)] font-semibold leading-[1.08] tracking-[-0.02em] text-ink-1">
               {p.heading}
             </h2>
-            <p className="mt-5 text-[17px] leading-relaxed text-ink-2">{p.body}</p>
           </div>
         </Reveal>
 
@@ -118,13 +117,6 @@ export function Pricing() {
             </Reveal>
           ))}
         </div>
-
-        <Reveal>
-          <div className="mx-auto mt-20 max-w-2xl border-t border-line pt-10 text-center lg:mt-24">
-            <h3 className="font-display text-xl font-medium text-ink-1">{p.meterTitle}</h3>
-            <p className="mt-3 leading-relaxed text-ink-2">{p.meterNote}</p>
-          </div>
-        </Reveal>
       </div>
     </section>
   );
