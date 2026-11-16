@@ -25,8 +25,15 @@
  *      actually depends on).
  *   4. Theme selection has exactly ONE mechanism: the pre-paint script
  *      sets [data-theme] from the stored preference, defaulting to
- *      dark. No prefers-color-scheme input, no scope classes in the
+ *      light. No prefers-color-scheme input, no scope classes in the
  *      hero/header components.
+ *   5. ONE WEBSITE (design pass #7, 2026-11-16 — the owner clicked
+ *      from the new light homepage into pages still running the dark
+ *      theme with the gold accent: "it seems like I'm on the other
+ *      website… the colors are not the same"): the LIGHT token set
+ *      is the global default (:root carries it), the primary accent
+ *      is the reference blue #2563eb in BOTH theme blocks, and the
+ *      retired amber/gold hexes appear nowhere in globals.css.
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
@@ -192,7 +199,7 @@ test("foreground contrast floors hold in both themes (owner readability rule)", 
   }
 });
 
-test("one theme mechanism: stored preference + dark default, no scope classes", () => {
+test("one theme mechanism: stored preference + light default, no scope classes", () => {
   const script = stripTsComments(
     readFileSync(join(root, "components/ThemeScript.tsx"), "utf8"),
   );
@@ -201,7 +208,14 @@ test("one theme mechanism: stored preference + dark default, no scope classes", 
     "ThemeScript must not consult prefers-color-scheme — [data-theme] has one input: the stored preference",
   );
   assert.ok(script.includes('localStorage.getItem("mecha-theme")'));
-  assert.ok(script.includes('dataset.theme="dark"') || script.includes('"dark"'));
+  // Pass #7: a first-time visitor (no stored preference) lands on
+  // light everywhere; a stored "dark" is still honored as the
+  // explicit opt-in.
+  assert.ok(
+    script.includes('dataset.theme="light"'),
+    "ThemeScript must default to light when no stored preference exists",
+  );
+  assert.ok(script.includes('"dark"'), "a stored dark preference remains a valid value");
 
   for (const [file, banned] of [
     ["components/Hero.tsx", "hero-scope"],
@@ -216,4 +230,40 @@ test("one theme mechanism: stored preference + dark default, no scope classes", 
       `globals.css must not define scope overrides, found "${rule.selector}"`,
     );
   }
+});
+
+test("one website: light is the :root default and the accent is the unified blue in both themes (pass #7)", () => {
+  // The :root default (what a first paint / no-JS render resolves
+  // before any [data-theme] is set) is the light block: its selector
+  // pairs plain :root with [data-theme="light"].
+  const lightRule = rules.find((r) => r.selector.includes('[data-theme="light"]'));
+  assert.ok(lightRule, "a light theme block must exist");
+  assert.ok(
+    lightRule.selector
+      .split(",")
+      .map((s) => s.trim())
+      .some((part) => part.endsWith(":root") && !part.includes("[data-theme")),
+    ":root itself must carry the light token set — light is the global default, not a page scope",
+  );
+  for (const theme of ["dark", "light"] as const) {
+    const tokens = assignments(themeBlock(theme).body);
+    assert.equal(
+      tokens.get("--color-accent"),
+      "#2563eb",
+      `${theme}: the primary accent is the reference blue`,
+    );
+    assert.equal(
+      tokens.get("--color-accent-ink"),
+      "#ffffff",
+      `${theme}: text on the accent is white`,
+    );
+  }
+  // The retired amber/gold accent family appears nowhere in the
+  // stylesheet — no page can render the old gold primary again.
+  for (const retired of ["#f5a524", "#ffb84d", "#b97a0f", "#96620a", "#9c6608"]) {
+    assert.ok(!css.includes(retired), `globals.css must not contain the retired accent ${retired}`);
+  }
+  // The layout's SSR attribute agrees with the script default.
+  const layout = readFileSync(join(root, "app/layout.tsx"), "utf8");
+  assert.ok(layout.includes('data-theme="light"'), "the root layout renders data-theme=light by default");
 });

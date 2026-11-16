@@ -3,29 +3,44 @@
 @tailwind utilities;
 
 /**
- * MECHA design tokens — "Asphalt & Signal" (DESIGN_SYSTEM §1.2, §1.5).
- * One semantic token set, two values. Dark ("night cockpit") is the brand
- * default on :root; [data-theme="light"] is the full-parity light theme.
+ * MECHA design tokens — "Paper & Signal Blue" (DESIGN_SYSTEM §1.2, §1.5).
+ * One semantic token set, two values. LIGHT is the brand default on
+ * :root — design pass #7 (2026-11-16, owner, clicking from the new
+ * homepage into the other pages: "it seems like I'm on the other
+ * website… the colors are not the same… check"): the bright blue/white
+ * theme the homepage shipped in passes #5–6 is now the global default
+ * on EVERY route, and the primary accent is the reference blue
+ * (#2563eb) in BOTH themes — the amber/gold accent is retired
+ * everywhere (the gold Continue button on /register was exhibit A).
+ * Dark ("night cockpit") survives only as the ThemeToggle's explicit
+ * opt-in, with the same blue accent and the same dark surfaces.
  * Verdict colors are theme-INVARIANT and carry product semantics only —
  * never decoration.
  */
 
 :root,
-:root[data-theme="dark"] {
-  /* Dark theme — asphalt ramp (DESIGN_SYSTEM §1.2) */
-  --color-bg: #0b0d10; /* asphalt-950 — page background */
-  --color-surface: #12151a; /* asphalt-900 — cards, panels */
-  --color-surface-raised: #171b21; /* asphalt-850 — modals, sticky header */
-  --color-inset: #1e232b; /* asphalt-800 — wells, inputs, gauge tracks */
-  --color-line: #262c36; /* line-dark — all 1px rules */
-  --color-ink-1: #f2f4f7; /* ink-100 — primary text */
-  --color-ink-2: #c3cad4; /* ink-300 — secondary text */
-  --color-ink-3: #8a94a3; /* ink-500 — muted text, captions */
+:root[data-theme="light"] {
+  /* Light theme — paper ramp (DESIGN_SYSTEM §1.2). Foreground values
+     re-set 2026-11-03 on the owner's direct order ("make sure the text
+     look nice, they bold, you could read everything"): measured on
+     --color-bg #f7f8fa, ink-1 17.4:1, ink-2 10.4:1, ink-3 6.9:1.
+     tests/theme.test.ts pins these floors. */
+  --color-bg: #f7f8fa; /* paper-50 — page background */
+  --color-surface: #ffffff; /* paper-0 — raised surface */
+  --color-surface-raised: #ffffff;
+  --color-inset: #eef1f4; /* paper-100 — wells, inputs, gauge tracks */
+  --color-line: #dce1e8; /* line-light */
+  --color-ink-1: #10141b; /* near-black — headlines, primary text */
+  --color-ink-2: #333d49; /* body copy — genuinely dark, never pale gray */
+  --color-ink-3: #4d5764; /* captions/labels — still 6.9:1 on paper */
 
-  --color-accent: #f5a524; /* signal-amber */
-  --color-accent-bright: #ffb84d; /* signal-amber-bright — hover/glow, dark only */
-  --color-accent-deep: #b97a0f; /* signal-amber-deep (used by light theme) */
-  --color-accent-ink: #0b0d10; /* text on amber surfaces */
+  /* The one primary accent: the reference blue of passes #5–6.
+     White CTA text keeps ≥4.5:1 on the accent (5.1:1) and on its
+     hover step (6.7:1); accent labels on paper reach 4.8:1. */
+  --color-accent: #2563eb;
+  --color-accent-bright: #1d4ed8; /* hover step */
+  --color-accent-deep: #1d4ed8; /* accent text on paper */
+  --color-accent-ink: #ffffff; /* text on blue surfaces */
 
   /* Verdict colors — identical in both themes (§1.2) */
   --verdict-fair: #2fbf71;
@@ -46,36 +61,29 @@
   --font-noto-sans: "Noto Sans";
   --font-noto-display: "Noto Sans";
 
-  color-scheme: dark;
+  color-scheme: light;
 }
 
-:root[data-theme="light"] {
-  /* Light theme — paper ramp (DESIGN_SYSTEM §1.2). Foreground values
-     re-set 2026-11-03 on the owner's direct order ("make sure the text
-     look nice, they bold, you could read everything"): measured on
-     --color-bg #f7f8fa, ink-1 17.4:1, ink-2 10.4:1, ink-3 6.9:1,
-     accent 4.9:1 with 5.2:1 for white text on it. The previous ink-3
-     (#6b7582, 4.4:1) and accent (#b97a0f, 3.4:1) were the pale-gray /
-     washed-label values he was looking at. tests/theme.test.ts pins
-     these floors. */
-  --color-bg: #f7f8fa; /* paper-50 — page background */
-  --color-surface: #ffffff; /* paper-0 — raised surface */
-  --color-surface-raised: #ffffff;
-  --color-inset: #eef1f4; /* paper-100 — wells, inputs, gauge tracks */
-  --color-line: #dce1e8; /* line-light */
-  --color-ink-1: #10141b; /* near-black — headlines, primary text */
-  --color-ink-2: #333d49; /* body copy — genuinely dark, never pale gray */
-  --color-ink-3: #4d5764; /* captions/labels — still 6.9:1 on paper */
+:root[data-theme="dark"] {
+  /* Dark theme — asphalt ramp (DESIGN_SYSTEM §1.2). No longer the
+     default (pass #7): it renders only when a visitor has explicitly
+     chosen it with the ThemeToggle, and even then the primary accent
+     is the same blue — one website, one palette. */
+  --color-bg: #0b0d10; /* asphalt-950 — page background */
+  --color-surface: #12151a; /* asphalt-900 — cards, panels */
+  --color-surface-raised: #171b21; /* asphalt-850 — modals, sticky header */
+  --color-inset: #1e232b; /* asphalt-800 — wells, inputs, gauge tracks */
+  --color-line: #262c36; /* line-dark — all 1px rules */
+  --color-ink-1: #f2f4f7; /* ink-100 — primary text */
+  --color-ink-2: #c3cad4; /* ink-300 — secondary text */
+  --color-ink-3: #8a94a3; /* ink-500 — muted text, captions */
 
-  /* Accent deepens with the theme (§1.5): labels and the kicker meet
-     the same contrast floor as text, and the white CTA text keeps
-     ≥4.5:1 on both the accent and its hover step. */
-  --color-accent: #96620a;
-  --color-accent-bright: #9c6608;
-  --color-accent-deep: #96620a;
-  --color-accent-ink: #ffffff;
+  --color-accent: #2563eb; /* the same reference blue as the light theme */
+  --color-accent-bright: #1d4ed8; /* hover step */
+  --color-accent-deep: #2563eb;
+  --color-accent-ink: #ffffff; /* text on blue surfaces */
 
-  color-scheme: light;
+  color-scheme: dark;
 }
 
 /*

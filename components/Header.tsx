@@ -19,6 +19,13 @@ import { ThemeToggle } from "./ThemeToggle";
  * desynced background and foreground tokens in the light theme — see
  * the theme atomicity rule in globals.css. The crosshatch band is the
  * one permitted texture (§1.6) — settled state only.
+ *
+ * Design pass #7 (2026-11-16, one-website unification): this bar now
+ * renders the same look as the homepage's HomeHeader by construction —
+ * the global default theme is the light set (bg-surface = white) and
+ * the accent token is the reference blue, so the primary pill below is
+ * the same blue, and its shape matches HomeHeader's (rounded-lg). No
+ * nav items, routes, or behavior changed — only the resolved colors.
  */
 export function Header({ overlay = false }: { overlay?: boolean }) {
   const { t } = useLocale();
@@ -88,7 +95,7 @@ export function Header({ overlay = false }: { overlay?: boolean }) {
           </Link>
           <Link
             href="/register"
-            className="inline-flex h-12 items-center rounded-full bg-accent px-5 text-sm font-semibold text-[var(--color-accent-ink)] transition-colors duration-150 hover:bg-accent-bright"
+            className="inline-flex h-12 items-center rounded-lg bg-accent px-5 text-sm font-semibold text-[var(--color-accent-ink)] transition-colors duration-150 hover:bg-accent-bright"
           >
             {t.header.createAccount}
           </Link>

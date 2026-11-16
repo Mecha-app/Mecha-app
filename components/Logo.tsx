@@ -4,8 +4,10 @@
  *  - 48×48 grid, strokes = 8 units (the spec's 4-unit grid scaled ×2).
  *  - Bold M: two vertical outer stems; the inner V is the gauge NEEDLE —
  *    it descends and stops short of the baseline, at rest.
- *  - A short signal-amber arc sweeps 100° across the top-right vertex,
- *    like the lit segment of a tachometer.
+ *  - A short accent arc sweeps 100° across the top-right vertex,
+ *    like the lit segment of a tachometer. The arc strokes the
+ *    --color-accent token, so it follows the site's one accent —
+ *    the reference blue since design pass #7 (2026-11-16).
  * Ships as mark-only (favicon / QR sticker / app icon) and full lockup
  * (mark + MECHA in Space Grotesk 700, tracked +0.04em).
  * Final lockup remains Frantz's veto-on-sight.
@@ -40,7 +42,7 @@ export function GaugeMMark({
         strokeLinecap="square"
         strokeLinejoin="miter"
       />
-      {/* Amber arc: 100° sweep hugging the top-right vertex.
+      {/* Accent arc: 100° sweep hugging the top-right vertex.
           Centered on (42, 10), radius 10, from -160° to -60° in dial terms —
           drawn as the arc passing over the vertex's upper-left shoulder,
           clear of the stroke so it reads as a lit tach segment. */}

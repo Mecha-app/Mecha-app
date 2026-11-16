@@ -1,4 +1,3 @@
-import type { CSSProperties } from "react";
 import { Hero } from "@/components/Hero";
 import { HomeCta } from "@/components/HomeCta";
 import { HomeDiagnosis } from "@/components/HomeDiagnosis";
@@ -117,33 +116,20 @@ import { HomeVault } from "@/components/HomeVault";
  * card grids, no invented claims; new copy went through the
  * catalog in all 13 locales.
  *
- * The light page is carried by LIGHT_SCOPE below: the COMPLETE
- * light token set (the exact values of the [data-theme="light"]
- * block in globals.css) re-pointed on this page's root element
- * only — the HomeHeader FLOATING_PALETTE mechanism, widened to
- * the whole page. Background and foreground tokens always resolve
- * from the SAME (light) set inside the homepage, so the theme
- * atomicity rule holds: no mixed pairing is possible, globals.css
- * is untouched, and every other page keeps the stored theme.
+ * Design pass #7 (2026-11-16, owner, clicking through from the
+ * homepage: "it seems like I'm on the other website… the colors
+ * are not the same"): ONE WEBSITE. Passes #5–6 carried this page's
+ * light look on a page-scoped token override while every other
+ * route still ran the dark theme with the amber accent — two
+ * websites. The override is GONE: the light token
+ * set with the reference-blue accent is now the global default in
+ * globals.css (dark survives only as the explicit toggle opt-in,
+ * with the same blue), so this page resolves the exact same
+ * tokens as every other route and no page-scoped hack remains.
  */
-const LIGHT_SCOPE = {
-  "--color-bg": "#f7f8fa",
-  "--color-surface": "#ffffff",
-  "--color-surface-raised": "#ffffff",
-  "--color-inset": "#eef1f4",
-  "--color-line": "#dce1e8",
-  "--color-ink-1": "#10141b",
-  "--color-ink-2": "#333d49",
-  "--color-ink-3": "#4d5764",
-  "--color-accent": "#96620a",
-  "--color-accent-bright": "#9c6608",
-  "--color-accent-deep": "#96620a",
-  "--color-accent-ink": "#ffffff",
-} as CSSProperties;
-
 export default function HomePage() {
   return (
-    <div style={LIGHT_SCOPE} className="bg-bg text-ink-1">
+    <div className="bg-bg text-ink-1">
       <HomeHeader />
       <main>
         <Hero />

@@ -30,13 +30,13 @@ import { ThemeToggle } from "./ThemeToggle";
  * via its homepage section button); the shared Header keeps them
  * on every other page.
  *
- * The bar is light in both themes: the homepage scopes the light
- * token set on its root (app/page.tsx), so every token consumer in
- * this bar — surface, ink, line — resolves to the paper ramp
- * regardless of the stored theme. The bar itself only consumes
- * tokens and one literal: the reference's blue (#2563eb family),
- * a self-contained color on the primary pill, the same way the
- * hero's on-photo buttons carry literal colors.
+ * The bar resolves the same global tokens as every other page
+ * (design pass #7, 2026-11-16: one website — the light blue/white
+ * set is the global default in globals.css; the homepage's old
+ * page-scoped token override is gone). The bar itself only
+ * consumes tokens and one literal: the reference's blue (#2563eb
+ * family), a self-contained color on the primary pill, the same
+ * way the hero's on-photo buttons carry literal colors.
  */
 export function HomeHeader() {
   const { t } = useLocale();

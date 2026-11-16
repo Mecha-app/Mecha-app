@@ -12,11 +12,11 @@
  * info").
  *
  * Pinned structure, top to bottom:
- *   - The page root scopes the COMPLETE light token set (the
- *     [data-theme="light"] values) on the page element only, so
- *     the homepage is a light page in both themes while every
- *     other page keeps the stored theme (theme atomicity: bg and
- *     fg always resolve from the same set — globals.css untouched).
+ *   - The page resolves the ONE global theme like every other
+ *     route (design pass #7, 2026-11-16: the light blue/white set
+ *     is the global default in globals.css and the homepage's old
+ *     page-scoped token override is gone — one website, no
+ *     page-scoped hacks; theme.test.ts pins the unification).
  *   - HomeHeader: the WHITE bar — MECHA lockup (unchanged), the
  *     nav CENTERED — exactly "How It Works" (anchor to the steps
  *     section) + "Safety" → /diagnose, per the owner's third
@@ -124,28 +124,21 @@ test("homepage composition: header, hero, steps, the Audi-length sections, shops
   }
 });
 
-test("homepage is a light page: the complete light token set scoped on the page root", () => {
+test("homepage carries no page-scoped token override — it resolves the one global theme (pass #7)", () => {
   const page = read("app/page.tsx");
-  // The exact [data-theme="light"] values from globals.css — bg and
-  // fg ship together, so no mixed pairing is possible on this page.
-  for (const token of [
-    '"--color-bg": "#f7f8fa"',
-    '"--color-surface": "#ffffff"',
-    '"--color-ink-1": "#10141b"',
-    '"--color-ink-2": "#333d49"',
-    '"--color-ink-3": "#4d5764"',
-    '"--color-line": "#dce1e8"',
-    '"--color-accent-ink": "#ffffff"',
-  ]) {
-    assert.ok(page.includes(token), `page root scopes ${token}`);
-  }
-  assert.ok(page.includes('className="bg-bg text-ink-1"'), "the page paints its scoped tokens");
+  // Passes #5–6 scoped the complete light token set on this page's
+  // root while every other route ran dark + amber — the "different
+  // website" split the owner caught. The scope is gone: tokens
+  // resolve from globals.css exactly as on every other route.
+  assert.ok(!page.includes("LIGHT_SCOPE"), "the page-scoped token override is removed");
+  assert.ok(!page.includes('"--color-'), "the homepage assigns no theme tokens of its own");
+  assert.ok(page.includes('className="bg-bg text-ink-1"'), "the page paints the global tokens");
 });
 
 test("home header: white bar — wordmark, centered routes, Sign in + blue Start Free pill", () => {
   const header = read("components/HomeHeader.tsx");
   assert.ok(header.includes("<LogoLockup"), "the wordmark lockup leads");
-  assert.ok(header.includes("bg-surface"), "the bar is the light surface (white in the page scope)");
+  assert.ok(header.includes("bg-surface"), "the bar is the light surface (white — the global default since pass #7)");
   assert.ok(header.includes("grid-cols-[1fr_auto_1fr]"), "the three-column grid centers the nav");
   // Owner's third reference: exactly How It Works + Safety in the
   // nav — How It Works anchors to the steps section on this page,

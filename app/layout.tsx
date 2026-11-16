@@ -81,7 +81,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
     <html
       lang={locale}
       dir={localeMeta(locale).dir}
-      data-theme="dark"
+      data-theme="light"
       suppressHydrationWarning
     >
       <head>

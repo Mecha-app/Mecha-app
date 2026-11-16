@@ -28,7 +28,7 @@ function MoonIcon() {
  * localStorage; signed-in persistence to the account preference lands in WP3.
  */
 export function ThemeToggle({ label }: { label: string }) {
-  const [theme, setTheme] = useState<Theme>("dark");
+  const [theme, setTheme] = useState<Theme>("light");
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
