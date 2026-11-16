@@ -108,13 +108,11 @@ export function BillingSection({
   }
 
   return (
-    <section className="mt-10">
-      <h2 className="text-sm font-semibold uppercase tracking-eyebrow text-ink-2">{b.title}</h2>
-      <div className="mt-3 rounded-2xl border border-line bg-surface px-5 py-5">
-        <div className="flex items-baseline justify-between gap-4">
-          <span className="text-base text-ink-2">{b.currentPlan}</span>
-          <span className="font-display text-xl font-semibold text-ink-1">{planLabel}</span>
-        </div>
+    <section className="mt-24 text-center">
+      <h2 className="font-display text-3xl font-medium text-ink-1 sm:text-4xl">{b.title}</h2>
+      <div className="mx-auto mt-10 w-full max-w-xl">
+        <p className="text-sm text-ink-3">{b.currentPlan}</p>
+        <p className="mt-1 font-display text-2xl font-medium text-ink-1">{planLabel}</p>
 
         {view?.subscriptionStatus === "past_due" && (
           <p className="mt-3 text-base font-medium text-ink-1">{b.statusPastDue}</p>
