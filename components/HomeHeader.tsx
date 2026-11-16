@@ -46,13 +46,19 @@ export function HomeHeader() {
     setSignedIn(getToken() !== null);
   }, []);
 
+  // Logo target (Pass #12, 2026-11-16): signed in, the logo goes to
+  // the dashboard /app — on this page a "/" logo was a literal no-op
+  // tap for the signed-in owner ("the logo is still not working").
+  // Signed out, it targets "/" as before.
+  const logoHref = signedIn ? "/app" : "/";
+
   return (
     <header className="sticky inset-x-0 top-0 z-50 border-b border-line/70 bg-surface">
       <div className="mx-auto grid h-16 max-w-6xl grid-cols-[1fr_auto_1fr] items-center px-4 sm:px-6">
         <Link
-          href="/"
-          aria-label={t.header.logoHomeLabel}
-          className="flex min-h-[48px] shrink-0 items-center justify-self-start"
+          href={logoHref}
+          aria-label={signedIn ? t.header.logoAppLabel : t.header.logoHomeLabel}
+          className="flex min-h-[48px] min-w-[48px] shrink-0 items-center justify-self-start"
         >
           <LogoLockup wordmarkClassName="hidden min-[480px]:inline" />
         </Link>

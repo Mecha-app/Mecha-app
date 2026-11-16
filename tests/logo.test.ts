@@ -5,12 +5,15 @@
  * in the same style as scan.test.ts's dead-link sweep:
  *
  *   - marketing/public pages render <Header> (or <LegalShell>, which
- *     renders <Header>): logo lockup → "/" with a ≥48px tap target;
+ *     renders <Header>): logo lockup → the session-aware main page
+ *     ("/" signed out, "/app" signed in — Pass #12) with a ≥48px tap
+ *     target;
  *   - the homepage renders its own slim <HomeHeader> (design pass
- *     "One Screen", 2026-11-16): same logo contract — lockup → "/"
- *     with a ≥48px tap target and the dictionary accessible name;
+ *     "One Screen", 2026-11-16): same logo contract — session-aware
+ *     lockup with a ≥48px tap target and the dictionary accessible
+ *     name;
  *   - auth + standalone flow pages render <MinimalTopBar>:
- *     logo lockup → "/";
+ *     logo lockup → the session-aware main page;
  *   - the business auth pages borrow <AppNav> but pass logoHref="/"
  *     (pre-sign-in: home is the public main page);
  *   - signed-in app pages render <AppNav>: logo → "/app", the
@@ -20,6 +23,25 @@
  *     home link too → "/" (2026-11-16: the owner re-asked for the
  *     logo-to-main-page rule on EVERY page; the two footer lockups
  *     were the last logo renders that were not links at all).
+ *
+ * Pass #12 (2026-11-16, the owner's live re-test: "the logo is still
+ * not working — it's not taking me back to the main page"): a mobile
+ * tap-probe of the live build proved every logo anchor mechanically
+ * sound — top element at its tap point, taps navigating, no overlay,
+ * no JS errors. The failure was the TARGET for a signed-in user: the
+ * five public/auth shells hard-coded "/", so the owner's tap landed
+ * on the marketing homepage instead of his main page (the /app
+ * dashboard) — and on the homepage itself the tap was a literal
+ * no-op. The contract is now session-aware on every shell except
+ * AppNav (whose target is /app by construction, "/" only on the
+ * pre-sign-in business pages via the explicit prop):
+ *
+ *     signed in  → logoHref "/app"  (aria: logoAppLabel)
+ *     signed out → logoHref "/"     (aria: logoHomeLabel)
+ *
+ * read from the same getToken() session check HomeHeader already
+ * used for its action buttons. These pins keep the rule from
+ * drifting back to a hard-coded "/".
  *
  * The audit this guard was born from (2026-11-03, head 9311fa8):
  * /login, /register, /forgot-password, /reset-password,
@@ -150,25 +172,39 @@ test("logo link contracts: target, tap size, accessible name, theme-token mark",
   const footer = readFileSync(join(root, "components/Footer.tsx"), "utf8");
   const homeFooter = readFileSync(join(root, "components/HomeFooter.tsx"), "utf8");
 
-  // Header (marketing shell): logo → "/", at least a 48px tap target,
-  // lockup present, accessible name from the dictionary.
-  assert.ok(header.includes('href="/"'), "Header logo must link to /");
-  assert.ok(header.includes("min-h-[48px]"), "Header logo link must be a ≥48px tap target");
-  assert.ok(header.includes("<LogoLockup"), "Header must render the logo lockup");
-  assert.ok(
-    header.includes("t.header.logoHomeLabel"),
-    "Header logo accessible name comes from the dictionary",
-  );
+  // The Pass #12 session-aware target, shared by every public/auth
+  // shell: the component reads the session via getToken, computes
+  // logoHref ("/app" signed in, "/" signed out), binds the anchor to
+  // it, and picks the matching dictionary accessible name.
+  for (const [name, src] of [
+    ["Header", header],
+    ["HomeHeader", homeHeader],
+    ["MinimalTopBar", bar],
+    ["Footer", footer],
+    ["HomeFooter", homeFooter],
+  ] as const) {
+    assert.ok(src.includes("getToken"), `${name} logo target must read the session (getToken)`);
+    assert.ok(
+      src.includes('const logoHref = signedIn ? "/app" : "/"'),
+      `${name} logo target must be session-aware: /app signed in, / signed out`,
+    );
+    assert.ok(src.includes("href={logoHref}"), `${name} logo anchor must bind href to logoHref`);
+    assert.ok(
+      src.includes("t.header.logoAppLabel") && src.includes("t.header.logoHomeLabel"),
+      `${name} logo accessible name must follow the session (app/home labels)`,
+    );
+    assert.ok(src.includes("<LogoLockup"), `${name} must render the logo lockup`);
+  }
 
-  // HomeHeader (homepage shell): the same logo contract as Header —
-  // lockup → "/", ≥48px tap target, dictionary accessible name.
-  assert.ok(homeHeader.includes('href="/"'), "HomeHeader logo must link to /");
-  assert.ok(homeHeader.includes("min-h-[48px]"), "HomeHeader logo link must be a ≥48px tap target");
-  assert.ok(homeHeader.includes("<LogoLockup"), "HomeHeader must render the logo lockup");
-  assert.ok(
-    homeHeader.includes("t.header.logoHomeLabel"),
-    "HomeHeader logo accessible name comes from the dictionary",
-  );
+  // Header (marketing shell): at least a 48px tap target in BOTH
+  // dimensions — below 480px the wordmark collapses to the mark
+  // alone, and the pre-#12 anchor was only 36px wide.
+  assert.ok(header.includes("min-h-[48px]"), "Header logo link must be a ≥48px-tall tap target");
+  assert.ok(header.includes("min-w-[48px]"), "Header logo link must be a ≥48px-wide tap target");
+
+  // HomeHeader (homepage shell): the same tap-target contract.
+  assert.ok(homeHeader.includes("min-h-[48px]"), "HomeHeader logo link must be a ≥48px-tall tap target");
+  assert.ok(homeHeader.includes("min-w-[48px]"), "HomeHeader logo link must be a ≥48px-wide tap target");
 
   // AppNav (app shell): logo targets the logoHref prop, defaulting to
   // the signed-in main page /app, with the app-home accessible name.
@@ -180,33 +216,17 @@ test("logo link contracts: target, tap size, accessible name, theme-token mark",
   );
   assert.ok(appNav.includes("<GaugeMMark"), "AppNav must render the Gauge M mark");
 
-  // MinimalTopBar (auth/standalone shell): logo → "/", ≥48px target,
-  // lockup present, dictionary accessible name.
-  assert.ok(bar.includes('href="/"'), "MinimalTopBar logo must link to /");
+  // MinimalTopBar (auth/standalone shell): ≥48px tap target (its
+  // session-aware target is pinned in the shared loop above).
   assert.ok(bar.includes("min-h-[48px]"), "MinimalTopBar logo link must be a ≥48px tap target");
-  assert.ok(bar.includes("<LogoLockup"), "MinimalTopBar must render the logo lockup");
-  assert.ok(
-    bar.includes("t.header.logoHomeLabel"),
-    "MinimalTopBar logo accessible name comes from the dictionary",
-  );
 
   // Legal pages inherit the header (and its logo) through LegalShell.
   assert.ok(legal.includes("<Header"), "LegalShell must render <Header>");
 
   // Footers (public pages + homepage): the lockup closes the page and
   // is a home link like every other logo on the site — before the
-  // 2026-11-16 pass these two were plain, unlinked renders.
-  for (const [name, src] of [
-    ["Footer", footer],
-    ["HomeFooter", homeFooter],
-  ] as const) {
-    assert.ok(src.includes('href="/"'), `${name} logo must link to /`);
-    assert.ok(src.includes("<LogoLockup"), `${name} must render the logo lockup`);
-    assert.ok(
-      src.includes("t.header.logoHomeLabel"),
-      `${name} logo accessible name comes from the dictionary`,
-    );
-  }
+  // 2026-11-16 Pass #11 these two were plain, unlinked renders; their
+  // session-aware target is pinned in the shared loop above.
 
   // The mark itself renders from the active theme's tokens
   // (currentColor for the M, the accent token for the arc) — visible in

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useLocale } from "@/lib/i18n/LocaleProvider";
+import { getToken } from "@/lib/client/auth";
 import { LogoLockup } from "./Logo";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { ThemeToggle } from "./ThemeToggle";
@@ -30,6 +31,18 @@ import { ThemeToggle } from "./ThemeToggle";
 export function Header({ overlay = false }: { overlay?: boolean }) {
   const { t } = useLocale();
   const [scrolled, setScrolled] = useState(false);
+  // Logo target (Pass #12, 2026-11-16): the owner's main page is his
+  // dashboard — a signed-in user's logo goes to /app from EVERY page,
+  // public ones included; only a signed-out visitor's logo targets
+  // the public main page "/". (Before this, the public shells always
+  // targeted "/", so for the signed-in owner the tap either landed on
+  // the marketing homepage or — on the homepage itself — did nothing
+  // at all, which is exactly the "logo not working" he reported.)
+  const [signedIn, setSignedIn] = useState(false);
+  useEffect(() => {
+    setSignedIn(getToken() !== null);
+  }, []);
+  const logoHref = signedIn ? "/app" : "/";
 
   useEffect(() => {
     if (!overlay) return;
@@ -58,9 +71,9 @@ export function Header({ overlay = false }: { overlay?: boolean }) {
       )}
       <div className="relative mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4 sm:px-6">
         <Link
-          href="/"
-          aria-label={t.header.logoHomeLabel}
-          className="flex min-h-[48px] items-center shrink-0"
+          href={logoHref}
+          aria-label={signedIn ? t.header.logoAppLabel : t.header.logoHomeLabel}
+          className="flex min-h-[48px] min-w-[48px] items-center shrink-0"
         >
           {/* Below sm the wordmark yields to the mark alone: at 360px the
               full lockup + 48px controls + the sign-up CTA cannot share
