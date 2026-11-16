@@ -15,6 +15,11 @@
  *     (pre-sign-in: home is the public main page);
  *   - signed-in app pages render <AppNav>: logo → "/app", the
  *     signed-in user's main page.
+ *   - the footers (<Footer> on public pages, <HomeFooter> on the
+ *     homepage) close their pages with the same lockup, and it is a
+ *     home link too → "/" (2026-11-16: the owner re-asked for the
+ *     logo-to-main-page rule on EVERY page; the two footer lockups
+ *     were the last logo renders that were not links at all).
  *
  * The audit this guard was born from (2026-11-03, head 9311fa8):
  * /login, /register, /forgot-password, /reset-password,
@@ -142,6 +147,8 @@ test("logo link contracts: target, tap size, accessible name, theme-token mark",
   const bar = readFileSync(join(root, "components/MinimalTopBar.tsx"), "utf8");
   const legal = readFileSync(join(root, "components/Legal.tsx"), "utf8");
   const logo = readFileSync(join(root, "components/Logo.tsx"), "utf8");
+  const footer = readFileSync(join(root, "components/Footer.tsx"), "utf8");
+  const homeFooter = readFileSync(join(root, "components/HomeFooter.tsx"), "utf8");
 
   // Header (marketing shell): logo → "/", at least a 48px tap target,
   // lockup present, accessible name from the dictionary.
@@ -185,6 +192,21 @@ test("logo link contracts: target, tap size, accessible name, theme-token mark",
 
   // Legal pages inherit the header (and its logo) through LegalShell.
   assert.ok(legal.includes("<Header"), "LegalShell must render <Header>");
+
+  // Footers (public pages + homepage): the lockup closes the page and
+  // is a home link like every other logo on the site — before the
+  // 2026-11-16 pass these two were plain, unlinked renders.
+  for (const [name, src] of [
+    ["Footer", footer],
+    ["HomeFooter", homeFooter],
+  ] as const) {
+    assert.ok(src.includes('href="/"'), `${name} logo must link to /`);
+    assert.ok(src.includes("<LogoLockup"), `${name} must render the logo lockup`);
+    assert.ok(
+      src.includes("t.header.logoHomeLabel"),
+      `${name} logo accessible name comes from the dictionary`,
+    );
+  }
 
   // The mark itself renders from the active theme's tokens
   // (currentColor for the M, the accent token for the arc) — visible in

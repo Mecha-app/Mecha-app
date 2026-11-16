@@ -10,6 +10,11 @@ import { LogoLockup } from "./Logo";
  * legal links, the copyright line. The full footer (tagline,
  * support column, disclaimer) keeps serving every other page
  * unchanged; the legal pages themselves carry the full text.
+ *
+ * The wordmark is a home link like every other logo on the site
+ * (owner directive 2026-11-03, completed 2026-11-16): this footer
+ * and the shared Footer were the last logo renders that were not
+ * links. Target "/" — the public main page, this page itself.
  */
 export function HomeFooter() {
   const { t } = useLocale();
@@ -19,7 +24,9 @@ export function HomeFooter() {
     <footer className="border-t border-line">
       <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
         <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
-          <LogoLockup />
+          <Link href="/" aria-label={t.header.logoHomeLabel} className="inline-flex">
+            <LogoLockup />
+          </Link>
           <nav className="flex gap-8 text-sm" aria-label="Footer">
             <Link
               href="/privacy"

@@ -10,6 +10,12 @@ import { LogoLockup } from "./Logo";
  * support@mechaai.com (site content, mechaai.com domain), privacy/legal
  * contacts, and the AI-diagnostic disclaimer from the current Terms.
  * Entity/jurisdiction confirmation is a WP6 open item via Edison.
+ *
+ * The lockup here is a home link like every other logo on the site
+ * (owner directive 2026-11-03, completed 2026-11-16): this footer and
+ * the homepage's were the last logo renders that were not links.
+ * Footer serves only public pages, so the target is "/" — the public
+ * main page.
  */
 export function Footer() {
   const { t } = useLocale();
@@ -20,7 +26,9 @@ export function Footer() {
       <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 lg:py-20">
         <div className="flex flex-col gap-10 md:flex-row md:items-start md:justify-between">
           <div className="max-w-sm">
-            <LogoLockup />
+            <Link href="/" aria-label={t.header.logoHomeLabel} className="inline-flex">
+              <LogoLockup />
+            </Link>
             <p className="mt-4 text-sm leading-relaxed text-ink-2">{f.tagline}</p>
           </div>
 
