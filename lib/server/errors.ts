@@ -5,6 +5,21 @@
  * http.ts): a not-found is a not-found, whoever asked.
  */
 
+/**
+ * An uploaded file over its size cap (listing photos, 0015). Mapped
+ * to 413 by http.ts — kept here, in the leaf module, so the upload
+ * service stays importable by the test build (which excludes http.ts).
+ */
+export class UploadTooLargeError extends Error {
+  readonly code = "payload_too_large";
+  readonly maxBytes: number;
+  constructor(maxBytes: number) {
+    super(`That photo is over ${Math.round(maxBytes / (1024 * 1024))} MB — try a smaller one.`);
+    this.name = "UploadTooLargeError";
+    this.maxBytes = maxBytes;
+  }
+}
+
 export class NotFoundError extends Error {
   readonly code = "not_found";
   constructor(detail = "The requested item does not exist.") {

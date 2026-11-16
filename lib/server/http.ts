@@ -6,6 +6,7 @@ import {
   InvalidCodeError,
   NotFoundError,
   ResendTooSoonError,
+  UploadTooLargeError,
 } from "./errors";
 import { AuthNotConfiguredError } from "./jwt";
 import { logDatabaseError } from "./poolConfig";
@@ -38,6 +39,12 @@ export function apiError(err: unknown): NextResponse {
   if (err instanceof PayloadTooLargeError) {
     return NextResponse.json(
       { error: err.code, detail: "Request body too large." },
+      { status: 413 },
+    );
+  }
+  if (err instanceof UploadTooLargeError) {
+    return NextResponse.json(
+      { error: err.code, detail: err.message },
       { status: 413 },
     );
   }

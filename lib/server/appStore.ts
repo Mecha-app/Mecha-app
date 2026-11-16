@@ -61,6 +61,26 @@ export interface ListingPhoto {
   slot: ListingPhotoSlot;
 }
 
+/**
+ * An uploaded photo file (0015) — the /sell guided-photo set uploads
+ * real files now (owner order 2026-11-16: uploads, not links). Bytes
+ * live in the store; listings keep the serving path as their photo
+ * URL, so the listing shape never changed.
+ */
+export interface UploadRecord {
+  id: string;
+  ownerId: string;
+  contentType: string;
+  data: Buffer;
+  createdAt: string;
+}
+
+export interface CreateUploadInput {
+  ownerId: string;
+  contentType: string;
+  data: Buffer;
+}
+
 export type ListingStatus = "active" | "sold" | "removed";
 
 export interface ListingRecord {
@@ -342,6 +362,10 @@ export interface AppStore {
   updateListing(id: string, sellerId: string, patch: ListingPatch): Promise<ListingRecord | null>;
   deleteListing(id: string, sellerId: string): Promise<boolean>;
 
+  // Uploads (listing photos — files, not links)
+  saveUpload(input: CreateUploadInput): Promise<UploadRecord>;
+  getUpload(id: string): Promise<UploadRecord | null>;
+
   // Business accounts (shops + towing)
   findShopByEmail(emailNormalized: string): Promise<ShopProfileRecord | null>;
   findShopProfileById(id: string): Promise<ShopProfileRecord | null>;
@@ -509,6 +533,24 @@ function toPhotos(raw: unknown): ListingPhoto[] {
     }
   }
   return out;
+}
+
+interface UploadRow {
+  id: string;
+  owner_id: string;
+  content_type: string;
+  data: Buffer;
+  created_at: Date | string;
+}
+
+function toUpload(row: UploadRow): UploadRecord {
+  return {
+    id: row.id,
+    ownerId: row.owner_id,
+    contentType: row.content_type,
+    data: row.data,
+    createdAt: iso(row.created_at),
+  };
 }
 
 function toListing(row: ListingRow): ListingRecord {
@@ -898,6 +940,25 @@ export class PgAppStore implements AppStore {
     return (rowCount ?? 0) > 0;
   }
 
+  // -- Uploads --------------------------------------------------------------
+  async saveUpload(input: CreateUploadInput): Promise<UploadRecord> {
+    const { rows } = await getPool().query<UploadRow>(
+      `INSERT INTO uploads (owner_id, content_type, byte_size, data)
+       VALUES ($1, $2, $3, $4)
+       RETURNING id, owner_id, content_type, data, created_at`,
+      [input.ownerId, input.contentType, input.data.length, input.data],
+    );
+    return toUpload(rows[0]);
+  }
+
+  async getUpload(id: string): Promise<UploadRecord | null> {
+    const { rows } = await getPool().query<UploadRow>(
+      `SELECT id, owner_id, content_type, data, created_at FROM uploads WHERE id = $1 LIMIT 1`,
+      [id],
+    );
+    return rows[0] ? toUpload(rows[0]) : null;
+  }
+
   // -- Business accounts ------------------------------------------------------
   async findShopByEmail(emailNormalized: string): Promise<ShopProfileRecord | null> {
     const { rows } = await getPool().query<ShopRow>(
@@ -1237,6 +1298,7 @@ export class MemoryAppStore implements AppStore {
   readonly vehicles = new Map<string, VehicleRecord>();
   readonly diagnoses: DiagnosisSummary[] = [];
   readonly listings = new Map<string, ListingRecord>();
+  readonly uploads = new Map<string, UploadRecord>();
   readonly shops = new Map<string, ShopProfileRecord>();
   readonly towing = new Map<string, TowingProfileRecord>();
   readonly messages: MessageRecord[] = [];
@@ -1388,6 +1450,23 @@ export class MemoryAppStore implements AppStore {
     if (!listing || listing.sellerId !== sellerId) return false;
     this.listings.delete(id);
     return true;
+  }
+
+  // -- Uploads --------------------------------------------------------------
+  async saveUpload(input: CreateUploadInput): Promise<UploadRecord> {
+    const upload: UploadRecord = {
+      id: this.nextId("upload"),
+      ownerId: input.ownerId,
+      contentType: input.contentType,
+      data: input.data,
+      createdAt: this.now(),
+    };
+    this.uploads.set(upload.id, upload);
+    return upload;
+  }
+
+  async getUpload(id: string): Promise<UploadRecord | null> {
+    return this.uploads.get(id) ?? null;
   }
 
   // -- Business accounts ------------------------------------------------------

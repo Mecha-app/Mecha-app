@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState, type FormEvent } from "react";
 import { AppNav } from "@/components/AppNav";
 import { apiDetail, apiFetch } from "@/lib/client/api";
-import { getToken } from "@/lib/client/auth";
+import { authHeaders, clearSession, getToken } from "@/lib/client/auth";
 import { useLocale } from "@/lib/i18n/LocaleProvider";
 
 /**
@@ -12,8 +12,11 @@ import { useLocale } from "@/lib/i18n/LocaleProvider";
  * THE GUIDED PHOTO SET (owner's spec): six named slots — front, back,
  * right side, left side, dashboard/interior, whole vehicle — and a
  * 4-photo minimum, enforced by the API and mirrored in this form's
- * labels. Photos are links for now; an upload pipeline is a later
- * package (the owner's priority order: diagnostic core first).
+ * labels. Photos are real UPLOADS (owner order, 2026-11-16: "upload
+ * pictures, not link"): each tile sends the file to
+ * POST /api/listings/photos and keeps the returned serving URL in the
+ * same photo state the publish flow has always used, so publishing a
+ * listing is unchanged apart from how the photos got in.
  */
 
 const SLOT_KEYS = ["front", "back", "right", "left", "interior", "whole"] as const;
@@ -43,6 +46,14 @@ export default function SellPage() {
     left: "",
     interior: "",
     whole: "",
+  });
+  const [uploading, setUploading] = useState<Record<SlotKey, boolean>>({
+    front: false,
+    back: false,
+    right: false,
+    left: false,
+    interior: false,
+    whole: false,
   });
   const [form, setForm] = useState({
     title: "",
@@ -107,6 +118,39 @@ export default function SellPage() {
     } else {
       setError(apiDetail(res.data, t.wp6.common.somethingWrong));
     }
+  }
+
+  async function uploadPhoto(slot: SlotKey, file: File) {
+    setError("");
+    setUploading((prev) => ({ ...prev, [slot]: true }));
+    const form = new FormData();
+    form.set("photo", file);
+    try {
+      const res = await fetch("/api/listings/photos", {
+        method: "POST",
+        headers: { ...authHeaders() },
+        body: form,
+      });
+      const data = (await res.json().catch(() => ({}))) as { url?: unknown };
+      if (res.status === 401) {
+        clearSession();
+        window.location.href = "/login";
+        return;
+      }
+      if (res.status === 201 && typeof data.url === "string") {
+        setPhotos((prev) => ({ ...prev, [slot]: data.url as string }));
+      } else {
+        setError(apiDetail(data, t.wp6.common.somethingWrong));
+      }
+    } catch {
+      setError(t.wp6.common.somethingWrong);
+    } finally {
+      setUploading((prev) => ({ ...prev, [slot]: false }));
+    }
+  }
+
+  function removePhoto(slot: SlotKey) {
+    setPhotos((prev) => ({ ...prev, [slot]: "" }));
   }
 
   async function setStatus(id: string, status: string) {
@@ -209,19 +253,62 @@ export default function SellPage() {
               {s.photosTitle}
             </legend>
             <p className="text-sm leading-relaxed text-ink-2">{s.photosHelp}</p>
-            <div className="mt-4 flex flex-col gap-3">
+            <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
               {SLOT_KEYS.map((slot) => (
-                <div key={slot}>
-                  <label htmlFor={`photo-${slot}`} className={labelCls}>
-                    {s.photoSlots[slot]}
+                <div key={slot} className="relative">
+                  <label
+                    htmlFor={`photo-${slot}`}
+                    className="block cursor-pointer overflow-hidden rounded-xl border border-line bg-surface"
+                  >
+                    {photos[slot] ? (
+                      <>
+                        {/* The uploaded photo itself, served by the app. */}
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={photos[slot]}
+                          alt={s.photoSlots[slot]}
+                          className="aspect-[4/3] w-full object-cover"
+                        />
+                        <span className="block px-2 py-1.5 text-sm font-medium text-ink-2">
+                          {s.photoSlots[slot]}
+                        </span>
+                      </>
+                    ) : (
+                      <span
+                        className={`flex aspect-[4/3] w-full flex-col items-center justify-center gap-1 px-2 text-ink-2 ${
+                          uploading[slot] ? "animate-pulse" : ""
+                        }`}
+                      >
+                        <span aria-hidden className="text-3xl font-light leading-none">
+                          +
+                        </span>
+                        <span className="text-center text-sm font-medium">
+                          {s.photoSlots[slot]}
+                        </span>
+                      </span>
+                    )}
                   </label>
                   <input
                     id={`photo-${slot}`}
-                    className={inputCls}
-                    placeholder={s.photoUrlPlaceholder}
-                    value={photos[slot]}
-                    onChange={(e) => setPhotos({ ...photos, [slot]: e.target.value })}
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      e.target.value = "";
+                      if (file) void uploadPhoto(slot, file);
+                    }}
                   />
+                  {photos[slot] && (
+                    <button
+                      type="button"
+                      aria-label={s.photoSlots[slot]}
+                      onClick={() => removePhoto(slot)}
+                      className="absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-full bg-black/60 text-base leading-none text-white"
+                    >
+                      ×
+                    </button>
+                  )}
                 </div>
               ))}
             </div>
