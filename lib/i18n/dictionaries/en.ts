@@ -773,6 +773,7 @@ const en = {
       bannerBody:
         "Add your phone number to unlock your free diagnoses. Ten seconds, and it protects your account's diagnosis count.",
       bannerCta: "Add my phone number",
+      bannerDismiss: "Not now",
     },
   },
   wp6: {

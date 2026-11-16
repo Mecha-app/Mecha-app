@@ -17,11 +17,19 @@ import { RETURN_TO_KEY } from "@/lib/server/scan";
  *     standard payload at GET /api/auth/session-bridge.
  * Either way it stores the session exactly like the password sign-in
  * does (saveSession), scrubs the address bar, and routes onward:
- *   - a phone-less account (every brand-new Google account) goes to
- *     /app/complete-profile — the identity is email AND phone, and
- *     diagnoses stay locked until the number is on file;
- *   - otherwise the saved return-to wins (the scan flow's contract),
- *     else the diagnosis screen — the login page's destinations.
+ * the saved return-to wins (the scan flow's contract), else the
+ * dashboard — for EVERY account, phone on file or not.
+ *
+ * The phone wall that used to stand here is GONE (owner, 2026-11-16:
+ * he signed in with Google on his phone and hit /app/complete-profile
+ * instead of his account — "once you sign in you should be able to
+ * see inside of your account and see like the options"). A phone-less
+ * account (every brand-new Google account) now lands in the dashboard
+ * like everyone else; the number is collected by the dashboard's
+ * non-blocking, dismissible phone card, in place. The diagnosis gate
+ * itself is unchanged: diagnoses still require the number (the
+ * identity is email AND phone), and the free count still keys on
+ * the account — only the sign-in path stopped being a wall.
  * A missing or malformed fragment means the flow didn't complete:
  * back to /login with the generic Google error flag.
  */
@@ -33,11 +41,10 @@ export default function GoogleCompletePage() {
     const finish = (token: string, user: StoredUser) => {
       // Scrub any payload from the address bar before navigating on.
       window.history.replaceState(null, "", window.location.pathname);
-      if (!user.phone) {
-        window.location.href = "/app/complete-profile";
-        return;
-      }
-      let target = "/app/diagnose";
+      // No phone branch: sign-in lands in the dashboard for every
+      // account (owner, 2026-11-16) — the dashboard's phone card
+      // collects the number in place when it's missing.
+      let target = "/app";
       try {
         const returnTo = sessionStorage.getItem(RETURN_TO_KEY);
         sessionStorage.removeItem(RETURN_TO_KEY);

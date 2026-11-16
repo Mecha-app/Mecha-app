@@ -1003,6 +1003,7 @@ const de: DeepPartial<Dictionary> = {
       bannerTitle: "Schließen Sie die Einrichtung Ihres Kontos ab",
       bannerBody: "Fügen Sie Ihre Telefonnummer hinzu, um Ihre kostenlosen Diagnosen freizuschalten. Das dauert zehn Sekunden und schützt den Diagnosezähler Ihres Kontos.",
       bannerCta: "Meine Telefonnummer hinzufügen",
+      bannerDismiss: "Nicht jetzt",
     },
   },
 };

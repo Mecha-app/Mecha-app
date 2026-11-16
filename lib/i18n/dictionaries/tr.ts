@@ -1003,6 +1003,7 @@ const tr: DeepPartial<Dictionary> = {
       bannerTitle: "Hesabınızın kurulumunu tamamlayın",
       bannerBody: "Ücretsiz teşhislerinizin kilidini açmak için telefon numaranızı ekleyin. On saniye sürer ve hesabınızın teşhis sayacını korur.",
       bannerCta: "Telefon numaramı ekle",
+      bannerDismiss: "Şimdi değil",
     },
   },
 };

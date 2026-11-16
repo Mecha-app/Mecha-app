@@ -1003,6 +1003,7 @@ const ar: DeepPartial<Dictionary> = {
       bannerTitle: "أنهِ إعداد حسابك",
       bannerBody: "أضف رقم هاتفك لفتح تشخيصاتك المجانية. يستغرق الأمر عشر ثوانٍ ويحمي عدّاد تشخيصات حسابك.",
       bannerCta: "إضافة رقم هاتفي",
+      bannerDismiss: "ليس الآن",
     },
   },
 };

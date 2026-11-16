@@ -14,6 +14,12 @@ import { useLocale } from "@/lib/i18n/LocaleProvider";
  * and the diagnose page routes here), because a phone-less identity
  * could be re-created to reset the free count.
  *
+ * Since the owner's 2026-11-16 sign-in fix this page is a DEEP LINK
+ * only (the diagnose flow routes here; the dashboard's phone card
+ * links nowhere — it saves in place through the same endpoint). It
+ * is no longer forced on the sign-in path: sign-in lands in the
+ * dashboard for every account, phone or not.
+ *
  * Minimal chrome by design — one question, one button. A number that
  * already belongs to a different account answers the server's honest
  * conflict (shown verbatim); accounts are never merged silently.

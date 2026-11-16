@@ -1003,6 +1003,7 @@ const it: DeepPartial<Dictionary> = {
       bannerTitle: "Completa la configurazione del tuo account",
       bannerBody: "Aggiungi il tuo numero di telefono per sbloccare le tue diagnosi gratuite. Bastano dieci secondi e protegge il contatore delle diagnosi del tuo account.",
       bannerCta: "Aggiungi il mio numero di telefono",
+      bannerDismiss: "Non ora",
     },
   },
 };

@@ -12,8 +12,10 @@ import { RETURN_TO_KEY } from "@/lib/server/scan";
 /**
  * Where a successful sign-in lands: the page that sent the visitor
  * here (e.g. /app/scan sets a return-to before bouncing), else the
- * diagnosis screen. Only in-app paths are honored, and the key is
- * cleared on use so it can never redirect a later sign-in.
+ * dashboard — inside the account, with all the options visible
+ * (owner, 2026-11-16: sign-in must land IN the account, never at a
+ * wall or a single screen). Only in-app paths are honored, and the
+ * key is cleared on use so it can never redirect a later sign-in.
  */
 function postAuthDestination(): string {
   try {
@@ -23,7 +25,7 @@ function postAuthDestination(): string {
   } catch {
     // Private mode — default destination.
   }
-  return "/app/diagnose";
+  return "/app";
 }
 
 /**

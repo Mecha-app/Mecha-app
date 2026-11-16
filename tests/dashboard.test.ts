@@ -48,9 +48,13 @@ test("dashboard data: the same sources and flows as always", () => {
   for (const src of ["/api/auth/me", "/api/vehicles", "/api/diagnoses/recent", "/api/business/me"]) {
     assert.ok(page.includes(src), `dashboard still reads ${src}`);
   }
-  for (const href of ["/app/diagnose", "/app/nearby?kind=shops", "/app/nearby?kind=towing", "/marketplace", "/sell", "/app/vault", "/app/messages", "/app/nearby", "/app/complete-profile"]) {
+  for (const href of ["/app/diagnose", "/app/nearby?kind=shops", "/app/nearby?kind=towing", "/marketplace", "/sell", "/app/vault", "/app/messages", "/app/nearby"]) {
     assert.ok(page.includes(`"${href}"`), `dashboard still links ${href}`);
   }
+  // The sign-in fix (2026-11-16): the dashboard never sends a
+  // signed-in user to the complete-profile wall — the phone card
+  // below collects the number in place instead.
+  assert.ok(!page.includes('"/app/complete-profile"'), "no link or route to the old phone wall");
   // The verify-email flow is intact (code entry + resend).
   assert.ok(page.includes("/api/auth/verify-email"), "verify flow intact");
   assert.ok(page.includes("/api/auth/resend-verification"), "resend flow intact");
@@ -114,10 +118,28 @@ test("recent diagnoses: a tidy divided list, or an empty state with one action",
 });
 
 test("account prompts are cards too: phone completion and email verification", () => {
-  assert.ok(page.includes("t.auth.completeProfile.bannerTitle"), "phone prompt keeps its heading");
-  assert.ok(page.includes("t.auth.completeProfile.bannerCta"), "phone prompt keeps its action");
   assert.ok(page.includes("d.verifyTitle"), "verify prompt keeps its heading");
   assert.ok(page.includes("d.verifyButton") && page.includes("d.verifyResend"), "verify prompt keeps its actions");
+});
+
+test("phone card: non-blocking, in place, dismissible — shown only when the number is missing", () => {
+  // Shown only for a driver with no phone on file, and only
+  // until dismissed — never for accounts that have a number.
+  assert.ok(page.includes("phoneMissing && !phoneDismissed"), "the card gates on missing phone + not dismissed");
+  assert.ok(page.includes("setPhoneMissing(me.data.user.phone === null)"), "missing state comes from the account record");
+  assert.ok(page.includes("t.auth.completeProfile.bannerTitle"), "the card keeps its heading");
+  assert.ok(page.includes("t.auth.completeProfile.bannerBody"), "the card states why the number matters");
+  // Completable IN PLACE: the same save endpoint + session
+  // refresh the complete-profile page uses; success hides it.
+  assert.ok(page.includes('"/api/auth/complete-phone"'), "the card saves through the complete-phone endpoint");
+  assert.ok(page.includes("saveSession(res.data.token, res.data.user)"), "a successful save refreshes the session");
+  assert.ok(page.includes("setPhoneMissing(false)"), "a successful save retires the card");
+  assert.ok(page.includes("t.auth.completeProfile.phoneLabel"), "the input is labeled from the catalog");
+  assert.ok(page.includes("t.auth.completeProfile.bannerCta"), "the save action is the catalog's");
+  assert.ok(page.includes("t.auth.completeProfile.failed"), "save failures surface the honest copy");
+  // Dismissible: a "Not now" control hides the card.
+  assert.ok(page.includes("t.auth.completeProfile.bannerDismiss"), "the card offers the dismiss");
+  assert.ok(page.includes("setPhoneDismissed(true)"), "the dismiss hides the card");
 });
 
 test("business view: profile card + billing, same data", () => {

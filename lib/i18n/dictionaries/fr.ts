@@ -763,6 +763,7 @@ const fr: DeepPartial<Dictionary> = {
       bannerTitle: "Terminez la configuration de votre compte",
       bannerBody: "Ajoutez votre numéro de téléphone pour débloquer vos diagnostics gratuits. Cela prend dix secondes et protège le compteur de diagnostics de votre compte.",
       bannerCta: "Ajouter mon numéro de téléphone",
+      bannerDismiss: "Pas maintenant",
     },
   },
   wp6: {

@@ -1,12 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { AppNav } from "@/components/AppNav";
 import { BillingSection } from "@/components/BillingSection";
 import { LoopClip } from "@/components/LoopClip";
 import { apiDetail, apiFetch } from "@/lib/client/api";
-import { getStoredUser, getToken } from "@/lib/client/auth";
+import { getStoredUser, getToken, saveSession, type StoredUser } from "@/lib/client/auth";
 import { useLocale } from "@/lib/i18n/LocaleProvider";
 
 /**
@@ -30,6 +30,14 @@ import { useLocale } from "@/lib/i18n/LocaleProvider";
  * the shared pricing typography. Every data source, count, link,
  * and flow is identical to the tile/Tesla passes — presentation
  * only, in the pass #7 light/blue theme.
+ *
+ * Sign-in fix (owner, 2026-11-16, folded into pass #8): sign-in
+ * now lands HERE for every account — the Google completion page
+ * no longer walls phone-less accounts into /app/complete-profile,
+ * and the email login's default destination is this dashboard.
+ * The phone number is collected by the non-blocking card below:
+ * shown only when no number is on file, completable in place via
+ * /api/auth/complete-phone, dismissible with "Not now".
  */
 
 /** Action glyphs — MECHA line set (§1.6), drawn not emoji. */
@@ -147,10 +155,17 @@ export default function DashboardPage() {
   // server says the email is verified; nothing else waits on it.
   const [emailVerified, setEmailVerified] = useState<boolean | null>(null);
   // Phone completion (social login package): a Google-created account
-  // starts phone-less; the banner below mirrors the verify banner —
-  // visible until the number is on file, because diagnoses stay
-  // locked until then (the identity is email AND phone).
+  // starts phone-less. Since the owner's 2026-11-16 sign-in fix the
+  // number is collected by a NON-BLOCKING card on this dashboard —
+  // completable in place (the same /api/auth/complete-phone save the
+  // complete-profile page uses) or dismissed — never a wall between
+  // sign-in and the account. Diagnoses stay locked until the number
+  // is on file (the identity is email AND phone).
   const [phoneMissing, setPhoneMissing] = useState(false);
+  const [phoneValue, setPhoneValue] = useState("");
+  const [phoneState, setPhoneState] = useState<"idle" | "saving" | "error">("idle");
+  const [phoneDetail, setPhoneDetail] = useState("");
+  const [phoneDismissed, setPhoneDismissed] = useState(false);
   const [verifyCode, setVerifyCode] = useState("");
   const [verifyState, setVerifyState] = useState<
     "idle" | "working" | "done" | "sent" | "unavailable" | "error"
@@ -228,6 +243,27 @@ export default function DashboardPage() {
       setVerifyState("error");
       setVerifyDetail(apiDetail(res.data, "Something went wrong. Please try again."));
     }
+  }
+
+  // The phone card's save: the SAME endpoint and session refresh
+  // the /app/complete-profile page uses — completed in place, the
+  // card simply goes away. A number that belongs to a different
+  // account answers the server's honest conflict, shown verbatim.
+  async function onSavePhone(e: FormEvent) {
+    e.preventDefault();
+    setPhoneState("saving");
+    setPhoneDetail("");
+    const res = await apiFetch<{ token: string; user: StoredUser }>("/api/auth/complete-phone", {
+      method: "POST",
+      body: JSON.stringify({ phone: phoneValue }),
+    });
+    if (res.status === 200 && res.data.token && res.data.user) {
+      saveSession(res.data.token, res.data.user);
+      setPhoneMissing(false);
+      return;
+    }
+    setPhoneState("error");
+    setPhoneDetail(apiDetail(res.data, t.auth.completeProfile.failed));
   }
 
   const actions = [
@@ -387,20 +423,53 @@ export default function DashboardPage() {
           </section>
         )}
 
-        {kind === "driver" && phoneMissing && (
+        {kind === "driver" && phoneMissing && !phoneDismissed && (
           <section className={`${CARD} mt-6`}>
             <CardHeading>{t.auth.completeProfile.bannerTitle}</CardHeading>
             <p className="mt-3 text-base leading-relaxed text-ink-2">
               {t.auth.completeProfile.bannerBody}
             </p>
-            <div className="mt-6">
-              <Link
-                href="/app/complete-profile"
-                className="inline-flex h-12 items-center justify-center rounded-full bg-accent px-8 text-base font-semibold text-accent-ink"
+            <form onSubmit={onSavePhone} className="mt-6" noValidate>
+              <label
+                htmlFor="dashboard-phone"
+                className="block text-sm font-medium text-ink-2"
               >
-                {t.auth.completeProfile.bannerCta}
-              </Link>
-            </div>
+                {t.auth.completeProfile.phoneLabel}
+              </label>
+              <input
+                id="dashboard-phone"
+                type="tel"
+                className="mt-2 h-12 w-full rounded-xl border border-line bg-surface px-4 text-base text-ink-1 placeholder:text-ink-3"
+                autoComplete="tel"
+                inputMode="tel"
+                value={phoneValue}
+                onChange={(e) => setPhoneValue(e.target.value)}
+                required
+              />
+              {phoneState === "error" && (
+                <p className="mt-3 text-base text-verdict-rip" role="alert">
+                  {phoneDetail}
+                </p>
+              )}
+              <div className="mt-5 flex flex-col gap-3 sm:flex-row">
+                <button
+                  type="submit"
+                  disabled={phoneState === "saving" || phoneValue.trim().length === 0}
+                  className="h-12 rounded-full bg-accent px-8 text-base font-semibold text-accent-ink disabled:opacity-60"
+                >
+                  {phoneState === "saving"
+                    ? t.auth.completeProfile.saving
+                    : t.auth.completeProfile.bannerCta}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPhoneDismissed(true)}
+                  className="btn-ghost h-12 rounded-full px-8 text-base font-semibold text-ink-1"
+                >
+                  {t.auth.completeProfile.bannerDismiss}
+                </button>
+              </div>
+            </form>
           </section>
         )}
 

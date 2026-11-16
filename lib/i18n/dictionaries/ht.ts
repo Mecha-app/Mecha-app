@@ -763,6 +763,7 @@ const ht: DeepPartial<Dictionary> = {
       bannerTitle: "Fini konfigirasyon kont ou a",
       bannerBody: "Ajoute nimewo telefòn ou pou debloke dyagnostik gratis ou yo. Sa pran dis segonn, epi li pwoteje kontè dyagnostik kont ou a.",
       bannerCta: "Ajoute nimewo telefòn mwen",
+      bannerDismiss: "Pa kounye a",
     },
   },
   wp6: {

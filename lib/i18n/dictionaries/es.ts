@@ -762,6 +762,7 @@ const es: DeepPartial<Dictionary> = {
       bannerTitle: "Termina de configurar tu cuenta",
       bannerBody: "Agrega tu número de teléfono para desbloquear tus diagnósticos gratuitos. Toma diez segundos y protege el contador de diagnósticos de tu cuenta.",
       bannerCta: "Agregar mi número de teléfono",
+      bannerDismiss: "Ahora no",
     },
   },
   wp6: {
