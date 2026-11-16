@@ -236,6 +236,7 @@ const pl: DeepPartial<Dictionary> = {
     eyebrow: "Cennik",
     heading: "Darmowy start. Uczciwość co do licznika.",
     body: "Każde konto zaczyna od 5 darmowych diagnoz. Po każdej MECHA mówi ci dokładnie, ile ci zostało — 4, potem 3, potem 2 — a przy zerze ty wybierasz: subskrybuj albo przestań. Nic nigdy nie jest pobierane za twoimi plecami.",
+    popularBadge: "Najpopularniejszy",
     free: {
       name: "Darmowy",
       price: "$0",
@@ -726,6 +727,10 @@ const pl: DeepPartial<Dictionary> = {
       signInRequired: "Zaloguj się, aby kontynuować.",
     },
     dashboard: {
+      quotaTitle: "Diagnozy",
+      quotaNote: "Gdy skończą się bezpłatne diagnozy, diagnozy wstrzymują się do czasu ulepszenia planu. Nic nigdy nie jest pobierane automatycznie.",
+      quotaUpgrade: "Przejdź na Pro",
+      actionVaultSub: "Historia, akcje serwisowe i przypomnienia",
       title: "Twój garaż",
       welcomeBack: "Witaj z powrotem",
       quotaPro: "Plan Pro — nielimitowane diagnozy.",

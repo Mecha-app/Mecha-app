@@ -228,6 +228,7 @@ const fr: DeepPartial<Dictionary> = {
     eyebrow: "Tarifs",
     heading: "Gratuit pour commencer. Honnête sur le compteur.",
     body: "Chaque compte commence avec 5 diagnostics gratuits. Après chacun, MECHA vous dit exactement combien il vous en reste — 4, puis 3, puis 2 — et à zéro, vous choisissez : vous abonner, ou arrêter. Rien n'est jamais facturé dans votre dos.",
+    popularBadge: "Le plus populaire",
     free: {
       name: "Gratuit",
       price: "$0",
@@ -762,6 +763,14 @@ const fr: DeepPartial<Dictionary> = {
       bannerTitle: "Terminez la configuration de votre compte",
       bannerBody: "Ajoutez votre numéro de téléphone pour débloquer vos diagnostics gratuits. Cela prend dix secondes et protège le compteur de diagnostics de votre compte.",
       bannerCta: "Ajouter mon numéro de téléphone",
+    },
+  },
+  wp6: {
+    dashboard: {
+      quotaTitle: "Diagnostics",
+      quotaNote: "Quand les diagnostics gratuits sont épuisés, les diagnostics se mettent en pause jusqu'à ce que vous changiez d'offre. Aucun montant n'est jamais prélevé automatiquement.",
+      quotaUpgrade: "Passer à Pro",
+      actionVaultSub: "Historique, rappels de sécurité et alertes",
     },
   },
 };

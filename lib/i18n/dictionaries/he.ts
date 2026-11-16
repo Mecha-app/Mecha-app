@@ -236,6 +236,7 @@ const he: DeepPartial<Dictionary> = {
     eyebrow: "מחירים",
     heading: "התחל חינם. תהיה ישר לגבי המונה.",
     body: "כל חשבון מתחיל עם 5 אבחונים חינמיים. אחרי כל אחד, MECHA אומרת לך בדיוק כמה נשארו — 4, אחר כך 3, אחר כך 2 — ובאפס אתה בוחר: להירשם או לעצור. שום דבר לא מחויב מאחורי הגב שלך.",
+    popularBadge: "הפופולרי ביותר",
     free: {
       name: "חינם",
       price: "$0",
@@ -726,6 +727,10 @@ const he: DeepPartial<Dictionary> = {
       signInRequired: "התחבר כדי להמשיך.",
     },
     dashboard: {
+      quotaTitle: "אבחונים",
+      quotaNote: "כאשר האבחונים החינמיים נגמרים, האבחונים מושהים עד לשדרוג. לעולם אין חיוב אוטומטי.",
+      quotaUpgrade: "שדרוג ל-Pro",
+      actionVaultSub: "היסטוריה, ריקולים ותזכורות",
       title: "המוסך שלך",
       welcomeBack: "ברוך שובך",
       quotaPro: "תוכנית Pro — אבחונים ללא הגבלה.",

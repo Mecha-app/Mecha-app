@@ -20,6 +20,13 @@ import { useLocale } from "@/lib/i18n/LocaleProvider";
  * No guilt copy, no retention maze, no dark patterns — cancelling is
  * exactly as easy to find as upgrading. Mobile-first: one column,
  * every action a ≥48px target.
+ *
+ * Design pass #8 (2026-11-16): the section renders as a structured
+ * card in the dashboard's professional system, and the current
+ * plan's price is presented with the shared pricing typography —
+ * the catalog's own price + period strings (components/PlanCards),
+ * so the price here looks exactly like the price on /pricing.
+ * Data, buttons, and flows are unchanged.
  */
 
 interface BillingView {
@@ -62,6 +69,17 @@ export function BillingSection({
           ? b.planStarter
           : b.planFree;
   const isPaidPlan = plan === "pro" || plan === "business";
+  // The plan's price, from the pricing catalog itself — the same
+  // strings /pricing and the homepage cards render (pass #8).
+  // Starter predates the catalog and shows its label alone.
+  const planPrice =
+    plan === "pro"
+      ? { price: t.pricing.pro.price, period: t.pricing.pro.period }
+      : plan === "business"
+        ? { price: t.pricing.shops.price, period: t.pricing.shops.period }
+        : plan === "free"
+          ? { price: t.pricing.free.price, period: t.pricing.free.period }
+          : null;
 
   const statusWord =
     view?.subscriptionStatus === "active"
@@ -108,11 +126,24 @@ export function BillingSection({
   }
 
   return (
-    <section className="mt-24 text-center">
-      <h2 className="font-display text-3xl font-medium text-ink-1 sm:text-4xl">{b.title}</h2>
-      <div className="mx-auto mt-10 w-full max-w-xl">
-        <p className="text-sm text-ink-3">{b.currentPlan}</p>
-        <p className="mt-1 font-display text-2xl font-medium text-ink-1">{planLabel}</p>
+    <section id="billing" className="mt-6 scroll-mt-24">
+      <div className="rounded-2xl border border-line bg-surface p-6 sm:p-8">
+        <h2 className="font-display text-xl font-semibold text-ink-1">{b.title}</h2>
+
+        <p className="mt-6 text-[11px] font-semibold uppercase tracking-eyebrow text-ink-3">
+          {b.currentPlan}
+        </p>
+        <div className="mt-1.5 flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1">
+          <p className="font-display text-2xl font-semibold text-ink-1">{planLabel}</p>
+          {planPrice && (
+            <p>
+              <span className="tnum font-display text-2xl font-semibold text-ink-1">
+                {planPrice.price}
+              </span>{" "}
+              <span className="text-sm text-ink-3">{planPrice.period}</span>
+            </p>
+          )}
+        </div>
 
         {view?.subscriptionStatus === "past_due" && (
           <p className="mt-3 text-base font-medium text-ink-1">{b.statusPastDue}</p>
@@ -140,7 +171,7 @@ export function BillingSection({
               type="button"
               onClick={openPortal}
               disabled={busy !== null}
-              className="mt-5 flex h-12 w-full items-center justify-center rounded-full bg-accent px-6 text-base font-semibold text-accent-ink disabled:opacity-60"
+              className="mt-6 flex h-12 w-full items-center justify-center rounded-full bg-accent px-6 text-base font-semibold text-accent-ink disabled:opacity-60 sm:w-auto sm:min-w-[16rem]"
             >
               {busy === "portal" ? b.openingPortal : b.manageButton}
             </button>
@@ -154,7 +185,7 @@ export function BillingSection({
               type="button"
               onClick={openCheckout}
               disabled={busy !== null}
-              className="mt-5 flex h-12 w-full items-center justify-center rounded-full bg-accent px-6 text-base font-semibold text-accent-ink disabled:opacity-60"
+              className="mt-6 flex h-12 w-full items-center justify-center rounded-full bg-accent px-6 text-base font-semibold text-accent-ink disabled:opacity-60 sm:w-auto sm:min-w-[16rem]"
             >
               {busy === "checkout"
                 ? b.openingCheckout

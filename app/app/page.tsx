@@ -17,16 +17,19 @@ import { useLocale } from "@/lib/i18n/LocaleProvider";
  * For a shop/towing account: their business profile + plan state.
  * Mobile-first: one column, every action a ≥48px target.
  *
- * Design pass "Dashboard Tesla" (2026-11-16, owner: "reanalyze the
- * Tesla page again… make it similar"): the dashboard is rebuilt in
- * Tesla's design language — the vehicle IS the hero (its name as one
- * large, light heading over the full-width in-use film, no frame),
- * the free-diagnosis count is one large numeral with a quiet label
- * and a single hairline meter, and the quick actions are borderless
- * icon-over-label controls floating in open space. No cards, no
- * borders, no shadows, no explanatory sub-lines; sections are
- * separated by whitespace alone. Data, flows, and destinations are
- * unchanged from the tile pass.
+ * Design pass #8 (2026-11-16, owner verdict on the pass #3 bare
+ * rebuild: "I don't like this dashboard at all at all"): the
+ * dashboard is PROFESSIONAL and STRUCTURED — clean white cards
+ * with clear headings, like a real company's app. The vehicle is
+ * a proper summary card (film, name, the specs on file, a clear
+ * Health Vault action); the free-diagnosis count is a labeled
+ * card (count in context, a clean meter, what happens at zero,
+ * the upgrade path); the quick actions are labeled cards with
+ * icons and one-line descriptions; recent diagnoses are a tidy
+ * list card; plan & billing is a card presenting the price with
+ * the shared pricing typography. Every data source, count, link,
+ * and flow is identical to the tile/Tesla passes — presentation
+ * only, in the pass #7 light/blue theme.
  */
 
 /** Action glyphs — MECHA line set (§1.6), drawn not emoji. */
@@ -82,6 +85,13 @@ const ACTION_ICONS: Record<string, ReactNode> = {
   vault: <path d="M12 3l7 2.8v6.1c0 4.4-2.9 7.4-7 9.1-4.1-1.7-7-4.7-7-9.1V5.8z" />,
 };
 
+/** The one card shell + heading every dashboard section shares. */
+const CARD = "rounded-2xl border border-line bg-surface p-6 sm:p-8";
+
+function CardHeading({ children }: { children: ReactNode }) {
+  return <h2 className="font-display text-xl font-semibold text-ink-1">{children}</h2>;
+}
+
 interface QuotaView {
   plan: string;
   used: number;
@@ -95,6 +105,10 @@ interface Vehicle {
   year: string;
   make: string;
   model: string;
+  trim: string | null;
+  engine: string | null;
+  mileage: number | null;
+  color: string | null;
   nickname: string | null;
 }
 
@@ -125,9 +139,9 @@ export default function DashboardPage() {
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [diagnoses, setDiagnoses] = useState<Diagnosis[]>([]);
   const [business, setBusiness] = useState<Business | null>(null);
-  // True once the driver's first data load has resolved — the hero
-  // shows the plain garage title until then, so the no-vehicle call
-  // to action never flashes for a driver who has a car.
+  // True once the driver's first data load has resolved — the
+  // no-vehicle call to action shows only after it, so it never
+  // flashes for a driver who has a car.
   const [driverLoaded, setDriverLoaded] = useState(false);
   // Email verification (0011, SOFT GATE): the banner shows until the
   // server says the email is verified; nothing else waits on it.
@@ -217,90 +231,135 @@ export default function DashboardPage() {
   }
 
   const actions = [
-    { href: "/app/diagnose", title: d.actionDiagnose, icon: ACTION_ICONS.diagnose },
-    { href: "/app/nearby?kind=shops", title: d.actionShop, icon: ACTION_ICONS.shop },
-    { href: "/app/nearby?kind=towing", title: d.actionTow, icon: ACTION_ICONS.tow },
-    { href: "/marketplace", title: d.actionMarketplace, icon: ACTION_ICONS.marketplace },
-    { href: "/sell", title: d.actionSell, icon: ACTION_ICONS.sell },
-    { href: "/app/vault", title: t.wp6.vault.title, icon: ACTION_ICONS.vault },
+    { href: "/app/diagnose", title: d.actionDiagnose, sub: d.actionDiagnoseSub, icon: ACTION_ICONS.diagnose },
+    { href: "/app/nearby?kind=shops", title: d.actionShop, sub: d.actionShopSub, icon: ACTION_ICONS.shop },
+    { href: "/app/nearby?kind=towing", title: d.actionTow, sub: d.actionTowSub, icon: ACTION_ICONS.tow },
+    { href: "/marketplace", title: d.actionMarketplace, sub: d.actionMarketplaceSub, icon: ACTION_ICONS.marketplace },
+    { href: "/sell", title: d.actionSell, sub: d.actionSellSub, icon: ACTION_ICONS.sell },
+    { href: "/app/vault", title: t.wp6.vault.title, sub: d.actionVaultSub, icon: ACTION_ICONS.vault },
   ];
 
   const heroVehicle = kind === "driver" && vehicles.length > 0 ? vehicles[0] : null;
-  const heroTitle = heroVehicle
+  const vehicleName = heroVehicle
     ? (heroVehicle.nickname ?? `${heroVehicle.year} ${heroVehicle.make} ${heroVehicle.model}`)
-    : kind === "business" && business
+    : null;
+  // The specs already on file for the vehicle (the vault record) —
+  // shown when they exist, absent when they don't.
+  const vehicleSpecs = heroVehicle
+    ? [
+        { label: t.wp6.vault.trim, value: heroVehicle.trim },
+        { label: t.wp6.vault.engine, value: heroVehicle.engine },
+        {
+          label: t.wp6.vault.mileage,
+          value: heroVehicle.mileage !== null ? `${heroVehicle.mileage.toLocaleString()} mi` : null,
+        },
+        { label: t.wp6.vault.color, value: heroVehicle.color },
+      ].filter((s): s is { label: string; value: string } => Boolean(s.value))
+    : [];
+  const headerTitle =
+    kind === "business" && business
       ? (business.shopName ?? business.companyName ?? d.title)
       : d.title;
 
   return (
     <>
       <AppNav business={kind === "business"} />
-      <main className="mx-auto w-full max-w-5xl px-5 py-14 sm:py-20">
-        {/* The hero: one focal point. For a driver with a vehicle,
-            the vehicle is the hero — its name in one large, light
-            heading over the full-width in-use film, no frame. */}
-        <header className="text-center">
+      <main className="mx-auto w-full max-w-5xl px-5 py-10 sm:py-14">
+        <header>
           {kind === "driver" && name && (
             <p className="text-sm text-ink-3">
               {d.welcomeBack}, {name}
             </p>
           )}
-          <h1 className="mt-3 font-display text-5xl font-medium leading-[1.05] tracking-[-0.02em] text-ink-1 sm:text-6xl">
-            {heroTitle}
+          <h1 className="mt-2 font-display text-4xl font-semibold leading-[1.08] tracking-[-0.02em] text-ink-1 sm:text-5xl">
+            {headerTitle}
           </h1>
-          {heroVehicle?.nickname && (
-            <p className="mt-3 text-lg text-ink-3">
-              {heroVehicle.year} {heroVehicle.make} {heroVehicle.model}
-            </p>
-          )}
-          {kind === "business" && business && (
-            <p className="mt-3 text-lg text-ink-3">{d.businessProfile}</p>
-          )}
         </header>
 
         {kind === "driver" && (
-          <>
+          <section className="mt-8 overflow-hidden rounded-2xl border border-line bg-surface">
             {heroVehicle ? (
               <Link
                 href="/app/vault"
-                aria-label={`${heroTitle} — ${d.viewVault}`}
-                className="mt-12 block"
+                aria-label={`${vehicleName} — ${d.viewVault}`}
+                className="block"
               >
                 <LoopClip name="roadside" />
               </Link>
             ) : (
-              <figure className="mt-12" aria-hidden="true">
+              <figure aria-hidden="true">
                 <LoopClip name="roadside" />
               </figure>
             )}
-            {driverLoaded && vehicles.length === 0 && (
-              <div className="mt-10 text-center">
-                <Link
-                  href="/app/vault"
-                  className="inline-flex h-12 items-center justify-center rounded-full bg-accent px-8 text-base font-semibold text-accent-ink"
-                >
-                  {d.addVehicle}
-                </Link>
-              </div>
-            )}
-          </>
+            <div className="p-6 sm:p-8">
+              {heroVehicle ? (
+                <>
+                  <h2 className="font-display text-2xl font-semibold text-ink-1 sm:text-3xl">
+                    {vehicleName}
+                  </h2>
+                  {heroVehicle.nickname && (
+                    <p className="mt-1.5 text-base text-ink-3">
+                      {heroVehicle.year} {heroVehicle.make} {heroVehicle.model}
+                    </p>
+                  )}
+                  {vehicleSpecs.length > 0 && (
+                    <dl className="mt-6 grid grid-cols-2 gap-x-6 gap-y-4 lg:grid-cols-4">
+                      {vehicleSpecs.map((s) => (
+                        <div key={s.label}>
+                          <dt className="text-[11px] font-semibold uppercase tracking-eyebrow text-ink-3">
+                            {s.label}
+                          </dt>
+                          <dd className="mt-1 font-medium text-ink-1">{s.value}</dd>
+                        </div>
+                      ))}
+                    </dl>
+                  )}
+                  <div className="mt-7">
+                    <Link
+                      href="/app/vault"
+                      className="inline-flex h-12 items-center justify-center rounded-full bg-accent px-8 text-base font-semibold text-accent-ink"
+                    >
+                      {d.viewVault}
+                    </Link>
+                  </div>
+                </>
+              ) : (
+                driverLoaded && (
+                  <>
+                    <p className="text-base leading-relaxed text-ink-2">{d.noVehicles}</p>
+                    <div className="mt-6">
+                      <Link
+                        href="/app/vault"
+                        className="inline-flex h-12 items-center justify-center rounded-full bg-accent px-8 text-base font-semibold text-accent-ink"
+                      >
+                        {d.addVehicle}
+                      </Link>
+                    </div>
+                  </>
+                )
+              )}
+            </div>
+          </section>
         )}
 
         {kind === "driver" && quota && (
-          <section className="mt-20 text-center" role="status" aria-live="polite">
+          <section className={`${CARD} mt-6`} role="status" aria-live="polite">
+            <CardHeading>{d.quotaTitle}</CardHeading>
             {quota.plan === "pro" ? (
-              <p className="font-display text-2xl font-medium text-ink-1">{d.quotaPro}</p>
+              <p className="mt-4 font-display text-2xl font-medium text-ink-1">{d.quotaPro}</p>
             ) : (
               <>
-                <p className="tnum font-display text-8xl font-medium leading-none text-ink-1">
-                  {quota.remaining}
+                <p className="mt-5 flex flex-wrap items-baseline gap-x-3">
+                  <span className="tnum font-display text-6xl font-semibold leading-none text-ink-1">
+                    {quota.remaining}
+                  </span>
+                  <span className="text-base text-ink-3">
+                    {d.quotaOf} {quota.limit} {d.quotaLeft}
+                  </span>
                 </p>
-                <p className="mt-3 text-base text-ink-3">
-                  {d.quotaOf} {quota.limit} {d.quotaLeft}
-                </p>
-                {/* The meter: one hairline bar, filled to what remains. */}
+                {/* The meter: a clean bar, filled to what remains. */}
                 <div
-                  className="mx-auto mt-6 h-1 w-full max-w-xs overflow-hidden rounded-full bg-inset"
+                  className="mt-5 h-2 w-full overflow-hidden rounded-full bg-inset"
                   aria-hidden="true"
                 >
                   <div
@@ -314,31 +373,40 @@ export default function DashboardPage() {
                     }}
                   />
                 </div>
+                <p className="mt-4 text-sm leading-relaxed text-ink-2">{d.quotaNote}</p>
+                <div className="mt-6">
+                  <Link
+                    href="#billing"
+                    className="inline-flex h-12 items-center justify-center rounded-full bg-accent px-8 text-base font-semibold text-accent-ink"
+                  >
+                    {d.quotaUpgrade}
+                  </Link>
+                </div>
               </>
             )}
           </section>
         )}
 
         {kind === "driver" && phoneMissing && (
-          <section className="mx-auto mt-16 w-full max-w-xl text-center">
-            <h2 className="font-display text-2xl font-medium text-ink-1">
-              {t.auth.completeProfile.bannerTitle}
-            </h2>
+          <section className={`${CARD} mt-6`}>
+            <CardHeading>{t.auth.completeProfile.bannerTitle}</CardHeading>
             <p className="mt-3 text-base leading-relaxed text-ink-2">
               {t.auth.completeProfile.bannerBody}
             </p>
-            <Link
-              href="/app/complete-profile"
-              className="mt-6 inline-flex h-12 items-center justify-center rounded-full bg-accent px-8 text-base font-semibold text-accent-ink"
-            >
-              {t.auth.completeProfile.bannerCta}
-            </Link>
+            <div className="mt-6">
+              <Link
+                href="/app/complete-profile"
+                className="inline-flex h-12 items-center justify-center rounded-full bg-accent px-8 text-base font-semibold text-accent-ink"
+              >
+                {t.auth.completeProfile.bannerCta}
+              </Link>
+            </div>
           </section>
         )}
 
         {kind === "driver" && (emailVerified === false || verifyState === "done") && (
-          <section className="mx-auto mt-16 w-full max-w-xl text-center">
-            <h2 className="font-display text-2xl font-medium text-ink-1">{d.verifyTitle}</h2>
+          <section className={`${CARD} mt-6`}>
+            <CardHeading>{d.verifyTitle}</CardHeading>
             {verifyState === "done" ? (
               <p className="mt-3 text-base text-verdict-fair" role="status">
                 {d.verifyDone}
@@ -396,37 +464,36 @@ export default function DashboardPage() {
 
         {kind === "driver" && (
           <>
-            <h2 className="mt-24 text-center font-display text-3xl font-medium text-ink-1 sm:text-4xl">
-              {d.quickActions}
-            </h2>
-            <div className="mt-12 grid grid-cols-3 gap-x-2 gap-y-10 lg:grid-cols-6">
-              {actions.map((a) => (
-                <Link
-                  key={a.href}
-                  href={a.href}
-                  className="group flex flex-col items-center gap-3 px-1 py-2 text-center"
-                >
-                  <span className="text-ink-1 transition-colors group-hover:text-accent">
-                    <TileIcon>{a.icon}</TileIcon>
-                  </span>
-                  <span className="text-sm font-medium leading-snug text-ink-2 transition-colors group-hover:text-ink-1">
-                    {a.title}
-                  </span>
-                </Link>
-              ))}
-            </div>
+            <section className="mt-10">
+              <h2 className="font-display text-2xl font-semibold text-ink-1">{d.quickActions}</h2>
+              <div className="mt-5 grid grid-cols-2 gap-4 lg:grid-cols-3">
+                {actions.map((a) => (
+                  <Link
+                    key={a.href}
+                    href={a.href}
+                    className="group rounded-2xl border border-line bg-surface p-5 transition-colors hover:border-accent"
+                  >
+                    <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-inset text-accent">
+                      <TileIcon>{a.icon}</TileIcon>
+                    </span>
+                    <span className="mt-4 block font-display text-base font-semibold leading-snug text-ink-1">
+                      {a.title}
+                    </span>
+                    <span className="mt-1 block text-sm leading-snug text-ink-3">{a.sub}</span>
+                  </Link>
+                ))}
+              </div>
+            </section>
 
             {vehicles.length > 1 && (
-              <>
-                <h2 className="mt-24 text-center font-display text-3xl font-medium text-ink-1 sm:text-4xl">
-                  {d.yourVehicles}
-                </h2>
-                <ul className="mx-auto mt-10 flex w-full max-w-2xl flex-col gap-6 text-center">
+              <section className={`${CARD} mt-6`}>
+                <CardHeading>{d.yourVehicles}</CardHeading>
+                <ul className="mt-2 divide-y divide-line">
                   {vehicles.slice(1).map((v) => (
                     <li key={v.id}>
                       <Link
                         href="/app/vault"
-                        className="font-display text-xl font-medium text-ink-1 transition-colors hover:text-accent"
+                        className="block py-4 font-display text-lg font-medium text-ink-1 transition-colors hover:text-accent"
                       >
                         {v.nickname ? `${v.nickname} — ` : ""}
                         {v.year} {v.make} {v.model}
@@ -434,10 +501,18 @@ export default function DashboardPage() {
                     </li>
                   ))}
                 </ul>
-              </>
+                <div className="mt-4">
+                  <Link
+                    href="/app/vault"
+                    className="btn-ghost inline-flex h-12 items-center justify-center rounded-full px-8 text-base font-semibold text-ink-1"
+                  >
+                    {d.addVehicle}
+                  </Link>
+                </div>
+              </section>
             )}
-            {vehicles.length > 0 && (
-              <div className="mt-12 text-center">
+            {vehicles.length === 1 && (
+              <div className="mt-6">
                 <Link
                   href="/app/vault"
                   className="btn-ghost inline-flex h-12 items-center justify-center rounded-full px-8 text-base font-semibold text-ink-1"
@@ -447,48 +522,59 @@ export default function DashboardPage() {
               </div>
             )}
 
-            <h2 className="mt-24 text-center font-display text-3xl font-medium text-ink-1 sm:text-4xl">
-              {d.recentDiagnoses}
-            </h2>
-            {diagnoses.length === 0 ? (
-              <p className="mt-6 text-center text-base text-ink-3">{d.noDiagnoses}</p>
-            ) : (
-              <ul className="mx-auto mt-10 flex w-full max-w-2xl flex-col gap-8 text-center">
-                {diagnoses.map((diag) => (
-                  <li key={diag.id}>
-                    <span className="text-sm text-ink-3">
-                      {new Date(diag.createdAt).toLocaleDateString()}
-                      {diag.aiResult?.severity ? ` · ${diag.aiResult.severity}` : ""}
-                    </span>
-                    <span className="mt-1 block text-lg text-ink-1">
-                      {diag.problemText ?? diag.aiResult?.diagnosis ?? ""}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            )}
+            <section className={`${CARD} mt-6`}>
+              <CardHeading>{d.recentDiagnoses}</CardHeading>
+              {diagnoses.length === 0 ? (
+                <>
+                  <p className="mt-3 text-base text-ink-3">{d.noDiagnoses}</p>
+                  <div className="mt-6">
+                    <Link
+                      href="/app/diagnose"
+                      className="inline-flex h-12 items-center justify-center rounded-full bg-accent px-8 text-base font-semibold text-accent-ink"
+                    >
+                      {d.actionDiagnose}
+                    </Link>
+                  </div>
+                </>
+              ) : (
+                <ul className="mt-2 divide-y divide-line">
+                  {diagnoses.map((diag) => (
+                    <li key={diag.id} className="py-4">
+                      <span className="text-sm text-ink-3">
+                        {new Date(diag.createdAt).toLocaleDateString()}
+                        {diag.aiResult?.severity ? ` · ${diag.aiResult.severity}` : ""}
+                      </span>
+                      <span className="mt-1 block text-base text-ink-1">
+                        {diag.problemText ?? diag.aiResult?.diagnosis ?? ""}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </section>
 
             {quota && <BillingSection kind="driver" fallbackPlan={quota.plan} />}
           </>
         )}
 
         {kind === "business" && business && (
-          <section className="mx-auto mt-16 w-full max-w-xl">
-            <dl className="flex flex-col gap-4 text-base">
-              <div className="flex justify-between gap-4">
+          <section className={`${CARD} mt-8`}>
+            <CardHeading>{d.businessProfile}</CardHeading>
+            <dl className="mt-4 flex flex-col divide-y divide-line text-base">
+              <div className="flex justify-between gap-4 py-3.5">
                 <dt className="text-ink-3">{d.businessPlan}</dt>
                 <dd className="font-medium text-ink-1">{business.plan}</dd>
               </div>
-              <div className="flex justify-between gap-4">
+              <div className="flex justify-between gap-4 py-3.5">
                 <dt className="text-ink-3">{t.wp6.business.phone}</dt>
                 <dd className="font-medium text-ink-1">{business.phone}</dd>
               </div>
-              <div className="flex justify-between gap-4">
+              <div className="flex justify-between gap-4 py-3.5">
                 <dt className="text-ink-3">{t.wp6.business.zip}</dt>
                 <dd className="font-medium text-ink-1">{business.zip ?? "—"}</dd>
               </div>
             </dl>
-            <div className="mt-10 flex flex-col justify-center gap-3 sm:flex-row">
+            <div className="mt-6 flex flex-col gap-3 sm:flex-row">
               <Link
                 href="/app/messages"
                 className="flex h-12 items-center justify-center rounded-full bg-accent px-8 text-base font-semibold text-accent-ink"

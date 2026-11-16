@@ -236,6 +236,7 @@ const it: DeepPartial<Dictionary> = {
     eyebrow: "Prezzi",
     heading: "Gratis per iniziare. Onesto sul contatore.",
     body: "Ogni account inizia con 5 diagnosi gratuite. Dopo ognuna, MECHA ti dice esattamente quante te ne restano — 4, poi 3, poi 2 — e a zero scegli tu: abbonarti o fermarti. Nulla viene mai addebitato alle tue spalle.",
+    popularBadge: "Più popolare",
     free: {
       name: "Gratis",
       price: "$0",
@@ -726,6 +727,10 @@ const it: DeepPartial<Dictionary> = {
       signInRequired: "Accedi per continuare.",
     },
     dashboard: {
+      quotaTitle: "Diagnosi",
+      quotaNote: "Quando le diagnosi gratuite finiscono, le diagnosi si mettono in pausa finché non passi a un piano superiore. Non viene mai addebitato nulla in automatico.",
+      quotaUpgrade: "Passa a Pro",
+      actionVaultSub: "Cronologia, richiami e promemoria",
       title: "Il tuo garage",
       welcomeBack: "Bentornato",
       quotaPro: "Piano Pro — diagnosi illimitate.",

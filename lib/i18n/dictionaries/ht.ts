@@ -228,6 +228,7 @@ const ht: DeepPartial<Dictionary> = {
     eyebrow: "Pri yo",
     heading: "Gratis pou kòmanse. Onèt sou kontè a.",
     body: "Chak kont kòmanse avèk 5 dyagnostik gratis. Apre chak youn, MECHA di w egzakteman konbyen ki rete w — 4, apre 3, apre 2 — epi lè l rive zewo, ou chwazi: abòne, oswa rete. Yo pa janm chaje w anyen an kachèt.",
+    popularBadge: "Pi popilè",
     free: {
       name: "Gratis",
       price: "$0",
@@ -762,6 +763,14 @@ const ht: DeepPartial<Dictionary> = {
       bannerTitle: "Fini konfigirasyon kont ou a",
       bannerBody: "Ajoute nimewo telefòn ou pou debloke dyagnostik gratis ou yo. Sa pran dis segonn, epi li pwoteje kontè dyagnostik kont ou a.",
       bannerCta: "Ajoute nimewo telefòn mwen",
+    },
+  },
+  wp6: {
+    dashboard: {
+      quotaTitle: "Dyagnostik",
+      quotaNote: "Lè dyagnostik gratis yo fini, dyagnostik yo kanpe jiskaske ou amelyore plan ou. Yo pa janm chaje ou otomatikman.",
+      quotaUpgrade: "Amelyore nan Pro",
+      actionVaultSub: "Istorik, rapèl sekirite ak rapèl",
     },
   },
 };

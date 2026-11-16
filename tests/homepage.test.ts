@@ -44,9 +44,10 @@
  *       HomeMarketplace — the generated car-for-sale photo
  *         → /marketplace (the line states the shipped
  *         guided-photo truth only).
- *       HomePlans — the clean light pricing strip: the three
- *         real plans, every string reused from the pricing
- *         catalog, one button → /pricing.
+ *       HomePlans — the shared pricing cards (pass #8: the
+ *         compact PlanCards, the same cards /pricing renders),
+ *         every string reused from the pricing catalog, one
+ *         button → /pricing.
  *   - HomeShops: pass #4's ONE full-screen visual, restyled light
  *     (lighter scrim, the blue button to /shops).
  *   - HomeCta: #2's blue closing band directly above the footer —
@@ -282,27 +283,33 @@ test("home marketplace: the generated listing photo, one button to /marketplace"
   assert.ok(s.includes('href="/marketplace"'), "the button targets the marketplace");
 });
 
-test("home plans strip: the three real plans from the pricing catalog, one button to /pricing", () => {
+test("home plans strip: the shared pricing cards (compact), one button to /pricing", () => {
   const plans = read("components/HomePlans.tsx");
-  assert.ok(plans.includes("bg-surface"), "the strip sits on the white surface — not a photo section");
+  const cards = read("components/PlanCards.tsx");
+  // Pass #8: the strip renders the ONE pricing system — the same
+  // PlanCards /pricing renders, in their compact variant.
+  assert.ok(plans.includes("<PlanCards"), "the strip renders the shared plan cards");
+  assert.ok(plans.includes('variant="compact"'), "the strip uses the compact variant");
+  assert.ok(plans.includes("bg-bg"), "the strip sits on the page paper so the white cards read as cards");
   for (const key of [
-    "t.pricing.free.name",
-    "t.pricing.free.price",
-    "t.pricing.free.period",
-    "t.pricing.free.point1",
-    "t.pricing.pro.name",
-    "t.pricing.pro.price",
-    "t.pricing.pro.period",
-    "t.pricing.pro.point1",
-    "t.pricing.shops.name",
-    "t.pricing.shops.price",
-    "t.pricing.shops.period",
-    "t.pricing.shops.point1",
+    "p.free.name",
+    "p.free.price",
+    "p.free.period",
+    "p.free.point1",
+    "p.pro.name",
+    "p.pro.price",
+    "p.pro.period",
+    "p.pro.point1",
+    "p.shops.name",
+    "p.shops.price",
+    "p.shops.period",
+    "p.shops.point1",
   ]) {
-    assert.ok(plans.includes(key), `plan copy is reused from the pricing catalog: ${key}`);
+    assert.ok(cards.includes(key), `plan copy is reused from the pricing catalog: ${key}`);
   }
   // Reused, never restated: no price literal can drift from /pricing.
   assert.ok(!plans.includes("$9.99") && !plans.includes("$149"), "no hardcoded prices in the strip");
+  assert.ok(!cards.includes("$9.99") && !cards.includes("$149"), "no hardcoded prices in the cards");
   assert.ok(plans.includes('href="/pricing"'), "the one button goes to /pricing");
   assert.ok(plans.includes("t.hero.pricingCta"), "the button label is See pricing");
   assert.ok(plans.includes("bg-[#2563eb]"), "the button is the page's blue primary");

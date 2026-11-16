@@ -236,6 +236,7 @@ const tr: DeepPartial<Dictionary> = {
     eyebrow: "Fiyatlar",
     heading: "Ücretsiz başlangıç. Sayaç konusunda dürüst.",
     body: "Her hesap 5 ücretsiz teşhisle başlar. Her birinden sonra MECHA, tam olarak kaç tane kaldığını söyler — 4, sonra 3, sonra 2 — ve sıfırda siz seçersiniz: abone ol veya dur. Hiçbir şey asla arkanızdan ücretlendirilmez.",
+    popularBadge: "En popüler",
     free: {
       name: "Ücretsiz",
       price: "$0",
@@ -726,6 +727,10 @@ const tr: DeepPartial<Dictionary> = {
       signInRequired: "Devam etmek için giriş yapın.",
     },
     dashboard: {
+      quotaTitle: "Teşhisler",
+      quotaNote: "Ücretsiz teşhisler bittiğinde, yükseltme yapana kadar teşhisler duraklatılır. Hiçbir zaman otomatik ücret alınmaz.",
+      quotaUpgrade: "Pro'ya yükselt",
+      actionVaultSub: "Geçmiş, geri çağırmalar ve hatırlatıcılar",
       title: "Garajınız",
       welcomeBack: "Tekrar hoş geldiniz",
       quotaPro: "Pro plan — sınırsız teşhis.",

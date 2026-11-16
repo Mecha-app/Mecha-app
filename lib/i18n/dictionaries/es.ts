@@ -227,6 +227,7 @@ const es: DeepPartial<Dictionary> = {
     eyebrow: "Precios",
     heading: "Gratis para empezar. Honesto con el medidor.",
     body: "Cada cuenta empieza con 5 diagnósticos gratis. Después de cada uno, MECHA te dice exactamente cuántos te quedan — 4, luego 3, luego 2 — y al llegar a cero, tú eliges: suscribirte, o parar. Nunca se te cobra nada a escondidas.",
+    popularBadge: "Más popular",
     free: {
       name: "Gratis",
       price: "$0",
@@ -761,6 +762,14 @@ const es: DeepPartial<Dictionary> = {
       bannerTitle: "Termina de configurar tu cuenta",
       bannerBody: "Agrega tu número de teléfono para desbloquear tus diagnósticos gratuitos. Toma diez segundos y protege el contador de diagnósticos de tu cuenta.",
       bannerCta: "Agregar mi número de teléfono",
+    },
+  },
+  wp6: {
+    dashboard: {
+      quotaTitle: "Diagnósticos",
+      quotaNote: "Cuando se acaben los diagnósticos gratuitos, los diagnósticos se pausan hasta que mejores tu plan. Nunca se cobra nada automáticamente.",
+      quotaUpgrade: "Mejora a Pro",
+      actionVaultSub: "Historial, llamadas a revisión y recordatorios",
     },
   },
 };

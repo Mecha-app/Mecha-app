@@ -230,6 +230,7 @@ const en = {
     eyebrow: "Pricing",
     heading: "Free to start. Honest about the meter.",
     body: "Every account starts with 5 free diagnoses. After each one, MECHA shows how many are left. At zero, you choose: subscribe, or stop. Nothing is charged behind your back.",
+    popularBadge: "Most popular",
     free: {
       name: "Free",
       price: "$0",
@@ -800,6 +801,10 @@ const en = {
       signInRequired: "Sign in to continue.",
     },
     dashboard: {
+      quotaTitle: "Diagnoses",
+      quotaNote: "When the free diagnoses run out, diagnoses pause until you upgrade. Nothing is ever charged automatically.",
+      quotaUpgrade: "Upgrade to Pro",
+      actionVaultSub: "History, recalls, and reminders",
       title: "Your garage",
       welcomeBack: "Welcome back",
       quotaPro: "Pro plan — unlimited diagnoses.",
