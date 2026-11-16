@@ -8,6 +8,7 @@ import {
   ResendTooSoonError,
 } from "./errors";
 import { AuthNotConfiguredError } from "./jwt";
+import { logDatabaseError } from "./poolConfig";
 import { IdentityConflictError } from "./store";
 import { InvalidCredentialsError, GoogleOnlyAccountError, PasswordMismatchError, ValidationError } from "./authService";
 
@@ -120,6 +121,15 @@ export function apiError(err: unknown): NextResponse {
       { status: 404 },
     );
   }
+  // Unhandled: the client still gets the generic 500 (error bodies
+  // never carry internals — see the module comment), but the REAL
+  // error is logged server-side first. Until 2026-11-15 this branch
+  // swallowed the error entirely: the Supabase cutover's failing
+  // database connections surfaced as bare 500s with nothing in the
+  // function logs, and the connection fault had to be diagnosed from
+  // the database's own logs instead. Sanitized fields only (name,
+  // message, code) — never the error object or any env value.
+  logDatabaseError("unhandled api error", err);
   return NextResponse.json(
     { status: "error", error: "internal_error", detail: "Something went wrong on our side." },
     { status: 500 },

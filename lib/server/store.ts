@@ -1,5 +1,6 @@
 import { Pool } from "pg";
 import { DatabaseNotConfiguredError, isDatabaseConfigured } from "./db";
+import { createDatabasePool } from "./poolConfig";
 import { FREE_DIAGNOSIS_LIMIT, type PlanTier } from "./quota";
 import type { AccountType } from "./jwt";
 
@@ -240,7 +241,7 @@ let cachedPool: Pool | null = null;
 
 function getPool(): Pool {
   if (!isDatabaseConfigured()) throw new DatabaseNotConfiguredError();
-  if (!cachedPool) cachedPool = new Pool({ connectionString: process.env.DATABASE_URL });
+  if (!cachedPool) cachedPool = createDatabasePool(process.env.DATABASE_URL as string);
   return cachedPool;
 }
 

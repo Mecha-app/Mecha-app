@@ -1,4 +1,5 @@
 import { Pool } from "pg";
+import { createDatabasePool } from "./poolConfig";
 
 /**
  * Persistence layer (WP3 groundwork, Migration V2 Phase C).
@@ -13,7 +14,9 @@ import { Pool } from "pg";
  * endpoint. It now uses the standard `pg` Pool — the same pattern as
  * lib/server/store.ts and lib/server/appStore.ts — so DATABASE_URL can
  * point at ANY Postgres, including the Supabase direct connection
- * (port 5432) after the owner's cutover. The exported surface
+ * (port 5432) after the owner's cutover. Pools are built by
+ * lib/server/poolConfig.ts, which configures TLS explicitly for
+ * Supabase hosts (2026-11-15 cutover fix — see that module). The exported surface
  * (getSql / waitlistStore / saveDiagnosis) is unchanged: getSql() still
  * returns a tagged-template function, implemented here by translating
  * the template into a parameterized pg query ($1…$n), so the queries
@@ -47,7 +50,7 @@ let cachedPool: Pool | null = null;
 function getPool(): Pool {
   const url = process.env.DATABASE_URL;
   if (!url || url.trim().length === 0) throw new DatabaseNotConfiguredError();
-  if (!cachedPool) cachedPool = new Pool({ connectionString: url });
+  if (!cachedPool) cachedPool = createDatabasePool(url);
   return cachedPool;
 }
 

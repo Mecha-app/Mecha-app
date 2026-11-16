@@ -1,6 +1,7 @@
 import { betterAuth, type BetterAuthOptions } from "better-auth";
 import { Pool } from "pg";
 import { isDatabaseConfigured } from "./db";
+import { createDatabasePool } from "./poolConfig";
 import { isGoogleConfigured } from "./googleAuth";
 import { hashPassword, verifyPassword } from "./passwords";
 import { getIdentityStore } from "./store";
@@ -197,7 +198,7 @@ let cachedPool: Pool | null = null;
 export function getBetterAuth(): BetterAuthInstance | null {
   if (!isBetterAuthConfigured()) return null;
   if (!cachedAuth) {
-    cachedPool = new Pool({ connectionString: process.env.DATABASE_URL });
+    cachedPool = createDatabasePool(process.env.DATABASE_URL as string);
     cachedAuth = betterAuth(buildBetterAuthOptions(cachedPool));
   }
   return cachedAuth;
