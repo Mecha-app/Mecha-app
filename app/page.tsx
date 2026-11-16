@@ -1,7 +1,10 @@
+import type { CSSProperties } from "react";
 import { Hero } from "@/components/Hero";
+import { HomeCta } from "@/components/HomeCta";
 import { HomeFooter } from "@/components/HomeFooter";
 import { HomeHeader } from "@/components/HomeHeader";
 import { HomeShops } from "@/components/HomeShops";
+import { HomeSteps } from "@/components/HomeSteps";
 
 /**
  * Route `/` — marketing home (blueprint §2.1, route 1).
@@ -65,16 +68,64 @@ import { HomeShops } from "@/components/HomeShops";
  * other page. New catalog keys only where the spec names the
  * label (header.getStarted/openApp, hero.runCta/pricingCta/
  * shopsLine), translated across all 13 locales.
+ * Design pass #5 (2026-11-16, owner, with a bright Mechatech.io
+ * concept as reference #1: "We're gonna keep the logo, everything
+ * that we have, but at least the beginning — I like some of this";
+ * a second reference followed, and he directed: #1 stays the base,
+ * take SOME of #2 into it — "it's about the layout / professional
+ * feel"): the homepage is now a LIGHT page in the reference's
+ * layout. Top to bottom: the white HomeHeader (logo unchanged,
+ * centered nav, Sign in + the blue "Start Free" pill); the Hero —
+ * a generated full-screen sunrise-road photo, centered eyebrow /
+ * "Your AI mechanic copilot." / our brand line as the one subline /
+ * blue "Start a free diagnosis" + outline "See how it works";
+ * HomeSteps — #2's treatment: "Three simple steps." + three
+ * numbered steps with one short line each, on white; HomeShops —
+ * pass #4's full-screen visual, restyled lighter with the blue
+ * button; HomeCta — #2's blue closing band ("Start with 5 free
+ * diagnoses" — a true claim, verified in production — + ONE white
+ * button, "Try MECHA free" → /register: the free diagnoses live
+ * inside an account, so signup is the path); the minimal
+ * HomeFooter. NOT taken
+ * from the references: #2's left-aligned hero, its example-
+ * diagnosis card, #1's form card / possible-causes card / guidance
+ * meter / card row — restraint stays, per the owner.
+ *
+ * The light page is carried by LIGHT_SCOPE below: the COMPLETE
+ * light token set (the exact values of the [data-theme="light"]
+ * block in globals.css) re-pointed on this page's root element
+ * only — the HomeHeader FLOATING_PALETTE mechanism, widened to
+ * the whole page. Background and foreground tokens always resolve
+ * from the SAME (light) set inside the homepage, so the theme
+ * atomicity rule holds: no mixed pairing is possible, globals.css
+ * is untouched, and every other page keeps the stored theme.
  */
+const LIGHT_SCOPE = {
+  "--color-bg": "#f7f8fa",
+  "--color-surface": "#ffffff",
+  "--color-surface-raised": "#ffffff",
+  "--color-inset": "#eef1f4",
+  "--color-line": "#dce1e8",
+  "--color-ink-1": "#10141b",
+  "--color-ink-2": "#333d49",
+  "--color-ink-3": "#4d5764",
+  "--color-accent": "#96620a",
+  "--color-accent-bright": "#9c6608",
+  "--color-accent-deep": "#96620a",
+  "--color-accent-ink": "#ffffff",
+} as CSSProperties;
+
 export default function HomePage() {
   return (
-    <>
+    <div style={LIGHT_SCOPE} className="bg-bg text-ink-1">
       <HomeHeader />
       <main>
         <Hero />
+        <HomeSteps />
         <HomeShops />
+        <HomeCta />
       </main>
       <HomeFooter />
-    </>
+    </div>
   );
 }
