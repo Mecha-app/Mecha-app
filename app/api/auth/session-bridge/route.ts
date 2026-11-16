@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getBetterAuth } from "@/lib/server/betterAuth";
 import { betterAuthSessionPayload } from "@/lib/server/betterAuthLink";
 import { getIdentityStore } from "@/lib/server/store";
+import { withSessionCookie } from "@/lib/server/sessionCookie";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -10,9 +11,16 @@ export const dynamic = "force-dynamic";
  * GET /api/auth/session-bridge — convert a live Better Auth cookie
  * session into the app's standard auth payload ({token, user,
  * quota}), the exact body the password and legacy-Google doors
- * answer. The Google completion page calls this after the Better
- * Auth callback lands (no URL fragment on that path) and then runs
- * the same saveSession + phone-gate routing as every other door.
+ * answer.
+ *
+ * Since the 2026-11-16 persistence fix the Google completion page
+ * no longer calls this route: it establishes the session through
+ * the top-level navigation at /api/auth/google/establish, so the
+ * session cookie is set on a redirect response (the fetch +
+ * localStorage exchange looped on the owner's phone). The bridge
+ * remains as the same conversion over a plain authenticated GET —
+ * and it sets the session cookie on its response like every other
+ * auth completion.
  *
  * No Better Auth session → 401. Better Auth unwired → an honest 501.
  * The response carries the app JWT only over this authenticated
@@ -44,5 +52,5 @@ export async function GET(request: Request) {
       { status: 401 },
     );
   }
-  return NextResponse.json({ status: "ok", ...payload });
+  return withSessionCookie(NextResponse.json({ status: "ok", ...payload }), payload.token);
 }

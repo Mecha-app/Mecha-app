@@ -1,4 +1,5 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
+import { sessionTokenFromCookieHeader } from "./sessionCookie";
 
 /**
  * Session tokens (WP5) — JWT Bearer, HS256, 30 days, payload {id, type}.
@@ -92,11 +93,21 @@ export function verifyToken(token: string): TokenPayload | null {
   return parsed as TokenPayload;
 }
 
-/** Extract + verify the Bearer token from a request; null when absent/invalid. */
+/**
+ * Extract + verify the session token from a request; null when
+ * absent/invalid. The Bearer header wins; the first-party session
+ * cookie (lib/server/sessionCookie.ts, the 2026-11-16 persistence
+ * fix) is the fallback, so a request whose browser carries only
+ * the cookie — localStorage lost in a webview, the token never
+ * re-sent by hand — still authenticates. SameSite=Lax on the
+ * cookie keeps cross-site POSTs from carrying it.
+ */
 export function bearerPayload(request: Request): TokenPayload | null {
   const header = request.headers.get("authorization");
-  if (!header) return null;
-  const [scheme, token] = header.split(" ");
-  if (scheme !== "Bearer" || !token) return null;
-  return verifyToken(token);
+  if (header) {
+    const [scheme, token] = header.split(" ");
+    if (scheme === "Bearer" && token) return verifyToken(token);
+  }
+  const cookieToken = sessionTokenFromCookieHeader(request.headers.get("cookie"));
+  return cookieToken ? verifyToken(cookieToken) : null;
 }

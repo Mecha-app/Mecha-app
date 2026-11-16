@@ -6,8 +6,10 @@ import { createAuthClient } from "better-auth/react";
  * (authClient.signIn.social). Same-origin: the handler lives at
  * /api/auth on this app, so no baseURL is needed. After the Better
  * Auth callback, the browser lands on /auth/google/complete, which
- * exchanges the Better Auth cookie session for the app's standard
- * payload via /api/auth/session-bridge and stores it with the same
- * saveSession contract as every other sign-in door.
+ * hands off through a top-level navigation to
+ * /api/auth/google/establish — the route that converts the Better
+ * Auth cookie session into the app's session, setting the
+ * first-party session cookie on its redirect response
+ * (2026-11-16 persistence fix).
  */
 export const authClient = createAuthClient();

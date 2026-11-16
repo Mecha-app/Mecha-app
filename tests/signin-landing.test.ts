@@ -43,9 +43,12 @@ test("google sign-in completion: no phone wall — every account lands in the da
   // return-to the user themselves set still wins.
   assert.ok(page.includes("RETURN_TO_KEY"), "the return-to is still read");
   assert.ok(page.includes('returnTo.startsWith("/app/")'), "only in-app return-tos are honored");
-  // Both doors still feed the same finish: the legacy fragment
-  // payload and the Better Auth session bridge.
-  assert.ok(page.includes("/api/auth/session-bridge"), "the Better Auth door still exchanges its session");
+  // The legacy door still feeds finish() from its fragment
+  // payload; the Better Auth door establishes the session through
+  // a top-level navigation (tests/session-cookie.test.ts pins
+  // that contract — the fetch + localStorage exchange looped on
+  // the owner's phone).
+  assert.ok(page.includes("/api/auth/google/establish"), "the Better Auth door establishes via navigation");
 });
 
 test("email sign-in: the login default destination is the dashboard", () => {

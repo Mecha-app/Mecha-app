@@ -3,6 +3,7 @@ import { verifyEmailCode } from "@/lib/server/codeAuth";
 import { apiError, readJsonBody } from "@/lib/server/http";
 import { createRateLimiter } from "@/lib/server/ratelimit";
 import { getIdentityStore } from "@/lib/server/store";
+import { withSessionCookie } from "@/lib/server/sessionCookie";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -44,7 +45,7 @@ export async function POST(request: Request) {
   try {
     const outcome = await verifyEmailCode(getIdentityStore(), body.email, body.code);
     if (outcome.kind === "signed_in") {
-      return NextResponse.json({ status: "ok", kind: outcome.kind, ...outcome.result });
+      return withSessionCookie(NextResponse.json({ status: "ok", kind: outcome.kind, ...outcome.result }), outcome.result.token);
     }
     return NextResponse.json({ status: "ok", kind: outcome.kind, ticket: outcome.ticket });
   } catch (err) {

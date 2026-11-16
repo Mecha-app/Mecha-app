@@ -3,6 +3,7 @@ import { loginDriver } from "@/lib/server/authService";
 import { apiError, readJsonBody } from "@/lib/server/http";
 import { createRateLimiter } from "@/lib/server/ratelimit";
 import { getIdentityStore } from "@/lib/server/store";
+import { withSessionCookie } from "@/lib/server/sessionCookie";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -33,7 +34,7 @@ export async function POST(request: Request) {
   if (!body) return NextResponse.json({ error: "invalid_json" }, { status: 400 });
   try {
     const result = await loginDriver(getIdentityStore(), body);
-    return NextResponse.json({ status: "ok", ...result }, { status: 200 });
+    return withSessionCookie(NextResponse.json({ status: "ok", ...result }, { status: 200 }), result.token);
   } catch (err) {
     return apiError(err);
   }

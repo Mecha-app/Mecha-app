@@ -190,7 +190,15 @@ export default function DashboardPage() {
     void (async () => {
       const [me, veh, diag] = await Promise.all([
         apiFetch<{
-          user: { name: string; emailVerified: boolean; phone: string | null };
+          user: {
+            id: string;
+            name: string;
+            email: string;
+            emailVerified: boolean;
+            phone: string | null;
+            plan: string;
+            type: string;
+          };
           quota: QuotaView;
         }>("/api/auth/me"),
         apiFetch<{ vehicles: Vehicle[] }>("/api/vehicles"),
@@ -201,6 +209,23 @@ export default function DashboardPage() {
         setQuota(me.data.quota);
         setEmailVerified(me.data.user.emailVerified);
         setPhoneMissing(me.data.user.phone === null);
+        // Session heal (2026-11-16 persistence fix): a Google
+        // sign-in lands with the session cookie only — no stored
+        // profile mirror. Rebuild the mirror from the account
+        // record so the other app screens see the profile they
+        // expect (kind detection, the vault, messages).
+        const token = getToken();
+        if (token && !getStoredUser()) {
+          const u = me.data.user;
+          saveSession(token, {
+            id: u.id,
+            name: u.name,
+            email: u.email,
+            phone: u.phone,
+            plan: u.plan,
+            type: u.type,
+          });
+        }
       }
       if (veh.status === 200) setVehicles(veh.data.vehicles);
       if (diag.status === 200) setDiagnoses(diag.data.diagnoses);

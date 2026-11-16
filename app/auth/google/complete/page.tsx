@@ -13,10 +13,17 @@ import { RETURN_TO_KEY } from "@/lib/server/scan";
  *     never sent to a server and never appear in logs or Referer
  *     headers;
  *   - Better Auth (2026-11-06): the callback sets a cookie session
- *     and lands here bare; the page exchanges that session for the
- *     standard payload at GET /api/auth/session-bridge.
- * Either way it stores the session exactly like the password sign-in
- * does (saveSession), scrubs the address bar, and routes onward:
+ *     and lands here bare; the page hands off through a TOP-LEVEL
+ *     NAVIGATION to GET /api/auth/google/establish, which sets the
+ *     first-party session cookie on its redirect response and
+ *     lands the browser on the destination. (It used to FETCH the
+ *     payload from /api/auth/session-bridge and store it in
+ *     localStorage — the storage that silently failed on the
+ *     owner's phone and looped every sign-in back to /login;
+ *     2026-11-16 persistence fix, lib/server/sessionCookie.ts.)
+ * The legacy door stores the session exactly like the password
+ * sign-in does (saveSession — which now mirrors the session
+ * cookie), scrubs the address bar, and routes onward:
  * the saved return-to wins (the scan flow's contract), else the
  * dashboard — for EVERY account, phone on file or not.
  *
@@ -72,24 +79,20 @@ export default function GoogleCompletePage() {
           return;
         }
         // Better Auth door: no fragment — the callback set a cookie
-        // session; exchange it for the standard payload at the
-        // session bridge, then route exactly like the legacy door.
-        const res = await fetch("/api/auth/session-bridge");
-        if (!res.ok) {
-          fail();
-          return;
+        // session. Establish the app session through a TOP-LEVEL
+        // NAVIGATION to the establish route (the session cookie is
+        // set on its redirect response — the persistence fix), with
+        // the same destination rules as every other door: the saved
+        // return-to wins, else the dashboard.
+        let target = "/app";
+        try {
+          const returnTo = sessionStorage.getItem(RETURN_TO_KEY);
+          sessionStorage.removeItem(RETURN_TO_KEY);
+          if (returnTo && returnTo.startsWith("/app/")) target = returnTo;
+        } catch {
+          // Private mode — default destination.
         }
-        const data = (await res.json()) as { token?: string; user?: StoredUser };
-        if (
-          !data.token ||
-          !data.user ||
-          typeof data.user.id !== "string" ||
-          typeof data.user.email !== "string"
-        ) {
-          fail();
-          return;
-        }
-        finish(data.token, data.user);
+        window.location.href = `/api/auth/google/establish?to=${encodeURIComponent(target)}`;
       } catch {
         fail();
       }

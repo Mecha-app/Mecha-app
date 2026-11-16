@@ -30,6 +30,27 @@
  * to an httpOnly + Secure + SameSite=Lax cookie session, accepting
  * the break from the legacy Bearer contract once the legacy backend
  * is retired.
+ *
+ * SESSION PERSISTENCE FIX (2026-11-16, owner report: "Sign up and
+ * sign in, they don't work… it says you sign up but you never get
+ * inside the account"): localStorage alone did NOT survive on the
+ * owner's phone — mobile Safari / in-app webview storage drops
+ * around the sign-in round-trips (the Google OAuth trip above
+ * all) — so every door completed, landed in the app, and the
+ * guard found no token and bounced back to /login. A loop.
+ * The session is now carried FIRST by the first-party cookie
+ * `mecha_session` (lib/server/sessionCookie.ts): set by the
+ * server on every auth completion response — and for Google, on
+ * the top-level navigation redirect from
+ * /api/auth/google/establish — with Path=/, Secure, SameSite=Lax.
+ * getToken() reads the cookie FIRST and localStorage second;
+ * saveSession mirrors the cookie client-side as well, so no door
+ * depends on a single storage surviving. The cookie is not
+ * httpOnly by design: the client guards must read it (the
+ * exposure class is the localStorage token's own — a minimal
+ * {id, type} payload behind the CSP); the httpOnly migration
+ * above remains the future hardening for when the guards move
+ * server-side.
  */
 
 export interface StoredUser {
@@ -44,16 +65,63 @@ export interface StoredUser {
 const TOKEN_KEY = "mechaToken";
 const USER_KEY = "mechaUser";
 
+/** Must match lib/server/sessionCookie.ts — the first-party cookie
+ * that carries the session (the source of truth since 2026-11-16). */
+const SESSION_COOKIE = "mecha_session";
+const SESSION_COOKIE_MAX_AGE_SECONDS = 30 * 24 * 60 * 60;
+
+function readSessionCookie(): string | null {
+  try {
+    for (const part of document.cookie.split(";")) {
+      const eq = part.indexOf("=");
+      if (eq < 0) continue;
+      if (part.slice(0, eq).trim() === SESSION_COOKIE) {
+        const value = part.slice(eq + 1).trim();
+        return value.length > 0 ? value : null;
+      }
+    }
+  } catch {
+    // No document (SSR) or cookies blocked — fall through to storage.
+  }
+  return null;
+}
+
+function writeSessionCookie(token: string): void {
+  try {
+    document.cookie =
+      `${SESSION_COOKIE}=${token}; Path=/; ` +
+      `Max-Age=${SESSION_COOKIE_MAX_AGE_SECONDS}; Secure; SameSite=Lax`;
+  } catch {
+    // Cookies unavailable — the server-set cookie and localStorage remain.
+  }
+}
+
+function expireSessionCookie(): void {
+  try {
+    document.cookie = `${SESSION_COOKIE}=; Path=/; Max-Age=0; Secure; SameSite=Lax`;
+  } catch {
+    // Nothing to expire.
+  }
+}
+
 export function saveSession(token: string, user: StoredUser): void {
   try {
     localStorage.setItem(TOKEN_KEY, token);
     localStorage.setItem(USER_KEY, JSON.stringify(user));
   } catch {
-    // Storage unavailable (private mode) — the session simply won't persist.
+    // Storage unavailable (private mode) — the cookie still persists.
   }
+  // Mirror the session into the first-party cookie as well: the
+  // server sets it on the completion response, and this write
+  // covers any door whose response cookie a webview dropped.
+  writeSessionCookie(token);
 }
 
 export function getToken(): string | null {
+  // The cookie is the source of truth (2026-11-16): it is what
+  // survives reloads and in-app navigation on mobile browsers.
+  const cookieToken = readSessionCookie();
+  if (cookieToken) return cookieToken;
   try {
     return localStorage.getItem(TOKEN_KEY);
   } catch {
@@ -77,6 +145,9 @@ export function clearSession(): void {
   } catch {
     // Nothing to clear.
   }
+  // The cookie is the source of truth — a sign-out (or a 401) must
+  // retire it too, or the guard would resurrect the dead session.
+  expireSessionCookie();
 }
 
 export function authHeaders(): Record<string, string> {
