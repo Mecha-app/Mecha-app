@@ -7,8 +7,8 @@ import {
   type DiagnoseServiceEvent,
 } from "@/lib/server/diagnoseService";
 import { PayloadTooLargeError, apiError, readJsonBody } from "@/lib/server/http";
-import { AuthNotConfiguredError, bearerPayload, isAuthConfigured } from "@/lib/server/jwt";
 import { getActiveDiagnosisProvider } from "@/lib/server/providerAiSdk";
+import { requireDriverUser } from "@/lib/server/routeAuth";
 import { QuotaExhaustedError } from "@/lib/server/quota";
 import { getIdentityStore } from "@/lib/server/store";
 
@@ -20,7 +20,9 @@ export const dynamic = "force-dynamic";
  * WP3 public groundwork stub. Grounded in the repo's POST
  * /api/diagnoses/ai, with the owner's hard rules wired in:
  *
- *   - Auth: JWT Bearer required (401 without). No anonymous diagnoses —
+ *   - Auth: JWT Bearer required (401 without), enforced by the shared
+ *     requireDriverUser gate (lib/server/routeAuth) — the owner's
+ *     account rule: no account, no diagnosis. No anonymous diagnoses —
  *     a diagnosis costs the owner real money per call.
  *   - Quota: 5 free per identity, LIFETIME, persisted server-side,
  *     consumed atomically BEFORE the AI provider is called. At zero the
@@ -108,17 +110,13 @@ export async function POST(request: Request) {
   }
 
   try {
-    if (!isAuthConfigured()) throw new AuthNotConfiguredError();
-    const payload = bearerPayload(request);
-    if (!payload || payload.type !== "driver") {
-      return NextResponse.json(
-        { error: "unauthorized", detail: "Sign in to run a diagnosis." },
-        { status: 401 },
-      );
-    }
-    const store = getIdentityStore();
-    const user = await store.findUserById(payload.id);
-    if (!user) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+    // The account gate (owner rule, 2026-11-16: no account, no
+    // diagnosis) — the shared requireDriverUser gate refuses an
+    // anonymous, wrong-account, or deleted-account call HERE,
+    // server-side, before the provider is even selected.
+    const auth = await requireDriverUser(request, () => getIdentityStore());
+    if ("response" in auth) return auth.response;
+    const { user, store } = auth;
 
     // AI_ENGINE=sdk (with AI_PROVIDER=openrouter) selects the Vercel AI
     // SDK engine; every other configuration is the historical provider.
