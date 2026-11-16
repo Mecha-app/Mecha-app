@@ -49,10 +49,10 @@ import type { IdentityStore } from "./store";
  * channel.
  *
  * Phone stays OPTIONAL through this whole door (owner, 0013): the
- * account keys on email always and on phone when present; the
- * diagnosis gate still refuses a phone-less account before any quota
- * consume (diagnoseService's PhoneRequiredError), so nobody runs a
- * diagnosis until email AND phone are both on file.
+ * account keys on email always and on phone when present. And since
+ * the owner's 2026-11-16 rules, a phone-less account is refused
+ * nothing: an account is the only diagnosis requirement (the routes
+ * 401 signed-out calls), and the free count keys on the account.
  */
 
 // ---------------------------------------------------------------------------

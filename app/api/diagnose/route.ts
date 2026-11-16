@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { AiNotConfiguredError, type DiagnosisRequest } from "@/lib/server/ai";
 import {
-  PhoneRequiredError,
   ProRequiredError,
   executeDiagnosis,
   type DiagnoseServiceEvent,
@@ -185,9 +184,6 @@ export async function POST(request: Request) {
       );
     }
     if (err instanceof ProRequiredError) {
-      return NextResponse.json({ error: err.code, detail: err.message }, { status: 403 });
-    }
-    if (err instanceof PhoneRequiredError) {
       return NextResponse.json({ error: err.code, detail: err.message }, { status: 403 });
     }
     if (err instanceof AiNotConfiguredError) {

@@ -55,23 +55,6 @@ export class ProRequiredError extends Error {
   }
 }
 
-/**
- * Phone gate (social login package): an account with no phone on file
- * — today, one created through Google sign-in before profile
- * completion — may not consume a diagnosis. The owner's quota identity
- * is email AND phone; a phone-less identity could re-register and
- * reset the count, so the gate sits BEFORE the tier gate and BEFORE
- * the quota consume: refusing here costs nothing and burns no slot.
- * The client routes the account to /app/complete-profile.
- */
-export class PhoneRequiredError extends Error {
-  readonly code = "phone_required";
-  constructor() {
-    super("Add your phone number to finish setting up your account before running a diagnosis.");
-    this.name = "PhoneRequiredError";
-  }
-}
-
 export function diagnosisCacheKey(req: DiagnosisRequest): string {
   const normalized = JSON.stringify({
     problem: req.problem.trim().toLowerCase(),
@@ -95,9 +78,12 @@ export async function* executeDiagnosis(
   const { user, request } = input;
   const tier = request.tier === "deep" ? "deep" : "triage";
 
-  // 0. Phone gate — the identity must be complete (email AND phone)
-  // before anything is consumed or called.
-  if (!user.phoneNormalized) throw new PhoneRequiredError();
+  // No phone gate (owner's rules, 2026-11-16): an ACCOUNT is the
+  // diagnosis requirement — the routes refuse signed-out calls with
+  // 401 before this service runs — and the free count keys on the
+  // account record. A phone number is optional profile data (the
+  // dashboard's dismissible card collects it); it never blocks a
+  // signed-in account from diagnosing.
 
   // 1. Tier gate.
   if (tier === "deep" && user.plan !== "pro") throw new ProRequiredError();

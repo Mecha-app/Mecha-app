@@ -4,8 +4,9 @@
  * verified-email-only linking, users-table mapping, uuid ids), the
  * honest 501s of the unwired routes, and the identity behavior MECHA
  * owns on top of the engine: Google account creation landing in the
- * `users` table, the account-link stamp, the phone gate holding a
- * phone-less Google account out of diagnoses, legacy Google-only
+ * `users` table, the account-link stamp, the no-phone-gate rule (a
+ * phone-less Google account diagnoses on the account alone —
+ * owner's rules, 2026-11-16), legacy Google-only
  * users (google_sub set, password NULL) signing in to their existing
  * account, and the session bridge's standard payload shape.
  *
@@ -48,7 +49,7 @@ import {
   registerDriver,
   resolveGoogleAccount,
 } from "../lib/server/authService";
-import { PhoneRequiredError, executeDiagnosis } from "../lib/server/diagnoseService";
+import { executeDiagnosis } from "../lib/server/diagnoseService";
 import { verifyToken } from "../lib/server/jwt";
 import { StubDiagnosisProvider } from "../lib/server/provider";
 import { MemoryIdentityStore } from "../lib/server/store";
@@ -157,7 +158,7 @@ test("routes: the handler + bridge exist, and unwired config yields no instance 
 
 /* ---------------- Google account creation + gate ---------------- */
 
-test("google creation: the Better Auth write lands phone-less, sub-stamped, gate holds", async () => {
+test("google creation: the Better Auth write lands phone-less, sub-stamped — and diagnoses on the account alone", async () => {
   const store = new MemoryIdentityStore();
   const user = await createGoogleUserViaBetterAuth(store, {
     sub: "google-sub-ba-1",
@@ -172,35 +173,25 @@ test("google creation: the Better Auth write lands phone-less, sub-stamped, gate
   assert.ok(user.emailVerifiedAt, "Google-verified email is stamped");
 
   const provider = new StubDiagnosisProvider();
-  await assert.rejects(
-    drain(
-      executeDiagnosis(
-        { store, provider },
-        { user, request: { problem: "Grinding noise when I brake" } },
-      ),
-    ),
-    PhoneRequiredError,
-  );
-  assert.equal(provider.calls.length, 0, "the AI provider is never reached");
-  assert.equal(
-    (await store.findUserById(user.id))?.freeDiagnosesUsed,
-    0,
-    "no quota was consumed",
-  );
-
-  await completePhone(store, user.id, { phone: "(617) 555-0134" });
-  const ready = await store.findUserById(user.id);
-  assert.ok(ready);
   const events = await drain(
     executeDiagnosis(
       { store, provider },
-      { user: ready, request: { problem: "Grinding noise when I brake" } },
+      { user, request: { problem: "Grinding noise when I brake" } },
     ),
   );
-  assert.equal(provider.calls.length, 1, "after completion the diagnosis runs");
+  assert.equal(provider.calls.length, 1, "the diagnosis runs with NO phone on file");
   const done = events.find((e) => e.type === "done");
   assert.ok(done && done.type === "done");
-  assert.equal(done.quota.remaining, 4, "exactly one free diagnosis consumed");
+  assert.equal(done.quota.remaining, 4, "exactly one free diagnosis consumed, keyed on the account");
+
+  // The number can still land later (optional card / deep link) —
+  // and the count does not move.
+  await completePhone(store, user.id, { phone: "(617) 555-0134" });
+  assert.equal(
+    (await store.findUserById(user.id))?.freeDiagnosesUsed,
+    1,
+    "the count is untouched by the phone landing",
+  );
 });
 
 /* --------------------------- Linking ---------------------------- */

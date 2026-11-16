@@ -11,15 +11,21 @@
  *       /api/scan/photo, /api/vin/decode, /api/diagnoses/recent) —
  *       before any store access, provider call, or quota touch;
  *   (b) an anonymous PAGE attempt routes to sign-in: /app/diagnose
- *       bounces a tokenless visitor to /login (and keeps the
- *       complete-profile phone gate for phone-less accounts), and the
- *       public pages (/diagnose, /scan, homepage) contain NO diagnosis
- *       execution at all — their only paths in are the gated app and
- *       /register (inventory sweep over the client surface);
+ *       and /app/scan bounce a tokenless visitor to /login — and
+ *       NEITHER page carries a phone wall (owner's rules,
+ *       2026-11-16: a signed-in account, phone or not, uses the
+ *       features; the acceptance test caught /app/diagnose
+ *       auto-redirecting a phone-less account to
+ *       /app/complete-profile, which is now pinned as forbidden) —
+ *       and the public pages (/diagnose, /scan, homepage) contain
+ *       NO diagnosis execution at all — their only paths in are the
+ *       gated app and /register (inventory sweep over the client
+ *       surface);
  *   (c) a signed-in driver passes the gate and CAN still diagnose —
  *       the gate returns the user record and executeDiagnosis runs
  *       end-to-end against the stub provider (the WP5 suite pins the
- *       service itself; this pins gate → service as one flow).
+ *       service itself; this pins gate → service as one flow) —
+ *       including a driver with NO phone on file.
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
@@ -200,17 +206,60 @@ test("route wiring: every diagnosis-executing route runs an account gate", () =>
 
 /* --------------- (b) anonymous page attempts → sign-in ------------- */
 
-test("page contract: /app/diagnose bounces anonymous visitors to /login, phone gate intact", () => {
+test("page contract: /app/diagnose bounces anonymous visitors to /login — and has NO phone wall", () => {
   const root = process.cwd();
   const page = readFileSync(join(root, "app/app/diagnose/page.tsx"), "utf8");
   assert.ok(page.includes("if (!getToken())"), "tokenless visitors are bounced on load");
   assert.ok(page.includes('window.location.href = "/login"'), "the bounce target is /login");
   assert.ok(page.includes("clearSession()"), "a refused session is cleared, not retried");
   assert.ok(
-    page.includes('window.location.href = "/app/complete-profile"'),
-    "phone-less accounts still complete their profile first (the phone gate)",
+    !page.includes("/app/complete-profile"),
+    "a signed-in phone-less account is NEVER redirected to complete-profile (the removed wall)",
   );
-  assert.ok(page.includes("data.user.phone === null"), "the phone gate keys off the account record");
+  assert.ok(!page.includes("phone_required"), "the page carries no phone-gate branch");
+  assert.ok(!page.includes("phone === null"), "the page never keys behavior off a missing phone");
+});
+
+test("page contract: /app/scan bounces anonymous visitors to /login — and has NO phone wall", () => {
+  const root = process.cwd();
+  const page = readFileSync(join(root, "app/app/scan/page.tsx"), "utf8");
+  assert.ok(page.includes("if (!getToken())"), "tokenless visitors are bounced on load");
+  assert.ok(page.includes('window.location.href = "/login"'), "the bounce target is /login");
+  assert.ok(
+    !page.includes("/app/complete-profile"),
+    "a signed-in phone-less account is NEVER redirected to complete-profile from scan",
+  );
+  assert.ok(!page.includes("phone === null"), "the page never keys behavior off a missing phone");
+});
+
+test("gate → service: a signed-in driver with NO phone on file diagnoses — the account is the only requirement", async () => {
+  const store = new MemoryIdentityStore();
+  const provider = new StubDiagnosisProvider();
+  const auth = await registerDriver(store, {
+    name: "Phone Less",
+    email: "phoneless@example.com",
+    password: "correct horse battery",
+  });
+  const record = await store.findUserById(auth.user.id);
+  assert.ok(record);
+  assert.equal(record.phoneNormalized, null, "the account has no phone on file");
+
+  const gated = await requireDriverUser(req(auth.token), () => store);
+  assert.ok("user" in gated, "the account gate admits the phone-less driver");
+  if (!("user" in gated)) return;
+
+  const events = await collect(
+    executeDiagnosis(
+      { store: gated.store, provider },
+      { user: gated.user, request: { problem: "Grinding noise when I brake" } },
+    ),
+  );
+  const done = events.find((e) => e.type === "done") as
+    | Extract<DiagnoseServiceEvent, { type: "done" }>
+    | undefined;
+  assert.ok(done, "the diagnosis completes for a signed-in phone-less driver");
+  assert.equal(done.quota.remaining, 4, "exactly one quota unit consumed, keyed on the account");
+  assert.equal(provider.calls.length, 1);
 });
 
 function walk(dir: string, suffix: string): string[] {

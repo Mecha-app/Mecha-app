@@ -15,13 +15,16 @@
  *   (b) the phone number moved to the dashboard as a
  *       non-blocking, dismissible, in-place card
  *       (tests/dashboard.test.ts pins the card itself);
- *   (c) /app/complete-profile still exists as a deep link (the
- *       diagnose flow's phone gate routes there — pinned by
- *       tests/diagnosis-gate.test.ts), saving through the same
- *       endpoint the dashboard card uses;
- *   (d) the diagnosis gate and the free-diagnosis counting are
- *       untouched: the count keys on the account, diagnoses
- *       still require the number on file (diagnosis-gate suite).
+ *   (c) /app/complete-profile still exists as an OPTIONAL deep
+ *       link, saving through the same endpoint the dashboard card
+ *       uses — and since the pass #9 fix NOTHING routes to it: the
+ *       acceptance test caught /app/diagnose auto-redirecting a
+ *       signed-in phone-less account there, and the wall is
+ *       removed from the page, the service, and the API;
+ *   (d) the diagnosis ACCOUNT gate and the free-diagnosis
+ *       counting are untouched: the count keys on the account,
+ *       signed-out calls still 401 — and a phone is NOT a
+ *       diagnosis requirement anymore (diagnosis-gate suite).
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";

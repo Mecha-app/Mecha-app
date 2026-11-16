@@ -73,17 +73,12 @@ export default function DiagnosePage() {
         const data = (await res.json()) as {
           quota?: QuotaView;
           message?: string;
-          user?: { phone: string | null };
         };
         if (cancelled) return;
-        // Phone gate (social login package): a phone-less account
-        // (Google sign-in before profile completion) completes its
-        // profile first — diagnoseService would refuse the run
-        // anyway, so route there instead of letting it fail.
-        if (data.user && data.user.phone === null) {
-          window.location.href = "/app/complete-profile";
-          return;
-        }
+        // No phone wall (owner's rules, 2026-11-16): a signed-in
+        // account is all a diagnosis requires — a phone-less account
+        // stays on this page and diagnoses; the number is collected
+        // by the dashboard's optional card, never by a redirect.
         if (data.quota) {
           setQuota(data.quota);
           setMessage(data.message ?? "");
@@ -128,10 +123,6 @@ export default function DiagnosePage() {
       }
       if (res.status === 403) {
         const data = (await res.json().catch(() => ({}))) as { error?: string; detail?: string };
-        if (data.error === "phone_required") {
-          window.location.href = "/app/complete-profile";
-          return;
-        }
         setDetail(data.detail ?? "The diagnosis could not be completed. Please try again.");
         setPhase("error");
         return;

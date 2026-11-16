@@ -7,18 +7,14 @@ import { getStoredUser, getToken, saveSession, type StoredUser } from "@/lib/cli
 import { useLocale } from "@/lib/i18n/LocaleProvider";
 
 /**
- * /app/complete-profile — profile completion for accounts created
- * through Google sign-in, which start with NO phone on file. The
- * owner's quota identity is email AND phone: until the number is
- * added the account cannot run a diagnosis (diagnoseService refuses,
- * and the diagnose page routes here), because a phone-less identity
- * could be re-created to reset the free count.
- *
- * Since the owner's 2026-11-16 sign-in fix this page is a DEEP LINK
- * only (the diagnose flow routes here; the dashboard's phone card
- * links nowhere — it saves in place through the same endpoint). It
- * is no longer forced on the sign-in path: sign-in lands in the
- * dashboard for every account, phone or not.
+ * /app/complete-profile — OPTIONAL profile completion for accounts
+ * created through Google sign-in, which start with NO phone on file.
+ * Since the owner's 2026-11-16 rules this page is a DEEP LINK only:
+ * an account is the only diagnosis requirement, the free count keys
+ * on the account, and NOTHING routes here — not sign-in, not the
+ * diagnose flow. The dashboard's phone card covers the same save in
+ * place (same endpoint) and is dismissible; this page remains for
+ * anyone who follows a link to it directly.
  *
  * Minimal chrome by design — one question, one button. A number that
  * already belongs to a different account answers the server's honest

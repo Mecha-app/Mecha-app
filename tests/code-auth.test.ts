@@ -21,7 +21,7 @@ import {
   requestEmailCode,
   verifyEmailCode,
 } from "../lib/server/codeAuth";
-import { PhoneRequiredError, executeDiagnosis } from "../lib/server/diagnoseService";
+import { executeDiagnosis } from "../lib/server/diagnoseService";
 import { InvalidCodeError } from "../lib/server/errors";
 import { RecordingMailer, type MailMessage } from "../lib/server/mailer";
 import { StubDiagnosisProvider } from "../lib/server/provider";
@@ -44,8 +44,9 @@ async function drain<T>(gen: AsyncGenerator<T>): Promise<T[]> {
 }
 
 // ---------------------------------------------------------------------
-// Phone OPTIONAL at sign-up (classic door) — and the diagnosis gate
-// that keeps the identity rule intact without it
+// Phone OPTIONAL at sign-up (classic door) — and, since the owner's
+// 2026-11-16 rules, optional for diagnoses too: the account alone
+// is the diagnosis requirement
 // ---------------------------------------------------------------------
 
 test("optional phone: registration without a phone succeeds; the account keys on email alone", async () => {
@@ -73,7 +74,7 @@ test("optional phone: registration without a phone succeeds; the account keys on
   );
 });
 
-test("optional phone: a phone-less account is refused at the diagnosis gate BEFORE any consume — then succeeds once the phone lands", async () => {
+test("optional phone: a phone-less account diagnoses on the account alone — no refusal, exactly one consume", async () => {
   const store = new MemoryIdentityStore();
   const provider = new StubDiagnosisProvider();
   const auth = await registerDriver(store, {
@@ -85,35 +86,25 @@ test("optional phone: a phone-less account is refused at the diagnosis gate BEFO
   assert.ok(record);
   assert.equal(record.phoneNormalized, null);
 
-  await assert.rejects(
-    drain(
-      executeDiagnosis(
-        { store, provider },
-        { user: record, request: { problem: "Squealing when I brake" } },
-      ),
-    ),
-    PhoneRequiredError,
-  );
-  assert.equal(provider.calls.length, 0, "the AI provider is never reached");
-  assert.equal(
-    (await store.findUserById(auth.user.id))?.freeDiagnosesUsed,
-    0,
-    "no quota was consumed by the refusal",
-  );
-
-  await completePhone(store, auth.user.id, { phone: "(617) 555-0134" });
-  const ready = await store.findUserById(auth.user.id);
-  assert.ok(ready);
   const events = await drain(
     executeDiagnosis(
       { store, provider },
-      { user: ready, request: { problem: "Squealing when I brake" } },
+      { user: record, request: { problem: "Squealing when I brake" } },
     ),
   );
-  assert.equal(provider.calls.length, 1);
+  assert.equal(provider.calls.length, 1, "the diagnosis runs with NO phone on file");
   const done = events.find((e) => e.type === "done");
   assert.ok(done && done.type === "done");
-  assert.equal(done.quota.remaining, 4, "exactly one free diagnosis consumed after the phone landed");
+  assert.equal(done.quota.remaining, 4, "exactly one free diagnosis consumed, keyed on the account");
+
+  // The number can still land later through the same save the
+  // dashboard card uses — and the count does not move.
+  await completePhone(store, auth.user.id, { phone: "(617) 555-0134" });
+  assert.equal(
+    (await store.findUserById(auth.user.id))?.freeDiagnosesUsed,
+    1,
+    "the count is untouched by the phone landing",
+  );
 });
 
 // ---------------------------------------------------------------------

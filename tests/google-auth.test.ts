@@ -2,7 +2,8 @@
  * Social login tests (Google sign-in package) — authorization URL,
  * OAuth state binding, ID-token verification (real RS256 against a
  * test JWKS), account resolution (sub / verified-email link / create),
- * the phone-completion gate on diagnoses, and the google-only
+ * the no-phone-gate rule (a phone-less Google account diagnoses on
+ * the account alone — owner's rules, 2026-11-16), and the google-only
  * password-login error.
  *
  * Run: npm test. Everything runs against the in-memory store and the
@@ -32,7 +33,7 @@ import {
   registerDriver,
   resolveGoogleAccount,
 } from "../lib/server/authService";
-import { PhoneRequiredError, executeDiagnosis } from "../lib/server/diagnoseService";
+import { executeDiagnosis } from "../lib/server/diagnoseService";
 import {
   GoogleTokenVerificationError,
   JwksGoogleVerifier,
@@ -275,44 +276,37 @@ test("resolution: an UNVERIFIED email claim never links", async () => {
   assert.equal(record?.googleSub, null, "nothing was linked");
 });
 
-/* ------------------------- The phone gate ------------------------- */
+/* ------------------- No phone gate (2026-11-16) ------------------- */
 
-test("phone gate: a Google-created account cannot consume a diagnosis until the phone lands", async () => {
+test("no phone gate: a Google-created phone-less account CAN consume a diagnosis on the account alone", async () => {
   const store = new MemoryIdentityStore();
   const provider = new StubDiagnosisProvider();
   const auth = await resolveGoogleAccount(store, CLAIMS);
   const record = await store.findUserById(auth.user.id);
   assert.ok(record);
   assert.equal(record.passwordHash, null);
-  assert.equal(record.phoneNormalized, null);
+  assert.equal(record.phoneNormalized, null, "the account starts phone-less — and stays usable");
 
-  await assert.rejects(
-    drain(
-      executeDiagnosis(
-        { store, provider },
-        { user: record, request: { problem: "Grinding noise when I brake" } },
-      ),
-    ),
-    PhoneRequiredError,
-  );
-  assert.equal(provider.calls.length, 0, "the AI provider is never reached");
-  const untouched = await store.findUserById(auth.user.id);
-  assert.equal(untouched?.freeDiagnosesUsed, 0, "no quota was consumed");
-
-  const completed = await completePhone(store, auth.user.id, { phone: "(617) 555-0134" });
-  assert.equal(completed.user.phone, "(617) 555-0134");
-  const ready = await store.findUserById(auth.user.id);
-  assert.ok(ready);
   const events = await drain(
     executeDiagnosis(
       { store, provider },
-      { user: ready, request: { problem: "Grinding noise when I brake" } },
+      { user: record, request: { problem: "Grinding noise when I brake" } },
     ),
   );
-  assert.equal(provider.calls.length, 1, "after completion the diagnosis runs");
+  assert.equal(provider.calls.length, 1, "the diagnosis runs with NO phone on file");
   const done = events.find((e) => e.type === "done");
   assert.ok(done && done.type === "done");
-  assert.equal(done.quota.remaining, 4, "exactly one free diagnosis consumed");
+  assert.equal(done.quota.remaining, 4, "exactly one free diagnosis consumed, keyed on the account");
+
+  // Adding the number later (the optional card / deep-link page)
+  // still works and changes nothing about the count.
+  const completed = await completePhone(store, auth.user.id, { phone: "(617) 555-0134" });
+  assert.equal(completed.user.phone, "(617) 555-0134");
+  assert.equal(
+    (await store.findUserById(auth.user.id))?.freeDiagnosesUsed,
+    1,
+    "the count is untouched by the phone landing",
+  );
 });
 
 test("phone completion: a number owned by a DIFFERENT account is an honest conflict", async () => {

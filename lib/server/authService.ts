@@ -283,10 +283,11 @@ export async function loginDriver(
 //       email claim links NOTHING (GoogleLinkRefusedError).
 //   (c) no match — create the driver account from the Google profile:
 //       password_hash NULL, email_verified_at stamped (Google verified
-//       it), phone NULL. The account is INCOMPLETE until the phone is
-//       added: the owner's quota identity is email AND phone, so
-//       diagnoseService refuses a diagnosis until then (see
-//       completePhone + /app/complete-profile).
+//       it), phone NULL. The phone is optional profile data (owner's
+//       rules, 2026-11-16): the account alone is the diagnosis
+//       requirement and the free count keys on the account, so a
+//       phone-less Google account diagnoses immediately; the number
+//       can still be added later (completePhone + the dashboard card).
 // ---------------------------------------------------------------------------
 
 export async function resolveGoogleAccount(
