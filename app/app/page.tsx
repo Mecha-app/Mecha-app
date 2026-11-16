@@ -17,25 +17,28 @@ import { useLocale } from "@/lib/i18n/LocaleProvider";
  * For a shop/towing account: their business profile + plan state.
  * Mobile-first: one column, every action a ≥48px target.
  *
- * Design pass "Tesla" (2026-11-16, owner: "the dashboard is not
- * Tesla-like… lots of text"): the quick actions are now big
- * icon tiles — icon + one-line label, the explanatory sub-lines are
- * gone; the free meter leads with the remaining count as a large
- * numeral; and a driver with no vehicle yet gets a looping film of
- * the product in use instead of an empty-state sentence. Data,
- * flows, and destinations are unchanged.
+ * Design pass "Dashboard Tesla" (2026-11-16, owner: "reanalyze the
+ * Tesla page again… make it similar"): the dashboard is rebuilt in
+ * Tesla's design language — the vehicle IS the hero (its name as one
+ * large, light heading over the full-width in-use film, no frame),
+ * the free-diagnosis count is one large numeral with a quiet label
+ * and a single hairline meter, and the quick actions are borderless
+ * icon-over-label controls floating in open space. No cards, no
+ * borders, no shadows, no explanatory sub-lines; sections are
+ * separated by whitespace alone. Data, flows, and destinations are
+ * unchanged from the tile pass.
  */
 
-/** Action-tile glyphs — MECHA line set (§1.6), drawn not emoji. */
+/** Action glyphs — MECHA line set (§1.6), drawn not emoji. */
 function TileIcon({ children }: { children: ReactNode }) {
   return (
     <svg
-      width="26"
-      height="26"
+      width="28"
+      height="28"
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      strokeWidth="1.75"
+      strokeWidth="1.5"
       strokeLinecap="round"
       strokeLinejoin="round"
       aria-hidden="true"
@@ -122,6 +125,10 @@ export default function DashboardPage() {
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [diagnoses, setDiagnoses] = useState<Diagnosis[]>([]);
   const [business, setBusiness] = useState<Business | null>(null);
+  // True once the driver's first data load has resolved — the hero
+  // shows the plain garage title until then, so the no-vehicle call
+  // to action never flashes for a driver who has a car.
+  const [driverLoaded, setDriverLoaded] = useState(false);
   // Email verification (0011, SOFT GATE): the banner shows until the
   // server says the email is verified; nothing else waits on it.
   const [emailVerified, setEmailVerified] = useState<boolean | null>(null);
@@ -168,6 +175,7 @@ export default function DashboardPage() {
       }
       if (veh.status === 200) setVehicles(veh.data.vehicles);
       if (diag.status === 200) setDiagnoses(diag.data.diagnoses);
+      setDriverLoaded(true);
     })();
   }, []);
 
@@ -217,48 +225,94 @@ export default function DashboardPage() {
     { href: "/app/vault", title: t.wp6.vault.title, icon: ACTION_ICONS.vault },
   ];
 
+  const heroVehicle = kind === "driver" && vehicles.length > 0 ? vehicles[0] : null;
+  const heroTitle = heroVehicle
+    ? (heroVehicle.nickname ?? `${heroVehicle.year} ${heroVehicle.make} ${heroVehicle.model}`)
+    : kind === "business" && business
+      ? (business.shopName ?? business.companyName ?? d.title)
+      : d.title;
+
   return (
     <>
       <AppNav business={kind === "business"} />
-      <main className="mx-auto w-full max-w-5xl px-4 py-8">
-        <h1 className="font-display text-3xl font-semibold tracking-[-0.01em] text-ink-1">
-          {d.title}
-        </h1>
-        {(name || business) && (
-          <p className="mt-1 text-base text-ink-2">
-            {d.welcomeBack}, {name || business?.shopName || business?.companyName}
-          </p>
+      <main className="mx-auto w-full max-w-5xl px-5 py-14 sm:py-20">
+        {/* The hero: one focal point. For a driver with a vehicle,
+            the vehicle is the hero — its name in one large, light
+            heading over the full-width in-use film, no frame. */}
+        <header className="text-center">
+          {kind === "driver" && name && (
+            <p className="text-sm text-ink-3">
+              {d.welcomeBack}, {name}
+            </p>
+          )}
+          <h1 className="mt-3 font-display text-5xl font-medium leading-[1.05] tracking-[-0.02em] text-ink-1 sm:text-6xl">
+            {heroTitle}
+          </h1>
+          {heroVehicle?.nickname && (
+            <p className="mt-3 text-lg text-ink-3">
+              {heroVehicle.year} {heroVehicle.make} {heroVehicle.model}
+            </p>
+          )}
+          {kind === "business" && business && (
+            <p className="mt-3 text-lg text-ink-3">{d.businessProfile}</p>
+          )}
+        </header>
+
+        {kind === "driver" && (
+          <>
+            {heroVehicle ? (
+              <Link
+                href="/app/vault"
+                aria-label={`${heroTitle} — ${d.viewVault}`}
+                className="mt-12 block"
+              >
+                <LoopClip name="roadside" />
+              </Link>
+            ) : (
+              <figure className="mt-12" aria-hidden="true">
+                <LoopClip name="roadside" />
+              </figure>
+            )}
+            {driverLoaded && vehicles.length === 0 && (
+              <div className="mt-10 text-center">
+                <Link
+                  href="/app/vault"
+                  className="inline-flex h-12 items-center justify-center rounded-full bg-accent px-8 text-base font-semibold text-accent-ink"
+                >
+                  {d.addVehicle}
+                </Link>
+              </div>
+            )}
+          </>
         )}
 
         {kind === "driver" && quota && (
-          <section
-            className="mt-6 rounded-2xl border border-line bg-surface px-5 py-4"
-            role="status"
-            aria-live="polite"
-          >
+          <section className="mt-20 text-center" role="status" aria-live="polite">
             {quota.plan === "pro" ? (
-              <p className="text-xl font-medium text-ink-1">{d.quotaPro}</p>
+              <p className="font-display text-2xl font-medium text-ink-1">{d.quotaPro}</p>
             ) : (
               <>
-                <p className="flex flex-wrap items-end gap-x-3">
-                  <span className="tnum font-display text-6xl font-semibold leading-none text-ink-1">
-                    {quota.remaining}
-                  </span>
-                  <span className="pb-1 text-base text-ink-2">
-                    {d.quotaOf} {quota.limit} {d.quotaLeft}
-                  </span>
+                <p className="tnum font-display text-8xl font-medium leading-none text-ink-1">
+                  {quota.remaining}
                 </p>
-                {/* The meter: five segments, spent ones dimmed. */}
-                <div className="mt-4 flex gap-1.5" aria-hidden="true">
-                  {Array.from({ length: quota.limit ?? 5 }).map((_, i) => (
-                    <span
-                      key={i}
-                      className={
-                        "h-2 flex-1 rounded-full " +
-                        (i < (quota.remaining ?? 0) ? "bg-accent" : "bg-inset")
-                      }
-                    />
-                  ))}
+                <p className="mt-3 text-base text-ink-3">
+                  {d.quotaOf} {quota.limit} {d.quotaLeft}
+                </p>
+                {/* The meter: one hairline bar, filled to what remains. */}
+                <div
+                  className="mx-auto mt-6 h-1 w-full max-w-xs overflow-hidden rounded-full bg-inset"
+                  aria-hidden="true"
+                >
+                  <div
+                    className="bar-anim h-full rounded-full bg-accent"
+                    style={{
+                      width: `${
+                        quota.limit
+                          ? Math.round(((quota.remaining ?? 0) / quota.limit) * 100)
+                          : 0
+                      }%`,
+                    }}
+                  />
                 </div>
               </>
             )}
@@ -266,16 +320,16 @@ export default function DashboardPage() {
         )}
 
         {kind === "driver" && phoneMissing && (
-          <section className="mt-6 rounded-2xl border border-line bg-surface px-5 py-4">
-            <h2 className="font-display text-lg font-semibold text-ink-1">
+          <section className="mx-auto mt-16 w-full max-w-xl text-center">
+            <h2 className="font-display text-2xl font-medium text-ink-1">
               {t.auth.completeProfile.bannerTitle}
             </h2>
-            <p className="mt-2 text-base leading-relaxed text-ink-2">
+            <p className="mt-3 text-base leading-relaxed text-ink-2">
               {t.auth.completeProfile.bannerBody}
             </p>
             <Link
               href="/app/complete-profile"
-              className="mt-4 flex h-12 items-center justify-center rounded-full bg-accent px-6 text-base font-semibold text-accent-ink"
+              className="mt-6 inline-flex h-12 items-center justify-center rounded-full bg-accent px-8 text-base font-semibold text-accent-ink"
             >
               {t.auth.completeProfile.bannerCta}
             </Link>
@@ -283,31 +337,31 @@ export default function DashboardPage() {
         )}
 
         {kind === "driver" && (emailVerified === false || verifyState === "done") && (
-          <section className="mt-6 rounded-2xl border border-line bg-surface px-5 py-4">
-            <h2 className="font-display text-lg font-semibold text-ink-1">{d.verifyTitle}</h2>
+          <section className="mx-auto mt-16 w-full max-w-xl text-center">
+            <h2 className="font-display text-2xl font-medium text-ink-1">{d.verifyTitle}</h2>
             {verifyState === "done" ? (
-              <p className="mt-2 text-base text-verdict-fair" role="status">
+              <p className="mt-3 text-base text-verdict-fair" role="status">
                 {d.verifyDone}
               </p>
             ) : (
               <>
-                <p className="mt-2 text-base leading-relaxed text-ink-2">{d.verifyBody}</p>
+                <p className="mt-3 text-base leading-relaxed text-ink-2">{d.verifyBody}</p>
                 {verifyState === "sent" && (
-                  <p className="mt-2 text-base text-ink-1" role="status">
+                  <p className="mt-3 text-base text-ink-1" role="status">
                     {d.verifySent}
                   </p>
                 )}
                 {verifyState === "unavailable" && (
-                  <p className="mt-2 text-base text-ink-2" role="status">
+                  <p className="mt-3 text-base text-ink-2" role="status">
                     {d.verifyUnavailable}
                   </p>
                 )}
                 {verifyState === "error" && (
-                  <p className="mt-2 text-base text-verdict-rip" role="alert">
+                  <p className="mt-3 text-base text-verdict-rip" role="alert">
                     {verifyDetail}
                   </p>
                 )}
-                <div className="mt-4 flex flex-col gap-3 sm:flex-row">
+                <div className="mt-6 flex flex-col gap-3 sm:flex-row">
                   <input
                     aria-label={d.verifyCodeLabel}
                     className="h-12 flex-1 rounded-xl border border-line bg-surface px-4 font-mono text-base text-ink-1 placeholder:text-ink-3"
@@ -330,7 +384,7 @@ export default function DashboardPage() {
                     type="button"
                     disabled={verifyState === "working"}
                     onClick={() => void onResendCode()}
-                    className="h-12 rounded-full border border-line px-6 text-base font-semibold text-ink-1 disabled:opacity-60"
+                    className="btn-ghost h-12 rounded-full px-6 text-base font-semibold text-ink-1 disabled:opacity-60"
                   >
                     {d.verifyResend}
                   </button>
@@ -342,72 +396,71 @@ export default function DashboardPage() {
 
         {kind === "driver" && (
           <>
-            <h2 className="mt-8 text-sm font-semibold uppercase tracking-eyebrow text-ink-2">
+            <h2 className="mt-24 text-center font-display text-3xl font-medium text-ink-1 sm:text-4xl">
               {d.quickActions}
             </h2>
-            <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="mt-12 grid grid-cols-3 gap-x-2 gap-y-10 lg:grid-cols-6">
               {actions.map((a) => (
                 <Link
                   key={a.href}
                   href={a.href}
-                  className="flex min-h-[76px] items-center gap-4 rounded-2xl border border-line bg-surface px-5 py-5"
+                  className="group flex flex-col items-center gap-3 px-1 py-2 text-center"
                 >
-                  <span className="text-accent">
+                  <span className="text-ink-1 transition-colors group-hover:text-accent">
                     <TileIcon>{a.icon}</TileIcon>
                   </span>
-                  <span className="font-display text-xl font-semibold text-ink-1">
+                  <span className="text-sm font-medium leading-snug text-ink-2 transition-colors group-hover:text-ink-1">
                     {a.title}
                   </span>
                 </Link>
               ))}
             </div>
 
-            <h2 className="mt-10 text-sm font-semibold uppercase tracking-eyebrow text-ink-2">
-              {d.yourVehicles}
-            </h2>
-            {vehicles.length === 0 ? (
-              <figure className="mt-3 overflow-hidden rounded-2xl border border-line" aria-hidden="true">
-                <LoopClip name="roadside" />
-              </figure>
-            ) : (
-              <ul className="mt-3 flex flex-col gap-2">
-                {vehicles.map((v) => (
-                  <li key={v.id}>
-                    <Link
-                      href="/app/vault"
-                      className="flex min-h-12 items-center rounded-xl border border-line bg-surface px-4 py-3 text-base text-ink-1"
-                    >
-                      {v.nickname ? `${v.nickname} — ` : ""}
-                      {v.year} {v.make} {v.model}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
+            {vehicles.length > 1 && (
+              <>
+                <h2 className="mt-24 text-center font-display text-3xl font-medium text-ink-1 sm:text-4xl">
+                  {d.yourVehicles}
+                </h2>
+                <ul className="mx-auto mt-10 flex w-full max-w-2xl flex-col gap-6 text-center">
+                  {vehicles.slice(1).map((v) => (
+                    <li key={v.id}>
+                      <Link
+                        href="/app/vault"
+                        className="font-display text-xl font-medium text-ink-1 transition-colors hover:text-accent"
+                      >
+                        {v.nickname ? `${v.nickname} — ` : ""}
+                        {v.year} {v.make} {v.model}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </>
             )}
-            <Link
-              href="/app/vault"
-              className="mt-4 flex h-12 items-center justify-center rounded-full border border-line px-6 text-base font-semibold text-ink-1"
-            >
-              {d.addVehicle}
-            </Link>
+            {vehicles.length > 0 && (
+              <div className="mt-12 text-center">
+                <Link
+                  href="/app/vault"
+                  className="btn-ghost inline-flex h-12 items-center justify-center rounded-full px-8 text-base font-semibold text-ink-1"
+                >
+                  {d.addVehicle}
+                </Link>
+              </div>
+            )}
 
-            <h2 className="mt-10 text-sm font-semibold uppercase tracking-eyebrow text-ink-2">
+            <h2 className="mt-24 text-center font-display text-3xl font-medium text-ink-1 sm:text-4xl">
               {d.recentDiagnoses}
             </h2>
             {diagnoses.length === 0 ? (
-              <p className="mt-3 text-base text-ink-2">{d.noDiagnoses}</p>
+              <p className="mt-6 text-center text-base text-ink-3">{d.noDiagnoses}</p>
             ) : (
-              <ul className="mt-3 flex flex-col gap-2">
+              <ul className="mx-auto mt-10 flex w-full max-w-2xl flex-col gap-8 text-center">
                 {diagnoses.map((diag) => (
-                  <li
-                    key={diag.id}
-                    className="rounded-xl border border-line bg-surface px-4 py-3"
-                  >
-                    <span className="text-sm font-medium text-ink-2">
+                  <li key={diag.id}>
+                    <span className="text-sm text-ink-3">
                       {new Date(diag.createdAt).toLocaleDateString()}
                       {diag.aiResult?.severity ? ` · ${diag.aiResult.severity}` : ""}
                     </span>
-                    <span className="mt-1 block text-base text-ink-1">
+                    <span className="mt-1 block text-lg text-ink-1">
                       {diag.problemText ?? diag.aiResult?.diagnosis ?? ""}
                     </span>
                   </li>
@@ -420,37 +473,31 @@ export default function DashboardPage() {
         )}
 
         {kind === "business" && business && (
-          <section className="mt-6 rounded-2xl border border-line bg-surface px-5 py-5">
-            <h2 className="text-sm font-semibold uppercase tracking-eyebrow text-ink-2">
-              {d.businessProfile}
-            </h2>
-            <p className="mt-3 font-display text-2xl font-semibold text-ink-1">
-              {business.shopName ?? business.companyName}
-            </p>
-            <dl className="mt-4 flex flex-col gap-2 text-base text-ink-2">
+          <section className="mx-auto mt-16 w-full max-w-xl">
+            <dl className="flex flex-col gap-4 text-base">
               <div className="flex justify-between gap-4">
-                <dt>{d.businessPlan}</dt>
+                <dt className="text-ink-3">{d.businessPlan}</dt>
                 <dd className="font-medium text-ink-1">{business.plan}</dd>
               </div>
               <div className="flex justify-between gap-4">
-                <dt>{t.wp6.business.phone}</dt>
+                <dt className="text-ink-3">{t.wp6.business.phone}</dt>
                 <dd className="font-medium text-ink-1">{business.phone}</dd>
               </div>
               <div className="flex justify-between gap-4">
-                <dt>{t.wp6.business.zip}</dt>
+                <dt className="text-ink-3">{t.wp6.business.zip}</dt>
                 <dd className="font-medium text-ink-1">{business.zip ?? "—"}</dd>
               </div>
             </dl>
-            <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <div className="mt-10 flex flex-col justify-center gap-3 sm:flex-row">
               <Link
                 href="/app/messages"
-                className="flex h-12 items-center justify-center rounded-full bg-accent px-6 text-base font-semibold text-accent-ink"
+                className="flex h-12 items-center justify-center rounded-full bg-accent px-8 text-base font-semibold text-accent-ink"
               >
                 {d.businessMessages}
               </Link>
               <Link
                 href="/app/nearby"
-                className="flex h-12 items-center justify-center rounded-full border border-line px-6 text-base font-semibold text-ink-1"
+                className="btn-ghost flex h-12 items-center justify-center rounded-full px-8 text-base font-semibold text-ink-1"
               >
                 {d.actionShop}
               </Link>
