@@ -3,9 +3,14 @@
  * the full free surface of the U.S. government vehicle APIs
  * (API_PLAN_2026-11-15 §1.1 — $0 licensing, no key, no signup):
  *   - vPIC VIN decode:  https://vpic.nhtsa.dot.gov/api/vehicles/decodevinvalues/
- *   - Recalls:          https://webapi.nhtsa.gov/api/Recalls/vehicle
- *   - Complaints:       https://webapi.nhtsa.gov/api/Complaints/vehicle
- *   - Safety ratings:   https://webapi.nhtsa.gov/api/SafetyRatings/…
+ *   - Recalls:          https://api.nhtsa.gov/recalls/recallsByVehicle
+ *   - Complaints:       https://api.nhtsa.gov/complaints/complaintsByVehicle
+ *   - Safety ratings:   https://api.nhtsa.gov/SafetyRatings/…
+ *
+ * (NHTSA retired the old webapi.nhtsa.gov host/paths — every call to
+ * it fails while vPIC still answers, which is exactly the failure the
+ * 2026-11-16 live smoke showed. api.nhtsa.gov is the current host;
+ * all four feeds were re-verified live against it that day.)
  *
  * They are called ONLY from the server: the client never sees a
  * third-party endpoint in its critical path, and a slow or down
@@ -22,6 +27,14 @@
  */
 
 const FETCH_TIMEOUT_MS = 6000;
+/**
+ * Complaints answers are whole-history firehoses (a popular model
+ * returns megabytes — the 2003 Accord's 2,013 complaints take
+ * ~8s from a cold network, measured live 2026-11-16), so this one
+ * feed gets a longer budget; the 12h cache means it is paid once
+ * per model per instance.
+ */
+const COMPLAINTS_FETCH_TIMEOUT_MS = 20000;
 
 /** Decodes are factory facts — they never change for a given VIN. */
 const DECODE_TTL_MS = 24 * 60 * 60 * 1000;
@@ -114,9 +127,9 @@ export interface SafetyRatings {
   rollover: number | null;
 }
 
-async function fetchJson(url: string): Promise<unknown | null> {
+async function fetchJson(url: string, timeoutMs: number = FETCH_TIMEOUT_MS): Promise<unknown | null> {
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
   try {
     const res = await fetch(url, {
       signal: controller.signal,
@@ -131,18 +144,81 @@ async function fetchJson(url: string): Promise<unknown | null> {
   }
 }
 
+/**
+ * The recalls/complaints endpoints answer a no-match query with
+ * HTTP 400 and a well-formed EMPTY success body
+ * (`{"Count":0,"Message":"Results returned successfully","results":[]}`)
+ * — verified live 2026-11-16. That 400 is data ("no records"), not a
+ * failure, so this variant accepts a 400 ONLY when the body is
+ * exactly that empty-result shape; any other non-200 stays null.
+ */
+async function fetchJsonAllowEmptyResult(
+  url: string,
+  timeoutMs: number = FETCH_TIMEOUT_MS,
+): Promise<unknown | null> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const res = await fetch(url, {
+      signal: controller.signal,
+      headers: { accept: "application/json" },
+    });
+    if (res.ok) return (await res.json()) as unknown;
+    if (res.status !== 400) return null;
+    const data: unknown = await res.json().catch(() => null);
+    if (!data || typeof data !== "object") return null;
+    const record = data as Record<string, unknown>;
+    const rows = record.results ?? record.Results;
+    const count = record.Count ?? record.count;
+    return Array.isArray(rows) && rows.length === 0 && count === 0 ? data : null;
+  } catch {
+    return null;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 function str(value: unknown): string | null {
   if (typeof value !== "string") return null;
   const trimmed = value.trim();
   return trimmed.length > 0 ? trimmed : null;
 }
 
-/** The webapi family answers `results`; SafetyRatings answers `Results`. */
+/** The recalls/complaints family answers `results`; SafetyRatings answers `Results`. */
 function rowsOf(data: unknown): Array<Record<string, unknown>> {
   if (!data || typeof data !== "object") return [];
   const record = data as Record<string, unknown>;
   const rows = record.results ?? record.Results;
   return Array.isArray(rows) ? (rows as Array<Record<string, unknown>>) : [];
+}
+
+/**
+ * NHTSA's safety-issues datasets do not always file a vehicle under
+ * the bare model name vPIC returns: the 2013 F-150, for example, has
+ * NO ratings or complaints under "F-150" — they live under the cab
+ * variants "F-150 REGULAR CAB" / "F-150 SUPER CREW" / "F-150 SUPERCAB"
+ * (verified live 2026-11-16). The SafetyRatings model list for a
+ * (year, make) is the canonical name source both datasets share, so
+ * an exact-name miss retries against these sibling names.
+ */
+async function fetchNcapModelNames(year: string, make: string): Promise<string[] | null> {
+  const data = await fetchJson(
+    `https://api.nhtsa.gov/SafetyRatings/modelyear/${encodeURIComponent(year)}/make/${encodeURIComponent(make)}`,
+  );
+  if (!data) return null;
+  const names = rowsOf(data)
+    .map((row) => str(row.Model))
+    .filter((name): name is string => name !== null);
+  return [...new Set(names)];
+}
+
+/** Model names that extend the requested one ("F-150" → "F-150 SUPER CREW"). */
+function siblingModelNames(models: string[], model: string): string[] {
+  const target = model.trim().toUpperCase();
+  return models.filter((name) => {
+    const upper = name.toUpperCase();
+    return upper !== target && upper.startsWith(`${target} `);
+  });
 }
 
 export async function decodeVin(vin: string): Promise<VinDecode | null> {
@@ -196,7 +272,9 @@ export async function fetchRecalls(input: {
       model: input.model,
       modelYear: input.year,
     });
-    const data = await fetchJson(`https://webapi.nhtsa.gov/api/Recalls/vehicle?${params.toString()}`);
+    const data = await fetchJsonAllowEmptyResult(
+      `https://api.nhtsa.gov/recalls/recallsByVehicle?${params.toString()}`,
+    );
     if (!data) return null;
     return rowsOf(data).map((r) => ({
       campaignNumber: str(r.NHTSACampaignNumber),
@@ -209,6 +287,48 @@ export async function fetchRecalls(input: {
   });
 }
 
+interface RawComplaints {
+  total: number;
+  rows: Array<Record<string, unknown>>;
+}
+
+async function queryComplaints(make: string, model: string, year: string): Promise<RawComplaints | null> {
+  const params = new URLSearchParams({ make, model, modelYear: year });
+  const data = (await fetchJsonAllowEmptyResult(
+    `https://api.nhtsa.gov/complaints/complaintsByVehicle?${params.toString()}`,
+    COMPLAINTS_FETCH_TIMEOUT_MS,
+  )) as Record<string, unknown> | null;
+  if (!data) return null;
+  const rows = rowsOf(data);
+  const total = typeof data.count === "number" && Number.isFinite(data.count) ? data.count : rows.length;
+  return { total, rows };
+}
+
+function toComplaintsResult(parts: RawComplaints[]): ComplaintsResult {
+  const rows = parts.flatMap((part) => part.rows);
+  const total = parts.reduce((sum, part) => sum + part.total, 0);
+  const componentCounts = new Map<string, number>();
+  for (const row of rows) {
+    const component = str(row.components);
+    if (component) componentCounts.set(component, (componentCounts.get(component) ?? 0) + 1);
+  }
+  const topComponents = [...componentCounts.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 3)
+    .map(([component]) => component);
+  const recent = rows
+    .map((row) => ({
+      component: str(row.components),
+      summary: str(row.summary),
+      filedAt: str(row.dateComplaintFiled),
+      filedTs: Date.parse(str(row.dateComplaintFiled) ?? "") || 0,
+    }))
+    .sort((a, b) => b.filedTs - a.filedTs)
+    .slice(0, 3)
+    .map(({ component, summary, filedAt }) => ({ component, summary, filedAt }));
+  return { count: total, topComponents, recent };
+}
+
 export async function fetchComplaints(input: {
   make: string;
   model: string;
@@ -216,37 +336,21 @@ export async function fetchComplaints(input: {
 }): Promise<ComplaintsResult | null> {
   const key = `complaints:${input.year}|${input.make.toLowerCase()}|${input.model.toLowerCase()}`;
   return cached(key, COMPLAINTS_TTL_MS, async () => {
-    const params = new URLSearchParams({
-      make: input.make,
-      model: input.model,
-      modelYear: input.year,
-    });
-    const data = (await fetchJson(
-      `https://webapi.nhtsa.gov/api/Complaints/vehicle?${params.toString()}`,
-    )) as Record<string, unknown> | null;
-    if (!data) return null;
-    const rows = rowsOf(data);
-    const total = typeof data.count === "number" && Number.isFinite(data.count) ? data.count : rows.length;
-    const componentCounts = new Map<string, number>();
-    for (const row of rows) {
-      const component = str(row.components);
-      if (component) componentCounts.set(component, (componentCounts.get(component) ?? 0) + 1);
-    }
-    const topComponents = [...componentCounts.entries()]
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 3)
-      .map(([component]) => component);
-    const recent = rows
-      .map((row) => ({
-        component: str(row.components),
-        summary: str(row.summary),
-        filedAt: str(row.dateComplaintFiled),
-        filedTs: Date.parse(str(row.dateComplaintFiled) ?? "") || 0,
-      }))
-      .sort((a, b) => b.filedTs - a.filedTs)
-      .slice(0, 3)
-      .map(({ component, summary, filedAt }) => ({ component, summary, filedAt }));
-    return { count: total, topComponents, recent };
+    const exact = await queryComplaints(input.make, input.model, input.year);
+    if (!exact) return null;
+    if (exact.total > 0) return toComplaintsResult([exact]);
+    // No complaints under the bare model name — for variant-filed
+    // vehicles (F-150 and kin) the complaints live under the sibling
+    // names, so merge those before concluding there are none. If the
+    // sibling lookup itself cannot run, degrade to null rather than
+    // claim a false zero.
+    const models = await fetchNcapModelNames(input.year, input.make);
+    if (models === null) return null;
+    const siblings = siblingModelNames(models, input.model).slice(0, 5);
+    if (siblings.length === 0) return toComplaintsResult([exact]);
+    const parts = await Promise.all(siblings.map((model) => queryComplaints(input.make, model, input.year)));
+    if (parts.some((part) => part === null)) return null;
+    return toComplaintsResult([exact, ...(parts as RawComplaints[])]);
   });
 }
 
@@ -258,6 +362,18 @@ function rating(value: unknown): number | null {
   return Number.isFinite(parsed) ? parsed : null;
 }
 
+async function fetchVariantRows(
+  year: string,
+  make: string,
+  model: string,
+): Promise<Array<Record<string, unknown>> | null> {
+  const data = await fetchJson(
+    `https://api.nhtsa.gov/SafetyRatings/modelyear/${encodeURIComponent(year)}/make/${encodeURIComponent(make)}/model/${encodeURIComponent(model)}`,
+  );
+  if (!data) return null;
+  return rowsOf(data);
+}
+
 export async function fetchSafetyRatings(input: {
   make: string;
   model: string;
@@ -265,17 +381,27 @@ export async function fetchSafetyRatings(input: {
 }): Promise<SafetyRatings | null> {
   const key = `ratings:${input.year}|${input.make.toLowerCase()}|${input.model.toLowerCase()}`;
   return cached(key, RATINGS_TTL_MS, async () => {
-    const variants = await fetchJson(
-      `https://webapi.nhtsa.gov/api/SafetyRatings/modelyear/${encodeURIComponent(input.year)}/make/${encodeURIComponent(input.make)}/model/${encodeURIComponent(input.model)}`,
-    );
-    if (!variants) return null;
+    const direct = await fetchVariantRows(input.year, input.make, input.model);
+    if (!direct) return null;
     // NHTSA rates specific variants; the first listed match is the
     // documented pick — the UI shows its description so the driver
     // can see exactly which variant the stars belong to.
-    const variant = rowsOf(variants).find((row) => row.VehicleId !== undefined && row.VehicleId !== null);
+    let variant = direct.find((row) => row.VehicleId !== undefined && row.VehicleId !== null);
+    if (!variant) {
+      // No variants under the bare model name — variant-filed
+      // vehicles (F-150 and kin) are rated under sibling names.
+      const models = await fetchNcapModelNames(input.year, input.make);
+      if (models === null) return null;
+      for (const sibling of siblingModelNames(models, input.model).slice(0, 5)) {
+        const rows = await fetchVariantRows(input.year, input.make, sibling);
+        if (!rows) continue;
+        variant = rows.find((row) => row.VehicleId !== undefined && row.VehicleId !== null);
+        if (variant) break;
+      }
+    }
     if (!variant) return null;
     const detail = await fetchJson(
-      `https://webapi.nhtsa.gov/api/SafetyRatings/VehicleId/${encodeURIComponent(String(variant.VehicleId))}`,
+      `https://api.nhtsa.gov/SafetyRatings/VehicleId/${encodeURIComponent(String(variant.VehicleId))}`,
     );
     if (!detail) return null;
     const row = rowsOf(detail)[0];
@@ -283,9 +409,12 @@ export async function fetchSafetyRatings(input: {
     const ratings: SafetyRatings = {
       vehicleDescription: str(row.VehicleDescription) ?? str(variant.VehicleDescription),
       overall: rating(row.OverallRating),
-      frontal: rating(row.OverallFrontalCrashRating),
-      frontalDriver: rating(row.FrontalCrashDriversideRating),
-      frontalPassenger: rating(row.FrontalCrashPassengersideRating),
+      // The live API names these "FrontCrash…"; the "Frontal…" names
+      // an earlier fixture set used never existed in its responses.
+      frontal: rating(row.OverallFrontCrashRating) ?? rating(row.OverallFrontalCrashRating),
+      frontalDriver: rating(row.FrontCrashDriversideRating) ?? rating(row.FrontalCrashDriversideRating),
+      frontalPassenger:
+        rating(row.FrontCrashPassengersideRating) ?? rating(row.FrontalCrashPassengersideRating),
       side: rating(row.OverallSideCrashRating),
       sideDriver: rating(row.SideCrashDriversideRating),
       sidePassenger: rating(row.SideCrashPassengersideRating),
