@@ -10,7 +10,8 @@ import { GaugeMMark } from "./Logo";
  * App chrome for the signed-in surfaces (WP6): the Gauge M, the working
  * destinations, and sign-out. The lockup is the home link (owner
  * directive 2026-11-03: logo on every page, one click back to the main
- * page) — it targets /app here, the signed-in main page.
+ * page) — it targets "/" here like everywhere else (Pass #17,
+ * 2026-11-17: one uniform rule, the main page for everyone).
  *
  * STRUCTURE (design-polish pass, 2026-11-03 — owner's live-test
  * screenshot showed the old wrapping bar as an unstructured sprawl on
@@ -28,12 +29,15 @@ import { GaugeMMark } from "./Logo";
  */
 export function AppNav({
   business = false,
-  logoHref = "/app",
+  logoHref = "/",
 }: {
   business?: boolean;
-  /** Where the logo returns to. The app shell's main page is /app;
-   *  the pre-sign-in business pages that borrow this chrome (business
-   *  login/register) pass "/" — the public main page. */
+  /** Where the logo returns to. Pass #17 (2026-11-17): the owner's
+   *  rule is uniform — the logo goes to the main page "/" from
+   *  everywhere, the app shell included (Pass #12's /app target
+   *  reverted: on /app it was a self-link and the tap did nothing).
+   *  The prop stays for call-site clarity; every caller resolves
+   *  to "/" (the business auth pages pass it explicitly). */
   logoHref?: string;
 }) {
   const { t } = useLocale();
@@ -69,7 +73,7 @@ export function AppNav({
           <Link
             href={logoHref}
             className="flex h-12 items-center gap-2 pe-2"
-            aria-label={logoHref === "/app" ? t.header.logoAppLabel : t.header.logoHomeLabel}
+            aria-label={t.header.logoHomeLabel}
           >
             <GaugeMMark size={28} className="text-ink-1" />
             <span className="font-display text-lg font-bold tracking-[0.04em] text-ink-1">MECHA</span>

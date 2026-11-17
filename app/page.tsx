@@ -126,6 +126,20 @@ import { HomeVault } from "@/components/HomeVault";
  * globals.css (dark survives only as the explicit toggle opt-in,
  * with the same blue), so this page resolves the exact same
  * tokens as every other route and no page-scoped hack remains.
+ *
+ * Pass #17 (2026-11-17, owner, first ordered 2026-11-16 ~20:46
+ * and confirmed 2026-11-17: "the video should be at the bottom,
+ * at the end"): REORDER ONLY. Every section that carries a
+ * looping in-use film — HomeDiagnosis (mechanic loop),
+ * HomeFairPrice (quote loop), HomeScan (warning-light loop),
+ * HomeVault (roadside loop), HomeShops (recall-alert loop) —
+ * now renders as the closing block of the page, after the
+ * HomeCta band, immediately before the footer, in the same
+ * relative order as before. The photo sections (Hero,
+ * HomeMarketplace), the steps, the plans strip, and the closing
+ * band keep their places above them. Clips, sources, autoplay/
+ * loop behavior, copy, and colors are all unchanged — the action
+ * comes first, the films close the page.
  */
 export default function HomePage() {
   return (
@@ -134,14 +148,14 @@ export default function HomePage() {
       <main>
         <Hero />
         <HomeSteps />
+        <HomeMarketplace />
+        <HomePlans />
+        <HomeCta />
         <HomeDiagnosis />
         <HomeFairPrice />
         <HomeScan />
         <HomeVault />
-        <HomeMarketplace />
-        <HomePlans />
         <HomeShops />
-        <HomeCta />
       </main>
       <HomeFooter />
     </div>

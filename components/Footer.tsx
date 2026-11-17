@@ -1,9 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
 import { useLocale } from "@/lib/i18n/LocaleProvider";
-import { getToken } from "@/lib/client/auth";
 import { LogoLockup } from "./Logo";
 
 /**
@@ -16,18 +14,13 @@ import { LogoLockup } from "./Logo";
  * The lockup here is a home link like every other logo on the site
  * (owner directive 2026-11-03, completed 2026-11-16): this footer and
  * the homepage's were the last logo renders that were not links.
- * Footer serves only public pages; the target follows the session
- * (Pass #12, 2026-11-16): "/" signed out, "/app" — the owner's main
- * page — signed in.
+ * The target is "/" for everyone (Pass #17, 2026-11-17: the main
+ * page, signed in or out — Pass #12's session-aware target is
+ * reverted on the owner's word).
  */
 export function Footer() {
   const { t } = useLocale();
   const f = t.footer;
-  const [signedIn, setSignedIn] = useState(false);
-  useEffect(() => {
-    setSignedIn(getToken() !== null);
-  }, []);
-  const logoHref = signedIn ? "/app" : "/";
 
   return (
     <footer className="border-t border-line">
@@ -35,8 +28,8 @@ export function Footer() {
         <div className="flex flex-col gap-10 md:flex-row md:items-start md:justify-between">
           <div className="max-w-sm">
             <Link
-              href={logoHref}
-              aria-label={signedIn ? t.header.logoAppLabel : t.header.logoHomeLabel}
+              href="/"
+              aria-label={t.header.logoHomeLabel}
               className="inline-flex"
             >
               <LogoLockup />

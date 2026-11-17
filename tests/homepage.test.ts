@@ -58,6 +58,12 @@
  *     free diagnoses live inside an account).
  *   - HomeFooter: wordmark, the legal links, copyright. The
  *     shared Footer is NOT on home.
+ *   - Pass #17 (2026-11-17, owner: "the video should be at the
+ *     bottom, at the end"): the ORDER above is pass #6's; the
+ *     film sections (HomeDiagnosis, HomeFairPrice, HomeScan,
+ *     HomeVault, HomeShops) have since moved as one block to
+ *     AFTER HomeCta, immediately before HomeFooter — the SECTIONS
+ *     array below pins the live order. Content unchanged.
  *   - NOT taken from the references: #2's left-aligned hero and
  *     example-diagnosis card, #1's form card, possible-causes
  *     card, guidance meter, and card row. The old stacked
@@ -76,24 +82,27 @@ const SECTIONS = [
   "<HomeHeader",
   "<Hero",
   "<HomeSteps",
+  "<HomeMarketplace",
+  "<HomePlans",
+  "<HomeCta",
   "<HomeDiagnosis",
   "<HomeFairPrice",
   "<HomeScan",
   "<HomeVault",
-  "<HomeMarketplace",
-  "<HomePlans",
   "<HomeShops",
-  "<HomeCta",
   "<HomeFooter",
 ];
 
-test("homepage composition: header, hero, steps, the Audi-length sections, shops visual, blue band, minimal footer — nothing else", () => {
+test("homepage composition: header, hero, steps, marketplace, plans, blue band, the film sections at the end, minimal footer — nothing else", () => {
   const page = read("app/page.tsx");
   for (const shell of SECTIONS) {
     assert.ok(page.includes(shell), `homepage renders ${shell}`);
   }
-  // Order is the layout: the pass #6 sections sit between the
-  // steps and the shops visual; the band directly above the footer.
+  // Order is the layout (Pass #17, 2026-11-17, owner: "the video
+  // should be at the bottom, at the end"): the photo/content
+  // sections and the blue band run first; every looping-film
+  // section (Diagnosis, FairPrice, Scan, Vault, Shops) closes
+  // the page after the band, directly above the footer.
   const order = SECTIONS.map((s) => page.indexOf(s));
   assert.deepEqual(order, [...order].sort((a, b) => a - b), "sections render in the pinned order");
   for (const removed of [

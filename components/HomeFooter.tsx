@@ -1,9 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
 import { useLocale } from "@/lib/i18n/LocaleProvider";
-import { getToken } from "@/lib/client/auth";
 import { LogoLockup } from "./Logo";
 
 /**
@@ -16,26 +14,21 @@ import { LogoLockup } from "./Logo";
  * The wordmark is a home link like every other logo on the site
  * (owner directive 2026-11-03, completed 2026-11-16): this footer
  * and the shared Footer were the last logo renders that were not
- * links. The target follows the session (Pass #12, 2026-11-16):
- * "/" signed out; signed in, "/app" — on this page a "/" target
- * was a no-op tap for the signed-in owner.
+ * links. The target is "/" for everyone (Pass #17, 2026-11-17:
+ * the main page, signed in or out — Pass #12's session-aware
+ * target is reverted on the owner's word).
  */
 export function HomeFooter() {
   const { t } = useLocale();
   const f = t.footer;
-  const [signedIn, setSignedIn] = useState(false);
-  useEffect(() => {
-    setSignedIn(getToken() !== null);
-  }, []);
-  const logoHref = signedIn ? "/app" : "/";
 
   return (
     <footer className="border-t border-line">
       <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
         <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
           <Link
-            href={logoHref}
-            aria-label={signedIn ? t.header.logoAppLabel : t.header.logoHomeLabel}
+            href="/"
+            aria-label={t.header.logoHomeLabel}
             className="inline-flex"
           >
             <LogoLockup />

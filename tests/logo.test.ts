@@ -5,43 +5,33 @@
  * in the same style as scan.test.ts's dead-link sweep:
  *
  *   - marketing/public pages render <Header> (or <LegalShell>, which
- *     renders <Header>): logo lockup → the session-aware main page
- *     ("/" signed out, "/app" signed in — Pass #12) with a ≥48px tap
- *     target;
+ *     renders <Header>): logo lockup → "/" with a ≥48px tap target;
  *   - the homepage renders its own slim <HomeHeader> (design pass
- *     "One Screen", 2026-11-16): same logo contract — session-aware
- *     lockup with a ≥48px tap target and the dictionary accessible
- *     name;
+ *     "One Screen", 2026-11-16): same logo contract — lockup → "/"
+ *     with a ≥48px tap target and the dictionary accessible name;
  *   - auth + standalone flow pages render <MinimalTopBar>:
- *     logo lockup → the session-aware main page;
- *   - the business auth pages borrow <AppNav> but pass logoHref="/"
- *     (pre-sign-in: home is the public main page);
- *   - signed-in app pages render <AppNav>: logo → "/app", the
- *     signed-in user's main page.
+ *     logo lockup → "/";
+ *   - the business auth pages borrow <AppNav> and pass logoHref="/";
+ *   - signed-in app pages render <AppNav>: logo → "/" too.
  *   - the footers (<Footer> on public pages, <HomeFooter> on the
  *     homepage) close their pages with the same lockup, and it is a
  *     home link too → "/" (2026-11-16: the owner re-asked for the
  *     logo-to-main-page rule on EVERY page; the two footer lockups
  *     were the last logo renders that were not links at all).
  *
- * Pass #12 (2026-11-16, the owner's live re-test: "the logo is still
- * not working — it's not taking me back to the main page"): a mobile
- * tap-probe of the live build proved every logo anchor mechanically
- * sound — top element at its tap point, taps navigating, no overlay,
- * no JS errors. The failure was the TARGET for a signed-in user: the
- * five public/auth shells hard-coded "/", so the owner's tap landed
- * on the marketing homepage instead of his main page (the /app
- * dashboard) — and on the homepage itself the tap was a literal
- * no-op. The contract is now session-aware on every shell except
- * AppNav (whose target is /app by construction, "/" only on the
- * pre-sign-in business pages via the explicit prop):
- *
- *     signed in  → logoHref "/app"  (aria: logoAppLabel)
- *     signed out → logoHref "/"     (aria: logoHomeLabel)
- *
- * read from the same getToken() session check HomeHeader already
- * used for its action buttons. These pins keep the rule from
- * drifting back to a hard-coded "/".
+ * Pass #17 (2026-11-17) — THE RULE IS UNIFORM AGAIN: "/" for
+ * everyone, signed in or out, on every shell. History: Pass #12
+ * (2026-11-16) made the five public/auth shells session-aware
+ * (signed in → "/app") after a tap-probe proved the anchors sound
+ * and the owner's complaint was read as "the logo lands on the
+ * marketing homepage instead of my dashboard." The owner then
+ * tested on /app itself and reported the logo "does not work… to
+ * take me to the main page": under the session-aware rule the
+ * /app logo was a self-link, so the tap visibly did nothing. His
+ * standing words, repeated Nov 16–17, settle it: "if you click on
+ * the logo, it should take you back to the main page" — the main
+ * page is "/", everywhere, for everyone. These pins keep the rule
+ * from drifting back to a session-aware target.
  *
  * The audit this guard was born from (2026-11-03, head 9311fa8):
  * /login, /register, /forgot-password, /reset-password,
@@ -90,7 +80,7 @@ function classify(route: string): ShellKind {
   return "header";
 }
 
-test("logo inventory: every route renders a shell whose logo links to its main page", () => {
+test("logo inventory: every route renders a shell whose logo links to the main page", () => {
   const root = process.cwd();
   const appRoot = join(root, "app");
 
@@ -122,8 +112,8 @@ test("logo inventory: every route renders a shell whose logo links to its main p
     } else if (kind === "appNav") {
       assert.ok(source.includes("<AppNav"), `${route} must render <AppNav> — the logo home link`);
       assert.ok(
-        !source.includes('logoHref="/"'),
-        `${route} is a signed-in surface: its logo must keep the /app target, not "/"`,
+        !source.includes('logoHref="/app"'),
+        `${route}: no page may point the logo at /app — the rule is "/" everywhere (Pass #17)`,
       );
     } else if (kind === "minimalBar") {
       assert.ok(
@@ -172,10 +162,11 @@ test("logo link contracts: target, tap size, accessible name, theme-token mark",
   const footer = readFileSync(join(root, "components/Footer.tsx"), "utf8");
   const homeFooter = readFileSync(join(root, "components/HomeFooter.tsx"), "utf8");
 
-  // The Pass #12 session-aware target, shared by every public/auth
-  // shell: the component reads the session via getToken, computes
-  // logoHref ("/app" signed in, "/" signed out), binds the anchor to
-  // it, and picks the matching dictionary accessible name.
+  // The Pass #17 uniform target, shared by every public/auth shell:
+  // the logo anchor is a plain href="/" with the dictionary home
+  // label — no session read, no computed target, no app label.
+  // (Pass #12's session-aware rule — getToken + logoHref +
+  // logoAppLabel — must not come back.)
   for (const [name, src] of [
     ["Header", header],
     ["HomeHeader", homeHeader],
@@ -183,15 +174,15 @@ test("logo link contracts: target, tap size, accessible name, theme-token mark",
     ["Footer", footer],
     ["HomeFooter", homeFooter],
   ] as const) {
-    assert.ok(src.includes("getToken"), `${name} logo target must read the session (getToken)`);
+    assert.ok(src.includes('href="/"'), `${name} logo anchor must target "/"`);
     assert.ok(
-      src.includes('const logoHref = signedIn ? "/app" : "/"'),
-      `${name} logo target must be session-aware: /app signed in, / signed out`,
+      src.includes("t.header.logoHomeLabel"),
+      `${name} logo accessible name must be the dictionary home label`,
     );
-    assert.ok(src.includes("href={logoHref}"), `${name} logo anchor must bind href to logoHref`);
+    assert.ok(!src.includes("logoHref"), `${name} must not compute a logo target (Pass #17)`);
     assert.ok(
-      src.includes("t.header.logoAppLabel") && src.includes("t.header.logoHomeLabel"),
-      `${name} logo accessible name must follow the session (app/home labels)`,
+      !src.includes("logoAppLabel"),
+      `${name} must not use the app-home label — the logo goes to the main page`,
     );
     assert.ok(src.includes("<LogoLockup"), `${name} must render the logo lockup`);
   }
@@ -206,18 +197,23 @@ test("logo link contracts: target, tap size, accessible name, theme-token mark",
   assert.ok(homeHeader.includes("min-h-[48px]"), "HomeHeader logo link must be a ≥48px-tall tap target");
   assert.ok(homeHeader.includes("min-w-[48px]"), "HomeHeader logo link must be a ≥48px-wide tap target");
 
-  // AppNav (app shell): logo targets the logoHref prop, defaulting to
-  // the signed-in main page /app, with the app-home accessible name.
-  assert.ok(appNav.includes('logoHref = "/app"'), "AppNav logo must default to /app");
+  // AppNav (app shell): the logo follows the same rule — the
+  // logoHref prop now defaults to "/" and the accessible name is
+  // the home label (the business auth pages pass "/" explicitly).
+  assert.ok(appNav.includes('logoHref = "/"'), "AppNav logo must default to /");
   assert.ok(appNav.includes("href={logoHref}"), "AppNav logo link must use the logoHref prop");
   assert.ok(
-    appNav.includes("t.header.logoAppLabel"),
-    "AppNav logo accessible name comes from the dictionary",
+    appNav.includes("t.header.logoHomeLabel"),
+    "AppNav logo accessible name is the dictionary home label",
+  );
+  assert.ok(
+    !appNav.includes("logoAppLabel"),
+    "AppNav must not use the app-home label — the logo goes to the main page",
   );
   assert.ok(appNav.includes("<GaugeMMark"), "AppNav must render the Gauge M mark");
 
   // MinimalTopBar (auth/standalone shell): ≥48px tap target (its
-  // session-aware target is pinned in the shared loop above).
+  // uniform "/" target is pinned in the shared loop above).
   assert.ok(bar.includes("min-h-[48px]"), "MinimalTopBar logo link must be a ≥48px tap target");
 
   // Legal pages inherit the header (and its logo) through LegalShell.
@@ -226,7 +222,7 @@ test("logo link contracts: target, tap size, accessible name, theme-token mark",
   // Footers (public pages + homepage): the lockup closes the page and
   // is a home link like every other logo on the site — before the
   // 2026-11-16 Pass #11 these two were plain, unlinked renders; their
-  // session-aware target is pinned in the shared loop above.
+  // uniform "/" target is pinned in the shared loop above.
 
   // The mark itself renders from the active theme's tokens
   // (currentColor for the M, the accent token for the arc) — visible in
