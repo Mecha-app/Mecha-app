@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState, type ChangeEvent } from "react";
 import { AppNav } from "@/components/AppNav";
+import SavedVehicleField from "@/components/SavedVehicleField";
 import { apiDetail, apiFetch } from "@/lib/client/api";
 import { authHeaders, clearSession, getToken } from "@/lib/client/auth";
 import { useLocale } from "@/lib/i18n/LocaleProvider";
@@ -154,10 +155,14 @@ export default function ScanPage() {
   >("idle");
   const [photoResult, setPhotoResult] = useState<PhotoResult | null>(null);
   const [photoVehicle, setPhotoVehicle] = useState("");
+  // The saved vehicle each mode's car was picked from (Pass 15) —
+  // carried through the diagnose handoff so the run links to it.
+  const [photoVehicleId, setPhotoVehicleId] = useState<string | null>(null);
 
   /* Code mode state */
   const [code, setCode] = useState("");
   const [codeVehicle, setCodeVehicle] = useState("");
+  const [codeVehicleId, setCodeVehicleId] = useState<string | null>(null);
   const normalizedCode = code.trim() ? validateFaultCode(code) : null;
   const codeInfo = normalizedCode ? faultCodeInfo(normalizedCode) : null;
 
@@ -628,19 +633,21 @@ export default function ScanPage() {
               )}
             </div>
 
-            <div>
-              <label htmlFor="scan-photo-vehicle" className={labelCls}>
-                {s.vehicleOptionalLabel}
-              </label>
-              <input
-                id="scan-photo-vehicle"
-                className={inputCls}
-                value={photoVehicle}
-                onChange={(e) => setPhotoVehicle(e.target.value)}
-                placeholder={s.vehicleOptionalPlaceholder}
-                autoComplete="off"
-              />
-            </div>
+            <SavedVehicleField
+              id="scan-photo-vehicle"
+              label={s.vehicleOptionalLabel}
+              placeholder={s.vehicleOptionalPlaceholder}
+              otherOptionLabel={s.vehicleOtherOption}
+              savedOptionLabel={s.vehicleSavedOption}
+              value={photoVehicle}
+              vehicleId={photoVehicleId}
+              onChange={(info, id) => {
+                setPhotoVehicle(info);
+                setPhotoVehicleId(id);
+              }}
+              labelClassName={labelCls}
+              inputClassName={inputCls}
+            />
 
             <div>
               <button
@@ -729,7 +736,11 @@ export default function ScanPage() {
                         className={primaryBtn}
                         onClick={() =>
                           handoffToDiagnose(
-                            buildPhotoDiagnosisPrefill(photoResult.lights, photoVehicle),
+                            buildPhotoDiagnosisPrefill(
+                              photoResult.lights,
+                              photoVehicle,
+                              photoVehicleId ?? undefined,
+                            ),
                           )
                         }
                       >
@@ -788,19 +799,21 @@ export default function ScanPage() {
               )}
             </div>
 
-            <div>
-              <label htmlFor="scan-code-vehicle" className={labelCls}>
-                {s.vehicleOptionalLabel}
-              </label>
-              <input
-                id="scan-code-vehicle"
-                className={inputCls}
-                value={codeVehicle}
-                onChange={(e) => setCodeVehicle(e.target.value)}
-                placeholder={s.vehicleOptionalPlaceholder}
-                autoComplete="off"
-              />
-            </div>
+            <SavedVehicleField
+              id="scan-code-vehicle"
+              label={s.vehicleOptionalLabel}
+              placeholder={s.vehicleOptionalPlaceholder}
+              otherOptionLabel={s.vehicleOtherOption}
+              savedOptionLabel={s.vehicleSavedOption}
+              value={codeVehicle}
+              vehicleId={codeVehicleId}
+              onChange={(info, id) => {
+                setCodeVehicle(info);
+                setCodeVehicleId(id);
+              }}
+              labelClassName={labelCls}
+              inputClassName={inputCls}
+            />
 
             <div>
               <button
@@ -809,7 +822,13 @@ export default function ScanPage() {
                 disabled={!normalizedCode}
                 onClick={() =>
                   normalizedCode &&
-                  handoffToDiagnose(buildCodeDiagnosisPrefill(normalizedCode, codeVehicle))
+                  handoffToDiagnose(
+                    buildCodeDiagnosisPrefill(
+                      normalizedCode,
+                      codeVehicle,
+                      codeVehicleId ?? undefined,
+                    ),
+                  )
                 }
               >
                 {s.codeExplainCta}

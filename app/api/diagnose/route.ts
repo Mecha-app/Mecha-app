@@ -9,6 +9,7 @@ import { PayloadTooLargeError, apiError, readJsonBody } from "@/lib/server/http"
 import { getActiveDiagnosisProvider } from "@/lib/server/providerAiSdk";
 import { requireDriverUser } from "@/lib/server/routeAuth";
 import { QuotaExhaustedError } from "@/lib/server/quota";
+import { getAppStore } from "@/lib/server/appStore";
 import { getIdentityStore } from "@/lib/server/store";
 
 export const runtime = "nodejs";
@@ -129,7 +130,15 @@ export async function POST(request: Request) {
       imageUrl: str(b.imageUrl, 1024),
       tier: b.tier,
     };
-    const vehicleId = str(b.vehicleId, 64);
+    // A named vehicle links the saved record to the driver's Vault —
+    // but only when the vehicle is actually HIS: a foreign or stale id
+    // is dropped (the run proceeds unlinked) rather than writing one
+    // driver's diagnosis into another driver's vehicle history.
+    let vehicleId = str(b.vehicleId, 64);
+    if (vehicleId) {
+      const vehicle = await getAppStore().findVehicleById(vehicleId);
+      if (!vehicle || vehicle.ownerId !== user.id) vehicleId = undefined;
+    }
 
     const generator = executeDiagnosis({ store, provider }, { user, request: req, vehicleId });
 

@@ -691,6 +691,8 @@ const ar: DeepPartial<Dictionary> = {
       retakeCta: "استخدم صورة أخرى",
       vehicleOptionalLabel: "سيارتك (اختياري)",
       vehicleOptionalPlaceholder: "السنة والماركة والموديل",
+      vehicleOtherOption: "مركبة أخرى…",
+      vehicleSavedOption: "استخدام مركبة محفوظة",
       codeLabel: "رمز العطل",
       codeHint: "من قارئ رموز أو فحص مجاني في متجر قطع — حرف (P أو B أو C أو U) وأربعة أحرف، مثل P0420.",
       codeInvalid: "هذا لا يبدو بعد رمز عطل — ينبغي أن يبدو مثل P0420.",

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState, type FormEvent } from "react";
 import PartsNextSteps from "@/components/PartsNextSteps";
+import SavedVehicleField from "@/components/SavedVehicleField";
 import { AppNav } from "@/components/AppNav";
 import { authHeaders, clearSession, getToken } from "@/lib/client/auth";
 import type { DiagnosisReport } from "@/lib/server/ai";
@@ -36,6 +37,10 @@ export default function DiagnosePage() {
   const [quota, setQuota] = useState<QuotaView | null>(null);
   const [message, setMessage] = useState("");
   const [vehicleInfo, setVehicleInfo] = useState("");
+  // The saved vehicle the run belongs to, when the car was picked from
+  // the garage (Pass 15) — sent with the request so the saved record
+  // links to the vehicle; null for a typed-in car.
+  const [vehicleId, setVehicleId] = useState<string | null>(null);
   const [problem, setProblem] = useState("");
   const [report, setReport] = useState<DiagnosisReport | null>(null);
   const [receivedChars, setReceivedChars] = useState(0);
@@ -53,6 +58,7 @@ export default function DiagnosePage() {
         const prefill = JSON.parse(raw) as Partial<ScanDiagnosePrefill>;
         if (typeof prefill.problem === "string") setProblem(prefill.problem);
         if (typeof prefill.vehicleInfo === "string") setVehicleInfo(prefill.vehicleInfo);
+        if (typeof prefill.vehicleId === "string") setVehicleId(prefill.vehicleId);
       }
     } catch {
       // Private mode or a corrupt value — the page just opens unfilled.
@@ -106,7 +112,11 @@ export default function DiagnosePage() {
       const res = await fetch("/api/diagnose", {
         method: "POST",
         headers: { "content-type": "application/json", ...authHeaders() },
-        body: JSON.stringify({ problem: problem.trim(), vehicleInfo: vehicleInfo.trim() || undefined }),
+        body: JSON.stringify({
+          problem: problem.trim(),
+          vehicleInfo: vehicleInfo.trim() || undefined,
+          vehicleId: vehicleId ?? undefined,
+        }),
       });
 
       if (res.status === 402) {
@@ -237,19 +247,25 @@ export default function DiagnosePage() {
           </section>
         ) : (
           <form onSubmit={onSubmit} className="mt-8 flex flex-col gap-5" noValidate>
-            <div>
-              <label htmlFor="diag-vehicle" className="block text-sm font-medium text-ink-2">
-                Your car
-              </label>
-              <input
-                id="diag-vehicle"
-                className="h-12 w-full rounded-xl border border-line bg-surface px-4 text-base text-ink-1 placeholder:text-ink-3"
-                placeholder="Year, make, and model"
-                autoComplete="off"
-                value={vehicleInfo}
-                onChange={(e) => setVehicleInfo(e.target.value)}
-              />
-            </div>
+            {/* The car: a picker of the driver's saved vehicles when
+                he has any (Pass 15 — he already added the car to his
+                garage; never make him re-type it), free text otherwise
+                or on "Other vehicle…". A picked vehicle also sends its
+                id, which is what links the saved diagnosis record to
+                the vehicle in the Health Vault. */}
+            <SavedVehicleField
+              id="diag-vehicle"
+              label="Your car"
+              placeholder="Year, make, and model"
+              otherOptionLabel="Other vehicle…"
+              savedOptionLabel="Use a saved vehicle"
+              value={vehicleInfo}
+              vehicleId={vehicleId}
+              onChange={(info, id) => {
+                setVehicleInfo(info);
+                setVehicleId(id);
+              }}
+            />
             <div>
               <label htmlFor="diag-problem" className="block text-sm font-medium text-ink-2">
                 What is happening?

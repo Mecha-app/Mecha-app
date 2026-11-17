@@ -117,6 +117,33 @@ export async function listVehicles(store: AppStore, ownerId: string): Promise<Ve
   return store.listVehiclesByOwner(ownerId);
 }
 
+/** Whitespace/case normalization for the legacy vehicle-string match. */
+function normalizeVehicleText(value: string): string {
+  return value.trim().toLowerCase().replace(/\s+/g, " ");
+}
+
+/**
+ * Legacy match (Pass 15): does an UNLINKED diagnosis's saved vehicle
+ * string belong to this vehicle? The string is whatever the run used —
+ * the picked vehicle's composed name or the driver's typed text — so
+ * the match is on year + make + model, case-insensitive, trimmed and
+ * whitespace-collapsed: an exact "2015 toyota corolla" matches, and so
+ * does the same head followed by more words ("2015 Toyota Corolla LE",
+ * "2015 Toyota Corolla (1.8L 4-cylinder)") — a different year, make, or
+ * model never does. Read-time only; the stored record is never
+ * rewritten.
+ */
+export function vehicleInfoMatchesVehicle(
+  vehicleInfo: string | null,
+  vehicle: Pick<VehicleRecord, "year" | "make" | "model">,
+): boolean {
+  if (!vehicleInfo) return false;
+  const info = normalizeVehicleText(vehicleInfo);
+  if (!info) return false;
+  const head = normalizeVehicleText(`${vehicle.year} ${vehicle.make} ${vehicle.model}`);
+  return info === head || info.startsWith(`${head} `);
+}
+
 export async function getVehicleDetail(
   store: AppStore,
   ownerId: string,
@@ -124,7 +151,20 @@ export async function getVehicleDetail(
 ): Promise<{ vehicle: VehicleRecord; diagnoses: DiagnosisSummary[] }> {
   const vehicle = await store.findVehicleById(vehicleId);
   if (!vehicle || vehicle.ownerId !== ownerId) throw new NotFoundError("Vehicle not found.");
-  const diagnoses = await store.listVehicleDiagnoses(vehicleId);
+  // The vehicle's history = its LINKED diagnoses plus the owner's
+  // UNLINKED (free-text) diagnoses whose saved vehicle string matches
+  // this car — merged newest-first. Before Pass 15 nothing was saved
+  // without a link and no form sent one, so this list was always
+  // empty; the merge is what lets string-only runs land under the
+  // right vehicle without rewriting any stored record.
+  const [linked, unlinked] = await Promise.all([
+    store.listVehicleDiagnoses(vehicleId),
+    store.listUnlinkedDiagnoses(ownerId),
+  ]);
+  const legacy = unlinked.filter((d) => vehicleInfoMatchesVehicle(d.vehicleInfo, vehicle));
+  const diagnoses = [...linked, ...legacy].sort((a, b) =>
+    b.createdAt.localeCompare(a.createdAt),
+  );
   return { vehicle, diagnoses };
 }
 

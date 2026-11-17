@@ -706,6 +706,8 @@ const es: DeepPartial<Dictionary> = {
       retakeCta: "Usar otra foto",
       vehicleOptionalLabel: "Tu auto (opcional)",
       vehicleOptionalPlaceholder: "Año, marca y modelo",
+      vehicleOtherOption: "Otro vehículo…",
+      vehicleSavedOption: "Usar un vehículo guardado",
       codeLabel: "Código de falla",
       codeHint:
         "De un lector de códigos o de un escaneo gratuito en una tienda de repuestos: una letra (P, B, C o U) más cuatro caracteres, como P0420.",

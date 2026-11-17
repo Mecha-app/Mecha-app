@@ -691,6 +691,8 @@ const uk: DeepPartial<Dictionary> = {
       retakeCta: "Використати інше фото",
       vehicleOptionalLabel: "Ваш автомобіль (необов'язково)",
       vehicleOptionalPlaceholder: "Рік, марка та модель",
+      vehicleOtherOption: "Інший автомобіль…",
+      vehicleSavedOption: "Використати збережений автомобіль",
       codeLabel: "Код несправності",
       codeHint: "Від сканера кодів або безкоштовного сканування в магазині запчастин — літера (P, B, C або U) плюс чотири символи, наприклад P0420.",
       codeInvalid: "Це ще не схоже на код несправності — він має виглядати як P0420.",

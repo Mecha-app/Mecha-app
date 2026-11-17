@@ -691,6 +691,8 @@ const he: DeepPartial<Dictionary> = {
       retakeCta: "השתמש בתמונה אחרת",
       vehicleOptionalLabel: "הרכב שלך (אופציונלי)",
       vehicleOptionalPlaceholder: "שנה, יצרן ודגם",
+      vehicleOtherOption: "רכב אחר…",
+      vehicleSavedOption: "להשתמש ברכב שמור",
       codeLabel: "קוד תקלה",
       codeHint: "מקורא קודים או סריקה חינמית בחנות חלקים — אות (P, B, C או U) בתוספת ארבעה תווים, כמו P0420.",
       codeInvalid: "זה עדיין לא נראה כמו קוד תקלה — הוא צריך להיראות כמו P0420.",

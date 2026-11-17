@@ -47,7 +47,14 @@ export interface VehicleRecord {
 export interface DiagnosisSummary {
   id: string;
   userId: string;
-  vehicleId: string;
+  /** The saved vehicle this run belongs to — null for a free-text run
+   * (migration 0016: a diagnosis is saved for the ACCOUNT always, and
+   * linked to a vehicle only when the run named one). */
+  vehicleId: string | null;
+  /** The exact vehicle string the run used (the picked vehicle's
+   * composed name, or the driver's typed text) — the Vault matches
+   * unlinked records to a vehicle by this string at read time. */
+  vehicleInfo: string | null;
   problemText: string | null;
   imageUrl: string | null;
   aiResult: unknown;
@@ -351,6 +358,9 @@ export interface AppStore {
   updateVehicle(id: string, ownerId: string, patch: VehiclePatch): Promise<VehicleRecord | null>;
   deleteVehicle(id: string, ownerId: string): Promise<boolean>;
   listVehicleDiagnoses(vehicleId: string): Promise<DiagnosisSummary[]>;
+  /** The owner's diagnoses saved WITHOUT a vehicle link (free-text
+   * runs) — the Vault matches these to a vehicle by vehicleInfo. */
+  listUnlinkedDiagnoses(userId: string): Promise<DiagnosisSummary[]>;
   listRecentDiagnoses(userId: string, limit: number): Promise<DiagnosisSummary[]>;
 
   // Listings
@@ -457,7 +467,8 @@ function toVehicle(row: VehicleRow): VehicleRecord {
 interface DiagnosisRow {
   id: string;
   user_id: string;
-  vehicle_id: string;
+  vehicle_id: string | null;
+  vehicle_info: string | null;
   problem_text: string | null;
   image_url: string | null;
   ai_result: unknown;
@@ -469,6 +480,7 @@ function toDiagnosis(row: DiagnosisRow): DiagnosisSummary {
     id: row.id,
     userId: row.user_id,
     vehicleId: row.vehicle_id,
+    vehicleInfo: row.vehicle_info,
     problemText: row.problem_text,
     imageUrl: row.image_url,
     aiResult: row.ai_result,
@@ -812,16 +824,25 @@ export class PgAppStore implements AppStore {
 
   async listVehicleDiagnoses(vehicleId: string): Promise<DiagnosisSummary[]> {
     const { rows } = await getPool().query<DiagnosisRow>(
-      `SELECT id, user_id, vehicle_id, problem_text, image_url, ai_result, created_at
+      `SELECT id, user_id, vehicle_id, vehicle_info, problem_text, image_url, ai_result, created_at
          FROM diagnostics WHERE vehicle_id = $1 ORDER BY created_at DESC`,
       [vehicleId],
     );
     return rows.map(toDiagnosis);
   }
 
+  async listUnlinkedDiagnoses(userId: string): Promise<DiagnosisSummary[]> {
+    const { rows } = await getPool().query<DiagnosisRow>(
+      `SELECT id, user_id, vehicle_id, vehicle_info, problem_text, image_url, ai_result, created_at
+         FROM diagnostics WHERE user_id = $1 AND vehicle_id IS NULL ORDER BY created_at DESC`,
+      [userId],
+    );
+    return rows.map(toDiagnosis);
+  }
+
   async listRecentDiagnoses(userId: string, limit: number): Promise<DiagnosisSummary[]> {
     const { rows } = await getPool().query<DiagnosisRow>(
-      `SELECT id, user_id, vehicle_id, problem_text, image_url, ai_result, created_at
+      `SELECT id, user_id, vehicle_id, vehicle_info, problem_text, image_url, ai_result, created_at
          FROM diagnostics WHERE user_id = $1 ORDER BY created_at DESC LIMIT $2`,
       [userId, limit],
     );
@@ -1366,6 +1387,12 @@ export class MemoryAppStore implements AppStore {
   async listVehicleDiagnoses(vehicleId: string): Promise<DiagnosisSummary[]> {
     return this.diagnoses
       .filter((d) => d.vehicleId === vehicleId)
+      .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  }
+
+  async listUnlinkedDiagnoses(userId: string): Promise<DiagnosisSummary[]> {
+    return this.diagnoses
+      .filter((d) => d.userId === userId && d.vehicleId === null)
       .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
   }
 

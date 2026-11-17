@@ -691,6 +691,8 @@ const tr: DeepPartial<Dictionary> = {
       retakeCta: "Başka bir fotoğraf kullan",
       vehicleOptionalLabel: "Aracınız (isteğe bağlı)",
       vehicleOptionalPlaceholder: "Yıl, marka ve model",
+      vehicleOtherOption: "Başka bir araç…",
+      vehicleSavedOption: "Kayıtlı bir aracı kullan",
       codeLabel: "Arıza kodu",
       codeHint: "Bir kod okuyucudan veya bir parça mağazasındaki ücretsiz taramadan — bir harf (P, B, C veya U) artı dört karakter, P0420 gibi.",
       codeInvalid: "Bu henüz bir arıza koduna benzemiyor — P0420 gibi görünmelidir.",

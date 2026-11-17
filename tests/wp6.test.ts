@@ -187,6 +187,7 @@ test("(b) ownership: user B cannot read, modify, or delete user A's vehicle", as
     id: "diag-test-1",
     userId: "user-a",
     vehicleId: vehicle.id,
+    vehicleInfo: "2019 Honda Accord",
     problemText: "Rattle at idle",
     imageUrl: null,
     aiResult: { severity: "Minor — Monitor" },

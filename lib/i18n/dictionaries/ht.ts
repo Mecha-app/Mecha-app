@@ -707,6 +707,8 @@ const ht: DeepPartial<Dictionary> = {
       retakeCta: "Itilize yon lòt foto",
       vehicleOptionalLabel: "Machin ou (opsyonèl)",
       vehicleOptionalPlaceholder: "Ane, mak ak modèl",
+      vehicleOtherOption: "Yon lòt machin…",
+      vehicleSavedOption: "Pran yon machin ou anrejistre",
       codeLabel: "Kòd erè",
       codeHint:
         "Soti nan yon lektè kòd oswa yon scan gratis nan magazen pyès — yon lèt (P, B, C, oswa U) plis kat karaktè, tankou P0420.",

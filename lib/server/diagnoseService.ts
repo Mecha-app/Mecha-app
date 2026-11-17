@@ -23,9 +23,11 @@ import type { IdentityStore, UserRecord } from "./store";
  *   4. STREAM — provider deltas flow through; the terminal event carries
  *      the parsed report, the latency measurement, and the quota state
  *      AFTER this diagnosis (the countdown the user sees).
- *   5. PERSIST — cache the answer; save the diagnosis record when the
- *      request names one of the user's vehicles (repo model: vehicle is
- *      required for a saved diagnosis).
+ *   5. PERSIST — cache the answer; save the diagnosis record against
+ *      the account ALWAYS (Pass 15 / migration 0016), linked to the
+ *      named vehicle when the request carried a vehicleId and carrying
+ *      the vehicle string either way, so the Vault history and the
+ *      recent list show every run.
  *
  * Ordering note (owner's rule): the consume happens BEFORE the provider
  * call. If the provider then fails mid-stream, the slot stays consumed —
@@ -102,10 +104,42 @@ export async function* executeDiagnosis(
   const quotaAfter = quotaStateFor({ plan: user.plan, freeDiagnosesUsed: usedAfter });
   yield { type: "quota", quota: quotaAfter, message: countdownMessage(quotaAfter.remaining) };
 
+  // PERSIST (step 5, hoisted): EVERY completed run saves a diagnosis
+  // record against the account — linked to the named vehicle when the
+  // request carried one, unlinked (vehicleId null) with the vehicle
+  // string otherwise. Before Pass 15 the record was saved ONLY when a
+  // vehicleId arrived, and no form ever sent one — so real diagnoses
+  // ran, consumed quota, and left no history anywhere (the Vault read
+  // "No diagnoses saved for this vehicle yet" for cars diagnosed
+  // repeatedly). Persistence must never fail a diagnosis the owner
+  // already paid for: save errors are logged, not thrown.
+  const persistRecord = async (report: unknown): Promise<void> => {
+    try {
+      await store.saveDiagnosisRecord({
+        userId: user.id,
+        vehicleId: input.vehicleId ?? null,
+        vehicleInfo: request.vehicleInfo ?? null,
+        problemText: request.problem,
+        imageUrl: request.imageUrl,
+        aiResult: report,
+      });
+    } catch (err) {
+      console.error(
+        JSON.stringify({
+          event: "diagnosis_persistence_warning",
+          detail: err instanceof Error ? err.message : "unknown",
+        }),
+      );
+    }
+  };
+
   // 3. Cache — identical question, identical answer, zero AI spend.
+  // A cache hit is still a run the driver made: it saves a record too
+  // (linked the same way), so history shows every consumed run.
   const cacheKey = diagnosisCacheKey(request);
   const cached = await store.getCachedDiagnosis(cacheKey);
   if (cached) {
+    await persistRecord(cached.report);
     yield {
       type: "done",
       report: cached.report,
@@ -142,15 +176,6 @@ export async function* executeDiagnosis(
           model: event.model,
           tier: event.tier,
         });
-        if (input.vehicleId) {
-          await store.saveDiagnosisRecord({
-            userId: user.id,
-            vehicleId: input.vehicleId,
-            problemText: request.problem,
-            imageUrl: request.imageUrl,
-            aiResult: event.report,
-          });
-        }
       } catch (err) {
         console.error(
           JSON.stringify({
@@ -159,6 +184,7 @@ export async function* executeDiagnosis(
           }),
         );
       }
+      await persistRecord(event.report);
       // Trace BEFORE the done yield: consumers stop iterating at done,
       // so anything after the yield is not guaranteed to run. The call
       // is a no-op when Langfuse is unwired and can never throw.

@@ -171,7 +171,13 @@ export interface IdentityStore {
   putCachedDiagnosis(cacheKey: string, entry: CachedDiagnosis): Promise<void>;
   saveDiagnosisRecord(input: {
     userId: string;
-    vehicleId: string;
+    /** The saved vehicle the run belongs to, when the run named one
+     * (Pass 15 / migration 0016) — null for a free-text run, which is
+     * still saved, against the account. */
+    vehicleId?: string | null;
+    /** The exact vehicle string the run used, for the Vault's
+     * read-time match of unlinked records to a vehicle. */
+    vehicleInfo?: string | null;
     problemText?: string;
     imageUrl?: string;
     aiResult: unknown;
@@ -420,17 +426,19 @@ export class PgIdentityStore implements IdentityStore {
 
   async saveDiagnosisRecord(input: {
     userId: string;
-    vehicleId: string;
+    vehicleId?: string | null;
+    vehicleInfo?: string | null;
     problemText?: string;
     imageUrl?: string;
     aiResult: unknown;
   }): Promise<{ id: string }> {
     const { rows } = await getPool().query<{ id: string }>(
-      `INSERT INTO diagnostics (user_id, vehicle_id, problem_text, image_url, ai_result)
-       VALUES ($1, $2, $3, $4, $5::jsonb) RETURNING id`,
+      `INSERT INTO diagnostics (user_id, vehicle_id, vehicle_info, problem_text, image_url, ai_result)
+       VALUES ($1, $2, $3, $4, $5, $6::jsonb) RETURNING id`,
       [
         input.userId,
-        input.vehicleId,
+        input.vehicleId ?? null,
+        input.vehicleInfo ?? null,
         input.problemText ?? null,
         input.imageUrl ?? null,
         JSON.stringify(input.aiResult),
@@ -885,12 +893,18 @@ export class MemoryIdentityStore implements IdentityStore {
 
   async saveDiagnosisRecord(input: {
     userId: string;
-    vehicleId: string;
+    vehicleId?: string | null;
+    vehicleInfo?: string | null;
     problemText?: string;
     imageUrl?: string;
     aiResult: unknown;
   }): Promise<{ id: string }> {
-    const row = { id: this.nextId("diagnosis"), ...input };
+    const row = {
+      id: this.nextId("diagnosis"),
+      vehicleId: null,
+      vehicleInfo: null,
+      ...input,
+    };
     this.diagnoses.push(row);
     return { id: row.id };
   }

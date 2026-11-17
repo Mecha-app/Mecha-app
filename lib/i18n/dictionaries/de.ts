@@ -691,6 +691,8 @@ const de: DeepPartial<Dictionary> = {
       retakeCta: "Anderes Foto verwenden",
       vehicleOptionalLabel: "Ihr Auto (optional)",
       vehicleOptionalPlaceholder: "Jahr, Marke und Modell",
+      vehicleOtherOption: "Anderes Fahrzeug…",
+      vehicleSavedOption: "Gespeichertes Fahrzeug verwenden",
       codeLabel: "Fehlercode",
       codeHint: "Von einem Code-Leser oder einem kostenlosen Scan im Teilehandel — ein Buchstabe (P, B, C oder U) plus vier Zeichen, wie P0420.",
       codeInvalid: "Das sieht noch nicht wie ein Fehlercode aus — er sollte wie P0420 aussehen.",

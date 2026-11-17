@@ -691,6 +691,8 @@ const ru: DeepPartial<Dictionary> = {
       retakeCta: "Использовать другое фото",
       vehicleOptionalLabel: "Ваш автомобиль (необязательно)",
       vehicleOptionalPlaceholder: "Год, марка и модель",
+      vehicleOtherOption: "Другой автомобиль…",
+      vehicleSavedOption: "Использовать сохранённый автомобиль",
       codeLabel: "Код неисправности",
       codeHint: "От сканера кодов или бесплатного сканирования в магазине запчастей — буква (P, B, C или U) плюс четыре символа, например P0420.",
       codeInvalid: "Это пока не похоже на код неисправности — он должен выглядеть как P0420.",

@@ -714,6 +714,8 @@ const en = {
       retakeCta: "Use a different photo",
       vehicleOptionalLabel: "Your car (optional)",
       vehicleOptionalPlaceholder: "Year, make, and model",
+      vehicleOtherOption: "Other vehicle…",
+      vehicleSavedOption: "Use a saved vehicle",
       codeLabel: "Fault code",
       codeHint:
         "From a code reader or a free parts-store scan — a letter (P, B, C, or U) plus four characters, like P0420.",

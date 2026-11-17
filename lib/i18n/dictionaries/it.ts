@@ -691,6 +691,8 @@ const it: DeepPartial<Dictionary> = {
       retakeCta: "Usa un'altra foto",
       vehicleOptionalLabel: "La tua auto (facoltativo)",
       vehicleOptionalPlaceholder: "Anno, marca e modello",
+      vehicleOtherOption: "Altro veicolo…",
+      vehicleSavedOption: "Usa un veicolo salvato",
       codeLabel: "Codice di guasto",
       codeHint: "Da un lettore di codici o da una scansione gratuita in un negozio di ricambi — una lettera (P, B, C o U) più quattro caratteri, come P0420.",
       codeInvalid: "Non sembra ancora un codice di guasto — deve assomigliare a P0420.",

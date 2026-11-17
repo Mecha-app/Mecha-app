@@ -24,6 +24,9 @@ export const RETURN_TO_KEY = "mecha-return-to";
 export interface ScanDiagnosePrefill {
   problem: string;
   vehicleInfo?: string;
+  /** The saved vehicle the scan's car was picked from, when it was —
+   * carried through so the diagnosis record links to the vehicle. */
+  vehicleId?: string;
 }
 
 /* ------------------------------------------------------------------ */
@@ -129,6 +132,7 @@ export function parseWarningLightResult(rawText: string): WarningLightResult {
 export function buildPhotoDiagnosisPrefill(
   lights: IdentifiedLight[],
   vehicleInfo?: string,
+  vehicleId?: string,
 ): ScanDiagnosePrefill {
   const names = lights.map((l) => l.name).join(", ");
   return {
@@ -138,6 +142,7 @@ export function buildPhotoDiagnosisPrefill(
       "(especially if several share one cause), how urgent it is, whether it is safe to keep " +
       "driving, and what a fair repair price looks like.",
     ...(vehicleInfo?.trim() ? { vehicleInfo: vehicleInfo.trim() } : {}),
+    ...(vehicleId ? { vehicleId } : {}),
   };
 }
 
@@ -185,6 +190,7 @@ export function faultCodeInfo(code: string): FaultCodeInfo {
 export function buildCodeDiagnosisPrefill(
   code: string,
   vehicleInfo?: string,
+  vehicleId?: string,
 ): ScanDiagnosePrefill {
   const info = faultCodeInfo(code);
   const scopeText =
@@ -196,6 +202,7 @@ export function buildCodeDiagnosisPrefill(
       "ranked in order, how urgent it is, whether it is safe to keep driving, and the fair " +
       "price to fix the most likely cause.",
     ...(vehicleInfo?.trim() ? { vehicleInfo: vehicleInfo.trim() } : {}),
+    ...(vehicleId ? { vehicleId } : {}),
   };
 }
 
