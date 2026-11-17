@@ -1,4 +1,5 @@
 import { Hero } from "@/components/Hero";
+import { HomeCompare } from "@/components/HomeCompare";
 import { HomeCta } from "@/components/HomeCta";
 import { HomeDiagnosis } from "@/components/HomeDiagnosis";
 import { HomeFairPrice } from "@/components/HomeFairPrice";
@@ -140,6 +141,17 @@ import { HomeVault } from "@/components/HomeVault";
  * band keep their places above them. Clips, sources, autoplay/
  * loop behavior, copy, and colors are all unchanged — the action
  * comes first, the films close the page.
+ *
+ * Pass #18 (2026-11-17, owner, with kuttsy.com's comparison
+ * page as the model: "just comparing MECHA, how efficient it
+ * is compared to other platforms that provide similar
+ * services"): ONE new section — HomeCompare, between the plans
+ * strip and the blue closing band. The reference's treatment in
+ * MECHA's own tokens: one big headline ("MECHA vs. other
+ * apps."), MECHA in a white card against a muted "Other apps"
+ * card, exactly four short rows of true, live features, and
+ * nothing else. No other section moved or changed; the films
+ * still close the page.
  */
 export default function HomePage() {
   return (
@@ -150,6 +162,7 @@ export default function HomePage() {
         <HomeSteps />
         <HomeMarketplace />
         <HomePlans />
+        <HomeCompare />
         <HomeCta />
         <HomeDiagnosis />
         <HomeFairPrice />

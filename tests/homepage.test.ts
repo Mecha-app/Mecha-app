@@ -64,6 +64,12 @@
  *     HomeVault, HomeShops) have since moved as one block to
  *     AFTER HomeCta, immediately before HomeFooter — the SECTIONS
  *     array below pins the live order. Content unchanged.
+ *   - Pass #18 (2026-11-17, owner, kuttsy.com's comparison page
+ *     as the model): HomeCompare sits between HomePlans and
+ *     HomeCta — one headline ("MECHA vs. other apps."), MECHA in
+ *     a white card vs a muted "Other apps" card, exactly four
+ *     short rows of true live features, all copy from the hero
+ *     catalog. The dedicated test below pins the section.
  *   - NOT taken from the references: #2's left-aligned hero and
  *     example-diagnosis card, #1's form card, possible-causes
  *     card, guidance meter, and card row. The old stacked
@@ -84,6 +90,7 @@ const SECTIONS = [
   "<HomeSteps",
   "<HomeMarketplace",
   "<HomePlans",
+  "<HomeCompare",
   "<HomeCta",
   "<HomeDiagnosis",
   "<HomeFairPrice",
@@ -93,7 +100,7 @@ const SECTIONS = [
   "<HomeFooter",
 ];
 
-test("homepage composition: header, hero, steps, marketplace, plans, blue band, the film sections at the end, minimal footer — nothing else", () => {
+test("homepage composition: header, hero, steps, marketplace, plans, compare, blue band, the film sections at the end, minimal footer — nothing else", () => {
   const page = read("app/page.tsx");
   for (const shell of SECTIONS) {
     assert.ok(page.includes(shell), `homepage renders ${shell}`);
@@ -336,6 +343,40 @@ test("home shops: one more full-screen visual, one line, one blue button to /sho
   assert.ok(shops.includes("t.header.navShops"), "the button label comes from the catalog");
   assert.ok(shops.includes("bg-[#2563eb]"), "the button is the page's blue primary");
   assert.ok(!shops.includes("#f5a524"), "the amber pill is gone from the shops section");
+});
+
+test("home compare: MECHA vs. other apps — white card vs muted card, four short rows, catalog copy only", () => {
+  const s = read("components/HomeCompare.tsx");
+  // The headline and both column headers come from the catalog.
+  assert.ok(s.includes("t.hero.compareTitle") && s.includes("t.hero.compareTitleAlt"), "the headline is MECHA vs. other apps.");
+  assert.ok(s.includes("t.hero.compareMecha"), "the left column header is MECHA");
+  assert.ok(s.includes("t.hero.compareOther"), "the right column header is Other apps");
+  // Exactly the four pinned rows, every cell from the catalog.
+  for (const key of [
+    "compareAnswersLabel",
+    "compareAnswersMecha",
+    "compareAnswersOther",
+    "comparePriceLabel",
+    "comparePriceMecha",
+    "comparePriceOther",
+    "compareLightsLabel",
+    "compareLightsMecha",
+    "compareLightsOther",
+    "compareHistoryLabel",
+    "compareHistoryMecha",
+    "compareHistoryOther",
+  ]) {
+    assert.ok(s.includes(`t.hero.${key}`), `the row copy comes from the catalog: ${key}`);
+  }
+  // The two-card treatment in MECHA's own tokens: MECHA on the
+  // white surface, Other apps muted on the inset well.
+  assert.ok(s.includes("bg-surface"), "the MECHA column is the white surface card");
+  assert.ok(s.includes("bg-inset"), "the Other apps column is muted on the inset well");
+  // Honesty pins: no competitor is named, no price or statistic
+  // is stated anywhere in the section.
+  for (const banned of ["Fixd", "CarMD", "OBD", "$", "%"]) {
+    assert.ok(!s.includes(banned), `no competitor names, prices, or stats: ${banned}`);
+  }
 });
 
 test("home cta band: blue closing band — 5 free diagnoses + Try MECHA free to /register", () => {

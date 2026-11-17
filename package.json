@@ -36,5 +36,5 @@
     "typecheck": "tsc --noEmit",
     "test:e2e": "playwright test"
   },
-  "version": "0.4.27-video-bottom-logo-home"
+  "version": "0.4.28-compare"
 }
