@@ -24,7 +24,9 @@
  *     (signed out) / Open app + Run a diagnosis (signed in). The
  *     shared Header is NOT on home.
  *   - Hero: ONE full-screen photo (the generated sunrise road,
- *     a local asset), centered eyebrow MECHATECH.IO, the headline
+ *     a local asset), centered eyebrow "Drive with confidence."
+ *     (pass #13, 2026-11-16: the owner replaced the old domain
+ *     eyebrow — visitors are already on the site), the headline
  *     "Your AI mechanic copilot.", ONE subline — our brand line,
  *     NOT the reference's "Know what to do next" — and exactly two
  *     buttons: blue "Start a free diagnosis" (account-first, the
@@ -183,7 +185,8 @@ test("hero: one full-screen photo, centered eyebrow + copilot headline + brand s
   assert.ok(hero.includes('src="/images/hero-road.jpg"'), "the generated road photo is the hero visual");
   assert.ok(existsSync(join(root, "public/images/hero-road.jpg")), "the hero photo ships as a local asset");
   assert.ok(hero.includes("min-h-[calc(100svh-4rem)]"), "the hero fills the screen under the bar");
-  assert.ok(hero.includes("MECHATECH.IO"), "the brand eyebrow (a literal, like the wordmark)");
+  assert.ok(hero.includes("Drive with confidence."), "the eyebrow tagline (an owner-set literal, pass #13)");
+  assert.ok(!hero.includes("MECHATECH.IO"), "the old domain eyebrow is gone (pass #13)");
   assert.ok(hero.includes("t.hero.copilotTitle"), "the headline is Your AI mechanic copilot.");
   assert.ok(
     hero.includes("t.hero.titleLine1") && hero.includes("t.hero.titleLine2"),

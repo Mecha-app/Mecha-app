@@ -13,8 +13,10 @@ import { RETURN_TO_KEY } from "@/lib/server/scan";
  * road at golden-hour sunrise (public/images/hero-road.jpg,
  * generated for this pass) — fills the first screen under the white
  * header. Centered over it, exactly like the reference: the small
- * brand eyebrow (a literal, like the logo wordmark — brand strings
- * are not catalog copy), the headline "Your AI mechanic copilot.",
+ * eyebrow tagline "Drive with confidence." (a literal, owner-set in
+ * pass #13, 2026-11-16 — it replaced the old domain eyebrow, which
+ * repeated the address the visitor is already on), the headline
+ * "Your AI mechanic copilot.",
  * ONE subline — our own brand promise, "Know what's wrong. Know
  * what it should cost." (the reference's "Know what to do next"
  * is NOT copied) — and exactly two buttons: the blue solid "Start
@@ -61,7 +63,7 @@ export function Hero() {
 
       <div className="relative z-10 mx-auto flex w-full max-w-6xl flex-1 flex-col items-center px-4 pt-[9vh] text-center sm:px-6">
         <p className="text-[13px] font-semibold uppercase tracking-[0.34em] text-white/85">
-          MECHATECH.IO
+          Drive with confidence.
         </p>
         <h1 className="mx-auto mt-5 max-w-4xl font-display text-[clamp(2.6rem,6vw,4.75rem)] font-semibold leading-[1.05] tracking-[-0.02em] text-white">
           {t.hero.copilotTitle}
