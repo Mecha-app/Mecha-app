@@ -187,7 +187,7 @@ export default function DashboardPage() {
       return;
     }
     setKind("driver");
-    void (async () => {
+    const loadDriver = async () => {
       const [me, veh, diag] = await Promise.all([
         apiFetch<{
           user: {
@@ -230,7 +230,22 @@ export default function DashboardPage() {
       if (veh.status === 200) setVehicles(veh.data.vehicles);
       if (diag.status === 200) setDiagnoses(diag.data.diagnoses);
       setDriverLoaded(true);
-    })();
+    };
+    void loadDriver();
+    // Freshness (2026-11-17): a dashboard left open in a tab while a
+    // diagnosis completes elsewhere kept showing its mount-time
+    // snapshot — the recent list read "No diagnoses yet" immediately
+    // after a finished run that had in fact saved. Re-fetch when the
+    // driver comes back to this tab (visibility or focus).
+    const onVisible = () => {
+      if (document.visibilityState === "visible") void loadDriver();
+    };
+    document.addEventListener("visibilitychange", onVisible);
+    window.addEventListener("focus", onVisible);
+    return () => {
+      document.removeEventListener("visibilitychange", onVisible);
+      window.removeEventListener("focus", onVisible);
+    };
   }, []);
 
   async function onVerify() {
