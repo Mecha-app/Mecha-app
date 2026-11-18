@@ -366,7 +366,6 @@ export const STUB_REPORT_JSON = JSON.stringify({
   parts: [
     {
       name: "Brake pads (front set)",
-      estimatedCost: "$60-120",
       likelihood: "likely",
       description: "Worn pads are the most common cause of this noise.",
     },

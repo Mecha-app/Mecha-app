@@ -55,9 +55,16 @@
 
 export interface PartsDiagnosisPartInput {
   name: string;
-  /** the report's own display estimate, e.g. "$120-240" — the
-   *  diagnosis's number, carried through and labeled as such */
-  estimatedCost: string;
+  /**
+   * A per-part display estimate, e.g. "$120-240", WHEN a caller has
+   * one — optional since Pass #20c: a diagnosis report no longer
+   * carries per-part costs at all (its headline estimatedCost is the
+   * one range per report), so a report satisfies this input with the
+   * field simply absent, and the block renders no per-part estimate
+   * label. A caller that supplies one gets it carried through and
+   * labeled as MECHA's estimate, as before.
+   */
+  estimatedCost?: string;
   /** "likely" | "conditional" in the report shape */
   likelihood: string;
   /** the report's own words for why this part is implicated */

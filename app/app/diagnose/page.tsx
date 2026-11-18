@@ -365,8 +365,7 @@ export default function DiagnosePage() {
                 <ul className="mt-2 flex flex-col gap-2">
                   {report.parts.map((part) => (
                     <li key={part.name} className="text-base text-ink-1">
-                      <span className="font-medium">{part.name}</span>{" "}
-                      <span className="font-mono text-ink-2">{part.estimatedCost}</span>
+                      <span className="font-medium">{part.name}</span>
                       <span className="block text-sm text-ink-2">{part.description}</span>
                     </li>
                   ))}

@@ -52,13 +52,11 @@ const REPORT: DiagnosisReport = {
   parts: [
     {
       name: "Brake pads",
-      estimatedCost: "$80-150",
       likelihood: "likely",
       description: "Worn down to the metal backing plate.",
     },
     {
       name: "Brake rotors",
-      estimatedCost: "$120-250",
       likelihood: "conditional",
       description: "Scored by metal-on-metal contact.",
     },

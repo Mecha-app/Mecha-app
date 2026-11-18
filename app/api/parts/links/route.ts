@@ -57,7 +57,14 @@ function coerceDiagnosis(body: Record<string, unknown>): PartsDiagnosisInput | n
     if (!name) continue;
     parts.push({
       name,
-      estimatedCost: str(r.estimatedCost, 64) ?? "",
+      // One range per report (Pass #20c): a diagnosis carries its
+      // price ONLY in the headline estimatedCost, and parts no longer
+      // carry estimates at all — a per-part figure forwarded here
+      // would put a second, unreconciled range on the result screen
+      // beside the one the record stores. The block therefore never
+      // receives a part estimate from a diagnosis, whatever an older
+      // client still holds.
+      estimatedCost: "",
       likelihood: r.likelihood === "likely" ? "likely" : "conditional",
       description: str(r.description, 600) ?? "",
     });

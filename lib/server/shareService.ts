@@ -130,8 +130,16 @@ export async function readDiagnosisDetail(
   store: IdentityStore,
   userId: string,
   diagnosisId: string,
-): Promise<{ diagnosis: DiagnosisRecord; outcome: DiagnosisOutcome | null }> {
+): Promise<{
+  diagnosis: DiagnosisRecord;
+  outcome: DiagnosisOutcome | null;
+  shareToken: string | null;
+}> {
   const diagnosis = await ownedDiagnosis(store, userId, diagnosisId);
   const outcome = await store.getDiagnosisOutcome(diagnosisId);
-  return { diagnosis, outcome };
+  // The existing share link rides along (Pass #20c): a driver who
+  // minted one and comes back to this diagnosis sees the link that
+  // exists, not a fresh "create" offer for the same link.
+  const shareToken = await store.findDiagnosisShareToken(diagnosisId);
+  return { diagnosis, outcome, shareToken };
 }

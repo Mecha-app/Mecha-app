@@ -50,7 +50,6 @@ const REPORT: DiagnosisReport = {
   parts: [
     {
       name: "Spark plug set",
-      estimatedCost: "$45–$80",
       likelihood: "likely",
       description: "Worn plugs misfire under load.",
     },

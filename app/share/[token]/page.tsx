@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
+import { LocalDate } from "@/components/LocalDate";
 import { resolveShareCard } from "@/lib/server/shareService";
 import { getIdentityStore } from "@/lib/server/store";
 
@@ -49,7 +50,7 @@ export default async function SharePage({
           {card.vehicle}
         </h1>
         <p className="mt-1 text-sm text-ink-3">
-          Diagnosed {new Date(card.createdAt).toLocaleDateString()}
+          Diagnosed <LocalDate iso={card.createdAt} />
         </p>
 
         <section className="mt-6 rounded-2xl border border-line bg-surface px-5 py-6">

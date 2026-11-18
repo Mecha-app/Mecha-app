@@ -55,11 +55,22 @@ export interface DiagnosisRequest {
 
 export interface DiagnosisPart {
   name: string;
-  /** a display string in the repo shape, e.g. "$120-240" */
-  estimatedCost: string;
   likelihood: "likely" | "conditional";
   description: string;
 }
+
+/**
+ * ONE RANGE PER REPORT (Pass #20c, owner's live exercise 2026-11-17):
+ * the report-level `estimatedCost` below is the ONLY price range a
+ * diagnosis carries. Parts deliberately have no cost field: the
+ * prompt used to ask the model for a per-part estimate as well, and
+ * the two channels disagreed in production — the run-time screen
+ * showed the likely repair's part line at $200–$400 while the record
+ * it saved carried (and every filed surface renders) the headline
+ * range $200–$600. A part line is a cause, not a quote; the repair's
+ * range lives in exactly one field, so the number the driver is
+ * shown at run time and the number stored can never diverge.
+ */
 
 export interface DiagnosisReport {
   severity: DiagnosisSeverity;
@@ -132,7 +143,7 @@ export function isAiConfigured(): boolean {
  * tracing.ts) so a weak answer can be tied to the exact prompt that
  * produced it. BUMP THIS whenever buildDiagnosisPrompt changes.
  */
-export const DIAGNOSIS_PROMPT_VERSION = "diagnosis-prompt-v1";
+export const DIAGNOSIS_PROMPT_VERSION = "diagnosis-prompt-v2";
 
 export function buildDiagnosisPrompt(req: DiagnosisRequest): string {
   const language = (req.language ?? "en").trim();
@@ -151,7 +162,7 @@ Return JSON:
   "diagnosis": "2-3 sentence plain language explanation",
   "estimatedCost": {"min": number, "max": number},
   "laborHours": {"min": number, "max": number},
-  "parts": [{"name": "part name", "estimatedCost": "$X-Y", "likelihood": "likely"|"conditional", "description": "brief description"}],
+  "parts": [{"name": "part name", "likelihood": "likely"|"conditional", "description": "brief description"}],
   "steps": ["step 1", "step 2"],
   "tip": "one insider tip"
 }`;
@@ -225,7 +236,26 @@ export function parseReport(json: string): DiagnosisReport {
     diagnosis: raw.diagnosis,
     estimatedCost: range(raw.estimatedCost),
     laborHours: range(raw.laborHours),
-    parts: Array.isArray(raw.parts) ? (raw.parts.slice(0, 8) as DiagnosisPart[]) : [],
+    // Parts are rebuilt field by field — never cast through. A model
+    // that still returns a per-part cost (the pre-v2 prompt asked for
+    // one) has it dropped HERE, at the one choke point every report
+    // passes through, so no streamed, saved, or rendered report can
+    // ever carry a second range beside the headline estimatedCost
+    // (Pass #20c — see the DiagnosisPart note above).
+    parts: Array.isArray(raw.parts)
+      ? raw.parts.slice(0, 8).flatMap((p): DiagnosisPart[] => {
+          if (!p || typeof p !== "object") return [];
+          const part = p as Partial<DiagnosisPart>;
+          if (typeof part.name !== "string" || part.name.trim().length === 0) return [];
+          return [
+            {
+              name: part.name,
+              likelihood: part.likelihood === "likely" ? "likely" : "conditional",
+              description: typeof part.description === "string" ? part.description : "",
+            },
+          ];
+        })
+      : [],
     steps: Array.isArray(raw.steps) ? raw.steps.filter((s) => typeof s === "string") : [],
     tip: typeof raw.tip === "string" ? raw.tip : "",
     disclaimer: DISCLAIMER,

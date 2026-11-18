@@ -11,8 +11,17 @@ import { authHeaders } from "@/lib/client/auth";
  * report summary; this component says so in plain words, and the
  * email result is reported exactly as the server states it.
  */
-export default function DiagnosisShare({ diagnosisId }: { diagnosisId: string }) {
-  const [url, setUrl] = useState("");
+export default function DiagnosisShare({
+  diagnosisId,
+  initialShareUrl,
+}: {
+  diagnosisId: string;
+  /** The link already minted for this diagnosis, when one exists
+   * (Pass #20c) — the control opens on the link itself instead of
+   * reverting to "Create share link" on every page load. */
+  initialShareUrl?: string;
+}) {
+  const [url, setUrl] = useState(initialShareUrl ?? "");
   const [copied, setCopied] = useState(false);
   const [email, setEmail] = useState("");
   const [note, setNote] = useState("");

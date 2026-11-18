@@ -66,6 +66,7 @@ export default function DiagnosisDetailPage() {
   const [phase, setPhase] = useState<Phase>("loading");
   const [diagnosis, setDiagnosis] = useState<DiagnosisDetail | null>(null);
   const [outcome, setOutcome] = useState<OutcomeView | null>(null);
+  const [shareToken, setShareToken] = useState<string | null>(null);
   const [editingOutcome, setEditingOutcome] = useState(false);
 
   useEffect(() => {
@@ -79,13 +80,16 @@ export default function DiagnosisDetailPage() {
     }
     let cancelled = false;
     (async () => {
-      const res = await apiFetch<{ diagnosis: DiagnosisDetail; outcome: OutcomeView | null }>(
-        `/api/diagnoses/${id}`,
-      );
+      const res = await apiFetch<{
+        diagnosis: DiagnosisDetail;
+        outcome: OutcomeView | null;
+        shareToken?: string | null;
+      }>(`/api/diagnoses/${id}`);
       if (cancelled) return;
       if (res.status === 200 && res.data.diagnosis) {
         setDiagnosis(res.data.diagnosis);
         setOutcome(res.data.outcome ?? null);
+        setShareToken(res.data.shareToken ?? null);
         setPhase("ready");
       } else if (res.status === 404) {
         setPhase("missing");
@@ -219,8 +223,7 @@ export default function DiagnosisDetailPage() {
                     <ul className="mt-2 flex flex-col gap-2">
                       {report.parts.map((part) => (
                         <li key={part.name} className="text-base text-ink-1">
-                          <span className="font-medium">{part.name}</span>{" "}
-                          <span className="font-mono text-ink-2">{part.estimatedCost}</span>
+                          <span className="font-medium">{part.name}</span>
                           <span className="block text-sm text-ink-2">{part.description}</span>
                         </li>
                       ))}
@@ -278,7 +281,12 @@ export default function DiagnosisDetailPage() {
 
             {report && <ShopScript report={report} vehicleInfo={diagnosis.vehicleInfo} />}
 
-            <DiagnosisShare diagnosisId={diagnosis.id} />
+            <DiagnosisShare
+              diagnosisId={diagnosis.id}
+              initialShareUrl={
+                shareToken ? `${window.location.origin}/share/${shareToken}` : undefined
+              }
+            />
 
             {/* The outcome: a saved one is shown as the record it
                 is (with the chance to replace it); until one

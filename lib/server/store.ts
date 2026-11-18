@@ -222,6 +222,13 @@ export interface IdentityStore {
   createDiagnosisShare(diagnosisId: string): Promise<{ token: string }>;
   /** Resolve a public share token to its diagnosis — null when unknown. */
   findDiagnosisByShareToken(token: string): Promise<DiagnosisRecord | null>;
+  /**
+   * The existing share token for a diagnosis, or null when no link
+   * was ever minted (Pass #20c) — the read side of createDiagnosisShare,
+   * so a surface reopening a diagnosis can show the link that already
+   * exists instead of offering to create it again.
+   */
+  findDiagnosisShareToken(diagnosisId: string): Promise<string | null>;
   /** Record (or replace) the driver's outcome for a diagnosis (0017). */
   saveDiagnosisOutcome(input: {
     diagnosisId: string;
@@ -549,6 +556,14 @@ export class PgIdentityStore implements IdentityStore {
     );
     if (!rows[0]) return null;
     return this.findDiagnosisRecord(rows[0].diagnosis_id);
+  }
+
+  async findDiagnosisShareToken(diagnosisId: string): Promise<string | null> {
+    const { rows } = await getPool().query<{ token: string }>(
+      `SELECT token FROM diagnosis_shares WHERE diagnosis_id = $1 LIMIT 1`,
+      [diagnosisId],
+    );
+    return rows[0]?.token ?? null;
   }
 
   async saveDiagnosisOutcome(input: {
@@ -1107,6 +1122,10 @@ export class MemoryIdentityStore implements IdentityStore {
       if (t === token) return this.findDiagnosisRecord(diagnosisId);
     }
     return null;
+  }
+
+  async findDiagnosisShareToken(diagnosisId: string): Promise<string | null> {
+    return this.diagnosisShares.get(diagnosisId) ?? null;
   }
 
   async saveDiagnosisOutcome(input: {

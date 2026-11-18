@@ -24,12 +24,12 @@ export async function GET(
   if ("response" in auth) return auth.response;
   const { id } = await params;
   try {
-    const { diagnosis, outcome } = await readDiagnosisDetail(
+    const { diagnosis, outcome, shareToken } = await readDiagnosisDetail(
       getIdentityStore(),
       auth.payload.id,
       id,
     );
-    return NextResponse.json({ status: "ok", diagnosis, outcome });
+    return NextResponse.json({ status: "ok", diagnosis, outcome, shareToken });
   } catch (err) {
     return apiError(err);
   }
