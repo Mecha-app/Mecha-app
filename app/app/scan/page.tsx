@@ -6,6 +6,7 @@ import { AppNav } from "@/components/AppNav";
 import { HumanHelpCard } from "@/components/HumanHelpCard";
 import SavedVehicleField from "@/components/SavedVehicleField";
 import { apiDetail, apiFetch } from "@/lib/client/api";
+import { trackEvent } from "@/lib/client/analytics";
 import { isNativeShell, pickPhotoNative } from "@/lib/client/nativeShell";
 import { authHeaders, clearSession, getToken } from "@/lib/client/auth";
 import { vehicleFormFillFromDecode } from "@/lib/client/vehicles";
@@ -330,6 +331,9 @@ export default function ScanPage() {
     const data = (await res.json()) as PhotoResult & { status: string };
     setPhotoResult(data);
     setPhotoState("done");
+    // Funnel (analytics pass): a photo scan finished. No parameters —
+    // never the photo, the lights found, or the vehicle.
+    trackEvent("photo_scan_completed");
   }
 
   /* ----------------------------- Render ---------------------------- */

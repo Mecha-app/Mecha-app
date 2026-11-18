@@ -1,8 +1,10 @@
 import type { Metadata, Viewport } from "next";
 import { cookies } from "next/headers";
 import type { ReactNode } from "react";
+import { AnalyticsScripts } from "@/components/AnalyticsScripts";
 import NativeShell from "@/components/NativeShell";
 import { ThemeScript } from "@/components/ThemeScript";
+import { analyticsConfig } from "@/lib/analytics";
 import { LocaleProvider } from "@/lib/i18n/LocaleProvider";
 import {
   DEFAULT_LOCALE,
@@ -66,9 +68,16 @@ import "@fontsource/ibm-plex-mono/latin-ext-500.css";
 
 const en = getDictionary("en");
 
+// Search Console ownership (analytics pass, 2026-11-18): the
+// verification meta renders only when NEXT_PUBLIC_GSC_VERIFICATION
+// holds the token from the Search Console console — unset, and no
+// meta ships. Same env gate as the scripts (lib/analytics).
+const gscToken = analyticsConfig().gscToken;
+
 export const metadata: Metadata = {
   title: en.meta.title,
   description: en.meta.description,
+  verification: gscToken ? { google: gscToken } : undefined,
   // Install polish (app-conversion prep, 2026-11-18) — additive only:
   // the PWA manifest + touch icon let the site install like an app on
   // both platforms ahead of the store builds, and appleWebApp asks
@@ -101,6 +110,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
     >
       <head>
         <ThemeScript />
+        <AnalyticsScripts />
       </head>
       <body>
         <LocaleProvider>{children}</LocaleProvider>

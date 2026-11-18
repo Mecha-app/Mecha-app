@@ -12,10 +12,15 @@ export const metadata: Metadata = {
  * (repo frontend/src/pages/PrivacyPage.js, "Last updated: January 1,
  * 2026") into the rebuild's design system. Built in the dead-link
  * sweep: the footer linked here and the route did not exist.
+ *
+ * Analytics pass (2026-11-18): §8 Analytics added — the GA4 +
+ * Clarity disclosure the wiring requires — and the updated date
+ * moved with it. §§1–7 and the contact section are the legacy text,
+ * unchanged.
  */
 export default function PrivacyPage() {
   return (
-    <LegalShell title="Privacy Policy" updated="Last updated: January 1, 2026">
+    <LegalShell title="Privacy Policy" updated="Last updated: November 18, 2026">
       <LegalSection
         heading="1. Introduction"
         paragraphs={[
@@ -66,7 +71,14 @@ export default function PrivacyPage() {
           "We use cookies to improve your experience. You can control cookie settings through your browser preferences.",
         ]}
       />
-      <LegalSection heading="8. Contact" paragraphs={["Questions? Email privacy@mechaai.com"]} />
+      <LegalSection
+        heading="8. Analytics"
+        paragraphs={[
+          "We use Google Analytics and Microsoft Clarity to understand how people use MECHA: which pages they visit, where they click, how far they scroll, and where they stop in steps like starting a diagnosis, reaching the paywall, or subscribing. Clarity records sessions — clicks and scrolling — so we can see where the site confuses people. Both tools use cookies.",
+          "We never send these tools your diagnosis text, your photos, or your vehicle identification number, and we do not sell analytics data. You can opt out of Google Analytics with Google's opt-out browser add-on (tools.google.com/dlpage/gaoptout).",
+        ]}
+      />
+      <LegalSection heading="9. Contact" paragraphs={["Questions? Email privacy@mechaai.com"]} />
     </LegalShell>
   );
 }

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { apiDetail, apiFetch } from "@/lib/client/api";
+import { trackEvent } from "@/lib/client/analytics";
 import { useLocale } from "@/lib/i18n/LocaleProvider";
 
 /**
@@ -139,6 +140,11 @@ export function BillingSection({
       body: JSON.stringify({ plan: planToBuy }),
     });
     if (res.status === 200 && res.data.url) {
+      // Funnel (analytics pass): checkout actually started — the
+      // session exists and the browser is leaving for Stripe.
+      trackEvent("checkout_started", {
+        product: planToBuy === "credit" ? "single_credit" : planToBuy,
+      });
       window.location.href = res.data.url;
       return;
     }

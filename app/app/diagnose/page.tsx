@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
+import { CheckoutReturnTracker } from "@/components/CheckoutReturnTracker";
 import { HumanHelpCard } from "@/components/HumanHelpCard";
 import DiagnosisOutcome from "./DiagnosisOutcome";
 import DiagnosisShare from "./DiagnosisShare";
@@ -10,6 +11,7 @@ import SavedVehicleField from "@/components/SavedVehicleField";
 import ShopScript from "@/components/ShopScript";
 import { AppNav } from "@/components/AppNav";
 import { authHeaders, clearSession, getToken } from "@/lib/client/auth";
+import { trackEvent } from "@/lib/client/analytics";
 import type { DiagnosisReport } from "@/lib/server/ai";
 import { driveVerdict } from "@/lib/server/diagnosisExtras";
 import { DIAGNOSE_PREFILL_KEY, type ScanDiagnosePrefill } from "@/lib/server/scan";
@@ -120,6 +122,9 @@ export default function DiagnosePage() {
     e.preventDefault();
     if (problem.trim().length === 0) return;
     setPhase("streaming");
+    // Funnel (analytics pass): the run started. The event carries no
+    // parameters — never the problem text or the vehicle.
+    trackEvent("diagnosis_started");
     setReport(null);
     setDiagnosisId(null);
     setReceivedChars(0);
@@ -198,6 +203,7 @@ export default function DiagnosePage() {
           } else if (event.type === "done" && event.report) {
             setReport(event.report);
             setDiagnosisId(event.diagnosisId ?? null);
+            trackEvent("diagnosis_completed");
             if (event.quota) setQuota(event.quota);
             if (event.message) setMessage(event.message);
             setPhase("done");
@@ -220,6 +226,18 @@ export default function DiagnosePage() {
   const exhausted = quota !== null && !quota.canDiagnose;
   const proSpent = exhausted && quota?.plan === "pro";
 
+  // Funnel (analytics pass): the paywall was SEEN — fired once when
+  // the two doors first render, whether the driver arrived blocked
+  // at load or hit the wall on a 402 mid-run.
+  const paywallTracked = useRef(false);
+  const paywallShown = phase === "blocked" || exhausted;
+  useEffect(() => {
+    if (paywallShown && !paywallTracked.current) {
+      paywallTracked.current = true;
+      trackEvent("paywall_viewed");
+    }
+  }, [paywallShown]);
+
   async function buyDoor(plan: "pro" | "credit") {
     setBuying(plan);
     setPaywallError("");
@@ -231,6 +249,9 @@ export default function DiagnosePage() {
       });
       const data = (await res.json().catch(() => ({}))) as { url?: string; detail?: string };
       if (res.status === 200 && data.url) {
+        trackEvent("checkout_started", {
+          product: plan === "pro" ? "pro" : "single_credit",
+        });
         window.location.href = data.url;
         return;
       }
@@ -246,6 +267,9 @@ export default function DiagnosePage() {
   return (
     <>
       <AppNav />
+      {/* Stripe returns the single-credit buyer to this page
+          (?checkout=success) — the purchase_completed event. */}
+      <CheckoutReturnTracker product="single_credit" />
       <main className="mx-auto w-full max-w-2xl px-4 py-8 sm:py-12">
         <h1 className="font-display text-3xl font-semibold tracking-[-0.01em] text-ink-1">
           Diagnose my car

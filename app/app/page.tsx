@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { AppNav } from "@/components/AppNav";
 import { BillingSection } from "@/components/BillingSection";
+import { CheckoutReturnTracker } from "@/components/CheckoutReturnTracker";
 import { LoopClip } from "@/components/LoopClip";
 import { apiDetail, apiFetch } from "@/lib/client/api";
 import { getStoredUser, getToken, saveSession, type StoredUser } from "@/lib/client/auth";
@@ -342,6 +343,11 @@ export default function DashboardPage() {
   return (
     <>
       <AppNav business={kind === "business"} />
+      {/* Stripe returns Pro and Shops subscribers to this page
+          (?checkout=success) — the purchase_completed event. The two
+          plans share the return URL, so the product is the honest
+          "subscription" (components/CheckoutReturnTracker). */}
+      <CheckoutReturnTracker product="subscription" />
       <main className="mx-auto w-full max-w-5xl px-5 py-10 sm:py-14">
         <header>
           {kind === "driver" && name && (
