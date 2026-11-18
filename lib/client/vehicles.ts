@@ -44,3 +44,70 @@ export function savedVehicleLabel(vehicle: SavedVehicle): string {
     ? `${vehicle.nickname.trim()} — ${identity}`
     : savedVehicleInfo(vehicle);
 }
+
+/* ------------------------------------------------------------------ */
+/* Pass 16 — VIN auto-fill: the decode → Add Vehicle form mapping.     */
+
+/**
+ * The slice of the VIN-decode enrichment the Add Vehicle flow fills
+ * from — the server's VinDecode (lib/server/nhtsa), mirrored
+ * client-side. Every field is nullable because vPIC is: a missing
+ * value means NHTSA has no data for it, never a guess.
+ */
+export interface VinDecodeFill {
+  year: string | null;
+  make: string | null;
+  model: string | null;
+  trim: string | null;
+  engine: string | null;
+  engineModel: string | null;
+  displacementL: string | null;
+  cylinders: string | null;
+  engineConfiguration: string | null;
+}
+
+/** The Add Vehicle form values a decode fills ("" where vPIC has none). */
+export interface VehicleFormFill {
+  year: string;
+  make: string;
+  model: string;
+  trim: string;
+  engine: string;
+}
+
+/**
+ * The engine line the form shows, in the owner's own format
+ * ("3.5L V6", "2.0L 4-cylinder"): displacement, then the cylinder
+ * layout vPIC reports, then the engine model code when vPIC names
+ * one and it isn't already in the line. Falls back to the decoder's
+ * composed engine string, then to "".
+ */
+export function composeEngineText(decode: VinDecodeFill): string {
+  const parts: string[] = [];
+  const displacement = decode.displacementL?.trim();
+  if (displacement) parts.push(`${displacement}L`);
+  const cylinders = Number.parseInt(decode.cylinders ?? "", 10);
+  if (Number.isFinite(cylinders) && cylinders > 0) {
+    const config = (decode.engineConfiguration ?? "").trim().toLowerCase();
+    if (config.startsWith("v")) parts.push(`V${cylinders}`);
+    else if (config.includes("rotary")) parts.push("rotary");
+    else parts.push(`${cylinders}-cylinder`);
+  }
+  const model = decode.engineModel?.trim();
+  if (model && !parts.some((part) => part.toLowerCase().includes(model.toLowerCase()))) {
+    parts.push(model);
+  }
+  if (parts.length > 0) return parts.join(" ");
+  return decode.engine?.trim() ?? "";
+}
+
+/** Decoded values → Add Vehicle form values. */
+export function vehicleFormFillFromDecode(decode: VinDecodeFill): VehicleFormFill {
+  return {
+    year: decode.year?.trim() ?? "",
+    make: decode.make?.trim() ?? "",
+    model: decode.model?.trim() ?? "",
+    trim: decode.trim?.trim() ?? "",
+    engine: composeEngineText(decode),
+  };
+}

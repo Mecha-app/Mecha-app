@@ -73,6 +73,14 @@ export interface VinDecode {
   model: string | null;
   trim: string | null;
   engine: string | null;
+  /** Engine model code, e.g. "B46" (vPIC EngineModel). */
+  engineModel: string | null;
+  /** Displacement in litres, e.g. "3.5" (vPIC DisplacementL). */
+  displacementL: string | null;
+  /** Cylinder count, e.g. "6" (vPIC EngineCylinders). */
+  cylinders: string | null;
+  /** Cylinder layout, e.g. "V-Shaped" / "In-Line" (vPIC EngineConfiguration). */
+  engineConfiguration: string | null;
   /** Body style, e.g. "SEDAN 4-DR" (vPIC BodyClass). */
   bodyClass: string | null;
   /** Drivetrain, e.g. "RWD" / "AWD/All-Wheel Drive" (vPIC DriveType). */
@@ -248,6 +256,10 @@ export async function decodeVin(vin: string): Promise<VinDecode | null> {
       model: str(row.Model),
       trim: str(row.Trim),
       engine: engineParts.length > 0 ? engineParts : null,
+      engineModel: str(row.EngineModel),
+      displacementL: str(row.DisplacementL),
+      cylinders: str(row.EngineCylinders),
+      engineConfiguration: str(row.EngineConfiguration),
       bodyClass: str(row.BodyClass),
       driveType: str(row.DriveType),
       transmission: transmissionParts.length > 0 ? transmissionParts : null,

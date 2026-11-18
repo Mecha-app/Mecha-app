@@ -36,5 +36,5 @@
     "typecheck": "tsc --noEmit",
     "test:e2e": "playwright test"
   },
-  "version": "0.4.32-diagnosis-detail"
+  "version": "0.4.33-vin-autofill"
 }

@@ -261,6 +261,57 @@ test("decodeVin: full factory spec set, composed engine/transmission/plant", asy
   }
 });
 
+test("decodeVin: engine detail fields ride along for the Add Vehicle fill (Pass 16)", async () => {
+  // The real vPIC answer for 1FTFW1ET5DFC10312 (2013 F-150, 3.5L V6):
+  // EngineModel is empty and the check-digit error code is "1", yet
+  // the decode is complete — the fill reads the raw engine fields.
+  reset({
+    decodevinvalues: {
+      body: {
+        Count: 1,
+        Results: [
+          {
+            ModelYear: "2013",
+            Make: "FORD",
+            Model: "F-150",
+            Trim: "",
+            EngineModel: "",
+            DisplacementL: "3.5",
+            EngineCylinders: "6",
+            EngineConfiguration: "V-Shaped",
+            BodyClass: "Pickup",
+            DriveType: "4WD/4-Wheel Drive/4x4",
+            TransmissionStyle: "",
+            TransmissionSpeeds: "",
+            FuelTypePrimary: "Gasoline",
+            Doors: "",
+            PlantCity: "DEARBORN",
+            PlantState: "MICHIGAN",
+            PlantCountry: "UNITED STATES (USA)",
+            Manufacturer: "FORD MOTOR COMPANY",
+            ErrorCode: "1",
+          },
+        ],
+      },
+    },
+  });
+  try {
+    const decoded = await decodeVin("1FTFW1ET5DFC10312");
+    assert.ok(decoded);
+    assert.equal(decoded.year, "2013");
+    assert.equal(decoded.make, "FORD");
+    assert.equal(decoded.model, "F-150");
+    assert.equal(decoded.trim, null);
+    assert.equal(decoded.engine, "3.5L");
+    assert.equal(decoded.engineModel, null);
+    assert.equal(decoded.displacementL, "3.5");
+    assert.equal(decoded.cylinders, "6");
+    assert.equal(decoded.engineConfiguration, "V-Shaped");
+  } finally {
+    restoreFetch();
+  }
+});
+
 test("decodeVin: NHTSA down, non-200, or empty result all degrade to null", async () => {
   try {
     reset({ decodevinvalues: "throw" });

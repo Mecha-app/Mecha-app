@@ -7,6 +7,7 @@ import { HumanHelpCard } from "@/components/HumanHelpCard";
 import SavedVehicleField from "@/components/SavedVehicleField";
 import { apiDetail, apiFetch } from "@/lib/client/api";
 import { authHeaders, clearSession, getToken } from "@/lib/client/auth";
+import { vehicleFormFillFromDecode } from "@/lib/client/vehicles";
 import { useLocale } from "@/lib/i18n/LocaleProvider";
 import {
   DIAGNOSE_PREFILL_KEY,
@@ -60,6 +61,10 @@ interface VinDecodeResult {
   model: string | null;
   trim: string | null;
   engine: string | null;
+  engineModel: string | null;
+  displacementL: string | null;
+  cylinders: string | null;
+  engineConfiguration: string | null;
   bodyClass: string | null;
   driveType: string | null;
   transmission: string | null;
@@ -206,7 +211,9 @@ export default function ScanPage() {
       setRecalls(res.data.recalls);
       setComplaints(res.data.complaints);
       setSafetyRatings(res.data.safetyRatings);
-      setSaveEngine(res.data.enrichment.engine ?? "");
+      // The same decode → form fill the Add Vehicle form uses
+      // (Pass 16): the engine line carries the cylinders too.
+      setSaveEngine(vehicleFormFillFromDecode(res.data.enrichment).engine);
       setDecodeState("done");
     } else {
       setDecoded(null);
