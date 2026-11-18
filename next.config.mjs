@@ -2,23 +2,33 @@
  * Security headers (security pass, 2026-11-03) — applied to every route.
  *
  * The CSP is deliberately same-origin: the app loads NO external
- * scripts, styles, fonts, or images (next/font self-hosts the type;
- * the films and posters are local files). 'unsafe-inline' remains on
+ * styles, fonts, or images (next/font self-hosts the type; the films
+ * and posters are local files). 'unsafe-inline' remains on
  * script/style because the App Router streams inline bootstrap
  * scripts and the theme bootstrap is an inline <script> — nonce-based
  * strict CSP is the later hardening step. frame-src names Stripe's
  * hosted surfaces only, ahead of the WP6 pricing/checkout build; the
  * checkout flow itself is a top-level redirect, never an embed of
  * MECHA pages (frame-ancestors 'none' + X-Frame-Options DENY).
+ *
+ * Analytics exception (2026-11-18): the analytics pass added GA4 +
+ * Microsoft Clarity (env-gated, components/AnalyticsScripts), but this
+ * policy predates it and named neither vendor — script-src blocked
+ * the gtag.js loader and connect-src 'self' silently dropped every
+ * GA collect hit, so Analytics received zero data while the tag sat
+ * visibly in the page. The directives below now name exactly the two
+ * vendors' published CSP hosts (Google: googletagmanager.com loader,
+ * google-analytics.com + region1 collect; Microsoft: clarity.ms
+ * script + collection subdomains, c.bing.com) and nothing else.
  */
 const contentSecurityPolicy = [
   "default-src 'self'",
-  "script-src 'self' 'unsafe-inline'",
+  "script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.clarity.ms",
   "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data: blob:",
+  "img-src 'self' data: blob: https://www.google-analytics.com https://www.googletagmanager.com https://*.clarity.ms https://c.bing.com",
   "media-src 'self'",
   "font-src 'self' data:",
-  "connect-src 'self'",
+  "connect-src 'self' https://www.google-analytics.com https://region1.google-analytics.com https://www.googletagmanager.com https://*.clarity.ms https://c.bing.com",
   "frame-src https://js.stripe.com https://hooks.stripe.com",
   "frame-ancestors 'none'",
   "base-uri 'self'",
