@@ -1,6 +1,7 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { cookies } from "next/headers";
 import type { ReactNode } from "react";
+import NativeShell from "@/components/NativeShell";
 import { ThemeScript } from "@/components/ThemeScript";
 import { LocaleProvider } from "@/lib/i18n/LocaleProvider";
 import {
@@ -68,7 +69,21 @@ const en = getDictionary("en");
 export const metadata: Metadata = {
   title: en.meta.title,
   description: en.meta.description,
-  icons: { icon: "/favicon.svg" },
+  // Install polish (app-conversion prep, 2026-11-18) — additive only:
+  // the PWA manifest + touch icon let the site install like an app on
+  // both platforms ahead of the store builds, and appleWebApp asks
+  // iOS for the standalone chrome when it does.
+  manifest: "/manifest.webmanifest",
+  icons: { icon: "/favicon.svg", apple: "/apple-touch-icon.png" },
+  appleWebApp: { capable: true, title: "MECHA", statusBarStyle: "default" },
+};
+
+export const viewport: Viewport = {
+  // Brand accent tints the browser / installed-app chrome.
+  themeColor: "#2563eb",
+  // The native shell and notched phones own the safe areas; the site
+  // pads with env(safe-area-inset-*) where it matters.
+  viewportFit: "cover",
 };
 
 export default async function RootLayout({ children }: { children: ReactNode }) {
@@ -89,6 +104,10 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
       </head>
       <body>
         <LocaleProvider>{children}</LocaleProvider>
+        {/* No-ops in a browser; wires the Capacitor shell's native
+            behaviors (status bar, splash, back button, external
+            links) when the site runs inside the app. */}
+        <NativeShell />
       </body>
     </html>
   );

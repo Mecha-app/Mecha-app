@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">MECHA</string>
+    <string name="title_activity_main">MECHA</string>
+    <string name="package_name">io.mechatech.app</string>
+    <string name="custom_url_scheme">io.mechatech.app</string>
+</resources>

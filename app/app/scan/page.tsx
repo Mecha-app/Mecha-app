@@ -1,11 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState, type ChangeEvent } from "react";
+import { useEffect, useState, type ChangeEvent, type MouseEvent } from "react";
 import { AppNav } from "@/components/AppNav";
 import { HumanHelpCard } from "@/components/HumanHelpCard";
 import SavedVehicleField from "@/components/SavedVehicleField";
 import { apiDetail, apiFetch } from "@/lib/client/api";
+import { isNativeShell, pickPhotoNative } from "@/lib/client/nativeShell";
 import { authHeaders, clearSession, getToken } from "@/lib/client/auth";
 import { vehicleFormFillFromDecode } from "@/lib/client/vehicles";
 import { useLocale } from "@/lib/i18n/LocaleProvider";
@@ -172,7 +173,14 @@ export default function ScanPage() {
   const normalizedCode = code.trim() ? validateFaultCode(code) : null;
   const codeInfo = normalizedCode ? faultCodeInfo(normalizedCode) : null;
 
+  // Native shell (app-conversion prep, 2026-11-18): inside the app,
+  // the two photo labels route to the native camera instead of the
+  // file input; in a browser nothing about them changes. Detected
+  // once after mount — first paint is the web path either way.
+  const [native, setNative] = useState(false);
+
   useEffect(() => {
+    setNative(isNativeShell());
     // Remember where auth should return to — set BEFORE any call that
     // might 401, so the bounce lands back on this page.
     try {
@@ -192,9 +200,22 @@ export default function ScanPage() {
 
   /* ------------------------------ VIN ------------------------------ */
 
-  function onVinPhoto(e: ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
+  function acceptVinPhoto(file: File | null) {
     setVinPhotoUrl(file ? URL.createObjectURL(file) : null);
+  }
+
+  function onVinPhoto(e: ChangeEvent<HTMLInputElement>) {
+    acceptVinPhoto(e.target.files?.[0] ?? null);
+  }
+
+  // In the shell, the label's tap is intercepted BEFORE its default
+  // file-input activation and the native camera answers instead; the
+  // picked photo lands in the exact same state the input would set.
+  async function onVinPhotoTap(e: MouseEvent) {
+    if (!native) return;
+    e.preventDefault();
+    const file = await pickPhotoNative("vin-photo.jpg");
+    if (file) acceptVinPhoto(file);
   }
 
   async function onDecode() {
@@ -258,12 +279,23 @@ export default function ScanPage() {
 
   /* ----------------------------- Photo ----------------------------- */
 
-  function onPhotoPick(e: ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0] ?? null;
+  function acceptPhoto(file: File | null) {
     setPhotoFile(file);
     setPhotoUrl(file ? URL.createObjectURL(file) : null);
     setPhotoState("idle");
     setPhotoResult(null);
+  }
+
+  function onPhotoPick(e: ChangeEvent<HTMLInputElement>) {
+    acceptPhoto(e.target.files?.[0] ?? null);
+  }
+
+  // The dashboard photo label, native-shell twin of onVinPhotoTap.
+  async function onPhotoTap(e: MouseEvent) {
+    if (!native) return;
+    e.preventDefault();
+    const file = await pickPhotoNative("dashboard-photo.jpg");
+    if (file) acceptPhoto(file);
   }
 
   async function onIdentify() {
@@ -371,7 +403,10 @@ export default function ScanPage() {
 
             <div>
               <span className={labelCls}>{s.vinPhotoLabel}</span>
-              <label className="mt-1 flex min-h-12 cursor-pointer items-center justify-center rounded-xl border border-dashed border-line bg-surface px-4 py-3 text-base font-medium text-ink-1">
+              <label
+                onClick={(e) => void onVinPhotoTap(e)}
+                className="mt-1 flex min-h-12 cursor-pointer items-center justify-center rounded-xl border border-dashed border-line bg-surface px-4 py-3 text-base font-medium text-ink-1"
+              >
                 {s.vinPhotoLabel}
                 <input
                   type="file"
@@ -620,7 +655,10 @@ export default function ScanPage() {
           <section className="mt-6 flex flex-col gap-5">
             <div>
               <span className={labelCls}>{s.photoLabel}</span>
-              <label className="mt-1 flex min-h-14 cursor-pointer items-center justify-center rounded-xl border border-dashed border-line bg-surface px-4 py-3 text-center text-base font-medium text-ink-1">
+              <label
+                onClick={(e) => void onPhotoTap(e)}
+                className="mt-1 flex min-h-14 cursor-pointer items-center justify-center rounded-xl border border-dashed border-line bg-surface px-4 py-3 text-center text-base font-medium text-ink-1"
+              >
                 {s.photoLabel}
                 <input
                   type="file"

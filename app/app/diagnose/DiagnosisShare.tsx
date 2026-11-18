@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { authHeaders } from "@/lib/client/auth";
+import { canShareReport, shareReport } from "@/lib/client/nativeShell";
 
 /**
  * Share this report (Pass #20) — mints the public report-card link
@@ -26,6 +27,22 @@ export default function DiagnosisShare({
   const [email, setEmail] = useState("");
   const [note, setNote] = useState("");
   const [busy, setBusy] = useState(false);
+  // A share-sheet path (the native shell, or a browser with the Web
+  // Share API) is detected after mount — the button simply never
+  // appears where no share path exists, and copy/email carry on.
+  const [canShare, setCanShare] = useState(false);
+  useEffect(() => {
+    setCanShare(canShareReport());
+  }, []);
+
+  async function onShare() {
+    const shared = await shareReport({
+      title: "My MECHA diagnosis report",
+      text: "My MECHA diagnosis report — the verdict and the fair-price range:",
+      url,
+    });
+    if (!shared) void onCopy();
+  }
 
   async function mint(withEmail: boolean) {
     setBusy(true);
@@ -114,6 +131,15 @@ export default function DiagnosisShare({
             >
               {copied ? "Copied" : "Copy link"}
             </button>
+            {canShare && (
+              <button
+                type="button"
+                onClick={() => void onShare()}
+                className="flex h-12 shrink-0 items-center justify-center rounded-full border border-line px-5 text-base font-semibold text-ink-1"
+              >
+                Share…
+              </button>
+            )}
           </div>
           <form onSubmit={onEmailSubmit} className="mt-4 flex flex-col gap-3 sm:flex-row">
             <input
