@@ -61,6 +61,16 @@ export interface DiagnosisSummary {
   createdAt: string;
 }
 
+/** A driver's "last done" record for one maintenance item (0018). */
+export interface ServiceMarkRecord {
+  vehicleId: string;
+  item: string;
+  lastMileage: number | null;
+  /** ISO date (yyyy-mm-dd), as entered. */
+  lastDate: string | null;
+  updatedAt: string;
+}
+
 export type ListingPhotoSlot = "front" | "back" | "right" | "left" | "interior" | "whole";
 
 export interface ListingPhoto {
@@ -362,6 +372,15 @@ export interface AppStore {
    * runs) — the Vault matches these to a vehicle by vehicleInfo. */
   listUnlinkedDiagnoses(userId: string): Promise<DiagnosisSummary[]>;
   listRecentDiagnoses(userId: string, limit: number): Promise<DiagnosisSummary[]>;
+
+  // Maintenance marks (0018) — the driver's own "last done" records.
+  listServiceMarks(vehicleId: string): Promise<ServiceMarkRecord[]>;
+  upsertServiceMark(input: {
+    vehicleId: string;
+    item: string;
+    lastMileage: number | null;
+    lastDate: string | null;
+  }): Promise<ServiceMarkRecord>;
 
   // Listings
   createListing(input: CreateListingInput): Promise<ListingRecord>;
@@ -849,6 +868,66 @@ export class PgAppStore implements AppStore {
     return rows.map(toDiagnosis);
   }
 
+  // -- Maintenance marks (0018) ----------------------------------------------
+  async listServiceMarks(vehicleId: string): Promise<ServiceMarkRecord[]> {
+    const { rows } = await getPool().query<{
+      vehicle_id: string;
+      item: string;
+      last_mileage: number | null;
+      last_date: Date | string | null;
+      updated_at: Date | string;
+    }>(
+      `SELECT vehicle_id, item, last_mileage, last_date, updated_at
+         FROM vehicle_service_marks WHERE vehicle_id = $1`,
+      [vehicleId],
+    );
+    return rows.map((row) => ({
+      vehicleId: row.vehicle_id,
+      item: row.item,
+      lastMileage: row.last_mileage,
+      lastDate: row.last_date
+        ? row.last_date instanceof Date
+          ? row.last_date.toISOString().slice(0, 10)
+          : String(row.last_date).slice(0, 10)
+        : null,
+      updatedAt: iso(row.updated_at),
+    }));
+  }
+
+  async upsertServiceMark(input: {
+    vehicleId: string;
+    item: string;
+    lastMileage: number | null;
+    lastDate: string | null;
+  }): Promise<ServiceMarkRecord> {
+    const { rows } = await getPool().query<{
+      vehicle_id: string;
+      item: string;
+      last_mileage: number | null;
+      last_date: Date | string | null;
+      updated_at: Date | string;
+    }>(
+      `INSERT INTO vehicle_service_marks (vehicle_id, item, last_mileage, last_date)
+       VALUES ($1, $2, $3, $4)
+       ON CONFLICT (vehicle_id, item) DO UPDATE
+         SET last_mileage = EXCLUDED.last_mileage, last_date = EXCLUDED.last_date, updated_at = now()
+       RETURNING vehicle_id, item, last_mileage, last_date, updated_at`,
+      [input.vehicleId, input.item, input.lastMileage, input.lastDate],
+    );
+    const row = rows[0];
+    return {
+      vehicleId: row.vehicle_id,
+      item: row.item,
+      lastMileage: row.last_mileage,
+      lastDate: row.last_date
+        ? row.last_date instanceof Date
+          ? row.last_date.toISOString().slice(0, 10)
+          : String(row.last_date).slice(0, 10)
+        : null,
+      updatedAt: iso(row.updated_at),
+    };
+  }
+
   // -- Listings -------------------------------------------------------------
   async createListing(input: CreateListingInput): Promise<ListingRecord> {
     const { rows } = await getPool().query<ListingRow>(
@@ -1323,6 +1402,7 @@ export class MemoryAppStore implements AppStore {
   readonly shops = new Map<string, ShopProfileRecord>();
   readonly towing = new Map<string, TowingProfileRecord>();
   readonly messages: MessageRecord[] = [];
+  readonly serviceMarks = new Map<string, ServiceMarkRecord>();
   private seq = 0;
 
   private nextId(prefix: string): string {
@@ -1401,6 +1481,28 @@ export class MemoryAppStore implements AppStore {
       .filter((d) => d.userId === userId)
       .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
       .slice(0, limit);
+  }
+
+  // -- Maintenance marks (0018) ----------------------------------------------
+  async listServiceMarks(vehicleId: string): Promise<ServiceMarkRecord[]> {
+    return [...this.serviceMarks.values()].filter((m) => m.vehicleId === vehicleId);
+  }
+
+  async upsertServiceMark(input: {
+    vehicleId: string;
+    item: string;
+    lastMileage: number | null;
+    lastDate: string | null;
+  }): Promise<ServiceMarkRecord> {
+    const mark: ServiceMarkRecord = {
+      vehicleId: input.vehicleId,
+      item: input.item,
+      lastMileage: input.lastMileage,
+      lastDate: input.lastDate,
+      updatedAt: this.now(),
+    };
+    this.serviceMarks.set(`${input.vehicleId}:${input.item}`, mark);
+    return mark;
   }
 
   // -- Listings -------------------------------------------------------------

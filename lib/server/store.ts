@@ -1,3 +1,4 @@
+import { randomBytes } from "node:crypto";
 import { Pool } from "pg";
 import { DatabaseNotConfiguredError, isDatabaseConfigured } from "./db";
 import { createDatabasePool } from "./poolConfig";
@@ -156,6 +157,35 @@ export interface PlanUpdate {
   cancelAtPeriodEnd?: boolean;
 }
 
+/** A saved diagnosis row (migration 0004 + 0016), read back whole. */
+export interface DiagnosisRecord {
+  id: string;
+  userId: string;
+  vehicleId: string | null;
+  vehicleInfo: string | null;
+  problemText: string | null;
+  imageUrl: string | null;
+  aiResult: unknown;
+  createdAt: string;
+}
+
+/** The driver's own record of the real fix (migration 0017). */
+export interface DiagnosisOutcome {
+  diagnosisId: string;
+  whatFixed: string;
+  costUsd: number | null;
+  /** Optional 1–5 star rating of the diagnosis (Pass #20 follow-up:
+   * the honest feeder for future review surfaces — collected only
+   * with the outcome, never required). */
+  rating: number | null;
+  /** The driver's explicit permission to quote their words as a
+   * review. False unless they ticked the box — no permission, no
+   * quote, ever. */
+  quotePermission: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface IdentityStore {
   findUserByEmail(emailNormalized: string): Promise<UserRecord | null>;
   findUserByPhone(phoneNormalized: string): Promise<UserRecord | null>;
@@ -182,6 +212,25 @@ export interface IdentityStore {
     imageUrl?: string;
     aiResult: unknown;
   }): Promise<{ id: string }>;
+  /** Read one saved diagnosis back by id (owner checks live in the service). */
+  findDiagnosisRecord(id: string): Promise<DiagnosisRecord | null>;
+  /**
+   * Mint (or return the existing) public share token for a diagnosis
+   * (migration 0017). One link per diagnosis; the token is 192 bits
+   * of randomness, generated here so no caller can choose a guessable one.
+   */
+  createDiagnosisShare(diagnosisId: string): Promise<{ token: string }>;
+  /** Resolve a public share token to its diagnosis — null when unknown. */
+  findDiagnosisByShareToken(token: string): Promise<DiagnosisRecord | null>;
+  /** Record (or replace) the driver's outcome for a diagnosis (0017). */
+  saveDiagnosisOutcome(input: {
+    diagnosisId: string;
+    whatFixed: string;
+    costUsd: number | null;
+    rating: number | null;
+    quotePermission: boolean;
+  }): Promise<DiagnosisOutcome>;
+  getDiagnosisOutcome(diagnosisId: string): Promise<DiagnosisOutcome | null>;
   findShopById(id: string): Promise<ShopRecord | null>;
   findTowingById(id: string): Promise<TowingRecord | null>;
   /**
@@ -445,6 +494,125 @@ export class PgIdentityStore implements IdentityStore {
       ],
     );
     return { id: rows[0].id };
+  }
+
+  async findDiagnosisRecord(id: string): Promise<DiagnosisRecord | null> {
+    const { rows } = await getPool().query<{
+      id: string;
+      user_id: string;
+      vehicle_id: string | null;
+      vehicle_info: string | null;
+      problem_text: string | null;
+      image_url: string | null;
+      ai_result: unknown;
+      created_at: Date | string;
+    }>(
+      `SELECT id, user_id, vehicle_id, vehicle_info, problem_text, image_url, ai_result, created_at
+       FROM diagnostics WHERE id = $1 LIMIT 1`,
+      [id],
+    );
+    const row = rows[0];
+    if (!row) return null;
+    return {
+      id: row.id,
+      userId: row.user_id,
+      vehicleId: row.vehicle_id,
+      vehicleInfo: row.vehicle_info,
+      problemText: row.problem_text,
+      imageUrl: row.image_url,
+      aiResult: row.ai_result,
+      createdAt: toIso(row.created_at) ?? "",
+    };
+  }
+
+  async createDiagnosisShare(diagnosisId: string): Promise<{ token: string }> {
+    const pool = getPool();
+    const existing = await pool.query<{ token: string }>(
+      `SELECT token FROM diagnosis_shares WHERE diagnosis_id = $1 LIMIT 1`,
+      [diagnosisId],
+    );
+    if (existing.rows[0]) return { token: existing.rows[0].token };
+    const token = randomBytes(24).toString("base64url");
+    const { rows } = await pool.query<{ token: string }>(
+      `INSERT INTO diagnosis_shares (diagnosis_id, token) VALUES ($1, $2)
+       ON CONFLICT (diagnosis_id) DO UPDATE SET token = diagnosis_shares.token
+       RETURNING token`,
+      [diagnosisId, token],
+    );
+    return { token: rows[0].token };
+  }
+
+  async findDiagnosisByShareToken(token: string): Promise<DiagnosisRecord | null> {
+    const { rows } = await getPool().query<{ diagnosis_id: string }>(
+      `SELECT diagnosis_id FROM diagnosis_shares WHERE token = $1 LIMIT 1`,
+      [token],
+    );
+    if (!rows[0]) return null;
+    return this.findDiagnosisRecord(rows[0].diagnosis_id);
+  }
+
+  async saveDiagnosisOutcome(input: {
+    diagnosisId: string;
+    whatFixed: string;
+    costUsd: number | null;
+    rating: number | null;
+    quotePermission: boolean;
+  }): Promise<DiagnosisOutcome> {
+    const { rows } = await getPool().query<{
+      diagnosis_id: string;
+      what_fixed: string;
+      cost_usd: number | null;
+      rating: number | null;
+      quote_permission: boolean;
+      created_at: Date | string;
+      updated_at: Date | string;
+    }>(
+      `INSERT INTO diagnosis_outcomes (diagnosis_id, what_fixed, cost_usd, rating, quote_permission)
+       VALUES ($1, $2, $3, $4, $5)
+       ON CONFLICT (diagnosis_id) DO UPDATE
+         SET what_fixed = EXCLUDED.what_fixed, cost_usd = EXCLUDED.cost_usd,
+             rating = EXCLUDED.rating, quote_permission = EXCLUDED.quote_permission,
+             updated_at = now()
+       RETURNING diagnosis_id, what_fixed, cost_usd, rating, quote_permission, created_at, updated_at`,
+      [input.diagnosisId, input.whatFixed, input.costUsd, input.rating, input.quotePermission],
+    );
+    const row = rows[0];
+    return {
+      diagnosisId: row.diagnosis_id,
+      whatFixed: row.what_fixed,
+      costUsd: row.cost_usd,
+      rating: row.rating,
+      quotePermission: row.quote_permission,
+      createdAt: toIso(row.created_at) ?? "",
+      updatedAt: toIso(row.updated_at) ?? "",
+    };
+  }
+
+  async getDiagnosisOutcome(diagnosisId: string): Promise<DiagnosisOutcome | null> {
+    const { rows } = await getPool().query<{
+      diagnosis_id: string;
+      what_fixed: string;
+      cost_usd: number | null;
+      rating: number | null;
+      quote_permission: boolean;
+      created_at: Date | string;
+      updated_at: Date | string;
+    }>(
+      `SELECT diagnosis_id, what_fixed, cost_usd, rating, quote_permission, created_at, updated_at
+       FROM diagnosis_outcomes WHERE diagnosis_id = $1 LIMIT 1`,
+      [diagnosisId],
+    );
+    const row = rows[0];
+    if (!row) return null;
+    return {
+      diagnosisId: row.diagnosis_id,
+      whatFixed: row.what_fixed,
+      costUsd: row.cost_usd,
+      rating: row.rating,
+      quotePermission: row.quote_permission,
+      createdAt: toIso(row.created_at) ?? "",
+      updatedAt: toIso(row.updated_at) ?? "",
+    };
   }
 
   async findShopById(id: string): Promise<ShopRecord | null> {
@@ -720,6 +888,8 @@ export class MemoryIdentityStore implements IdentityStore {
   readonly towing = new Map<string, TowingRecord>();
   readonly cache = new Map<string, CachedDiagnosis>();
   readonly diagnoses: Array<{ id: string } & Record<string, unknown>> = [];
+  readonly diagnosisShares = new Map<string, string>();
+  readonly diagnosisOutcomes = new Map<string, DiagnosisOutcome>();
   readonly authCodes = new Map<string, AuthCodeRecord>();
   readonly pendingSignupCodes = new Map<string, PendingSignupCodeRecord>();
   private seq = 0;
@@ -907,6 +1077,62 @@ export class MemoryIdentityStore implements IdentityStore {
     };
     this.diagnoses.push(row);
     return { id: row.id };
+  }
+
+  async findDiagnosisRecord(id: string): Promise<DiagnosisRecord | null> {
+    const row = this.diagnoses.find((d) => d.id === id);
+    if (!row) return null;
+    return {
+      id: row.id,
+      userId: String(row.userId ?? ""),
+      vehicleId: (row.vehicleId as string | null) ?? null,
+      vehicleInfo: (row.vehicleInfo as string | null) ?? null,
+      problemText: (row.problemText as string | null) ?? null,
+      imageUrl: (row.imageUrl as string | null) ?? null,
+      aiResult: row.aiResult,
+      createdAt: String(row.createdAt ?? new Date().toISOString()),
+    };
+  }
+
+  async createDiagnosisShare(diagnosisId: string): Promise<{ token: string }> {
+    const existing = this.diagnosisShares.get(diagnosisId);
+    if (existing) return { token: existing };
+    const token = randomBytes(24).toString("base64url");
+    this.diagnosisShares.set(diagnosisId, token);
+    return { token };
+  }
+
+  async findDiagnosisByShareToken(token: string): Promise<DiagnosisRecord | null> {
+    for (const [diagnosisId, t] of this.diagnosisShares) {
+      if (t === token) return this.findDiagnosisRecord(diagnosisId);
+    }
+    return null;
+  }
+
+  async saveDiagnosisOutcome(input: {
+    diagnosisId: string;
+    whatFixed: string;
+    costUsd: number | null;
+    rating: number | null;
+    quotePermission: boolean;
+  }): Promise<DiagnosisOutcome> {
+    const existing = this.diagnosisOutcomes.get(input.diagnosisId);
+    const now = new Date().toISOString();
+    const outcome: DiagnosisOutcome = {
+      diagnosisId: input.diagnosisId,
+      whatFixed: input.whatFixed,
+      costUsd: input.costUsd,
+      rating: input.rating,
+      quotePermission: input.quotePermission,
+      createdAt: existing?.createdAt ?? now,
+      updatedAt: now,
+    };
+    this.diagnosisOutcomes.set(input.diagnosisId, outcome);
+    return outcome;
+  }
+
+  async getDiagnosisOutcome(diagnosisId: string): Promise<DiagnosisOutcome | null> {
+    return this.diagnosisOutcomes.get(diagnosisId) ?? null;
   }
 
   async findShopById(id: string): Promise<ShopRecord | null> {

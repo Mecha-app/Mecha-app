@@ -173,6 +173,10 @@ const en = {
     step2Intro:
       "A shop quoted $780 to replace an alternator. MECHA checks each line against the estimate range for that car:",
     step2How: "How MECHA builds an estimate",
+    step1Headline: "Do not drive — get help now",
+    step1HeadlineDetail: "Two of these lights are critical — on a real car, this reading means park it and get help, not drive it to the shop.",
+    step2ScriptTitle: "What to tell the shop",
+    step2Script: "“This quote is $780, and the estimate range for this job is $460–$600, so it lands above the estimate range. Please walk me through what makes it different, line by line, before I approve anything.”",
     step3Title: "When MECHA isn't sure",
     step4Title: "Now your car.",
     step4Body:
@@ -376,6 +380,8 @@ const en = {
     meterTitle: "The meter, in plain sight",
     meterNote:
       "Tied to your email and phone number — not a cookie or a login. Signing out and back up doesn't reset it: five free diagnoses per person, the same deal for everyone.",
+    guaranteeLabel: "Our promise.",
+    guarantee: "If a paid report doesn't help you, tell us — we'll make it right.",
   },
   faq: {
     eyebrow: "Questions",
@@ -616,8 +622,8 @@ const en = {
   },
   shopsPage: {
     eyebrow: "For shops & towing",
-    heading: "Be the name a driver can call.",
-    sub: "When MECHA tells a driver to stop now or get help soon, nearby businesses are the next step: name first, distance shown, phone number ready to tap.",
+    heading: "Drivers ready to act",
+    sub: "Your next customer walks in with a MECHA diagnosis already in hand — they know what's wrong and what it should cost. MECHA for Shops puts that same diagnosis at your counter.",
     primaryCta: "Create a business account",
     nearbyCta: "See nearby search",
     listing: {
@@ -644,7 +650,7 @@ const en = {
     plan: {
       eyebrow: "The Shops plan",
       heading: "One location. One clear monthly price.",
-      body: "The Shops plan puts one repair or towing location into MECHA's nearby results, for drivers in the diagnosis flow and roadside search.",
+      body: "Diagnose your customers' cars at the counter — 10 free diagnoses when you sign up, then 500 diagnosis credits a month on the plan. Every driver leaves knowing what their car needs.",
       priceLabel: "Per month, per location",
       point1: "A nearby listing for one repair-shop or towing location",
       point2: "Name-first presentation with distance and tap-to-call",
@@ -888,6 +894,33 @@ const en = {
       bannerDismiss: "Not now",
     },
   },
+  // ── Compatibility checker (Pass #20) ────────────────────
+  compat: {
+    eyebrow: "Compatibility checker",
+    heading: "What MECHA can do for your car",
+    sub: "Pick your car — see exactly which MECHA features apply to it, and why.",
+    yearLabel: "Year",
+    makeLabel: "Make",
+    modelLabel: "Model",
+    checkButton: "Check my car",
+    resultHeading: "For your {car}",
+    applies: "Applies",
+    notApplies: "Doesn't apply",
+    cta: "Try the free scan",
+    note: "No account needed to check. A diagnosis on your own car starts free inside an account.",
+    features: {
+      diagnosis: "AI diagnosis from your description",
+      diagnosisBasis: "Works for any car — it reads your words, not the car's computer.",
+      photoScan: "Dashboard photo scan",
+      photoScanBasis: "Works for any car with a dashboard — a photo is all it takes.",
+      vinData: "VIN decode, recalls & safety data",
+      vinDataBasisYes: "Covered — NHTSA's data covers US-market vehicles from 1996 on.",
+      vinDataBasisNo: "Not covered — NHTSA's recall and VIN data starts with 1996 models.",
+      fairPrice: "Fair-price check on every report",
+      fairPriceBasis: "Comes with every diagnosis, whatever the car.",
+    },
+  },
+
   wp6: {
     nav: {
       dashboard: "Dashboard",
@@ -1017,6 +1050,25 @@ const en = {
       historyTitle: "Diagnosis history",
       noHistory: "No diagnoses saved for this vehicle yet.",
       removeVehicle: "Remove vehicle",
+      maintenance: {
+        title: "Maintenance reminders",
+        note: "Based on this car's mileage and the service dates you enter here — MECHA doesn't read your car. Intervals are the typical ones; your owner's manual wins.",
+        due: "Due now",
+        soon: "Coming due",
+        ok: "On track",
+        unknown: "No record yet",
+        noRecord: "Tell MECHA when it was last done.",
+        milesLeft: "{miles} miles left at the typical interval",
+        pastBy: "{miles} miles past the typical interval",
+        daysLeft: "{days} days left",
+        pastByDate: "Past the typical time interval",
+        lastDone: "Last done",
+        atMileage: "At mileage",
+        onDate: "On date",
+        markDone: "Mark done",
+        show: "Show",
+        hide: "Hide",
+      },
       removeConfirm: "Remove this vehicle and its saved history link?",
       saved: "Saved.",
     },

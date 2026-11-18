@@ -159,6 +159,10 @@ const fr: DeepPartial<Dictionary> = {
     step2Title: "Un devis, vérifié",
     step2Intro: "Un garage a devisé 780 $ pour remplacer un alternateur. MECHA compare chaque ligne à la fourchette estimée pour cette voiture :",
     step2How: "Comment MECHA construit une estimation",
+    step1Headline: "Ne conduisez pas — demandez de l'aide",
+    step1HeadlineDetail: "Deux de ces voyants sont critiques — sur une vraie voiture, cette lecture veut dire : garez-la et demandez de l'aide, ne la conduisez pas à l'atelier.",
+    step2ScriptTitle: "Quoi dire à l'atelier",
+    step2Script: "« Ce devis est de 780 $, et la fourchette estimée pour ce travail est de 460 $ à 600 $ — il se situe donc au-dessus de la fourchette estimée. Expliquez-moi ce qui le rend différent, ligne par ligne, avant que j'approuve quoi que ce soit. »",
     step3Title: "Quand MECHA n'est pas sûr",
     step4Title: "À votre voiture, maintenant.",
     step4Body: "Créez un compte gratuit et lancez un vrai diagnostic sur votre propre voiture. Vos 5 premiers diagnostics sont gratuits — aucune carte requise.",
@@ -356,6 +360,8 @@ const fr: DeepPartial<Dictionary> = {
     meterTitle: "Le compteur, en pleine vue",
     meterNote:
       "Le compte gratuit est lié à vous — votre e-mail et votre numéro de téléphone — jamais à un cookie de navigateur ni à une seule session. Se déconnecter et se réinscrire ne le réinitialise pas, et ce n'est pas fait pour : cinq diagnostics gratuits par personne, c'est l'offre, et elle est la même pour tout le monde.",
+    guaranteeLabel: "Notre promesse.",
+    guarantee: "Si un rapport payé ne vous aide pas, dites-le-nous — nous arrangerons ça.",
   },
   faq: {
     eyebrow: "Questions",
@@ -596,8 +602,8 @@ const fr: DeepPartial<Dictionary> = {
   },
   shopsPage: {
     eyebrow: "Pour ateliers et remorquage",
-    heading: "Soyez le nom qu'un conducteur peut appeler.",
-    sub: "Quand MECHA dit à un conducteur de s'arrêter ou de chercher de l'aide bientôt, les entreprises proches deviennent l'étape suivante. Une annonce est pensée pour ce moment : votre nom en premier, votre distance clairement affichée, et votre numéro prêt à toucher.",
+    heading: "Des conducteurs prêts à agir",
+    sub: "Votre prochain client arrive avec un diagnostic MECHA déjà en main — il sait ce qui ne va pas et ce que ça devrait coûter. MECHA pour Ateliers met ce même diagnostic à votre comptoir.",
     primaryCta: "Créez un compte entreprise",
     nearbyCta: "Voir la recherche de proximité",
     listing: {
@@ -624,7 +630,7 @@ const fr: DeepPartial<Dictionary> = {
     plan: {
       eyebrow: "Le forfait Ateliers",
       heading: "Un établissement. Un prix mensuel clair.",
-      body: "Le forfait Ateliers place un établissement de réparation ou de remorquage dans l'expérience de proximité de MECHA, pour les conducteurs qui utilisent le parcours de diagnostic et la recherche au bord de la route.",
+      body: "Diagnostiquez les voitures de vos clients au comptoir — 10 diagnostics gratuits à l'inscription, puis 500 crédits de diagnostic par mois avec le plan. Chaque conducteur repart en sachant ce qu'il faut à sa voiture.",
       priceLabel: "Par mois, par établissement",
       point1: "Une annonce de proximité pour un établissement de réparation ou de remorquage",
       point2: "Une présentation nom d'abord, avec distance et appel en un toucher",
@@ -860,6 +866,33 @@ const fr: DeepPartial<Dictionary> = {
       bannerDismiss: "Pas maintenant",
     },
   },
+  // ── Compatibility checker (Pass #20) ────────────────────
+  compat: {
+    eyebrow: "Vérificateur de compatibilité",
+    heading: "Ce que MECHA peut faire pour votre voiture",
+    sub: "Choisissez votre voiture — voyez exactement quelles fonctions MECHA s'y appliquent, et pourquoi.",
+    yearLabel: "Année",
+    makeLabel: "Marque",
+    modelLabel: "Modèle",
+    checkButton: "Vérifier ma voiture",
+    resultHeading: "Pour votre {car}",
+    applies: "S'applique",
+    notApplies: "Ne s'applique pas",
+    cta: "Essayer le scan gratuit",
+    note: "Aucun compte requis pour vérifier. Un diagnostic de votre propre voiture commence gratuitement dans un compte.",
+    features: {
+      diagnosis: "Diagnostic IA depuis votre description",
+      diagnosisBasis: "Fonctionne pour toute voiture — il lit vos mots, pas l'ordinateur de la voiture.",
+      photoScan: "Scan photo du tableau de bord",
+      photoScanBasis: "Fonctionne pour toute voiture avec un tableau de bord — une photo suffit.",
+      vinData: "Décodage VIN, rappels et données de sécurité",
+      vinDataBasisYes: "Couvert — les données de la NHTSA couvrent les véhicules du marché américain depuis 1996.",
+      vinDataBasisNo: "Non couvert — les données de rappel et de VIN de la NHTSA commencent aux modèles de 1996.",
+      fairPrice: "Vérification du juste prix dans chaque rapport",
+      fairPriceBasis: "Incluse dans chaque diagnostic, quelle que soit la voiture.",
+    },
+  },
+
   wp6: {
     dashboard: {
       quotaTitle: "Diagnostics",

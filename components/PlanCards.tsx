@@ -98,6 +98,7 @@ export function PlanCards({ variant = "full" }: { variant?: "full" | "compact" }
   ];
 
   return (
+    <>
     <div className="grid gap-6 md:grid-cols-3">
       {plans.map((plan) => (
         <article
@@ -151,5 +152,17 @@ export function PlanCards({ variant = "full" }: { variant?: "full" | "compact" }
         </article>
       ))}
     </div>
+    {/* The guarantee badge (Pass #20, the FIXD lesson) — full
+        variant only, one line under the plans. Honest "make it
+        right" language from the catalog (pricing.guarantee): a
+        standing offer to fix a paid report that didn't help, NOT a
+        formal refund policy with terms Frantz hasn't set. */}
+    {variant === "full" && (
+      <p className="mt-8 text-center text-base leading-relaxed text-ink-2">
+        <span className="font-semibold text-ink-1">{t.pricing.guaranteeLabel}</span>{" "}
+        {t.pricing.guarantee}
+      </p>
+    )}
+    </>
   );
 }

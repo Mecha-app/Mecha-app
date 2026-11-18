@@ -3,11 +3,15 @@
 import Link from "next/link";
 import { useEffect, useState, type FormEvent } from "react";
 import { HumanHelpCard } from "@/components/HumanHelpCard";
+import DiagnosisOutcome from "./DiagnosisOutcome";
+import DiagnosisShare from "./DiagnosisShare";
 import PartsNextSteps from "@/components/PartsNextSteps";
 import SavedVehicleField from "@/components/SavedVehicleField";
+import ShopScript from "@/components/ShopScript";
 import { AppNav } from "@/components/AppNav";
 import { authHeaders, clearSession, getToken } from "@/lib/client/auth";
 import type { DiagnosisReport } from "@/lib/server/ai";
+import { driveVerdict } from "@/lib/server/diagnosisExtras";
 import { DIAGNOSE_PREFILL_KEY, type ScanDiagnosePrefill } from "@/lib/server/scan";
 
 /**
@@ -44,6 +48,9 @@ export default function DiagnosePage() {
   const [vehicleId, setVehicleId] = useState<string | null>(null);
   const [problem, setProblem] = useState("");
   const [report, setReport] = useState<DiagnosisReport | null>(null);
+  // The saved record's id, carried on the stream's done event
+  // (Pass #20) — the share link and outcome prompt key off it.
+  const [diagnosisId, setDiagnosisId] = useState<string | null>(null);
   const [receivedChars, setReceivedChars] = useState(0);
   const [detail, setDetail] = useState("");
 
@@ -107,6 +114,7 @@ export default function DiagnosePage() {
     if (problem.trim().length === 0) return;
     setPhase("streaming");
     setReport(null);
+    setDiagnosisId(null);
     setReceivedChars(0);
     setDetail("");
     try {
@@ -167,6 +175,7 @@ export default function DiagnosePage() {
             quota?: QuotaView;
             message?: string;
             detail?: string;
+            diagnosisId?: string | null;
           };
           try {
             event = JSON.parse(dataLine.slice("data:".length).trim());
@@ -181,6 +190,7 @@ export default function DiagnosePage() {
             setReceivedChars(chars);
           } else if (event.type === "done" && event.report) {
             setReport(event.report);
+            setDiagnosisId(event.diagnosisId ?? null);
             if (event.quota) setQuota(event.quota);
             if (event.message) setMessage(event.message);
             setPhase("done");
@@ -305,23 +315,42 @@ export default function DiagnosePage() {
 
         {report && (
           <section className="mt-10 rounded-2xl border border-line bg-surface px-5 py-6" aria-live="polite">
-            <div className="flex flex-wrap items-center gap-3">
-              <span
-                className={
-                  "rounded-full px-3 py-1 text-sm font-semibold " +
-                  (report.severity === "Critical"
-                    ? "text-verdict-rip"
-                    : report.severity === "Minor — Monitor"
-                      ? "text-verdict-fair"
-                      : "text-verdict-warn")
-                }
-              >
-                {report.severity}
-              </span>
-              <span className="text-sm text-ink-2">
-                {report.safeToDriver ? "Safe to drive carefully" : "Do not drive — get a tow"}
-              </span>
-            </div>
+            {/* The severity headline (Pass #20, the FIXD lesson): the
+                result LEADS with the safe-to-drive verdict — the one
+                thing a stranded driver needs first — with the detail
+                under it and the severity label kept as the eyebrow. */}
+            {(() => {
+              const verdict = driveVerdict(report);
+              return (
+                <div
+                  className={
+                    "border-l-4 pl-4 " +
+                    (verdict.band === "stop"
+                      ? "border-verdict-rip"
+                      : verdict.band === "caution"
+                        ? "border-verdict-warn"
+                        : "border-verdict-fair")
+                  }
+                >
+                  <p className="text-sm font-semibold uppercase tracking-eyebrow text-ink-2">
+                    {report.severity}
+                  </p>
+                  <h2
+                    className={
+                      "mt-1 font-display text-2xl font-semibold " +
+                      (verdict.band === "stop"
+                        ? "text-verdict-rip"
+                        : verdict.band === "caution"
+                          ? "text-verdict-warn"
+                          : "text-verdict-fair")
+                    }
+                  >
+                    {verdict.headline}
+                  </h2>
+                  <p className="mt-1 text-base leading-relaxed text-ink-2">{verdict.detail}</p>
+                </div>
+              );
+            })()}
             <p className="mt-4 text-base leading-relaxed text-ink-1">{report.diagnosis}</p>
             {report.estimatedCost && (
               <p className="mt-4 font-mono text-base text-ink-1">
@@ -391,6 +420,14 @@ export default function DiagnosePage() {
             above them: the parts / shops block built from this finished
             report (parts affiliate package; see lib/server/parts.ts). */}
         {report && <PartsNextSteps report={report} vehicleInfo={vehicleInfo} />}
+
+        {/* The closing blocks of a finished result (Pass #20): the
+            counter script first, then the share card and the outcome
+            prompt — both keyed to the saved record's id, so they
+            render only when the run was actually saved. */}
+        {report && <ShopScript report={report} vehicleInfo={vehicleInfo} />}
+        {report && diagnosisId && <DiagnosisShare diagnosisId={diagnosisId} />}
+        {report && diagnosisId && <DiagnosisOutcome diagnosisId={diagnosisId} />}
       </main>
     </>
   );

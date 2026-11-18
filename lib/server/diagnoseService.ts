@@ -47,6 +47,10 @@ export type DiagnoseServiceEvent =
       latency: { ttftMs: number; totalMs: number } | null;
       quota: QuotaState;
       message: string;
+      /** The saved record's id (Pass #20) — the handle the share
+       * link and the outcome prompt work against. Null only when the
+       * save itself failed (logged, never thrown). */
+      diagnosisId: string | null;
     };
 
 export class ProRequiredError extends Error {
@@ -113,9 +117,9 @@ export async function* executeDiagnosis(
   // "No diagnoses saved for this vehicle yet" for cars diagnosed
   // repeatedly). Persistence must never fail a diagnosis the owner
   // already paid for: save errors are logged, not thrown.
-  const persistRecord = async (report: unknown): Promise<void> => {
+  const persistRecord = async (report: unknown): Promise<string | null> => {
     try {
-      await store.saveDiagnosisRecord({
+      const saved = await store.saveDiagnosisRecord({
         userId: user.id,
         vehicleId: input.vehicleId ?? null,
         vehicleInfo: request.vehicleInfo ?? null,
@@ -123,6 +127,7 @@ export async function* executeDiagnosis(
         imageUrl: request.imageUrl,
         aiResult: report,
       });
+      return saved.id;
     } catch (err) {
       console.error(
         JSON.stringify({
@@ -130,6 +135,7 @@ export async function* executeDiagnosis(
           detail: err instanceof Error ? err.message : "unknown",
         }),
       );
+      return null;
     }
   };
 
@@ -139,7 +145,7 @@ export async function* executeDiagnosis(
   const cacheKey = diagnosisCacheKey(request);
   const cached = await store.getCachedDiagnosis(cacheKey);
   if (cached) {
-    await persistRecord(cached.report);
+    const cachedDiagnosisId = await persistRecord(cached.report);
     yield {
       type: "done",
       report: cached.report,
@@ -149,6 +155,7 @@ export async function* executeDiagnosis(
       latency: null,
       quota: quotaAfter,
       message: countdownMessage(quotaAfter.remaining),
+      diagnosisId: cachedDiagnosisId,
     };
     return;
   }
@@ -184,7 +191,7 @@ export async function* executeDiagnosis(
           }),
         );
       }
-      await persistRecord(event.report);
+      const savedDiagnosisId = await persistRecord(event.report);
       // Trace BEFORE the done yield: consumers stop iterating at done,
       // so anything after the yield is not guaranteed to run. The call
       // is a no-op when Langfuse is unwired and can never throw.
@@ -206,6 +213,7 @@ export async function* executeDiagnosis(
         },
         quota: quotaAfter,
         message: countdownMessage(quotaAfter.remaining),
+        diagnosisId: savedDiagnosisId,
       };
       }
     }

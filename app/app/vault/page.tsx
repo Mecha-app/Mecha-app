@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState, type FormEvent } from "react";
+import MaintenanceSection from "@/components/MaintenanceSection";
 import { AppNav } from "@/components/AppNav";
 import { apiDetail, apiFetch } from "@/lib/client/api";
 import { getToken } from "@/lib/client/auth";
@@ -395,6 +396,10 @@ export default function VaultPage() {
                 ))}
               </ul>
             )}
+
+            {/* Maintenance reminders (Pass #20) — from this vehicle's
+                own mileage and the driver's last-done marks. */}
+            <MaintenanceSection vehicleId={selected.id} />
 
             <button
               type="button"

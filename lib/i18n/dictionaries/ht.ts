@@ -159,6 +159,10 @@ const ht: DeepPartial<Dictionary> = {
     step2Title: "Yon devis, verifye",
     step2Intro: "Yon atelye te mande $780 pou chanje yon altènatè. MECHA konpare chak liy ak limit estimasyon an pou machin sa a:",
     step2How: "Kijan MECHA konstwi yon estimasyon",
+    step1Headline: "Pa kondwi — chèche èd kounye a",
+    step1HeadlineDetail: "De nan limyè sa yo kritik — sou yon vrè machin, lekti sa a vle di pake l epi chèche èd, pa kondwi l al nan atelye a.",
+    step2ScriptTitle: "Sa pou di nan atelye a",
+    step2Script: "«Devis sa a se $780, epi entèval estimasyon pou travay sa a se $460–$600, kidonk li tonbe anwo entèval estimasyon an. Tanpri eksplike m sa ki fè l diferan, liy pa liy, anvan m apwouve anyen.»",
     step3Title: "Lè MECHA pa sèten",
     step4Title: "Kounye a, machin ou.",
     step4Body: "Kreye yon kont gratis epi fè yon vre dyagnostik sou machin ou. Premye 5 dyagnostik ou yo gratis — ou pa bezwen kat.",
@@ -356,6 +360,8 @@ const ht: DeepPartial<Dictionary> = {
     meterTitle: "Kontè a, an plen vi",
     meterNote:
       "Kont gratis la mare avèk ou — imèl ou ak nimewo telefòn ou — pa janm avèk yon cookie navigatè ni yon sèl sesyon. Dekonekte epi reyanrejistre pa reyinisyelize l, epi li pa fèt pou sa: senk dyagnostik gratis pa moun se antant la, epi antant la se menm bagay pou tout moun.",
+    guaranteeLabel: "Pwomès nou.",
+    guarantee: "Si yon rapò peye pa ede w, di nou sa — n ap regle l.",
   },
   faq: {
     eyebrow: "Kesyon yo",
@@ -596,8 +602,8 @@ const ht: DeepPartial<Dictionary> = {
   },
   shopsPage: {
     eyebrow: "Pou atelye ak remòkaj",
-    heading: "Se non yon chofè ka rele.",
-    sub: "Lè MECHA di yon chofè rete kounye a oswa chèche èd byento, biznis ki tou pre yo vin pwochen etap la. Yon anons fèt pou moman sa a: non w an premye, distans ou parèt klè, epi nimewo telefòn ou pare pou touch.",
+    heading: "Chofè ki pare pou aji",
+    sub: "Pwochen kliyan w lan rive ak yon dyagnostik MECHA deja nan men l — li konnen sa k pa mache ak konbyen li ta dwe koute. MECHA pou Atelye mete menm dyagnostik sa a nan kontwa w.",
     primaryCta: "Kreye yon kont biznis",
     nearbyCta: "Gade rechèch tou pre a",
     listing: {
@@ -624,7 +630,7 @@ const ht: DeepPartial<Dictionary> = {
     plan: {
       eyebrow: "Plan Atelye yo",
       heading: "Yon lokal. Yon pri mansyèl ki klè.",
-      body: "Plan Atelye yo mete yon lokal reparasyon oswa remòkaj nan eksperyans tou pre MECHA a pou chofè k ap itilize chemen dyagnostik la ak rechèch bò wout la.",
+      body: "Dyagnostike machin kliyan w yo nan kontwa a — 10 dyagnostik gratis lè w enskri, apre 500 kredi dyagnostik pa mwa nan plan an. Chak chofè ale ak konesans sa machin li bezwen.",
       priceLabel: "Pa mwa, pa lokal",
       point1: "Yon anons tou pre pou yon lokal atelye reparasyon oswa remòkaj",
       point2: "Prezantasyon ki kòmanse avèk non, avèk distans ak apèl yon sèl touch",
@@ -860,6 +866,33 @@ const ht: DeepPartial<Dictionary> = {
       bannerDismiss: "Pa kounye a",
     },
   },
+  // ── Compatibility checker (Pass #20) ────────────────────
+  compat: {
+    eyebrow: "Verifikatè konpatibilite",
+    heading: "Sa MECHA ka fè pou machin ou",
+    sub: "Chwazi machin ou — gade egzakteman ki fonksyon MECHA ki aplike pou li, ak poukisa.",
+    yearLabel: "Ane",
+    makeLabel: "Mak",
+    modelLabel: "Modèl",
+    checkButton: "Verifye machin mwen",
+    resultHeading: "Pou {car} ou",
+    applies: "Aplike",
+    notApplies: "Pa aplike",
+    cta: "Eseye eskanè gratis la",
+    note: "Ou pa bezwen kont pou verifye. Yon dyagnostik sou pwòp machin ou kòmanse gratis anndan yon kont.",
+    features: {
+      diagnosis: "Dyagnostik IA apati deskripsyon w",
+      diagnosisBasis: "Li mache pou nenpòt machin — li li pawòl ou, pa òdinatè machin nan.",
+      photoScan: "Eskanè foto tablo a",
+      photoScanBasis: "Li mache pou nenpòt machin ki gen tablo — yon foto sifi.",
+      vinData: "Dekodaj VIN, rapèl ak done sekirite",
+      vinDataBasisYes: "Li kouvri — done NHTSA kouvri machin mache ameriken depi 1996.",
+      vinDataBasisNo: "Li pa kouvri — done rapèl ak VIN NHTSA kòmanse ak modèl 1996 yo.",
+      fairPrice: "Verifikasyon pri jis nan chak rapò",
+      fairPriceBasis: "Li vini ak chak dyagnostik, kèlkeswa machin nan.",
+    },
+  },
+
   wp6: {
     dashboard: {
       quotaTitle: "Dyagnostik",

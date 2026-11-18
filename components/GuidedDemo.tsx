@@ -140,6 +140,16 @@ export function GuidedDemo() {
         {step === 0 && (
           <div>
             <p className="leading-relaxed text-ink-2">{d.step1Intro}</p>
+            {/* The severity headline (Pass #20, the FIXD lesson): a
+                real result LEADS with the safe-to-drive verdict, and
+                the sample shows the same treatment — two critical
+                lights mean this reading's headline is the stop band. */}
+            <div className="mt-5 border-l-4 border-verdict-rip pl-4">
+              <h2 className="font-display text-2xl font-semibold text-verdict-rip">
+                {d.step1Headline}
+              </h2>
+              <p className="mt-1 leading-relaxed text-ink-2">{d.step1HeadlineDetail}</p>
+            </div>
             <ul className="mt-5 flex flex-col gap-3">
               {lights.map((light) => (
                 <li
@@ -201,6 +211,16 @@ export function GuidedDemo() {
                 <p className="mt-1 text-sm font-semibold text-verdict-warn">{f.verdictWord}</p>
                 <p className="mt-2 text-sm leading-relaxed text-ink-2">{f.verdictText}</p>
               </div>
+            </div>
+            {/* "What to tell the shop" (Pass #20, the AIMECH lesson):
+                the sample quote check closes with the exact words
+                for this quote — the same named block a real result
+                ends with, in the safer range vocabulary. */}
+            <div className="mt-5 rounded-2xl border border-line bg-surface p-6">
+              <h3 className="font-display text-lg font-semibold text-ink-1">
+                {d.step2ScriptTitle}
+              </h3>
+              <p className="mt-2 leading-relaxed text-ink-1">{d.step2Script}</p>
             </div>
             <Link
               href="/diagnose#how-estimates"

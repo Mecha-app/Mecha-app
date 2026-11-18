@@ -158,6 +158,10 @@ const es: DeepPartial<Dictionary> = {
     step2Title: "Un presupuesto, verificado",
     step2Intro: "Un taller cotizó $780 por cambiar un alternador. MECHA compara cada partida con el rango estimado para ese coche:",
     step2How: "Cómo MECHA construye una estimación",
+    step1Headline: "No conduzcas — pide ayuda ahora",
+    step1HeadlineDetail: "Dos de estas luces son críticas: en un auto real, esta lectura significa estacionarlo y pedir ayuda, no conducirlo al taller.",
+    step2ScriptTitle: "Qué decir en el taller",
+    step2Script: "«Esta cotización es de $780, y el rango estimado para este trabajo es $460–$600, así que queda por encima del rango estimado. Por favor, explícame qué la hace diferente, línea por línea, antes de que apruebe algo.»",
     step3Title: "Cuando MECHA no está seguro",
     step4Title: "Ahora, tu coche.",
     step4Body: "Crea una cuenta gratuita y haz un diagnóstico real de tu propio coche. Tus primeros 5 diagnósticos son gratis — no necesitas tarjeta.",
@@ -355,6 +359,8 @@ const es: DeepPartial<Dictionary> = {
     meterTitle: "El medidor, a plena vista",
     meterNote:
       "La cuenta gratuita está ligada a ti — tu correo y tu número de teléfono — nunca a una cookie del navegador ni a una sola sesión. Cerrar sesión y volver a registrarte no la reinicia, y no está pensada para eso: cinco diagnósticos gratis por persona es el trato, y el trato es el mismo para todos.",
+    guaranteeLabel: "Nuestra promesa.",
+    guarantee: "Si un informe pago no te ayuda, cuéntanos — lo resolveremos.",
   },
   faq: {
     eyebrow: "Preguntas",
@@ -595,8 +601,8 @@ const es: DeepPartial<Dictionary> = {
   },
   shopsPage: {
     eyebrow: "Para talleres y grúas",
-    heading: "Sé el nombre al que un conductor puede llamar.",
-    sub: "Cuando MECHA le dice a un conductor que se detenga ahora o que busque ayuda pronto, los negocios cercanos pasan a ser el siguiente paso. Un anuncio está hecho para ese momento: tu nombre primero, tu distancia claramente mostrada y tu número de teléfono listo para tocar.",
+    heading: "Conductores listos para actuar",
+    sub: "Tu próximo cliente llega con un diagnóstico de MECHA ya en la mano: sabe qué falla y cuánto debería costar. MECHA para Talleres pone ese mismo diagnóstico en tu mostrador.",
     primaryCta: "Crea una cuenta de negocio",
     nearbyCta: "Ver la búsqueda cercana",
     listing: {
@@ -623,7 +629,7 @@ const es: DeepPartial<Dictionary> = {
     plan: {
       eyebrow: "El plan Talleres",
       heading: "Una ubicación. Un precio mensual claro.",
-      body: "El plan Talleres coloca una ubicación de reparación o grúa dentro de la experiencia cercana de MECHA para conductores que usan el flujo de diagnóstico y la búsqueda de carretera.",
+      body: "Diagnostica los autos de tus clientes en el mostrador: 10 diagnósticos gratis al registrarte y luego 500 créditos de diagnóstico al mes con el plan. Cada conductor se va sabiendo qué necesita su auto.",
       priceLabel: "Por mes, por ubicación",
       point1: "Un anuncio cercano para una ubicación de taller de reparación o de grúa",
       point2: "Presentación con el nombre primero, distancia y llamada con un toque",
@@ -859,6 +865,33 @@ const es: DeepPartial<Dictionary> = {
       bannerDismiss: "Ahora no",
     },
   },
+  // ── Compatibility checker (Pass #20) ────────────────────
+  compat: {
+    eyebrow: "Verificador de compatibilidad",
+    heading: "Qué puede hacer MECHA por tu auto",
+    sub: "Elige tu auto: mira exactamente qué funciones de MECHA le aplican, y por qué.",
+    yearLabel: "Año",
+    makeLabel: "Marca",
+    modelLabel: "Modelo",
+    checkButton: "Revisar mi auto",
+    resultHeading: "Para tu {car}",
+    applies: "Aplica",
+    notApplies: "No aplica",
+    cta: "Probar el escaneo gratis",
+    note: "No necesitas cuenta para revisar. Un diagnóstico de tu propio auto empieza gratis dentro de una cuenta.",
+    features: {
+      diagnosis: "Diagnóstico con IA desde tu descripción",
+      diagnosisBasis: "Funciona para cualquier auto: lee tus palabras, no la computadora del auto.",
+      photoScan: "Escaneo por foto del tablero",
+      photoScanBasis: "Funciona para cualquier auto con tablero: solo hace falta una foto.",
+      vinData: "Decodificación VIN, recalls y datos de seguridad",
+      vinDataBasisYes: "Cubierto: los datos de NHTSA cubren vehículos del mercado de EE. UU. desde 1996.",
+      vinDataBasisNo: "No cubierto: los datos de recalls y VIN de NHTSA empiezan con los modelos de 1996.",
+      fairPrice: "Verificación de precio justo en cada informe",
+      fairPriceBasis: "Viene con cada diagnóstico, sea el auto que sea.",
+    },
+  },
+
   wp6: {
     dashboard: {
       quotaTitle: "Diagnósticos",
