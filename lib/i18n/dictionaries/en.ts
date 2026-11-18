@@ -343,7 +343,7 @@ const en = {
   pricing: {
     eyebrow: "Pricing",
     heading: "Free to start. Honest about the meter.",
-    body: "Every account starts with 5 free diagnoses. After each one, MECHA shows how many are left. At zero, you choose: subscribe, or stop. Nothing is charged behind your back.",
+    body: "Every account starts with 5 free diagnoses. After each one, MECHA shows how many are left. At zero, you choose: buy a single diagnosis, subscribe for 100 a month, or stop. Nothing is charged behind your back.",
     popularBadge: "Most popular",
     free: {
       name: "Free",
@@ -360,9 +360,9 @@ const en = {
       price: "$9.99",
       period: "Per month",
       badge: "For drivers",
-      point1: "Unlimited diagnoses — the meter goes away",
+      point1: "100 diagnosis credits every month",
       point2: "Deep-dive analysis for the problems that resist a first answer",
-      point3: "Everything in Free, without the countdown",
+      point3: "Free diagnoses first, then the bucket — in that order",
       point4: "Early members: 3 months of Pro free, launch pricing locked for life",
       cta: "Go Pro",
     },
@@ -373,8 +373,8 @@ const en = {
       badge: "For shops & towing",
       point1: "Your business in the nearby list drivers call from",
       point2: "Name first, distance shown, one tap to call you",
-      point3: "Drivers who arrive knowing the fair price",
-      point4: "Listings for repair shops and towing companies alike",
+      point3: "500 diagnosis credits a month for your customers' cars",
+      point4: "10 free diagnoses when you sign up",
       cta: "List your business",
     },
     meterTitle: "The meter, in plain sight",
@@ -393,7 +393,7 @@ const en = {
       },
       freeEnd: {
         q: "What happens when my 5 free diagnoses run out?",
-        a: "MECHA shows how many remain after every diagnosis. At zero, diagnoses pause until you choose Pro — nothing is charged automatically, and your history stays put.",
+        a: "MECHA shows how many remain after every diagnosis. At zero, you choose: buy a single diagnosis, or subscribe to Pro for 100 a month — nothing is charged automatically, and your history stays put.",
       },
       reset: {
         q: "Can I reset the free count by signing up again?",
@@ -535,7 +535,7 @@ const en = {
     },
     meter: {
       title: "Five full diagnoses, free",
-      body: "Your free count belongs to your account — email and phone — and survives signing out. After each diagnosis, MECHA states how many remain. At zero, diagnoses pause until you choose Pro; nothing is charged automatically.",
+      body: "Your free count belongs to your account — email and phone — and survives signing out. After each diagnosis, MECHA states how many remain. At zero, you choose: buy a single diagnosis, or subscribe to Pro for 100 a month; nothing is charged automatically.",
     },
     final: {
       eyebrow: "Start free",
@@ -548,7 +548,7 @@ const en = {
   pricingPage: {
     eyebrow: "Pricing, in full",
     heading: "Choose by the job in front of you.",
-    sub: "Start free. Remove the meter with Pro. Put one business location in front of nearby drivers with Shops. Billing details are here — not buried after checkout.",
+    sub: "Start free. Get 100 diagnoses a month with Pro. Put one business location in front of nearby drivers with Shops. Billing details are here — not buried after checkout.",
     decision: {
       eyebrow: "Who each plan is for",
       heading: "The right size, without a maze of tiers.",
@@ -560,10 +560,10 @@ const en = {
           "5 full diagnoses, the fair-price range on every report, and the Health Vault. No card required; the remaining count is always visible.",
       },
       pro: {
-        title: "Pro — remove the meter",
+        title: "Pro — 100 diagnoses a month",
         body: "For drivers chasing an intermittent fault, or who want deeper analysis whenever a first answer isn't enough.",
         detail:
-          "Unlimited standard diagnoses and deep-dive analysis, with the Vault and fair-price protection from Free.",
+          "100 diagnosis credits a month and deep-dive analysis, with the Vault and fair-price protection from Free.",
       },
       shops: {
         title: "Shops — be nearby when it matters",
@@ -600,7 +600,7 @@ const en = {
         },
         freeEnd: {
           q: "What happens when the free diagnoses reach zero?",
-          a: "Diagnoses pause. Your account, cars, reports, and Vault history remain available, and nothing is charged automatically. You choose whether to start Pro.",
+          a: "Diagnoses pause. Your account, cars, reports, and Vault history remain available, and nothing is charged automatically. You choose: buy a single diagnosis, or start Pro for 100 a month.",
         },
         early: {
           q: "What do early members receive?",
@@ -948,12 +948,14 @@ const en = {
     },
     dashboard: {
       quotaTitle: "Diagnoses",
-      quotaNote: "When the free diagnoses run out, diagnoses pause until you upgrade. Nothing is ever charged automatically.",
+      quotaNote: "When the free diagnoses run out, diagnoses pause until you buy one diagnosis or upgrade. Nothing is ever charged automatically.",
       quotaUpgrade: "Upgrade to Pro",
       actionVaultSub: "History, recalls, and reminders",
       title: "Your garage",
       welcomeBack: "Welcome back",
-      quotaPro: "Pro plan — unlimited diagnoses.",
+      quotaPro: "Pro plan — 100 diagnoses a month.",
+      quotaBucketLeft: "monthly diagnoses left",
+      quotaSinglesLeft: "purchased diagnosis credits left",
       quotaLeft: "free diagnoses left",
       quotaOf: "of",
       quickActions: "What do you need?",
@@ -1009,6 +1011,11 @@ const en = {
       openingPortal: "Opening…",
       openingCheckout: "Taking you to checkout…",
       unavailable: "Billing isn't wired up in this preview yet — your plan details will appear here.",
+      buyDiagnosis: "Buy 1 diagnosis — $4",
+      buyDiagnosisNote: "One diagnosis credit, added when checkout completes. It never expires.",
+      creditsFreeLine: "{count} of your {limit} free diagnoses are left.",
+      creditsBucketLine: "Monthly credits: {count} of {limit} left this month.",
+      creditsSinglesLine: "Purchased diagnosis credits: {count}.",
     },
     vault: {
       title: "Health Vault",

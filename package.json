@@ -36,5 +36,5 @@
     "typecheck": "tsc --noEmit",
     "test:e2e": "playwright test"
   },
-  "version": "0.4.34-price-truth"
+  "version": "0.4.35-stripe-credits"
 }

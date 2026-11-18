@@ -2,6 +2,9 @@ import { NotFoundError } from "./errors";
 import type { AccountType } from "./jwt";
 import type { IdentityStore } from "./store";
 import { StripeNotConfiguredError, type StripeClient } from "./stripe";
+import { quotaStateFor } from "./quota";
+import { shopBucketView } from "./credits";
+import { SHOP_FREE_DIAGNOSES } from "./pricing";
 
 /**
  * Billing service (owner spec, Nov 3 2026) — the manage/cancel-anytime
@@ -100,6 +103,65 @@ export async function getBillingView(
     cancelAtPeriodEnd: record.cancelAtPeriodEnd ?? false,
     hasBillingAccount: record.stripeCustomerId !== null,
   };
+}
+
+/**
+ * The credit-model state the billing section and the paywall render
+ * (Stripe pass, 2026-11-18) — kept OUT of BillingView, whose shape is
+ * pinned by the billing tests; the status route attaches this beside
+ * it. Drivers: free remaining, the Pro bucket, purchased singles.
+ * Shops: their free allowance and the business bucket. Towing: null
+ * (the listing plan carries no diagnoses).
+ */
+export interface CreditsView {
+  freeUsed: number;
+  freeLimit: number;
+  freeRemaining: number;
+  /** Purchased single credits (drivers); null where the concept doesn't apply. */
+  purchasedCredits: number | null;
+  bucket: { limit: number; used: number; remaining: number } | null;
+}
+
+export async function getCreditsView(
+  store: IdentityStore,
+  account: { id: string; type: AccountType },
+): Promise<CreditsView | null> {
+  if (account.type === "driver") {
+    const user = await store.findUserById(account.id);
+    if (!user) throw new NotFoundError("Account not found.");
+    const quota = quotaStateFor({
+      plan: user.plan,
+      freeDiagnosesUsed: user.freeDiagnosesUsed,
+      purchasedCredits: user.diagnosisCredits,
+      monthlyDiagnosesUsed: user.monthlyDiagnosesUsed,
+      monthlyPeriodStart: user.monthlyPeriodStart,
+    });
+    return {
+      freeUsed: quota.used,
+      freeLimit: quota.limit,
+      freeRemaining: quota.remaining,
+      purchasedCredits: quota.credits,
+      bucket: quota.bucket
+        ? { limit: quota.bucket.limit, used: quota.bucket.used, remaining: quota.bucket.remaining }
+        : null,
+    };
+  }
+  if (account.type === "shop") {
+    const shop = await store.findShopById(account.id);
+    if (!shop) throw new NotFoundError("Account not found.");
+    const freeUsed = shop.freeDiagnosesUsed ?? 0;
+    const bucket = shopBucketView(shop);
+    return {
+      freeUsed,
+      freeLimit: SHOP_FREE_DIAGNOSES,
+      freeRemaining: Math.max(0, SHOP_FREE_DIAGNOSES - freeUsed),
+      purchasedCredits: null,
+      bucket: bucket
+        ? { limit: bucket.limit, used: bucket.used, remaining: bucket.remaining }
+        : null,
+    };
+  }
+  return null;
 }
 
 /**

@@ -31,7 +31,7 @@ export async function POST(request: Request) {
       canDiagnose: quota.canDiagnose,
       plan: quota.plan,
       lifetime: true,
-      message: countdownMessage(quota.remaining),
+      message: countdownMessage(quota),
     });
   } catch (err) {
     return apiError(err);

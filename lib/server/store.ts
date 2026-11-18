@@ -3,6 +3,7 @@ import { Pool } from "pg";
 import { DatabaseNotConfiguredError, isDatabaseConfigured } from "./db";
 import { createDatabasePool } from "./poolConfig";
 import { FREE_DIAGNOSIS_LIMIT, type PlanTier } from "./quota";
+import { SHOP_FREE_DIAGNOSES } from "./pricing";
 import type { AccountType } from "./jwt";
 
 /**
@@ -49,6 +50,14 @@ export interface UserRecord extends BillingFields {
   /** When the account email was verified by code (0011); NULL = not yet. */
   emailVerifiedAt: string | null;
   freeDiagnosesUsed: number;
+  /** Purchased single diagnosis credits on hand (0019) — never expire;
+   * moved only by grantDiagnosisCredit / consumePurchasedCredit. */
+  diagnosisCredits: number;
+  /** Diagnoses consumed against the current monthly bucket (0019). */
+  monthlyDiagnosesUsed: number;
+  /** Anchor of the current monthly-bucket window (0019); null = the
+   * bucket has never been anchored (first consume anchors it). */
+  monthlyPeriodStart: string | null;
   createdAt: string;
 }
 
@@ -99,6 +108,12 @@ export interface ShopRecord {
   subscriptionStatus?: string | null;
   currentPeriodEnd?: string | null;
   cancelAtPeriodEnd?: boolean;
+  // Optional for the same reason (0019): the shop's own free-diagnosis
+  // counter (10 at signup) and monthly-bucket counter (500/month on
+  // the business plan). Readers treat absent as 0 / unanchored.
+  freeDiagnosesUsed?: number;
+  monthlyDiagnosesUsed?: number;
+  monthlyPeriodStart?: string | null;
 }
 
 export interface TowingRecord {
@@ -197,6 +212,41 @@ export interface IdentityStore {
    * and NOTHING was taken (the caller must not call the AI provider).
    */
   consumeFreeDiagnosis(userId: string): Promise<{ consumed: boolean; used: number }>;
+  /**
+   * Grant ONE purchased diagnosis credit for a verified Stripe
+   * checkout session (0019). Idempotent per session: the ledger row
+   * carries the session id under a UNIQUE index, and the balance
+   * moves only when that row lands — a replayed webhook grants
+   * nothing. `granted: false` = the session was already granted.
+   */
+  grantDiagnosisCredit(
+    userId: string,
+    stripeSessionId: string,
+  ): Promise<{ granted: boolean; balance: number }>;
+  /**
+   * Atomically consume one purchased credit. `consumed: false` means
+   * the balance was already zero — credits never go negative.
+   */
+  consumePurchasedCredit(userId: string): Promise<{ consumed: boolean; balance: number }>;
+  /**
+   * Atomically consume one diagnosis from a monthly bucket (drivers'
+   * Pro bucket on users, shops' bucket on shops — 0019). The bucket
+   * window is anchored at monthly_period_start: a window a full month
+   * old (or never anchored) restarts at this consume, which is what
+   * makes the reset work even if a renewal webhook is missed. False =
+   * the current window is spent.
+   */
+  consumeMonthlyDiagnosis(
+    owner: "user" | "shop",
+    id: string,
+    limit: number,
+    now: Date,
+  ): Promise<boolean>;
+  /** Reset a monthly bucket to full and re-anchor its window (Stripe
+   * activation/renewal events). */
+  resetMonthlyBucket(owner: "user" | "shop", id: string, at: Date): Promise<void>;
+  /** Atomically consume one of a shop's free diagnoses (0019). */
+  consumeShopFreeDiagnosis(shopId: string): Promise<boolean>;
   getCachedDiagnosis(cacheKey: string): Promise<CachedDiagnosis | null>;
   putCachedDiagnosis(cacheKey: string, entry: CachedDiagnosis): Promise<void>;
   saveDiagnosisRecord(input: {
@@ -324,11 +374,14 @@ interface UserRow {
   cancel_at_period_end: boolean;
   email_verified_at: Date | string | null;
   free_diagnoses_used: number;
+  diagnosis_credits: number;
+  monthly_diagnoses_used: number;
+  monthly_period_start: Date | string | null;
   created_at: Date | string;
 }
 
 const USER_COLUMNS =
-  "id, name, email, phone, phone_normalized, password_hash, google_sub, auth_method, plan, stripe_customer_id, stripe_subscription_id, subscription_status, current_period_end, cancel_at_period_end, email_verified_at, free_diagnoses_used, created_at";
+  "id, name, email, phone, phone_normalized, password_hash, google_sub, auth_method, plan, stripe_customer_id, stripe_subscription_id, subscription_status, current_period_end, cancel_at_period_end, email_verified_at, free_diagnoses_used, diagnosis_credits, monthly_diagnoses_used, monthly_period_start, created_at";
 
 function toIso(value: Date | string | null): string | null {
   if (value === null) return null;
@@ -353,6 +406,9 @@ function toUserRecord(row: UserRow): UserRecord {
     cancelAtPeriodEnd: row.cancel_at_period_end ?? false,
     emailVerifiedAt: toIso(row.email_verified_at),
     freeDiagnosesUsed: row.free_diagnoses_used,
+    diagnosisCredits: row.diagnosis_credits ?? 0,
+    monthlyDiagnosesUsed: row.monthly_diagnoses_used ?? 0,
+    monthlyPeriodStart: toIso(row.monthly_period_start),
     createdAt: row.created_at instanceof Date ? row.created_at.toISOString() : String(row.created_at),
   };
 }
@@ -456,6 +512,115 @@ export class PgIdentityStore implements IdentityStore {
       [userId],
     );
     return { consumed: false, used: rows[0]?.free_diagnoses_used ?? FREE_DIAGNOSIS_LIMIT };
+  }
+
+  async grantDiagnosisCredit(
+    userId: string,
+    stripeSessionId: string,
+  ): Promise<{ granted: boolean; balance: number }> {
+    const pool = getPool();
+    // The ledger insert IS the idempotency gate: the session id is
+    // UNIQUE, so a replay inserts nothing — and the balance moves
+    // only in the same statement flow when the row landed.
+    const inserted = await pool.query(
+      `INSERT INTO credit_ledger (user_id, kind, amount, source, stripe_session_id)
+       VALUES ($1, 'grant', 1, 'stripe_checkout', $2)
+       ON CONFLICT (stripe_session_id) WHERE stripe_session_id IS NOT NULL DO NOTHING
+       RETURNING id`,
+      [userId, stripeSessionId],
+    );
+    if (inserted.rows.length === 0) {
+      const { rows } = await pool.query<{ diagnosis_credits: number }>(
+        "SELECT diagnosis_credits FROM users WHERE id = $1",
+        [userId],
+      );
+      return { granted: false, balance: rows[0]?.diagnosis_credits ?? 0 };
+    }
+    const { rows } = await pool.query<{ diagnosis_credits: number }>(
+      `UPDATE users
+          SET diagnosis_credits = diagnosis_credits + 1
+        WHERE id = $1
+        RETURNING diagnosis_credits`,
+      [userId],
+    );
+    return { granted: true, balance: rows[0]?.diagnosis_credits ?? 0 };
+  }
+
+  async consumePurchasedCredit(userId: string): Promise<{ consumed: boolean; balance: number }> {
+    const pool = getPool();
+    const updated = await pool.query<{ diagnosis_credits: number }>(
+      `UPDATE users
+          SET diagnosis_credits = diagnosis_credits - 1
+        WHERE id = $1 AND diagnosis_credits > 0
+        RETURNING diagnosis_credits`,
+      [userId],
+    );
+    if (updated.rows.length === 0) {
+      const { rows } = await pool.query<{ diagnosis_credits: number }>(
+        "SELECT diagnosis_credits FROM users WHERE id = $1",
+        [userId],
+      );
+      return { consumed: false, balance: rows[0]?.diagnosis_credits ?? 0 };
+    }
+    await pool.query(
+      `INSERT INTO credit_ledger (user_id, kind, amount, source)
+       VALUES ($1, 'consume', 1, 'diagnosis')`,
+      [userId],
+    );
+    return { consumed: true, balance: updated.rows[0].diagnosis_credits };
+  }
+
+  async consumeMonthlyDiagnosis(
+    owner: "user" | "shop",
+    id: string,
+    limit: number,
+    now: Date,
+  ): Promise<boolean> {
+    const table = owner === "user" ? "users" : "shops";
+    // The window is stale when its anchor is a full month old — the
+    // same boundary monthlyBucketView uses (now >= anchor + 1 month),
+    // expressed here as anchor <= now - 1 month.
+    const staleBefore = new Date(now.getTime());
+    staleBefore.setUTCMonth(staleBefore.getUTCMonth() - 1);
+    const { rows } = await getPool().query<{ monthly_diagnoses_used: number }>(
+      `UPDATE ${table}
+          SET monthly_diagnoses_used = CASE
+                WHEN monthly_period_start IS NULL OR monthly_period_start <= $3 THEN 1
+                ELSE monthly_diagnoses_used + 1
+              END,
+              monthly_period_start = CASE
+                WHEN monthly_period_start IS NULL OR monthly_period_start <= $3 THEN $4
+                ELSE monthly_period_start
+              END
+        WHERE id = $1
+          AND (monthly_period_start IS NULL
+               OR monthly_period_start <= $3
+               OR monthly_diagnoses_used < $2)
+        RETURNING monthly_diagnoses_used`,
+      [id, limit, staleBefore.toISOString(), now.toISOString()],
+    );
+    return rows.length > 0;
+  }
+
+  async resetMonthlyBucket(owner: "user" | "shop", id: string, at: Date): Promise<void> {
+    const table = owner === "user" ? "users" : "shops";
+    await getPool().query(
+      `UPDATE ${table}
+          SET monthly_diagnoses_used = 0, monthly_period_start = $2
+        WHERE id = $1`,
+      [id, at.toISOString()],
+    );
+  }
+
+  async consumeShopFreeDiagnosis(shopId: string): Promise<boolean> {
+    const { rows } = await getPool().query<{ free_diagnoses_used: number }>(
+      `UPDATE shops
+          SET free_diagnoses_used = free_diagnoses_used + 1
+        WHERE id = $1 AND free_diagnoses_used < $2
+        RETURNING free_diagnoses_used`,
+      [shopId, SHOP_FREE_DIAGNOSES],
+    );
+    return rows.length > 0;
   }
 
   async getCachedDiagnosis(cacheKey: string): Promise<CachedDiagnosis | null> {
@@ -638,9 +803,12 @@ export class PgIdentityStore implements IdentityStore {
         email: string;
         plan: string;
         stripe_customer_id: string | null;
+        free_diagnoses_used: number;
+        monthly_diagnoses_used: number;
+        monthly_period_start: Date | string | null;
       } & BillingRow
     >(
-      `SELECT id, shop_name, email, plan, stripe_customer_id, ${BILLING_COLUMNS} FROM shops WHERE id = $1 LIMIT 1`,
+      `SELECT id, shop_name, email, plan, stripe_customer_id, ${BILLING_COLUMNS}, free_diagnoses_used, monthly_diagnoses_used, monthly_period_start FROM shops WHERE id = $1 LIMIT 1`,
       [id],
     );
     if (rows.length === 0) return null;
@@ -652,6 +820,9 @@ export class PgIdentityStore implements IdentityStore {
       plan: r.plan,
       stripeCustomerId: r.stripe_customer_id,
       ...billingFromRow(r),
+      freeDiagnosesUsed: r.free_diagnoses_used ?? 0,
+      monthlyDiagnosesUsed: r.monthly_diagnoses_used ?? 0,
+      monthlyPeriodStart: toIso(r.monthly_period_start),
     };
   }
 
@@ -907,6 +1078,9 @@ export class MemoryIdentityStore implements IdentityStore {
   readonly diagnosisOutcomes = new Map<string, DiagnosisOutcome>();
   readonly authCodes = new Map<string, AuthCodeRecord>();
   readonly pendingSignupCodes = new Map<string, PendingSignupCodeRecord>();
+  /** Stripe checkout sessions already granted a credit (0019) — the
+   * in-memory twin of the credit_ledger UNIQUE index. */
+  readonly grantedCreditSessions = new Set<string>();
   private seq = 0;
 
   private nextId(prefix: string): string {
@@ -950,6 +1124,9 @@ export class MemoryIdentityStore implements IdentityStore {
       cancelAtPeriodEnd: false,
       emailVerifiedAt: null,
       freeDiagnosesUsed: 0,
+      diagnosisCredits: 0,
+      monthlyDiagnosesUsed: 0,
+      monthlyPeriodStart: null,
       createdAt: new Date().toISOString(),
     };
     this.users.set(user.id, user);
@@ -1066,6 +1243,68 @@ export class MemoryIdentityStore implements IdentityStore {
     }
     user.freeDiagnosesUsed += 1;
     return { consumed: true, used: user.freeDiagnosesUsed };
+  }
+
+  async grantDiagnosisCredit(
+    userId: string,
+    stripeSessionId: string,
+  ): Promise<{ granted: boolean; balance: number }> {
+    const user = this.users.get(userId);
+    if (!user) return { granted: false, balance: 0 };
+    if (this.grantedCreditSessions.has(stripeSessionId)) {
+      return { granted: false, balance: user.diagnosisCredits };
+    }
+    this.grantedCreditSessions.add(stripeSessionId);
+    user.diagnosisCredits += 1;
+    return { granted: true, balance: user.diagnosisCredits };
+  }
+
+  async consumePurchasedCredit(userId: string): Promise<{ consumed: boolean; balance: number }> {
+    const user = this.users.get(userId);
+    if (!user) return { consumed: false, balance: 0 };
+    if (user.diagnosisCredits <= 0) return { consumed: false, balance: 0 };
+    user.diagnosisCredits -= 1;
+    return { consumed: true, balance: user.diagnosisCredits };
+  }
+
+  async consumeMonthlyDiagnosis(
+    owner: "user" | "shop",
+    id: string,
+    limit: number,
+    now: Date,
+  ): Promise<boolean> {
+    const record: { monthlyDiagnosesUsed?: number; monthlyPeriodStart?: string | null } | undefined =
+      owner === "user" ? this.users.get(id) : this.shops.get(id);
+    if (!record) return false;
+    // Same boundary as the Pg implementation and monthlyBucketView:
+    // the window is stale when its anchor is a full month old.
+    const staleBefore = new Date(now.getTime());
+    staleBefore.setUTCMonth(staleBefore.getUTCMonth() - 1);
+    const anchor = record.monthlyPeriodStart ?? null;
+    const stale = anchor === null || new Date(anchor) <= staleBefore;
+    if (stale) {
+      record.monthlyDiagnosesUsed = 1;
+      record.monthlyPeriodStart = now.toISOString();
+      return true;
+    }
+    if ((record.monthlyDiagnosesUsed ?? 0) >= limit) return false;
+    record.monthlyDiagnosesUsed = (record.monthlyDiagnosesUsed ?? 0) + 1;
+    return true;
+  }
+
+  async resetMonthlyBucket(owner: "user" | "shop", id: string, at: Date): Promise<void> {
+    const record = owner === "user" ? this.users.get(id) : this.shops.get(id);
+    if (!record) return;
+    record.monthlyDiagnosesUsed = 0;
+    record.monthlyPeriodStart = at.toISOString();
+  }
+
+  async consumeShopFreeDiagnosis(shopId: string): Promise<boolean> {
+    const shop = this.shops.get(shopId);
+    if (!shop) return false;
+    if ((shop.freeDiagnosesUsed ?? 0) >= SHOP_FREE_DIAGNOSES) return false;
+    shop.freeDiagnosesUsed = (shop.freeDiagnosesUsed ?? 0) + 1;
+    return true;
   }
 
   async getCachedDiagnosis(cacheKey: string): Promise<CachedDiagnosis | null> {

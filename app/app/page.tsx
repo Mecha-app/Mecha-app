@@ -103,8 +103,10 @@ function CardHeading({ children }: { children: ReactNode }) {
 interface QuotaView {
   plan: string;
   used: number;
-  limit: number | null;
-  remaining: number | null;
+  limit: number;
+  remaining: number;
+  credits?: number;
+  bucket?: { limit: number; used: number; remaining: number } | null;
   canDiagnose: boolean;
 }
 
@@ -422,7 +424,21 @@ export default function DashboardPage() {
           <section className={`${CARD} mt-6`} role="status" aria-live="polite">
             <CardHeading>{d.quotaTitle}</CardHeading>
             {quota.plan === "pro" ? (
-              <p className="mt-4 font-display text-2xl font-medium text-ink-1">{d.quotaPro}</p>
+              <>
+                <p className="mt-4 font-display text-2xl font-medium text-ink-1">{d.quotaPro}</p>
+                {quota.bucket && (
+                  <p className="mt-2 text-base text-ink-2">
+                    <span className="tnum font-semibold text-ink-1">{quota.bucket.remaining}</span>{" "}
+                    {d.quotaOf} {quota.bucket.limit} {d.quotaBucketLeft}
+                  </p>
+                )}
+                {quota.credits !== undefined && quota.credits > 0 && (
+                  <p className="mt-1 text-base text-ink-2">
+                    <span className="tnum font-semibold text-ink-1">{quota.credits}</span>{" "}
+                    {d.quotaSinglesLeft}
+                  </p>
+                )}
+              </>
             ) : (
               <>
                 <p className="mt-5 flex flex-wrap items-baseline gap-x-3">

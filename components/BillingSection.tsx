@@ -27,6 +27,15 @@ import { useLocale } from "@/lib/i18n/LocaleProvider";
  * the catalog's own price + period strings (components/PlanCards),
  * so the price here looks exactly like the price on /pricing.
  * Data, buttons, and flows are unchanged.
+ *
+ * Credit model (Stripe pass, 2026-11-18): the section also states the
+ * diagnosis shelves — free diagnoses left, the monthly credit bucket,
+ * purchased single credits — and drivers get BOTH purchase doors:
+ * subscribe to Pro (100 credits a month) or buy ONE diagnosis credit.
+ * The buy-one door is there for every driver, Pro subscribers
+ * included (a top-up when the month's bucket runs dry). When Stripe
+ * is not wired, the checkout attempt answers with the honest
+ * not-wired message on the card — never a dead button.
  */
 
 interface BillingView {
@@ -35,6 +44,14 @@ interface BillingView {
   currentPeriodEnd: string | null;
   cancelAtPeriodEnd: boolean;
   hasBillingAccount: boolean;
+}
+
+interface CreditsView {
+  freeUsed: number;
+  freeLimit: number;
+  freeRemaining: number;
+  purchasedCredits: number | null;
+  bucket: { limit: number; used: number; remaining: number } | null;
 }
 
 export function BillingSection({
@@ -47,15 +64,20 @@ export function BillingSection({
   const { t } = useLocale();
   const b = t.wp6.billing;
   const [view, setView] = useState<BillingView | null>(null);
+  const [credits, setCredits] = useState<CreditsView | null>(null);
   const [unavailable, setUnavailable] = useState(false);
-  const [busy, setBusy] = useState<"portal" | "checkout" | null>(null);
+  const [busy, setBusy] = useState<"portal" | "checkout" | "credit" | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     void (async () => {
-      const res = await apiFetch<{ billing: BillingView }>("/api/payments/status");
-      if (res.status === 200) setView(res.data.billing);
-      else setUnavailable(true);
+      const res = await apiFetch<{ billing: BillingView; credits?: CreditsView | null }>(
+        "/api/payments/status",
+      );
+      if (res.status === 200) {
+        setView(res.data.billing);
+        setCredits(res.data.credits ?? null);
+      } else setUnavailable(true);
     })();
   }, []);
 
@@ -109,10 +131,9 @@ export function BillingSection({
     setError(apiDetail(res.data, t.wp6.common.somethingWrong));
   }
 
-  async function openCheckout() {
-    setBusy("checkout");
+  async function openCheckout(planToBuy: "pro" | "business" | "credit") {
+    setBusy(planToBuy === "credit" ? "credit" : "checkout");
     setError(null);
-    const planToBuy = kind === "business" ? "business" : "pro";
     const res = await apiFetch<{ url: string }>("/api/payments/create-checkout", {
       method: "POST",
       body: JSON.stringify({ plan: planToBuy }),
@@ -124,6 +145,11 @@ export function BillingSection({
     setBusy(null);
     setError(apiDetail(res.data, t.wp6.common.somethingWrong));
   }
+
+  const buttonClass =
+    "flex h-12 w-full items-center justify-center rounded-full bg-accent px-6 text-base font-semibold text-accent-ink disabled:opacity-60 sm:w-auto sm:min-w-[16rem]";
+  const secondaryButtonClass =
+    "flex h-12 w-full items-center justify-center rounded-full border border-line bg-surface px-6 text-base font-semibold text-ink-1 disabled:opacity-60 sm:w-auto sm:min-w-[16rem]";
 
   return (
     <section id="billing" className="mt-6 scroll-mt-24">
@@ -163,6 +189,26 @@ export function BillingSection({
           <p className="mt-2 text-base text-ink-2">{b.cancelScheduledNote}</p>
         )}
 
+        {credits && (
+          <div className="mt-4 space-y-1 text-base text-ink-2">
+            <p>
+              {b.creditsFreeLine
+                .replace("{count}", String(credits.freeRemaining))
+                .replace("{limit}", String(credits.freeLimit))}
+            </p>
+            {credits.bucket && (
+              <p>
+                {b.creditsBucketLine
+                  .replace("{count}", String(credits.bucket.remaining))
+                  .replace("{limit}", String(credits.bucket.limit))}
+              </p>
+            )}
+            {credits.purchasedCredits !== null && credits.purchasedCredits > 0 && (
+              <p>{b.creditsSinglesLine.replace("{count}", String(credits.purchasedCredits))}</p>
+            )}
+          </div>
+        )}
+
         {unavailable && <p className="mt-3 text-base text-ink-2">{b.unavailable}</p>}
 
         {!unavailable && view?.hasBillingAccount && (
@@ -171,7 +217,7 @@ export function BillingSection({
               type="button"
               onClick={openPortal}
               disabled={busy !== null}
-              className="mt-6 flex h-12 w-full items-center justify-center rounded-full bg-accent px-6 text-base font-semibold text-accent-ink disabled:opacity-60 sm:w-auto sm:min-w-[16rem]"
+              className={`mt-6 ${buttonClass}`}
             >
               {busy === "portal" ? b.openingPortal : b.manageButton}
             </button>
@@ -179,22 +225,47 @@ export function BillingSection({
           </>
         )}
 
-        {!unavailable && view && !view.hasBillingAccount && !isPaidPlan && (
+        {!unavailable && view && kind === "business" && !view.hasBillingAccount && !isPaidPlan && (
           <>
             <button
               type="button"
-              onClick={openCheckout}
+              onClick={() => void openCheckout("business")}
               disabled={busy !== null}
-              className="mt-6 flex h-12 w-full items-center justify-center rounded-full bg-accent px-6 text-base font-semibold text-accent-ink disabled:opacity-60 sm:w-auto sm:min-w-[16rem]"
+              className={`mt-6 ${buttonClass}`}
             >
-              {busy === "checkout"
-                ? b.openingCheckout
-                : kind === "business"
-                  ? b.upgradeBusiness
-                  : b.upgradePro}
+              {busy === "checkout" ? b.openingCheckout : b.upgradeBusiness}
             </button>
             <p className="mt-3 text-sm leading-relaxed text-ink-2">{b.upgradeNote}</p>
           </>
+        )}
+
+        {!unavailable && view && kind === "driver" && (
+          <div className="mt-6 flex flex-col gap-3">
+            {!isPaidPlan && (
+              <div>
+                <button
+                  type="button"
+                  onClick={() => void openCheckout("pro")}
+                  disabled={busy !== null}
+                  className={buttonClass}
+                >
+                  {busy === "checkout" ? b.openingCheckout : b.upgradePro}
+                </button>
+                <p className="mt-3 text-sm leading-relaxed text-ink-2">{b.upgradeNote}</p>
+              </div>
+            )}
+            <div>
+              <button
+                type="button"
+                onClick={() => void openCheckout("credit")}
+                disabled={busy !== null}
+                className={isPaidPlan ? buttonClass : secondaryButtonClass}
+              >
+                {busy === "credit" ? b.openingCheckout : b.buyDiagnosis}
+              </button>
+              <p className="mt-3 text-sm leading-relaxed text-ink-2">{b.buyDiagnosisNote}</p>
+            </div>
+          </div>
         )}
 
         {error && (

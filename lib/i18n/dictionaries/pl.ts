@@ -333,7 +333,7 @@ const pl: DeepPartial<Dictionary> = {
   pricing: {
     eyebrow: "Cennik",
     heading: "Darmowy start. Uczciwość co do licznika.",
-    body: "Każde konto zaczyna od 5 darmowych diagnoz. Po każdej MECHA mówi ci dokładnie, ile ci zostało — 4, potem 3, potem 2 — a przy zerze ty wybierasz: subskrybuj albo przestań. Nic nigdy nie jest pobierane za twoimi plecami.",
+    body: "Każde konto zaczyna od 5 darmowych diagnoz. Po każdej MECHA pokazuje, ile ich zostało. Przy zerze to Ty wybierasz: kupić jedną diagnozę, zasubskrybować 100 miesięcznie, albo przestać. Nic nie jest pobierane za Twoimi plecami.",
     popularBadge: "Najpopularniejszy",
     free: {
       name: "Darmowy",
@@ -350,9 +350,9 @@ const pl: DeepPartial<Dictionary> = {
       price: "$9.99",
       period: "Miesięcznie",
       badge: "Dla kierowców",
-      point1: "Nielimitowane diagnozy — licznik znika",
+      point1: "100 kredytów diagnostycznych co miesiąc",
       point2: "Pogłębiona analiza problemów, które opierają się pierwszej odpowiedzi",
-      point3: "Wszystko z Darmowego, bez odliczania",
+      point3: "Najpierw darmowe diagnozy, potem miesięczny pakiet — w tej kolejności",
       point4: "Wcześni członkowie: 3 miesiące Pro za darmo, cena startowa zamrożona na zawsze",
       cta: "Wybierz Pro",
     },
@@ -363,8 +363,8 @@ const pl: DeepPartial<Dictionary> = {
       badge: "Dla warsztatów i holowania",
       point1: "Twoja firma na liście okolicy, z której dzwonią kierowcy",
       point2: "Nazwa pierwsza, pokazana odległość, jedno dotknięcie, by do ciebie zadzwonić",
-      point3: "Kierowcy, którzy przyjeżdżają, znając już uczciwą cenę",
-      point4: "Wpisy dla warsztatów i firm holowniczych",
+      point3: "500 kredytów diagnostycznych miesięcznie na samochody Twoich klientów",
+      point4: "10 darmowych diagnoz przy rejestracji",
       cta: "Wpisz swoją firmę",
     },
     meterTitle: "Licznik, w pełni widoczny",
@@ -382,7 +382,7 @@ const pl: DeepPartial<Dictionary> = {
       },
       freeEnd: {
         q: "Co się dzieje, gdy skończy się moich 5 darmowych diagnoz?",
-        a: "Zobaczysz, jak się zbliża: po każdej diagnozie MECHA mówi ci dokładnie, ile ci zostało. Przy zerze diagnozy wstrzymują się, dopóki nie wybierzesz Pro. Nic nie jest pobierane automatycznie, a twoje konto, auta i historia zostają dokładnie tam, gdzie są.",
+        a: "MECHA pokazuje po każdej diagnozie, ile ich zostało. Przy zerze to Ty wybierasz: kupić jedną diagnozę albo zasubskrybować Pro na 100 miesięcznie — nic nie jest pobierane automatycznie, a Twoja historia zostaje na miejscu.",
       },
       reset: {
         q: "Czy mogę zresetować darmowy licznik, rejestrując się ponownie?",
@@ -516,7 +516,7 @@ const pl: DeepPartial<Dictionary> = {
     },
     meter: {
       title: "Pięć pełnych diagnoz, za darmo",
-      body: "Twój bezpłatny licznik należy do tożsamości Twojego konta — adresu e-mail i telefonu — i przetrwa wylogowanie. Po każdej diagnozie MECHA mówi, ile zostało. Przy zerze diagnozy wstrzymują się, aż wybierzesz Pro; nic nie jest naliczane automatycznie.",
+      body: "Twój bezpłatny licznik należy do tożsamości Twojego konta — adresu e-mail i telefonu — i przetrwa wylogowanie. Po każdej diagnozie MECHA mówi, ile zostało. Przy zerze to Ty wybierasz: kupić jedną diagnozę albo zasubskrybować Pro na 100 miesięcznie; nic nie jest naliczane automatycznie.",
     },
     final: {
       eyebrow: "Zacznij za darmo",
@@ -529,7 +529,7 @@ const pl: DeepPartial<Dictionary> = {
   pricingPage: {
     eyebrow: "Ceny, w całości",
     heading: "Wybierz według pracy przed Tobą.",
-    sub: "Plany są proste celowo: zacznij za darmo, usuń licznik diagnoz z Pro lub postaw jedną lokalizację firmy przed pobliskimi kierowcami z Warsztatami. Szczegóły — w tym rozliczenia — są na tej stronie, nie pogrzebane po kasie.",
+    sub: "Plany są proste celowo: zacznij za darmo, otrzymaj 100 diagnoz miesięcznie z Pro lub postaw jedną lokalizację firmy przed pobliskimi kierowcami z Warsztatami. Szczegóły — w tym rozliczenia — są na tej stronie, nie pogrzebane po kasie.",
     decision: {
       eyebrow: "Dla kogo jest każdy plan",
       heading: "Właściwy rozmiar, bez labiryntu poziomów.",
@@ -540,9 +540,9 @@ const pl: DeepPartial<Dictionary> = {
         detail: "Otrzymujesz 5 pełnych diagnoz, uczciwy przedział cenowy w każdym raporcie i Health Vault. Do startu nie jest potrzebna karta, a pozostały licznik jest zawsze widoczny.",
       },
       pro: {
-        title: "Pro — usuń licznik",
+        title: "Pro — 100 diagnoz miesięcznie",
         body: "Dla kierowców, którzy diagnozują więcej niż sporadyczny problem, ścigają przerywaną usterkę lub chcą mieć poziom pogłębionej analizy dostępny zawsze, gdy pierwsza odpowiedź nie wystarcza.",
-        detail: "Pro daje nieograniczone diagnozy standardowe i pogłębioną analizę opornych problemów, zachowując Vault i ochronę uczciwej ceny z Bezpłatnego.",
+        detail: "Pro daje 100 kredytów standardowych diagnoz miesięcznie i pogłębioną analizę opornych problemów, zachowując Vault i ochronę uczciwej ceny z Bezpłatnego.",
       },
       shops: {
         title: "Warsztaty — bądź blisko, gdy to się liczy",
@@ -578,7 +578,7 @@ const pl: DeepPartial<Dictionary> = {
         },
         freeEnd: {
           q: "Co się dzieje, gdy bezpłatne diagnozy osiągną zero?",
-          a: "Diagnozy wstrzymują się. Twoje konto, samochody, raporty i historia Vault pozostają dostępne, a nic nie jest naliczane automatycznie. Ty wybierasz, czy rozpocząć Pro.",
+          a: "Diagnozy wstrzymują się. Twoje konto, samochody, raporty i historia w Vault pozostają dostępne, a nic nie jest pobierane automatycznie. Ty wybierasz: kupić jedną diagnozę albo zacząć Pro za 100 miesięcznie.",
         },
         early: {
           q: "Co otrzymują wczesni członkowie?",
@@ -857,12 +857,14 @@ const pl: DeepPartial<Dictionary> = {
     },
     dashboard: {
       quotaTitle: "Diagnozy",
-      quotaNote: "Gdy skończą się bezpłatne diagnozy, diagnozy wstrzymują się do czasu ulepszenia planu. Nic nigdy nie jest pobierane automatycznie.",
+      quotaNote: "Gdy darmowe diagnozy się skończą, diagnozy wstrzymują się, dopóki nie kupisz jednej diagnozy lub nie przejdziesz na wyższy plan. Nic nigdy nie jest pobierane automatycznie.",
       quotaUpgrade: "Przejdź na Pro",
       actionVaultSub: "Historia, akcje serwisowe i przypomnienia",
       title: "Twój garaż",
       welcomeBack: "Witaj z powrotem",
-      quotaPro: "Plan Pro — nielimitowane diagnozy.",
+      quotaPro: "Plan Pro — 100 diagnoz miesięcznie.",
+      quotaBucketLeft: "miesięcznych diagnoz zostało",
+      quotaSinglesLeft: "kupionych kredytów diagnostycznych zostało",
       quotaLeft: "darmowych diagnoz pozostało",
       quotaOf: "z",
       quickActions: "Czego potrzebujesz?",
@@ -916,6 +918,11 @@ const pl: DeepPartial<Dictionary> = {
       openingPortal: "Otwieranie…",
       openingCheckout: "Przenoszę cię do kasy…",
       unavailable: "Rozliczenia nie są jeszcze podłączone w tym podglądzie — szczegóły twojego planu pojawią się tutaj.",
+      buyDiagnosis: "Kup 1 diagnozę — $4",
+      buyDiagnosisNote: "Jeden kredyt diagnostyczny, dodawany po zakończeniu płatności. Nigdy nie wygasa.",
+      creditsFreeLine: "Zostało Ci {count} z {limit} darmowych diagnoz.",
+      creditsBucketLine: "Kredyty miesięczne: w tym miesiącu zostało {count} z {limit}.",
+      creditsSinglesLine: "Kupione kredyty diagnostyczne: {count}.",
     },
     vault: {
       title: "Health Vault",

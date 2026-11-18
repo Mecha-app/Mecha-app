@@ -333,7 +333,7 @@ const it: DeepPartial<Dictionary> = {
   pricing: {
     eyebrow: "Prezzi",
     heading: "Gratis per iniziare. Onesto sul contatore.",
-    body: "Ogni account inizia con 5 diagnosi gratuite. Dopo ognuna, MECHA ti dice esattamente quante te ne restano — 4, poi 3, poi 2 — e a zero scegli tu: abbonarti o fermarti. Nulla viene mai addebitato alle tue spalle.",
+    body: "Ogni account inizia con 5 diagnosi gratuite. Dopo ognuna, MECHA mostra quante ne restano. A zero, scegli tu: comprare una singola diagnosi, abbonarti per 100 al mese, o fermarti. Niente viene addebitato alle tue spalle.",
     popularBadge: "Più popolare",
     free: {
       name: "Gratis",
@@ -350,9 +350,9 @@ const it: DeepPartial<Dictionary> = {
       price: "$9.99",
       period: "Al mese",
       badge: "Per i guidatori",
-      point1: "Diagnosi illimitate — il contatore sparisce",
+      point1: "100 crediti di diagnosi ogni mese",
       point2: "Analisi approfondita per i problemi che resistono a una prima risposta",
-      point3: "Tutto del Gratis, senza il conto alla rovescia",
+      point3: "Prima le diagnosi gratuite, poi il pacchetto mensile — in quest'ordine",
       point4: "Membri fondatori: 3 mesi di Pro gratis, prezzo di lancio bloccato a vita",
       cta: "Passa a Pro",
     },
@@ -363,8 +363,8 @@ const it: DeepPartial<Dictionary> = {
       badge: "Per officine e soccorso",
       point1: "La tua attività nell'elenco di prossimità da cui chiamano i guidatori",
       point2: "Nome per primo, distanza mostrata, un tocco per chiamarti",
-      point3: "Guidatori che arrivano conoscendo già il prezzo equo",
-      point4: "Annunci per officine e società di soccorso stradale",
+      point3: "500 crediti di diagnosi al mese per le auto dei tuoi clienti",
+      point4: "10 diagnosi gratuite alla registrazione",
       cta: "Registra la tua attività",
     },
     meterTitle: "Il contatore, in bella vista",
@@ -382,7 +382,7 @@ const it: DeepPartial<Dictionary> = {
       },
       freeEnd: {
         q: "Cosa succede quando finiscono le mie 5 diagnosi gratuite?",
-        a: "Lo vedrai arrivare: dopo ogni diagnosi, MECHA ti dice esattamente quante te ne restano. A zero, le diagnosi si fermano finché non scegli Pro. Nulla viene addebitato automaticamente, e il tuo account, le tue auto e la tua storia restano esattamente dove sono.",
+        a: "MECHA mostra quanti ne restano dopo ogni diagnosi. A zero, scegli tu: comprare una singola diagnosi, o abbonarti a Pro per 100 al mese — niente viene addebitato automaticamente, e la tua cronologia resta al suo posto.",
       },
       reset: {
         q: "Posso azzerare il conteggio gratuito registrando un nuovo account?",
@@ -516,7 +516,7 @@ const it: DeepPartial<Dictionary> = {
     },
     meter: {
       title: "Cinque diagnosi complete, gratuite",
-      body: "Il tuo conteggio gratuito appartiene all'identità del tuo account — email e telefono — e sopravvive alla disconnessione. Dopo ogni diagnosi, MECHA dice quante ne restano. A zero, le diagnosi si fermano finché non scegli Pro; nulla viene addebitato automaticamente.",
+      body: "Il tuo conteggio gratuito appartiene all'identità del tuo account — email e telefono — e sopravvive alla disconnessione. Dopo ogni diagnosi, MECHA dice quante ne restano. A zero, scegli tu: comprare una singola diagnosi, o abbonarti a Pro per 100 al mese; nulla viene addebitato automaticamente.",
     },
     final: {
       eyebrow: "Inizia gratis",
@@ -529,7 +529,7 @@ const it: DeepPartial<Dictionary> = {
   pricingPage: {
     eyebrow: "Prezzi, per intero",
     heading: "Scegli in base al lavoro davanti a te.",
-    sub: "I piani sono semplici di proposito: inizia gratis, rimuovi il contatore delle diagnosi con Pro, o metti una sede commerciale davanti a conducenti vicini con Officine. I dettagli — fatturazione inclusa — sono in questa pagina, non sepolti dopo il checkout.",
+    sub: "I piani sono semplici di proposito: inizia gratis, ottieni 100 diagnosi al mese con Pro, o metti una sede commerciale davanti a conducenti vicini con Officine. I dettagli — fatturazione inclusa — sono in questa pagina, non sepolti dopo il checkout.",
     decision: {
       eyebrow: "Per chi è ogni piano",
       heading: "La misura giusta, senza un labirinto di livelli.",
@@ -540,9 +540,9 @@ const it: DeepPartial<Dictionary> = {
         detail: "Ricevi 5 diagnosi complete, la fascia di prezzo equa su ogni rapporto e l'Health Vault. Nessuna carta è necessaria per iniziare, e il conteggio residuo è sempre visibile.",
       },
       pro: {
-        title: "Pro — rimuovi il contatore",
+        title: "Pro — 100 diagnosi al mese",
         body: "Per conducenti che diagnosticano più di un problema occasionale, inseguono un guasto intermittente o vogliono il livello di analisi approfondita disponibile ogni volta che una prima risposta non basta.",
-        detail: "Pro offre diagnosi standard illimitate e analisi approfondita per problemi resistenti, mantenendo il Vault e la protezione del prezzo equo di Gratuito.",
+        detail: "Pro offre 100 crediti di diagnosi standard al mese e analisi approfondita per problemi resistenti, mantenendo il Vault e la protezione del prezzo equo di Gratuito.",
       },
       shops: {
         title: "Officine — sii vicino quando conta",
@@ -578,7 +578,7 @@ const it: DeepPartial<Dictionary> = {
         },
         freeEnd: {
           q: "Cosa succede quando le diagnosi gratuite arrivano a zero?",
-          a: "Le diagnosi si fermano. Il tuo account, le auto, i rapporti e la cronologia del Vault restano disponibili, e nulla viene addebitato automaticamente. Scegli tu se avviare Pro.",
+          a: "Le diagnosi si fermano. Il tuo account, le tue auto, i tuoi rapporti e la cronologia del Vault restano disponibili, e niente viene addebitato automaticamente. Scegli tu: comprare una singola diagnosi, o iniziare Pro per 100 al mese.",
         },
         early: {
           q: "Cosa ricevono i primi membri?",
@@ -857,12 +857,14 @@ const it: DeepPartial<Dictionary> = {
     },
     dashboard: {
       quotaTitle: "Diagnosi",
-      quotaNote: "Quando le diagnosi gratuite finiscono, le diagnosi si mettono in pausa finché non passi a un piano superiore. Non viene mai addebitato nulla in automatico.",
+      quotaNote: "Quando le diagnosi gratuite finiscono, le diagnosi si fermano finché non compri una diagnosi o fai l'upgrade. Non viene mai addebitato nulla automaticamente.",
       quotaUpgrade: "Passa a Pro",
       actionVaultSub: "Cronologia, richiami e promemoria",
       title: "Il tuo garage",
       welcomeBack: "Bentornato",
-      quotaPro: "Piano Pro — diagnosi illimitate.",
+      quotaPro: "Piano Pro — 100 diagnosi al mese.",
+      quotaBucketLeft: "diagnosi mensili rimaste",
+      quotaSinglesLeft: "crediti di diagnosi acquistati rimasti",
       quotaLeft: "diagnosi gratuite rimaste",
       quotaOf: "di",
       quickActions: "Di cosa hai bisogno?",
@@ -916,6 +918,11 @@ const it: DeepPartial<Dictionary> = {
       openingPortal: "Apertura…",
       openingCheckout: "Ti porto al pagamento…",
       unavailable: "La fatturazione non è ancora collegata in questa anteprima — i dettagli del tuo piano appariranno qui.",
+      buyDiagnosis: "Compra 1 diagnosi — $4",
+      buyDiagnosisNote: "Un credito di diagnosi, aggiunto al completamento del pagamento. Non scade mai.",
+      creditsFreeLine: "Ti restano {count} delle tue {limit} diagnosi gratuite.",
+      creditsBucketLine: "Crediti mensili: questo mese restano {count} di {limit}.",
+      creditsSinglesLine: "Crediti di diagnosi acquistati: {count}.",
     },
     vault: {
       title: "Health Vault",

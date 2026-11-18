@@ -63,6 +63,9 @@ function seller(id: string, name: string, email: string): UserRecord {
     cancelAtPeriodEnd: false,
     emailVerifiedAt: null,
     freeDiagnosesUsed: 0,
+    diagnosisCredits: 0,
+    monthlyDiagnosesUsed: 0,
+    monthlyPeriodStart: null,
     createdAt: new Date().toISOString(),
   };
 }

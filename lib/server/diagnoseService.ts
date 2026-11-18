@@ -8,6 +8,8 @@ import {
   quotaStateFor,
   type QuotaState,
 } from "./quota";
+import { monthlyBucketView } from "./credits";
+import { PRO_MONTHLY_CREDITS } from "./pricing";
 import type { IdentityStore, UserRecord } from "./store";
 
 /**
@@ -15,9 +17,12 @@ import type { IdentityStore, UserRecord } from "./store";
  * diagnosis takes, shared by the HTTP route and the test-suite:
  *
  *   1. TIER GATE — the deep (Sonnet-class) tier is Pro-only.
- *   2. QUOTA CONSUME — free plan: one atomic consume in the store. If it
- *      fails, QuotaExhaustedError is thrown and NOTHING else runs: no
- *      cache read, no provider call, no paid AI spend. Pro: bypass.
+ *   2. CONSUMPTION — one diagnosis = one credit, taken in the owner's
+ *      order: the lifetime free allowance first, then the Pro monthly
+ *      bucket (it expires), then purchased single credits. Each take
+ *      is one atomic consume in the store; if none lands,
+ *      QuotaExhaustedError is thrown and NOTHING else runs: no cache
+ *      read, no provider call, no paid AI spend.
  *   3. CACHE — exact-match lookup (identical normalized problem +
  *      vehicle + language + tier). A hit skips the provider entirely.
  *   4. STREAM — provider deltas flow through; the terminal event carries
@@ -94,19 +99,56 @@ export async function* executeDiagnosis(
   // 1. Tier gate.
   if (tier === "deep" && user.plan !== "pro") throw new ProRequiredError();
 
-  // 2. Quota consume — BEFORE anything that could cost money.
-  let usedAfter = user.freeDiagnosesUsed;
-  if (user.plan !== "pro") {
-    const result = await store.consumeFreeDiagnosis(user.id);
-    if (!result.consumed) {
-      throw new QuotaExhaustedError(
-        quotaStateFor({ plan: user.plan, freeDiagnosesUsed: result.used }),
-      );
+  // 2. Consumption — BEFORE anything that could cost money, in the
+  // owner's order: free lifetime → Pro monthly bucket → purchased
+  // singles. The user record is a snapshot; the after-state is tracked
+  // locally from each consume's own report so the countdown the driver
+  // sees is exact.
+  let freeUsedAfter = user.freeDiagnosesUsed;
+  let creditsAfter = user.diagnosisCredits;
+  let bucketUsedAfter = user.monthlyDiagnosesUsed;
+  let bucketAnchorAfter = user.monthlyPeriodStart;
+  const stateAfter = (): QuotaState =>
+    quotaStateFor({
+      plan: user.plan,
+      freeDiagnosesUsed: freeUsedAfter,
+      purchasedCredits: creditsAfter,
+      monthlyDiagnosesUsed: bucketUsedAfter,
+      monthlyPeriodStart: bucketAnchorAfter,
+    });
+
+  const free = await store.consumeFreeDiagnosis(user.id);
+  if (free.consumed) {
+    freeUsedAfter = free.used;
+  } else {
+    freeUsedAfter = free.used;
+    let consumed = false;
+    if (user.plan === "pro") {
+      const now = new Date();
+      const before = monthlyBucketView({
+        used: user.monthlyDiagnosesUsed,
+        periodStart: user.monthlyPeriodStart,
+        limit: PRO_MONTHLY_CREDITS,
+        now,
+      });
+      if (await store.consumeMonthlyDiagnosis("user", user.id, PRO_MONTHLY_CREDITS, now)) {
+        consumed = true;
+        const restarted = before.stale || !user.monthlyPeriodStart;
+        bucketUsedAfter = restarted ? 1 : before.used + 1;
+        bucketAnchorAfter = restarted ? now.toISOString() : user.monthlyPeriodStart;
+      }
     }
-    usedAfter = result.used;
+    if (!consumed) {
+      const credit = await store.consumePurchasedCredit(user.id);
+      if (credit.consumed) {
+        consumed = true;
+        creditsAfter = credit.balance;
+      }
+    }
+    if (!consumed) throw new QuotaExhaustedError(stateAfter());
   }
-  const quotaAfter = quotaStateFor({ plan: user.plan, freeDiagnosesUsed: usedAfter });
-  yield { type: "quota", quota: quotaAfter, message: countdownMessage(quotaAfter.remaining) };
+  const quotaAfter = stateAfter();
+  yield { type: "quota", quota: quotaAfter, message: countdownMessage(quotaAfter) };
 
   // PERSIST (step 5, hoisted): EVERY completed run saves a diagnosis
   // record against the account — linked to the named vehicle when the
@@ -154,7 +196,7 @@ export async function* executeDiagnosis(
       source: "cache",
       latency: null,
       quota: quotaAfter,
-      message: countdownMessage(quotaAfter.remaining),
+      message: countdownMessage(quotaAfter),
       diagnosisId: cachedDiagnosisId,
     };
     return;
@@ -212,7 +254,7 @@ export async function* executeDiagnosis(
           totalMs: Math.round(event.latency.totalMs),
         },
         quota: quotaAfter,
-        message: countdownMessage(quotaAfter.remaining),
+        message: countdownMessage(quotaAfter),
         diagnosisId: savedDiagnosisId,
       };
       }

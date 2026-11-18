@@ -323,7 +323,7 @@ const ht: DeepPartial<Dictionary> = {
   pricing: {
     eyebrow: "Pri yo",
     heading: "Gratis pou kòmanse. Onèt sou kontè a.",
-    body: "Chak kont kòmanse avèk 5 dyagnostik gratis. Apre chak youn, MECHA di w egzakteman konbyen ki rete w — 4, apre 3, apre 2 — epi lè l rive zewo, ou chwazi: abòne, oswa rete. Yo pa janm chaje w anyen an kachèt.",
+    body: "Chak kont kòmanse ak 5 dyagnostik gratis. Apre chak youn, MECHA montre konbyen ki rete. Lè w rive zewo, se ou ki chwazi: achte yon sèl dyagnostik, abòne pou 100 pa mwa, oswa kanpe. Yo p ap chaje w anyen anbachal.",
     popularBadge: "Pi popilè",
     free: {
       name: "Gratis",
@@ -340,9 +340,9 @@ const ht: DeepPartial<Dictionary> = {
       price: "$9.99",
       period: "Pa mwa",
       badge: "Pou chofè yo",
-      point1: "Dyagnostik san limit — kontè a disparèt",
+      point1: "100 kredi dyagnostik chak mwa",
       point2: "Analiz apwofondi pou pwoblèm ki reziste yon premye repons",
-      point3: "Tout sa ki nan Gratis, san dekont la",
+      point3: "Dyagnostik gratis yo anvan, apre pakè mansyèl la — nan lòd sa a",
       point4: "Manm bonè yo: 3 mwa Pro gratis, pri lansman bloke pou lavi",
       cta: "Pran Pro",
     },
@@ -353,8 +353,8 @@ const ht: DeepPartial<Dictionary> = {
       badge: "Pou atelye ak remòkaj",
       point1: "Biznis ou nan lis tou pre a chofè yo rele ladan l lan",
       point2: "Non an premye, distans la parèt, yon touch pou rele w",
-      point3: "Chofè ki rive deja konnen pri ki jis la",
-      point4: "Anons pou atelye reparasyon ak konpayi remòkaj tou",
+      point3: "500 kredi dyagnostik pa mwa pou machin kliyan w yo",
+      point4: "10 dyagnostik gratis lè w enskri",
       cta: "Anrejistre biznis ou",
     },
     meterTitle: "Kontè a, an plen vi",
@@ -373,7 +373,7 @@ const ht: DeepPartial<Dictionary> = {
       },
       freeEnd: {
         q: "Kisa k ap pase lè 5 dyagnostik gratis mwen yo fini?",
-        a: "W ap wè l ap vini: apre chak dyagnostik, MECHA di w konbyen ki rete w. Lè l rive zewo, dyagnostik yo pran yon poz jouktan ou chwazi Pro. Yo pa chaje w anyen otomatikman, epi kont ou, machin ou yo, ak istwa w rete egzakteman kote yo ye a.",
+        a: "MECHA montre konbyen ki rete apre chak dyagnostik. Lè w rive zewo, se ou ki chwazi: achte yon sèl dyagnostik, oswa abòne ak Pro pou 100 pa mwa — anyen pa chaje otomatikman, epi istwa w rete la.",
       },
       reset: {
         q: "Èske m ka reyinisyelize kont gratis la si m reyanrejistre?",
@@ -515,7 +515,7 @@ const ht: DeepPartial<Dictionary> = {
     },
     meter: {
       title: "Senk dyagnostik konplè, gratis",
-      body: "Kont gratis ou a mare ak idantite kont ou — imèl ak telefòn — epi li rete apre w dekonekte. Apre chak dyagnostik, MECHA di w konbyen ki rete. Lè l rive zewo, dyagnostik yo pran yon poz jouktan ou chwazi Pro; yo pa chaje w anyen otomatikman.",
+      body: "Kont gratis ou a mare ak idantite kont ou — imèl ak telefòn — epi li rete apre w dekonekte. Apre chak dyagnostik, MECHA di w konbyen ki rete. Lè l rive zewo, se ou ki chwazi: achte yon sèl dyagnostik, oswa abòne ak Pro pou 100 pa mwa; yo pa chaje w anyen otomatikman.",
     },
     final: {
       eyebrow: "Kòmanse gratis",
@@ -528,7 +528,7 @@ const ht: DeepPartial<Dictionary> = {
   pricingPage: {
     eyebrow: "Pri yo, an antye",
     heading: "Chwazi dapre travay ou gen devan w lan.",
-    sub: "Plan yo senp esprè: kòmanse gratis, retire kontè dyagnostik la avèk Pro, oswa mete yon lokal biznis devan chofè ki tou pre yo avèk Atelye yo. Detay yo — faktirasyon ladan — sou paj sa a, yo pa antere apre peman.",
+    sub: "Plan yo senp esprè: kòmanse gratis, jwenn 100 dyagnostik pa mwa avèk Pro, oswa mete yon lokal biznis devan chofè ki tou pre yo avèk Atelye yo. Detay yo — faktirasyon ladan — sou paj sa a, yo pa antere apre peman.",
     decision: {
       eyebrow: "Pou ki moun chak plan ye",
       heading: "Bon gwosè a, san yon labirent nivo.",
@@ -540,10 +540,10 @@ const ht: DeepPartial<Dictionary> = {
           "Ou jwenn 5 dyagnostik konplè, entèval pri ki jis la sou chak rapò, ak Vout Sante a. Ou pa bezwen kat pou kòmanse, epi kantite ki rete a toujou parèt.",
       },
       pro: {
-        title: "Pro — retire kontè a",
+        title: "Pro — 100 dyagnostik pa mwa",
         body: "Pou chofè ki dyagnostike plis pase yon pwoblèm okazyonèl, k ap kouri dèyè yon fòt ki vini epi ki ale, oswa ki vle nivo analiz apwofondi a disponib lè yon premye repons pa ase.",
         detail:
-          "Pro bay dyagnostik estanda san limit ak analiz apwofondi pou pwoblèm ki reziste, pandan li kenbe Vout la ak pwoteksyon pri ki jis la ki nan Gratis.",
+          "Pro bay 100 kredi dyagnostik estanda pa mwa ak analiz apwofondi pou pwoblèm ki reziste, pandan li kenbe Vout la ak pwoteksyon pri ki jis la ki nan Gratis.",
       },
       shops: {
         title: "Atelye yo — rete tou pre lè sa konte",
@@ -580,7 +580,7 @@ const ht: DeepPartial<Dictionary> = {
         },
         freeEnd: {
           q: "Kisa k ap pase lè dyagnostik gratis yo rive zewo?",
-          a: "Dyagnostik yo pran yon poz. Kont ou, machin ou yo, rapò w yo, ak istwa Vout ou a rete disponib, epi yo pa chaje w anyen otomatikman. Ou chwazi si w ap kòmanse Pro.",
+          a: "Dyagnostik yo kanpe. Kont ou, machin ou yo, rapò w yo ak istwa Vault ou a rete disponib, epi anyen pa chaje otomatikman. Se ou ki chwazi: achte yon sèl dyagnostik, oswa kòmanse Pro pou 100 pa mwa.",
         },
         early: {
           q: "Kisa premye manm yo resevwa?",
@@ -896,7 +896,7 @@ const ht: DeepPartial<Dictionary> = {
   wp6: {
     dashboard: {
       quotaTitle: "Dyagnostik",
-      quotaNote: "Lè dyagnostik gratis yo fini, dyagnostik yo kanpe jiskaske ou amelyore plan ou. Yo pa janm chaje ou otomatikman.",
+      quotaNote: "Lè dyagnostik gratis yo fini, dyagnostik yo kanpe jiskaske w achte yon dyagnostik oswa w amelyore plan w. Yo pa janm chaje anyen otomatikman.",
       quotaUpgrade: "Amelyore nan Pro",
       actionVaultSub: "Istorik, rapèl sekirite ak rapèl",
     },

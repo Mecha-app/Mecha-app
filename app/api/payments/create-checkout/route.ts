@@ -3,6 +3,9 @@ import { apiError, readJsonBody } from "@/lib/server/http";
 import { AuthNotConfiguredError, bearerPayload, isAuthConfigured } from "@/lib/server/jwt";
 import {
   StripeNotConfiguredError,
+  createDiagnosisCreditCheckout,
+  createProSubscriptionCheckout,
+  createShopSubscriptionCheckout,
   createSubscriptionCheckout,
   getStripeClient,
 } from "@/lib/server/stripe";
@@ -12,17 +15,29 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 /**
- * POST /api/payments/create-checkout — parity with the repo's
- * POST /api/payments/create-checkout (subscription session, legacy
- * price envs + URLs). One deliberate departure from the repo: the
- * session is NOT restricted to card — no payment_method_types is
- * sent, so Checkout surfaces every method enabled on the account,
- * including Apple Pay and Google Pay (owner spec, Nov 3 2026).
+ * POST /api/payments/create-checkout — starts a Stripe Checkout
+ * session for the signed-in account. The session is NOT restricted
+ * to card — no payment_method_types is sent, so Checkout surfaces
+ * every method enabled on the account, including Apple Pay and
+ * Google Pay (owner spec, Nov 3 2026).
  *
  * LEGACY BUG FIXED: the repo read `customer_email` from req.user.email,
  * but the JWT payload is {id, type} — the value was always undefined.
  * Here the account RECORD is loaded from the database and the email is
- * taken from it. Drivers buy "pro"; shops buy "business".
+ * taken from it.
+ *
+ * THE CREDIT MODEL (Stripe pass, 2026-11-18): `plan` in the body is
+ * the door the buyer chose —
+ *   "credit"   a driver buys ONE diagnosis credit (one-time, inline
+ *              price from pricing.ts; the credit lands via webhook)
+ *   "pro"      a driver subscribes to Pro (100 credits/month bucket)
+ *   "business" a shop/towing account subscribes ($149/month; shops
+ *              carry the 500-credit monthly bucket)
+ * All three use inline price_data — no pre-created Stripe prices.
+ * With no plan in the body the route falls back to the LEGACY
+ * price-id subscription flow (createSubscriptionCheckout), unchanged
+ * for any caller still on it. No Stripe key → 501 with the honest
+ * not-wired detail; nothing is ever half-created.
  */
 export async function POST(request: Request) {
   let body;
@@ -41,7 +56,6 @@ export async function POST(request: Request) {
     if (!stripe) throw new StripeNotConfiguredError();
 
     const store = getIdentityStore();
-    const plan = body.plan === "business" ? "business" : "pro";
 
     let accountEmail: string | null = null;
     if (payload.type === "driver") {
@@ -60,12 +74,51 @@ export async function POST(request: Request) {
     }
     if (!accountEmail) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
 
+    if (body.plan === "credit") {
+      // Single diagnosis credits are a driver product.
+      if (payload.type !== "driver") {
+        return NextResponse.json({ error: "not_available_for_account" }, { status: 400 });
+      }
+      const result = await createDiagnosisCreditCheckout({
+        stripe,
+        accountId: payload.id,
+        accountEmail,
+      });
+      return NextResponse.json({ status: "ok", url: result.url, sessionId: result.sessionId });
+    }
+
+    if (body.plan === "pro") {
+      if (payload.type !== "driver") {
+        return NextResponse.json({ error: "not_available_for_account" }, { status: 400 });
+      }
+      const result = await createProSubscriptionCheckout({
+        stripe,
+        accountId: payload.id,
+        accountEmail,
+      });
+      return NextResponse.json({ status: "ok", url: result.url, sessionId: result.sessionId });
+    }
+
+    if (body.plan === "business") {
+      if (payload.type === "driver") {
+        return NextResponse.json({ error: "not_available_for_account" }, { status: 400 });
+      }
+      const result = await createShopSubscriptionCheckout({
+        stripe,
+        accountId: payload.id,
+        accountType: payload.type,
+        accountEmail,
+      });
+      return NextResponse.json({ status: "ok", url: result.url, sessionId: result.sessionId });
+    }
+
+    // Legacy fallback: no recognized plan — the WP5 price-id flow.
     const result = await createSubscriptionCheckout({
       stripe,
       accountId: payload.id,
       accountType: payload.type,
       accountEmail,
-      plan,
+      plan: "pro",
     });
     return NextResponse.json({ status: "ok", url: result.url, sessionId: result.sessionId });
   } catch (err) {

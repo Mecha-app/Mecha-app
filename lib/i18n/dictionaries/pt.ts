@@ -333,7 +333,7 @@ const pt: DeepPartial<Dictionary> = {
   pricing: {
     eyebrow: "Preços",
     heading: "Grátis para começar. Honesto quanto ao medidor.",
-    body: "Cada conta começa com 5 diagnósticos gratuitos. Depois de cada um, o MECHA diz exatamente quantos restam — 4, depois 3, depois 2 — e, ao chegar a zero, você escolhe: assinar ou parar. Nada é cobrado pelas suas costas, nunca.",
+    body: "Toda conta começa com 5 diagnósticos grátis. Depois de cada um, a MECHA mostra quantos restam. Ao chegar a zero, você escolhe: comprar um único diagnóstico, assinar por 100 por mês, ou parar. Nada é cobrado pelas suas costas.",
     popularBadge: "Mais popular",
     free: {
       name: "Grátis",
@@ -350,9 +350,9 @@ const pt: DeepPartial<Dictionary> = {
       price: "$9.99",
       period: "Por mês",
       badge: "Para motoristas",
-      point1: "Diagnósticos ilimitados — o medidor some",
+      point1: "100 créditos de diagnóstico todo mês",
       point2: "Análise aprofundada para os problemas que resistem a uma primeira resposta",
-      point3: "Tudo do Grátis, sem a contagem regressiva",
+      point3: "Primeiro os diagnósticos grátis, depois o pacote mensal — nessa ordem",
       point4: "Membros pioneiros: 3 meses de Pro grátis, preço de lançamento travado para sempre",
       cta: "Assinar o Pro",
     },
@@ -363,8 +363,8 @@ const pt: DeepPartial<Dictionary> = {
       badge: "Para oficinas e reboques",
       point1: "Sua empresa na lista de proximidade de onde os motoristas ligam",
       point2: "Nome primeiro, distância mostrada, um toque para ligar para você",
-      point3: "Motoristas que chegam já sabendo o preço justo",
-      point4: "Anúncios para oficinas e empresas de reboque",
+      point3: "500 créditos de diagnóstico por mês para os carros dos seus clientes",
+      point4: "10 diagnósticos grátis ao se cadastrar",
       cta: "Cadastre sua empresa",
     },
     meterTitle: "O medidor, à vista de todos",
@@ -382,7 +382,7 @@ const pt: DeepPartial<Dictionary> = {
       },
       freeEnd: {
         q: "O que acontece quando meus 5 diagnósticos gratuitos acabam?",
-        a: "Você vai ver isso chegando: depois de cada diagnóstico, o MECHA diz exatamente quantos restam. Ao chegar a zero, os diagnósticos pausam até você escolher o Pro. Nada é cobrado automaticamente, e sua conta, seus carros e seu histórico ficam exatamente onde estão.",
+        a: "A MECHA mostra quantos restam após cada diagnóstico. Ao chegar a zero, você escolhe: comprar um único diagnóstico, ou assinar o Pro por 100 por mês — nada é cobrado automaticamente, e seu histórico fica onde está.",
       },
       reset: {
         q: "Posso zerar a contagem gratuita cadastrando-me de novo?",
@@ -516,7 +516,7 @@ const pt: DeepPartial<Dictionary> = {
     },
     meter: {
       title: "Cinco diagnósticos completos, gratuitos",
-      body: "Sua contagem gratuita pertence à identidade da sua conta — e-mail e telefone — e sobrevive ao logout. Depois de cada diagnóstico, a MECHA diz quantos restam. A zero, os diagnósticos pausam até você escolher o Pro; nada é cobrado automaticamente.",
+      body: "Sua contagem gratuita pertence à identidade da sua conta — e-mail e telefone — e sobrevive ao logout. Depois de cada diagnóstico, a MECHA diz quantos restam. A zero, você escolhe: comprar um único diagnóstico, ou assinar o Pro por 100 por mês; nada é cobrado automaticamente.",
     },
     final: {
       eyebrow: "Comece grátis",
@@ -529,7 +529,7 @@ const pt: DeepPartial<Dictionary> = {
   pricingPage: {
     eyebrow: "Preços, por completo",
     heading: "Escolha pelo trabalho à sua frente.",
-    sub: "Os planos são simples de propósito: comece grátis, remova o medidor de diagnósticos com o Pro, ou coloque um local comercial diante de motoristas próximos com o Oficinas. Os detalhes — incluindo a cobrança — estão nesta página, não enterrados depois do checkout.",
+    sub: "Os planos são simples de propósito: comece grátis, tenha 100 diagnósticos por mês com o Pro, ou coloque um local comercial diante de motoristas próximos com o Oficinas. Os detalhes — incluindo a cobrança — estão nesta página, não enterrados depois do checkout.",
     decision: {
       eyebrow: "Para quem é cada plano",
       heading: "O tamanho certo, sem um labirinto de níveis.",
@@ -540,9 +540,9 @@ const pt: DeepPartial<Dictionary> = {
         detail: "Você recebe 5 diagnósticos completos, a faixa de preço justo em cada relatório e o Health Vault. Nenhum cartão é necessário para começar, e a contagem restante é sempre visível.",
       },
       pro: {
-        title: "Pro — remova o medidor",
+        title: "Pro — 100 diagnósticos por mês",
         body: "Para motoristas que diagnosticam mais que um problema ocasional, perseguem uma falha intermitente ou querem o nível de análise aprofundada disponível sempre que uma primeira resposta não basta.",
-        detail: "O Pro oferece diagnósticos padrão ilimitados e análise aprofundada para problemas resistentes, mantendo o Vault e a proteção de preço justo do Gratuito.",
+        detail: "O Pro oferece 100 créditos de diagnóstico padrão por mês e análise aprofundada para problemas resistentes, mantendo o Vault e a proteção de preço justo do Gratuito.",
       },
       shops: {
         title: "Oficinas — esteja perto quando importa",
@@ -578,7 +578,7 @@ const pt: DeepPartial<Dictionary> = {
         },
         freeEnd: {
           q: "O que acontece quando os diagnósticos gratuitos chegam a zero?",
-          a: "Os diagnósticos pausam. Sua conta, carros, relatórios e histórico do Vault permanecem disponíveis, e nada é cobrado automaticamente. Você escolhe se inicia o Pro.",
+          a: "Os diagnósticos pausam. Sua conta, seus carros, seus relatórios e seu histórico do Vault continuam disponíveis, e nada é cobrado automaticamente. Você escolhe: comprar um único diagnóstico, ou começar o Pro por 100 por mês.",
         },
         early: {
           q: "O que os membros iniciais recebem?",
@@ -857,12 +857,14 @@ const pt: DeepPartial<Dictionary> = {
     },
     dashboard: {
       quotaTitle: "Diagnósticos",
-      quotaNote: "Quando os diagnósticos gratuitos acabarem, os diagnósticos pausam até você fazer upgrade. Nada é cobrado automaticamente.",
+      quotaNote: "Quando os diagnósticos grátis acabarem, os diagnósticos pausam até você comprar um diagnóstico ou fazer upgrade. Nada é cobrado automaticamente, nunca.",
       quotaUpgrade: "Fazer upgrade para Pro",
       actionVaultSub: "Histórico, recalls e lembretes",
       title: "Sua garagem",
       welcomeBack: "Bem-vindo de volta",
-      quotaPro: "Plano Pro — diagnósticos ilimitados.",
+      quotaPro: "Plano Pro — 100 diagnósticos por mês.",
+      quotaBucketLeft: "diagnósticos mensais restantes",
+      quotaSinglesLeft: "créditos de diagnóstico comprados restantes",
       quotaLeft: "diagnósticos gratuitos restantes",
       quotaOf: "de",
       quickActions: "Do que você precisa?",
@@ -916,6 +918,11 @@ const pt: DeepPartial<Dictionary> = {
       openingPortal: "Abrindo…",
       openingCheckout: "Levando você ao pagamento…",
       unavailable: "A cobrança ainda não está conectada nesta prévia — os detalhes do seu plano aparecerão aqui.",
+      buyDiagnosis: "Comprar 1 diagnóstico — $4",
+      buyDiagnosisNote: "Um crédito de diagnóstico, adicionado quando o pagamento é concluído. Nunca expira.",
+      creditsFreeLine: "Restam {count} dos seus {limit} diagnósticos grátis.",
+      creditsBucketLine: "Créditos mensais: restam {count} de {limit} neste mês.",
+      creditsSinglesLine: "Créditos de diagnóstico comprados: {count}.",
     },
     vault: {
       title: "Health Vault",

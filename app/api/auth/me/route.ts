@@ -27,7 +27,7 @@ export async function GET(request: Request) {
       status: "ok",
       user: publicUser(user),
       quota,
-      message: countdownMessage(quota.remaining),
+      message: countdownMessage(quota),
     });
   } catch (err) {
     return apiError(err);

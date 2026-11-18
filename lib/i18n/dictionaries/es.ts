@@ -322,7 +322,7 @@ const es: DeepPartial<Dictionary> = {
   pricing: {
     eyebrow: "Precios",
     heading: "Gratis para empezar. Honesto con el medidor.",
-    body: "Cada cuenta empieza con 5 diagnósticos gratis. Después de cada uno, MECHA te dice exactamente cuántos te quedan — 4, luego 3, luego 2 — y al llegar a cero, tú eliges: suscribirte, o parar. Nunca se te cobra nada a escondidas.",
+    body: "Cada cuenta empieza con 5 diagnósticos gratis. Después de cada uno, MECHA muestra cuántos quedan. Al llegar a cero, tú eliges: comprar un solo diagnóstico, suscribirte por 100 al mes, o parar. Nunca se cobra nada a tus espaldas.",
     popularBadge: "Más popular",
     free: {
       name: "Gratis",
@@ -339,9 +339,9 @@ const es: DeepPartial<Dictionary> = {
       price: "$9.99",
       period: "Por mes",
       badge: "Para conductores",
-      point1: "Diagnósticos ilimitados — el medidor desaparece",
+      point1: "100 créditos de diagnóstico cada mes",
       point2: "Análisis profundo para los problemas que se resisten a una primera respuesta",
-      point3: "Todo lo de Gratis, sin la cuenta regresiva",
+      point3: "Primero los diagnósticos gratis, luego el paquete mensual — en ese orden",
       point4: "Miembros tempranos: 3 meses de Pro gratis, precio de lanzamiento bloqueado de por vida",
       cta: "Hazte Pro",
     },
@@ -352,8 +352,8 @@ const es: DeepPartial<Dictionary> = {
       badge: "Para talleres y grúas",
       point1: "Tu negocio en la lista cercana desde la que llaman los conductores",
       point2: "Nombre primero, distancia visible, un toque para llamarte",
-      point3: "Conductores que llegan ya conociendo el precio justo",
-      point4: "Anuncios para talleres de reparación y compañías de grúa por igual",
+      point3: "500 créditos de diagnóstico al mes para los autos de tus clientes",
+      point4: "10 diagnósticos gratis al registrarte",
       cta: "Anuncia tu negocio",
     },
     meterTitle: "El medidor, a plena vista",
@@ -372,7 +372,7 @@ const es: DeepPartial<Dictionary> = {
       },
       freeEnd: {
         q: "¿Qué pasa cuando se acaban mis 5 diagnósticos gratis?",
-        a: "Lo verás venir: después de cada diagnóstico, MECHA te dice cuántos te quedan. Al llegar a cero, los diagnósticos se pausan hasta que elijas Pro. No se cobra nada automáticamente, y tu cuenta, tus coches y tu historial quedan exactamente donde están.",
+        a: "MECHA muestra cuántos quedan después de cada diagnóstico. Al llegar a cero, tú eliges: comprar un solo diagnóstico, o suscribirte a Pro por 100 al mes — nada se cobra automáticamente, y tu historial se queda donde está.",
       },
       reset: {
         q: "¿Puedo reiniciar la cuenta gratuita registrándome de nuevo?",
@@ -514,7 +514,7 @@ const es: DeepPartial<Dictionary> = {
     },
     meter: {
       title: "Cinco diagnósticos completos, gratis",
-      body: "Tu cuenta gratuita pertenece a la identidad de tu cuenta — correo y teléfono — y sobrevive al cierre de sesión. Después de cada diagnóstico, MECHA indica cuántos quedan. Al llegar a cero, los diagnósticos se pausan hasta que elijas Pro; no se cobra nada automáticamente.",
+      body: "Tu cuenta gratuita pertenece a la identidad de tu cuenta — correo y teléfono — y sobrevive al cierre de sesión. Después de cada diagnóstico, MECHA indica cuántos quedan. Al llegar a cero, tú eliges: comprar un solo diagnóstico, o suscribirte a Pro por 100 al mes; no se cobra nada automáticamente.",
     },
     final: {
       eyebrow: "Empieza gratis",
@@ -527,7 +527,7 @@ const es: DeepPartial<Dictionary> = {
   pricingPage: {
     eyebrow: "Precios, por completo",
     heading: "Elige según el trabajo que tienes enfrente.",
-    sub: "Los planes son sencillos a propósito: empieza gratis, elimina el medidor de diagnósticos con Pro, o coloca una ubicación de negocio frente a conductores cercanos con Talleres. Los detalles — incluida la facturación — están en esta página, no enterrados después del pago.",
+    sub: "Los planes son sencillos a propósito: empieza gratis, obtén 100 diagnósticos al mes con Pro, o coloca una ubicación de negocio frente a conductores cercanos con Talleres. Los detalles — incluida la facturación — están en esta página, no enterrados después del pago.",
     decision: {
       eyebrow: "Para quién es cada plan",
       heading: "El tamaño correcto, sin un laberinto de niveles.",
@@ -539,10 +539,10 @@ const es: DeepPartial<Dictionary> = {
           "Recibes 5 diagnósticos completos, el rango de precio justo en cada informe y la Bóveda de Salud. No se requiere tarjeta para empezar, y la cuenta restante siempre es visible.",
       },
       pro: {
-        title: "Pro — elimina el medidor",
+        title: "Pro — 100 diagnósticos al mes",
         body: "Para conductores que diagnostican más que un problema ocasional, persiguen una falla intermitente o quieren el nivel de análisis profundo disponible cuando una primera respuesta no basta.",
         detail:
-          "Pro ofrece diagnósticos estándar ilimitados y análisis profundo para problemas resistentes, manteniendo la Bóveda y la protección de precio justo de Gratis.",
+          "Pro ofrece 100 créditos de diagnóstico estándar al mes y análisis profundo para problemas resistentes, manteniendo la Bóveda y la protección de precio justo de Gratis.",
       },
       shops: {
         title: "Talleres — estar cerca cuando importa",
@@ -579,7 +579,7 @@ const es: DeepPartial<Dictionary> = {
         },
         freeEnd: {
           q: "¿Qué pasa cuando los diagnósticos gratis llegan a cero?",
-          a: "Los diagnósticos se pausan. Tu cuenta, tus coches, tus informes y tu historial de la Bóveda siguen disponibles, y no se cobra nada automáticamente. Tú eliges si quieres empezar Pro.",
+          a: "Los diagnósticos se pausan. Tu cuenta, tus autos, tus informes y tu historial del Vault siguen disponibles, y nada se cobra automáticamente. Tú eliges: comprar un solo diagnóstico, o empezar Pro por 100 al mes.",
         },
         early: {
           q: "¿Qué reciben los miembros tempranos?",
@@ -895,7 +895,7 @@ const es: DeepPartial<Dictionary> = {
   wp6: {
     dashboard: {
       quotaTitle: "Diagnósticos",
-      quotaNote: "Cuando se acaben los diagnósticos gratuitos, los diagnósticos se pausan hasta que mejores tu plan. Nunca se cobra nada automáticamente.",
+      quotaNote: "Cuando se acaben los diagnósticos gratuitos, los diagnósticos se pausan hasta que compres un diagnóstico o mejores tu plan. Nunca se cobra nada automáticamente.",
       quotaUpgrade: "Mejora a Pro",
       actionVaultSub: "Historial, llamadas a revisión y recordatorios",
     },

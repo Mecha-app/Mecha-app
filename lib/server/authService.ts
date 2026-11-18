@@ -150,7 +150,13 @@ function toAuthResult(user: UserRecord): AuthResult {
   return {
     token: signToken({ id: user.id, type: "driver" }),
     user: toPublicUser(user),
-    quota: quotaStateFor({ plan: user.plan, freeDiagnosesUsed: user.freeDiagnosesUsed }),
+    quota: quotaStateFor({
+      plan: user.plan,
+      freeDiagnosesUsed: user.freeDiagnosesUsed,
+      purchasedCredits: user.diagnosisCredits,
+      monthlyDiagnosesUsed: user.monthlyDiagnosesUsed,
+      monthlyPeriodStart: user.monthlyPeriodStart,
+    }),
   };
 }
 
@@ -399,5 +405,11 @@ export function publicUser(user: UserRecord): PublicUser {
 }
 
 export function quotaOf(user: UserRecord): QuotaState {
-  return quotaStateFor({ plan: user.plan, freeDiagnosesUsed: user.freeDiagnosesUsed });
+  return quotaStateFor({
+    plan: user.plan,
+    freeDiagnosesUsed: user.freeDiagnosesUsed,
+    purchasedCredits: user.diagnosisCredits,
+    monthlyDiagnosesUsed: user.monthlyDiagnosesUsed,
+    monthlyPeriodStart: user.monthlyPeriodStart,
+  });
 }

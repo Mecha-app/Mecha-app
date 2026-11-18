@@ -333,7 +333,7 @@ const de: DeepPartial<Dictionary> = {
   pricing: {
     eyebrow: "Preise",
     heading: "Kostenlos starten. Ehrlich beim Zähler.",
-    body: "Jedes Konto startet mit 5 kostenlosen Diagnosen. Nach jeder sagt MECHA Ihnen genau, wie viele Sie noch haben — 4, dann 3, dann 2 — und bei null wählen Sie: abonnieren oder aufhören. Nichts wird je hinter Ihrem Rücken abgebucht.",
+    body: "Jedes Konto startet mit 5 kostenlosen Diagnosen. Nach jeder zeigt MECHA, wie viele übrig sind. Bei null wählen Sie: eine einzelne Diagnose kaufen, für 100 pro Monat abonnieren, oder aufhören. Nichts wird hinter Ihrem Rücken berechnet.",
     popularBadge: "Am beliebtesten",
     free: {
       name: "Kostenlos",
@@ -350,9 +350,9 @@ const de: DeepPartial<Dictionary> = {
       price: "$9.99",
       period: "Pro Monat",
       badge: "Für Fahrer",
-      point1: "Unbegrenzte Diagnosen — der Zähler verschwindet",
+      point1: "100 Diagnose-Guthaben jeden Monat",
       point2: "Tiefenanalyse für die Probleme, die einer ersten Antwort widerstehen",
-      point3: "Alles aus Kostenlos, ohne den Countdown",
+      point3: "Erst die kostenlosen Diagnosen, dann das Monatsguthaben — in dieser Reihenfolge",
       point4: "Frühe Mitglieder: 3 Monate Pro kostenlos, Startpreis lebenslang fixiert",
       cta: "Pro wählen",
     },
@@ -363,8 +363,8 @@ const de: DeepPartial<Dictionary> = {
       badge: "Für Werkstätten & Abschleppen",
       point1: "Ihr Unternehmen in der Nähe-Liste, von der Fahrer anrufen",
       point2: "Name zuerst, Entfernung angezeigt, ein Tipp, um Sie anzurufen",
-      point3: "Fahrer, die schon den fairen Preis kennen, wenn sie ankommen",
-      point4: "Einträge für Werkstätten und Abschleppunternehmen gleichermaßen",
+      point3: "500 Diagnose-Guthaben pro Monat für die Autos Ihrer Kunden",
+      point4: "10 kostenlose Diagnosen bei der Anmeldung",
       cta: "Ihr Unternehmen eintragen",
     },
     meterTitle: "Der Zähler, offen sichtbar",
@@ -382,7 +382,7 @@ const de: DeepPartial<Dictionary> = {
       },
       freeEnd: {
         q: "Was passiert, wenn meine 5 kostenlosen Diagnosen aufgebraucht sind?",
-        a: "Sie sehen es kommen: Nach jeder Diagnose sagt MECHA Ihnen genau, wie viele Sie noch haben. Bei null pausieren die Diagnosen, bis Sie Pro wählen. Nichts wird automatisch abgebucht, und Ihr Konto, Ihre Autos und Ihre Geschichte bleiben genau, wo sie sind.",
+        a: "MECHA zeigt nach jeder Diagnose, wie viele übrig sind. Bei null wählen Sie: eine einzelne Diagnose kaufen oder Pro für 100 pro Monat abonnieren — nichts wird automatisch berechnet, und Ihr Verlauf bleibt erhalten.",
       },
       reset: {
         q: "Kann ich den kostenlosen Zähler durch eine Neuanmeldung zurücksetzen?",
@@ -516,7 +516,7 @@ const de: DeepPartial<Dictionary> = {
     },
     meter: {
       title: "Fünf vollständige Diagnosen, kostenlos",
-      body: "Ihr kostenloses Kontingent gehört zu Ihrer Konto-Identität — E-Mail und Telefon — und überlebt die Abmeldung. Nach jeder Diagnose sagt MECHA, wie viele übrig sind. Bei null pausieren Diagnosen, bis Sie Pro wählen; nichts wird automatisch berechnet.",
+      body: "Ihr kostenloses Kontingent gehört zu Ihrer Konto-Identität — E-Mail und Telefon — und überlebt die Abmeldung. Nach jeder Diagnose sagt MECHA, wie viele übrig sind. Bei null wählen Sie: eine einzelne Diagnose kaufen oder Pro für 100 pro Monat abonnieren; nichts wird automatisch berechnet.",
     },
     final: {
       eyebrow: "Kostenlos starten",
@@ -529,7 +529,7 @@ const de: DeepPartial<Dictionary> = {
   pricingPage: {
     eyebrow: "Preise, vollständig",
     heading: "Wählen Sie nach dem Job vor Ihnen.",
-    sub: "Die Pläne sind absichtlich einfach: kostenlos starten, den Diagnosezähler mit Pro entfernen oder einen Firmenstandort mit Werkstätten vor Fahrer in der Nähe bringen. Die Details — Abrechnung eingeschlossen — stehen auf dieser Seite, nicht nach dem Kauf vergraben.",
+    sub: "Die Pläne sind absichtlich einfach: kostenlos starten, mit Pro 100 Diagnosen pro Monat erhalten oder einen Firmenstandort mit Werkstätten vor Fahrer in der Nähe bringen. Die Details — Abrechnung eingeschlossen — stehen auf dieser Seite, nicht nach dem Kauf vergraben.",
     decision: {
       eyebrow: "Für wen jeder Plan ist",
       heading: "Die richtige Größe, ohne Stufenlabyrinth.",
@@ -540,9 +540,9 @@ const de: DeepPartial<Dictionary> = {
         detail: "Sie erhalten 5 vollständige Diagnosen, die ehrliche Preisspanne auf jedem Bericht und den Health Vault. Zum Start ist keine Karte nötig, und der verbleibende Zähler ist immer sichtbar.",
       },
       pro: {
-        title: "Pro — den Zähler entfernen",
+        title: "Pro — 100 Diagnosen pro Monat",
         body: "Für Fahrer, die mehr als ein gelegentliches Problem diagnostizieren, einem zeitweiligen Fehler nachjagen oder die Tiefenanalyse-Stufe bereit haben wollen, wann immer eine erste Antwort nicht reicht.",
-        detail: "Pro gibt unbegrenzte Standarddiagnosen und Tiefenanalyse für widerspenstige Probleme und behält den Vault und den Schutz des ehrlichen Preises von Kostenlos.",
+        detail: "Pro gibt 100 Standard-Diagnose-Guthaben pro Monat und Tiefenanalyse für widerspenstige Probleme und behält den Vault und den Schutz des ehrlichen Preises von Kostenlos.",
       },
       shops: {
         title: "Werkstätten — in der Nähe sein, wenn es zählt",
@@ -578,7 +578,7 @@ const de: DeepPartial<Dictionary> = {
         },
         freeEnd: {
           q: "Was passiert, wenn die kostenlosen Diagnosen null erreichen?",
-          a: "Diagnosen pausieren. Ihr Konto, Ihre Autos, Berichte und der Vault-Verlauf bleiben verfügbar, und nichts wird automatisch berechnet. Sie wählen, ob Sie Pro starten.",
+          a: "Diagnosen pausieren. Ihr Konto, Ihre Autos, Berichte und der Verlauf im Vault bleiben verfügbar, und nichts wird automatisch berechnet. Sie wählen: eine einzelne Diagnose kaufen oder Pro für 100 pro Monat starten.",
         },
         early: {
           q: "Was erhalten frühe Mitglieder?",
@@ -857,12 +857,14 @@ const de: DeepPartial<Dictionary> = {
     },
     dashboard: {
       quotaTitle: "Diagnosen",
-      quotaNote: "Wenn die kostenlosen Diagnosen aufgebraucht sind, pausieren Diagnosen, bis Sie upgraden. Es wird nie automatisch etwas abgebucht.",
+      quotaNote: "Wenn die kostenlosen Diagnosen aufgebraucht sind, pausieren Diagnosen, bis Sie eine Diagnose kaufen oder upgraden. Es wird nie automatisch etwas berechnet.",
       quotaUpgrade: "Auf Pro upgraden",
       actionVaultSub: "Verlauf, Rückrufe und Erinnerungen",
       title: "Ihre Garage",
       welcomeBack: "Willkommen zurück",
-      quotaPro: "Pro-Plan — unbegrenzte Diagnosen.",
+      quotaPro: "Pro-Plan — 100 Diagnosen pro Monat.",
+      quotaBucketLeft: "monatliche Diagnosen übrig",
+      quotaSinglesLeft: "gekaufte Diagnose-Guthaben übrig",
       quotaLeft: "kostenlose Diagnosen übrig",
       quotaOf: "von",
       quickActions: "Was brauchen Sie?",
@@ -916,6 +918,11 @@ const de: DeepPartial<Dictionary> = {
       openingPortal: "Öffne…",
       openingCheckout: "Sie werden zur Kasse geleitet…",
       unavailable: "Die Abrechnung ist in dieser Vorschau noch nicht verdrahtet — Ihre Plan-Details erscheinen hier.",
+      buyDiagnosis: "1 Diagnose kaufen — $4",
+      buyDiagnosisNote: "Ein Diagnose-Guthaben, das beim Abschluss der Kaufabwicklung gutgeschrieben wird. Es verfällt nie.",
+      creditsFreeLine: "Sie haben noch {count} Ihrer {limit} kostenlosen Diagnosen übrig.",
+      creditsBucketLine: "Monatsguthaben: Diesen Monat sind noch {count} von {limit} übrig.",
+      creditsSinglesLine: "Gekaufte Diagnose-Guthaben: {count}.",
     },
     vault: {
       title: "Health Vault",

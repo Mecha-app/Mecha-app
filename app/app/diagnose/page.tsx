@@ -28,8 +28,12 @@ import { DIAGNOSE_PREFILL_KEY, type ScanDiagnosePrefill } from "@/lib/server/sca
 interface QuotaView {
   plan: string;
   used: number;
-  limit: number | null;
-  remaining: number | null;
+  limit: number;
+  remaining: number;
+  /** Purchased single credits on hand (never expire). */
+  credits?: number;
+  /** The Pro monthly bucket, when the plan carries one. */
+  bucket?: { limit: number; used: number; remaining: number } | null;
   canDiagnose: boolean;
 }
 
@@ -53,6 +57,9 @@ export default function DiagnosePage() {
   const [diagnosisId, setDiagnosisId] = useState<string | null>(null);
   const [receivedChars, setReceivedChars] = useState(0);
   const [detail, setDetail] = useState("");
+  // The paywall's purchase doors (credit model, 2026-11-18).
+  const [buying, setBuying] = useState<"pro" | "credit" | null>(null);
+  const [paywallError, setPaywallError] = useState("");
 
   useEffect(() => {
     // Scan handoff (Scan package): /app/scan may arrive here with a
@@ -207,7 +214,34 @@ export default function DiagnosePage() {
     }
   }
 
-  const exhausted = quota !== null && quota.plan !== "pro" && quota.remaining === 0;
+  // The paywall shows whenever NOTHING is left on any shelf — free
+  // diagnoses, the Pro monthly bucket, purchased singles (the server
+  // computes canDiagnose across all three).
+  const exhausted = quota !== null && !quota.canDiagnose;
+  const proSpent = exhausted && quota?.plan === "pro";
+
+  async function buyDoor(plan: "pro" | "credit") {
+    setBuying(plan);
+    setPaywallError("");
+    try {
+      const res = await fetch("/api/payments/create-checkout", {
+        method: "POST",
+        headers: { "content-type": "application/json", ...authHeaders() },
+        body: JSON.stringify({ plan }),
+      });
+      const data = (await res.json().catch(() => ({}))) as { url?: string; detail?: string };
+      if (res.status === 200 && data.url) {
+        window.location.href = data.url;
+        return;
+      }
+      // Not wired yet (501) or refused: the server's own words, on the
+      // card — never a dead button.
+      setPaywallError(data.detail ?? "Payments could not be started. Please try again.");
+    } catch {
+      setPaywallError("Payments could not be started. Please try again.");
+    }
+    setBuying(null);
+  }
 
   return (
     <>
@@ -217,16 +251,16 @@ export default function DiagnosePage() {
           Diagnose my car
         </h1>
 
-        {/* The countdown — server-stated, always visible. */}
+        {/* The countdown — server-stated, always visible. It names
+            the shelf being drawn from: free diagnoses first, then
+            the Pro monthly bucket, then purchased singles. */}
         {quota && (
           <div
             className="mt-5 rounded-2xl border border-line bg-surface px-5 py-4"
             role="status"
             aria-live="polite"
           >
-            {quota.plan === "pro" ? (
-              <p className="text-base font-medium text-ink-1">Pro plan — unlimited diagnoses.</p>
-            ) : (
+            {quota.remaining > 0 ? (
               <>
                 <p className="font-display text-2xl font-semibold text-ink-1">
                   {quota.remaining} of {quota.limit} free{" "}
@@ -234,6 +268,22 @@ export default function DiagnosePage() {
                 </p>
                 <p className="mt-1 text-base text-ink-2">{message}</p>
               </>
+            ) : quota.bucket && quota.bucket.remaining > 0 ? (
+              <>
+                <p className="font-display text-2xl font-semibold text-ink-1">
+                  Pro — {quota.bucket.remaining} of {quota.bucket.limit} monthly diagnoses left
+                </p>
+                <p className="mt-1 text-base text-ink-2">{message}</p>
+              </>
+            ) : quota.credits && quota.credits > 0 ? (
+              <>
+                <p className="font-display text-2xl font-semibold text-ink-1">
+                  {quota.credits} purchased {quota.credits === 1 ? "diagnosis" : "diagnoses"} left
+                </p>
+                <p className="mt-1 text-base text-ink-2">{message}</p>
+              </>
+            ) : (
+              <p className="text-base text-ink-2">{message}</p>
             )}
           </div>
         )}
@@ -241,19 +291,59 @@ export default function DiagnosePage() {
         {phase === "blocked" || exhausted ? (
           <section className="mt-8 rounded-2xl border border-line bg-surface px-5 py-6">
             <h2 className="font-display text-xl font-semibold text-ink-1">
-              You are out of free diagnoses
+              {proSpent ? "Your Pro monthly credits are used up" : "You are out of free diagnoses"}
             </h2>
             <p className="mt-2 text-base leading-relaxed text-ink-2">
               {message ||
-                "You've used all 5 of your free diagnoses. A MECHA Pro subscription is required to run more diagnoses — nothing is charged until you choose a plan."}
+                (proSpent
+                  ? "Your 100 monthly credits renew with your next cycle. Buy one diagnosis now, or wait for the renewal — nothing is charged until you choose."
+                  : "You've used all 5 of your free diagnoses. Buy one diagnosis for $4, or subscribe to MECHA Pro for 100 diagnoses a month — nothing is charged until you choose.")}
             </p>
+            {/* The funnel (owner, 2026-11-18): TWO doors, side by
+                side — subscribe for the monthly bundle, or buy ONE
+                diagnosis. A Pro subscriber whose bucket is spent
+                gets the buy-one door (top-up) and the wait. */}
+            <div className="mt-5 grid gap-3 sm:grid-cols-2">
+              {!proSpent && (
+                <button
+                  type="button"
+                  onClick={() => void buyDoor("pro")}
+                  disabled={buying !== null}
+                  className="flex h-12 w-full items-center justify-center rounded-full bg-accent px-6 text-base font-semibold text-accent-ink disabled:opacity-60"
+                >
+                  {buying === "pro" ? "Opening checkout…" : "Subscribe to Pro — $9.99/mo"}
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={() => void buyDoor("credit")}
+                disabled={buying !== null}
+                className={
+                  proSpent
+                    ? "flex h-12 w-full items-center justify-center rounded-full bg-accent px-6 text-base font-semibold text-accent-ink disabled:opacity-60"
+                    : "flex h-12 w-full items-center justify-center rounded-full border border-line bg-surface px-6 text-base font-semibold text-ink-1 disabled:opacity-60"
+                }
+              >
+                {buying === "credit" ? "Opening checkout…" : "Buy 1 diagnosis — $4"}
+              </button>
+            </div>
+            {proSpent && (
+              <p className="mt-3 text-sm leading-relaxed text-ink-2">
+                Or wait — your monthly credits renew with your next billing cycle.
+              </p>
+            )}
+            {paywallError && (
+              <p className="mt-3 text-base text-ink-1" role="alert">
+                {paywallError}
+              </p>
+            )}
             {/* The standalone pricing route carries the full plans,
                 meter explanation, and billing FAQ. */}
             <Link
               href="/pricing"
-              className="mt-5 flex h-12 w-full items-center justify-center rounded-full bg-accent px-6 text-base font-semibold text-accent-ink"
+              className="mt-4 inline-block text-base font-medium text-accent underline underline-offset-4"
             >
-              See MECHA Pro
+              Compare the plans
             </Link>
           </section>
         ) : (

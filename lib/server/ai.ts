@@ -10,10 +10,10 @@
  *   calls claude-haiku-4-5 with max_tokens 1500, and returns the result
  *   JSON directly. The result shape is defined by that route's prompt —
  *   see DiagnosisReport below; it is stored whole as diagnostics.ai_result.
- *   The legacy flow is AUTHENTICATED with a monthly quota (free 5/mo,
- *   pro effectively unlimited — POST /api/diagnoses/check-limit); quota
- *   and saving belong to the WP5 authenticated flows. This module is the
- *   engine only.
+ *   The legacy flow is AUTHENTICATED with a quota (5 free, lifetime;
+ *   then the Pro monthly credit bucket or purchased singles — see
+ *   lib/server/quota.ts); quota and saving belong to the WP5
+ *   authenticated flows. This module is the engine only.
  *
  * TIERED COST ARCHITECTURE (AGENT.md standing decision — never
  * flagship-for-everything) is preserved as CONFIG on top of the repo's

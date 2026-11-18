@@ -333,7 +333,7 @@ const tr: DeepPartial<Dictionary> = {
   pricing: {
     eyebrow: "Fiyatlar",
     heading: "Ücretsiz başlangıç. Sayaç konusunda dürüst.",
-    body: "Her hesap 5 ücretsiz teşhisle başlar. Her birinden sonra MECHA, tam olarak kaç tane kaldığını söyler — 4, sonra 3, sonra 2 — ve sıfırda siz seçersiniz: abone ol veya dur. Hiçbir şey asla arkanızdan ücretlendirilmez.",
+    body: "Her hesap 5 ücretsiz teşhisle başlar. Her birinden sonra MECHA kaç tane kaldığını gösterir. Sıfıra geldiğinizde siz seçersiniz: tek bir teşhis satın almak, ayda 100 teşhis için abone olmak ya da durmak. Arkanızdan hiçbir ücret alınmaz.",
     popularBadge: "En popüler",
     free: {
       name: "Ücretsiz",
@@ -350,9 +350,9 @@ const tr: DeepPartial<Dictionary> = {
       price: "$9.99",
       period: "Aylık",
       badge: "Sürücüler için",
-      point1: "Sınırsız teşhis — sayaç ortadan kalkar",
+      point1: "Her ay 100 teşhis kredisi",
       point2: "İlk cevaba direnen sorunlar için derinlemesine analiz",
-      point3: "Ücretsiz'deki her şey, geri sayım olmadan",
+      point3: "Önce ücretsiz teşhisler, sonra aylık paket — bu sırayla",
       point4: "Erken üyeler: 3 ay Pro ücretsiz, lansman fiyatı ömür boyu kilitli",
       cta: "Pro'ya geç",
     },
@@ -363,8 +363,8 @@ const tr: DeepPartial<Dictionary> = {
       badge: "Servisler ve çekiciler için",
       point1: "İşletmeniz, sürücülerin aradığı yakınlık listesinde",
       point2: "Ad önce, mesafe gösterilir, sizi aramak için bir dokunuş",
-      point3: "Adil fiyatı zaten bilerek gelen sürücüler",
-      point4: "Servisler ve çekici şirketleri için kayıtlar",
+      point3: "Müşterilerinizin arabaları için ayda 500 teşhis kredisi",
+      point4: "Kayıt olduğunuzda 10 ücretsiz teşhis",
       cta: "İşletmenizi listeleyin",
     },
     meterTitle: "Sayaç, açıkta",
@@ -382,7 +382,7 @@ const tr: DeepPartial<Dictionary> = {
       },
       freeEnd: {
         q: "5 ücretsiz teşhisim bittiğinde ne olur?",
-        a: "Geldiğini göreceksiniz: her teşhisten sonra MECHA, tam olarak kaç tane kaldığını söyler. Sıfırda, Pro'yu seçene kadar teşhisler duraklar. Hiçbir şey otomatik olarak ücretlendirilmez ve hesabınız, araçlarınız ve geçmişiniz tam oldukları yerde kalır.",
+        a: "MECHA, her teşhisten sonra kaç tane kaldığını gösterir. Sıfırda siz seçersiniz: tek bir teşhis satın almak ya da ayda 100 için Pro'ya abone olmak — hiçbir şey otomatik olarak ücretlendirilmez ve geçmişiniz yerinde kalır.",
       },
       reset: {
         q: "Tekrar kaydolarak ücretsiz sayacı sıfırlayabilir miyim?",
@@ -516,7 +516,7 @@ const tr: DeepPartial<Dictionary> = {
     },
     meter: {
       title: "Beş tam teşhis, ücretsiz",
-      body: "Ücretsiz sayacınız hesap kimliğinize — e-posta ve telefon — aittir ve çıkış yapmaya dayanır. Her teşhisten sonra MECHA kaç tane kaldığını söyler. Sıfırda, siz Pro'yu seçene kadar teşhisler duraklar; hiçbir şey otomatik olarak ücretlendirilmez.",
+      body: "Ücretsiz sayacınız hesap kimliğinize — e-posta ve telefon — aittir ve çıkış yapmaya dayanır. Her teşhisten sonra MECHA kaç tane kaldığını söyler. Sıfırda siz seçersiniz: tek bir teşhis satın almak ya da ayda 100 için Pro'ya abone olmak; hiçbir şey otomatik olarak ücretlendirilmez.",
     },
     final: {
       eyebrow: "Ücretsiz başla",
@@ -529,7 +529,7 @@ const tr: DeepPartial<Dictionary> = {
   pricingPage: {
     eyebrow: "Fiyatlar, tamamen",
     heading: "Önünüzdeki işe göre seçin.",
-    sub: "Planlar bilerek basittir: ücretsiz başlayın, Pro ile teşhis sayacını kaldırın veya Servisler ile tek bir işletme konumunu yakındaki sürücülerin önüne koyun. Ayrıntılar — faturalandırma dahil — bu sayfadadır, ödemeden sonra gömülmez.",
+    sub: "Planlar bilerek basittir: ücretsiz başlayın, Pro ile ayda 100 teşhis alın veya Servisler ile tek bir işletme konumunu yakındaki sürücülerin önüne koyun. Ayrıntılar — faturalandırma dahil — bu sayfadadır, ödemeden sonra gömülmez.",
     decision: {
       eyebrow: "Her plan kimin için",
       heading: "Doğru boyut, katman labirenti olmadan.",
@@ -540,9 +540,9 @@ const tr: DeepPartial<Dictionary> = {
         detail: "5 tam teşhis, her raporda adil fiyat aralığı ve Health Vault alırsınız. Başlamak için kart gerekmez ve kalan sayaç her zaman görünür.",
       },
       pro: {
-        title: "Pro — sayacı kaldır",
+        title: "Pro — ayda 100 teşhis",
         body: "Ara sıra olan bir sorundan fazlasını teşhis eden, aralıklı bir arızanın peşinde olan veya ilk cevap yeterli olmadığında derinlemesine analiz katmanının hazır olmasını isteyen sürücüler için.",
-        detail: "Pro, sınırsız standart teşhis ve inatçı sorunlar için derinlemesine analiz verir, Ücretsiz'deki Vault'u ve adil fiyat korumasını korurken.",
+        detail: "Pro, ayda 100 standart teşhis kredisi ve inatçı sorunlar için derinlemesine analiz verir, Ücretsiz'deki Vault'u ve adil fiyat korumasını korurken.",
       },
       shops: {
         title: "Servisler — önemli olduğunda yakında ol",
@@ -578,7 +578,7 @@ const tr: DeepPartial<Dictionary> = {
         },
         freeEnd: {
           q: "Ücretsiz teşhisler sıfıra ulaştığında ne olur?",
-          a: "Teşhisler duraklar. Hesabınız, arabalarınız, raporlarınız ve Vault geçmişiniz kullanılabilir durumda kalır ve hiçbir şey otomatik olarak ücretlendirilmez. Pro'yu başlatıp başlatmayacağınızı siz seçersiniz.",
+          a: "Teşhisler duraklatılır. Hesabınız, arabalarınız, raporlarınız ve Vault geçmişiniz kullanılabilir durumda kalır ve hiçbir şey otomatik olarak ücretlendirilmez. Siz seçersiniz: tek bir teşhis satın almak ya da ayda 100 için Pro'yu başlatmak.",
         },
         early: {
           q: "Erken üyeler ne alır?",
@@ -857,12 +857,14 @@ const tr: DeepPartial<Dictionary> = {
     },
     dashboard: {
       quotaTitle: "Teşhisler",
-      quotaNote: "Ücretsiz teşhisler bittiğinde, yükseltme yapana kadar teşhisler duraklatılır. Hiçbir zaman otomatik ücret alınmaz.",
+      quotaNote: "Ücretsiz teşhisler bittiğinde, bir teşhis satın alana veya yükseltme yapana kadar teşhisler duraklatılır. Hiçbir şey asla otomatik olarak ücretlendirilmez.",
       quotaUpgrade: "Pro'ya yükselt",
       actionVaultSub: "Geçmiş, geri çağırmalar ve hatırlatıcılar",
       title: "Garajınız",
       welcomeBack: "Tekrar hoş geldiniz",
-      quotaPro: "Pro plan — sınırsız teşhis.",
+      quotaPro: "Pro planı — ayda 100 teşhis.",
+      quotaBucketLeft: "aylık teşhis kaldı",
+      quotaSinglesLeft: "satın alınmış teşhis kredisi kaldı",
       quotaLeft: "ücretsiz teşhis kaldı",
       quotaOf: "/",
       quickActions: "Neye ihtiyacınız var?",
@@ -916,6 +918,11 @@ const tr: DeepPartial<Dictionary> = {
       openingPortal: "Açılıyor…",
       openingCheckout: "Ödemeye gidiliyor…",
       unavailable: "Faturalandırma bu önizlemede henüz bağlı değil — plan bilgileriniz burada görünecek.",
+      buyDiagnosis: "1 teşhis satın al — $4",
+      buyDiagnosisNote: "Bir teşhis kredisi, ödeme tamamlandığında eklenir. Süresi asla dolmaz.",
+      creditsFreeLine: "{limit} ücretsiz teşhisinizden {count} tanesi kaldı.",
+      creditsBucketLine: "Aylık krediler: bu ay {limit} krediden {count} tanesi kaldı.",
+      creditsSinglesLine: "Satın alınmış teşhis kredileri: {count}.",
     },
     vault: {
       title: "Health Vault",

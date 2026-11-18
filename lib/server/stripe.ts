@@ -1,6 +1,13 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
 import type { AccountType } from "./jwt";
 import type { IdentityStore } from "./store";
+import {
+  PRO_MONTHLY_CREDITS,
+  PRO_PLAN_PRICE_CENTS,
+  SHOP_MONTHLY_CREDITS,
+  SHOP_PLAN_PRICE_CENTS,
+  diagnosisPriceCents,
+} from "./pricing";
 
 /**
  * Stripe (WP5) — the existing integration, preserved and fixed.
@@ -65,6 +72,26 @@ export interface PortalSessionInput {
   returnUrl: string;
 }
 
+/**
+ * An INLINE-price checkout (Stripe pass, 2026-11-18): the price is
+ * carried in price_data on the session itself, so NO pre-created
+ * Stripe price objects are needed — the amounts come from
+ * lib/server/pricing.ts and the flow goes live the moment the keys
+ * exist, with no dashboard setup. `kind` rides in the metadata so the
+ * webhook can tell a one-time credit purchase from a subscription.
+ */
+export interface InlineCheckoutSessionInput {
+  mode: "payment" | "subscription";
+  /** The unit amount, in cents — the price_data amount. */
+  amountCents: number;
+  /** price_data product name, as the customer sees it at checkout. */
+  productName: string;
+  customerEmail: string;
+  successUrl: string;
+  cancelUrl: string;
+  metadata: Record<string, string>;
+}
+
 /** A customer.subscription.* event, normalized (migration 0010 fields). */
 export interface StripeSubscriptionData {
   id: string;
@@ -93,6 +120,9 @@ export interface StripeCheckoutEvent {
 
 export interface StripeClient {
   createCheckoutSession(input: CheckoutSessionInput): Promise<{ id: string; url: string }>;
+  createInlineCheckoutSession(
+    input: InlineCheckoutSessionInput,
+  ): Promise<{ id: string; url: string }>;
   createBillingPortalSession(input: PortalSessionInput): Promise<{ id: string; url: string }>;
   /** Verify the webhook signature and normalize the event; throws on a bad signature. */
   constructEvent(rawBody: string, signatureHeader: string): StripeCheckoutEvent;
@@ -120,6 +150,39 @@ export function buildCheckoutSessionForm(input: CheckoutSessionInput): URLSearch
   return form;
 }
 
+/**
+ * The inline-price session's wire parameters — also a pure builder,
+ * also with NO `payment_method_types` (the wallet rule above). A
+ * one-time session asks Stripe to always create a customer so the
+ * webhook can record who paid; a subscription session repeats the
+ * metadata onto the SUBSCRIPTION itself, because the lifecycle events
+ * carry the subscription's metadata, not the checkout's — that is
+ * how renewals and cancellations find their plan.
+ */
+export function buildInlineCheckoutSessionForm(
+  input: InlineCheckoutSessionInput,
+): URLSearchParams {
+  const form = new URLSearchParams();
+  form.set("mode", input.mode);
+  form.set("line_items[0][price_data][currency]", "usd");
+  form.set("line_items[0][price_data][unit_amount]", String(input.amountCents));
+  form.set("line_items[0][price_data][product_data][name]", input.productName);
+  if (input.mode === "subscription") {
+    form.set("line_items[0][price_data][recurring][interval]", "month");
+  } else {
+    form.set("customer_creation", "always");
+  }
+  form.set("line_items[0][quantity]", "1");
+  form.set("customer_email", input.customerEmail);
+  form.set("success_url", input.successUrl);
+  form.set("cancel_url", input.cancelUrl);
+  for (const [k, v] of Object.entries(input.metadata)) {
+    form.set(`metadata[${k}]`, v);
+    if (input.mode === "subscription") form.set(`subscription_data[metadata][${k}]`, v);
+  }
+  return form;
+}
+
 async function stripePost(
   path: string,
   form: URLSearchParams,
@@ -144,6 +207,12 @@ async function stripePost(
 export class HttpStripeClient implements StripeClient {
   async createCheckoutSession(input: CheckoutSessionInput): Promise<{ id: string; url: string }> {
     return stripePost("/v1/checkout/sessions", buildCheckoutSessionForm(input));
+  }
+
+  async createInlineCheckoutSession(
+    input: InlineCheckoutSessionInput,
+  ): Promise<{ id: string; url: string }> {
+    return stripePost("/v1/checkout/sessions", buildInlineCheckoutSessionForm(input));
   }
 
   async createBillingPortalSession(
@@ -235,12 +304,23 @@ export class HttpStripeClient implements StripeClient {
 
 export class StubStripeClient implements StripeClient {
   readonly sessions: CheckoutSessionInput[] = [];
+  readonly inlineSessions: InlineCheckoutSessionInput[] = [];
   readonly portalSessions: PortalSessionInput[] = [];
   event: StripeCheckoutEvent = { type: "", session: { id: "", customer: null, metadata: {} } };
 
   async createCheckoutSession(input: CheckoutSessionInput): Promise<{ id: string; url: string }> {
     this.sessions.push(input);
     return { id: `cs_test_${this.sessions.length}`, url: "https://checkout.stripe.test/session" };
+  }
+
+  async createInlineCheckoutSession(
+    input: InlineCheckoutSessionInput,
+  ): Promise<{ id: string; url: string }> {
+    this.inlineSessions.push(input);
+    return {
+      id: `cs_test_inline_${this.inlineSessions.length}`,
+      url: "https://checkout.stripe.test/session",
+    };
   }
 
   async createBillingPortalSession(
@@ -317,6 +397,106 @@ export async function createSubscriptionCheckout(input: {
   return { url: session.url, sessionId: session.id };
 }
 
+// ---------------------------------------------------------------------------
+// The credit model (Stripe pass, 2026-11-18) — inline-price checkouts.
+// Amounts come from lib/server/pricing.ts; no pre-created Stripe price
+// objects exist or are needed. Metadata contract the webhook reads:
+//   kind: "diagnosis_credit" | "subscription"
+//   plan: "pro" | "business"   (subscriptions)
+//   accountId / userId / accountType — the legacy keys, unchanged.
+// ---------------------------------------------------------------------------
+
+/**
+ * ONE diagnosis credit for a driver (mode=payment). Purchasable by
+ * anyone — a free driver at the paywall, or a Pro subscriber topping
+ * up an exhausted monthly bucket. The credit lands ONLY through the
+ * verified webhook (grantDiagnosisCredit), never at session creation:
+ * an abandoned checkout grants nothing.
+ */
+export async function createDiagnosisCreditCheckout(input: {
+  stripe: StripeClient;
+  accountId: string;
+  accountEmail: string;
+}): Promise<CheckoutResult> {
+  const clientUrl = process.env.CLIENT_URL ?? "";
+  const session = await input.stripe.createInlineCheckoutSession({
+    mode: "payment",
+    amountCents: diagnosisPriceCents(),
+    productName: "MECHA — 1 diagnosis credit",
+    customerEmail: input.accountEmail,
+    successUrl: `${clientUrl}/app/diagnose?checkout=success`,
+    cancelUrl: `${clientUrl}/app/diagnose`,
+    metadata: {
+      kind: "diagnosis_credit",
+      accountId: input.accountId,
+      accountType: "driver",
+      userId: input.accountId,
+    },
+  });
+  return { url: session.url, sessionId: session.id };
+}
+
+/**
+ * Pro for a driver: $9.99/month = a bucket of 100 diagnosis credits
+ * per month (pricing.ts). Activation and each renewal refill the
+ * bucket in the webhook; cancellation ends the plan (and the bucket)
+ * through the lifecycle events.
+ */
+export async function createProSubscriptionCheckout(input: {
+  stripe: StripeClient;
+  accountId: string;
+  accountEmail: string;
+}): Promise<CheckoutResult> {
+  const clientUrl = process.env.CLIENT_URL ?? "";
+  const session = await input.stripe.createInlineCheckoutSession({
+    mode: "subscription",
+    amountCents: PRO_PLAN_PRICE_CENTS,
+    productName: `MECHA Pro — ${PRO_MONTHLY_CREDITS} diagnoses a month`,
+    customerEmail: input.accountEmail,
+    successUrl: `${clientUrl}/app?checkout=success`,
+    cancelUrl: `${clientUrl}/pricing`,
+    metadata: {
+      kind: "subscription",
+      accountId: input.accountId,
+      accountType: "driver",
+      userId: input.accountId,
+      plan: "pro",
+    },
+  });
+  return { url: session.url, sessionId: session.id };
+}
+
+/**
+ * The business plan for a shop (or a towing company, which buys the
+ * same listing plan): $149/month. For shops it carries the bucket of
+ * 500 diagnosis credits per month (pricing.ts); activation refills it
+ * in the webhook, on top of the shop's 10 free diagnoses at signup.
+ */
+export async function createShopSubscriptionCheckout(input: {
+  stripe: StripeClient;
+  accountId: string;
+  accountType: "shop" | "towing";
+  accountEmail: string;
+}): Promise<CheckoutResult> {
+  const clientUrl = process.env.CLIENT_URL ?? "";
+  const session = await input.stripe.createInlineCheckoutSession({
+    mode: "subscription",
+    amountCents: SHOP_PLAN_PRICE_CENTS,
+    productName: `MECHA for Shops — ${SHOP_MONTHLY_CREDITS} diagnoses a month`,
+    customerEmail: input.accountEmail,
+    successUrl: `${clientUrl}/app?checkout=success`,
+    cancelUrl: `${clientUrl}/pricing`,
+    metadata: {
+      kind: "subscription",
+      accountId: input.accountId,
+      accountType: input.accountType,
+      userId: input.accountId,
+      plan: "business",
+    },
+  });
+  return { url: session.url, sessionId: session.id };
+}
+
 /**
  * Apply a verified Stripe event. Returns true when an account was
  * updated.
@@ -340,17 +520,45 @@ export async function handleStripeEvent(
   if (event.type === "checkout.session.completed") {
     const meta = event.session.metadata;
     const accountId = meta.accountId ?? meta.userId;
+
+    // A one-time diagnosis-credit purchase: grant exactly one credit,
+    // idempotently — the ledger's UNIQUE session id makes a replayed
+    // delivery a no-op (store.grantDiagnosisCredit). The Stripe
+    // customer id is recorded on the account for later checkouts.
+    if (meta.kind === "diagnosis_credit") {
+      if (!accountId) return false;
+      await store.grantDiagnosisCredit(accountId, event.session.id);
+      if (event.session.customer) {
+        await store.applyPlanUpdate({
+          accountType: "driver",
+          accountId,
+          plan: null,
+          stripeCustomerId: event.session.customer,
+        });
+      }
+      return true;
+    }
+
     const plan = meta.plan;
     if (!accountId || !plan) return false;
     const accountType: AccountType =
       meta.accountType === "shop" || meta.accountType === "towing" ? meta.accountType : "driver";
-    return store.applyPlanUpdate({
+    const applied = await store.applyPlanUpdate({
       accountType,
       accountId,
       plan,
       stripeCustomerId: event.session.customer,
       stripeSubscriptionId: event.session.subscription ?? null,
     });
+    // Activation fills the monthly bucket: Pro drivers get their 100,
+    // shops their 500. (Towing buys the listing plan only — no bucket.)
+    if (applied && plan === "pro" && accountType === "driver") {
+      await store.resetMonthlyBucket("user", accountId, new Date());
+    }
+    if (applied && plan === "business" && accountType === "shop") {
+      await store.resetMonthlyBucket("shop", accountId, new Date());
+    }
+    return applied;
   }
 
   if (event.type.startsWith("customer.subscription.") && event.subscription) {
@@ -369,20 +577,54 @@ export async function handleStripeEvent(
     }
     if (!target) return false;
     const deleted = event.type === "customer.subscription.deleted";
-    return store.applyPlanUpdate({
+    // The plan: the subscription's own metadata first (inline-price
+    // checkouts repeat it there — their generated price ids are not
+    // in the env), then the legacy price-id mapping.
+    const metaPlan =
+      sub.metadata.plan === "pro" || sub.metadata.plan === "business" ? sub.metadata.plan : null;
+    const plan = deleted
+      ? freePlanFor(target.accountType)
+      : (metaPlan ?? (sub.priceId ? planForPriceId(sub.priceId) : null));
+
+    // Renewal detection BEFORE the update lands: a live subscription
+    // whose period end ADVANCED past the stored one has rolled into a
+    // new cycle — its bucket refills. (The lazy reset in the consume
+    // path covers a missed webhook; this keeps the displayed bucket
+    // exact the moment the renewal is known.)
+    let periodAdvanced = false;
+    if (!deleted && sub.currentPeriodEnd) {
+      const stored =
+        target.accountType === "driver"
+          ? await store.findUserById(target.accountId)
+          : target.accountType === "shop"
+            ? await store.findShopById(target.accountId)
+            : null;
+      periodAdvanced =
+        stored !== null &&
+        stored.currentPeriodEnd !== null &&
+        stored.currentPeriodEnd !== undefined &&
+        sub.currentPeriodEnd > stored.currentPeriodEnd;
+    }
+
+    const applied = await store.applyPlanUpdate({
       accountType: target.accountType,
       accountId: target.accountId,
-      plan: deleted
-        ? freePlanFor(target.accountType)
-        : sub.priceId
-          ? planForPriceId(sub.priceId)
-          : null,
+      plan,
       stripeCustomerId: sub.customer,
       stripeSubscriptionId: sub.id || null,
       subscriptionStatus: deleted ? "canceled" : sub.status || null,
       currentPeriodEnd: sub.currentPeriodEnd,
       cancelAtPeriodEnd: deleted ? false : sub.cancelAtPeriodEnd,
     });
+    if (applied && periodAdvanced) {
+      if (target.accountType === "driver" && plan === "pro") {
+        await store.resetMonthlyBucket("user", target.accountId, new Date());
+      }
+      if (target.accountType === "shop" && plan === "business") {
+        await store.resetMonthlyBucket("shop", target.accountId, new Date());
+      }
+    }
+    return applied;
   }
 
   return false;

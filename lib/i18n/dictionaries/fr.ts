@@ -323,7 +323,7 @@ const fr: DeepPartial<Dictionary> = {
   pricing: {
     eyebrow: "Tarifs",
     heading: "Gratuit pour commencer. Honnête sur le compteur.",
-    body: "Chaque compte commence avec 5 diagnostics gratuits. Après chacun, MECHA vous dit exactement combien il vous en reste — 4, puis 3, puis 2 — et à zéro, vous choisissez : vous abonner, ou arrêter. Rien n'est jamais facturé dans votre dos.",
+    body: "Chaque compte commence avec 5 diagnostics gratuits. Après chacun, MECHA indique combien il en reste. À zéro, vous choisissez : acheter un seul diagnostic, vous abonner pour 100 par mois, ou arrêter. Rien n'est facturé dans votre dos.",
     popularBadge: "Le plus populaire",
     free: {
       name: "Gratuit",
@@ -340,9 +340,9 @@ const fr: DeepPartial<Dictionary> = {
       price: "$9.99",
       period: "Par mois",
       badge: "Pour les conducteurs",
-      point1: "Diagnostics illimités — le compteur disparaît",
+      point1: "100 crédits de diagnostic chaque mois",
       point2: "Analyse approfondie pour les problèmes qui résistent à une première réponse",
-      point3: "Tout Gratuit, sans le décompte",
+      point3: "D'abord les diagnostics gratuits, ensuite le forfait mensuel — dans cet ordre",
       point4: "Premiers membres : 3 mois de Pro offerts, tarif de lancement bloqué à vie",
       cta: "Passer Pro",
     },
@@ -353,8 +353,8 @@ const fr: DeepPartial<Dictionary> = {
       badge: "Pour ateliers et remorquage",
       point1: "Votre entreprise dans la liste de proximité que les conducteurs appellent",
       point2: "Le nom en premier, la distance affichée, un toucher pour vous appeler",
-      point3: "Des conducteurs qui arrivent en connaissant déjà le juste prix",
-      point4: "Annonces pour ateliers de réparation comme pour dépanneuses",
+      point3: "500 crédits de diagnostic par mois pour les voitures de vos clients",
+      point4: "10 diagnostics gratuits à l'inscription",
       cta: "Inscrivez votre entreprise",
     },
     meterTitle: "Le compteur, en pleine vue",
@@ -373,7 +373,7 @@ const fr: DeepPartial<Dictionary> = {
       },
       freeEnd: {
         q: "Que se passe-t-il quand mes 5 diagnostics gratuits sont épuisés ?",
-        a: "Vous le verrez venir : après chaque diagnostic, MECHA vous dit combien il vous en reste. À zéro, les diagnostics se mettent en pause jusqu'à ce que vous choisissiez Pro. Rien n'est facturé automatiquement, et votre compte, vos voitures et votre historique restent exactement où ils sont.",
+        a: "MECHA indique combien il en reste après chaque diagnostic. À zéro, vous choisissez : acheter un seul diagnostic, ou vous abonner à Pro pour 100 par mois — rien n'est facturé automatiquement, et votre historique reste en place.",
       },
       reset: {
         q: "Puis-je réinitialiser le compteur gratuit en me réinscrivant ?",
@@ -515,7 +515,7 @@ const fr: DeepPartial<Dictionary> = {
     },
     meter: {
       title: "Cinq diagnostics complets, gratuits",
-      body: "Votre compte gratuit est lié à l'identité de votre compte — e-mail et téléphone — et survit à la déconnexion. Après chaque diagnostic, MECHA indique combien il en reste. À zéro, les diagnostics se mettent en pause jusqu'à ce que vous choisissiez Pro ; rien n'est facturé automatiquement.",
+      body: "Votre compte gratuit est lié à l'identité de votre compte — e-mail et téléphone — et survit à la déconnexion. Après chaque diagnostic, MECHA indique combien il en reste. À zéro, vous choisissez : acheter un seul diagnostic, ou vous abonner à Pro pour 100 par mois ; rien n'est facturé automatiquement.",
     },
     final: {
       eyebrow: "Commencez gratuitement",
@@ -528,7 +528,7 @@ const fr: DeepPartial<Dictionary> = {
   pricingPage: {
     eyebrow: "Tarifs, en entier",
     heading: "Choisissez selon le travail devant vous.",
-    sub: "Les forfaits sont simples à dessein : commencez gratuitement, supprimez le compteur de diagnostics avec Pro, ou placez un établissement devant les conducteurs proches avec Ateliers. Les détails — y compris la facturation — sont sur cette page, pas enterrés après le paiement.",
+    sub: "Les forfaits sont simples à dessein : commencez gratuitement, obtenez 100 diagnostics par mois avec Pro, ou placez un établissement devant les conducteurs proches avec Ateliers. Les détails — y compris la facturation — sont sur cette page, pas enterrés après le paiement.",
     decision: {
       eyebrow: "À qui chaque forfait convient",
       heading: "La bonne taille, sans labyrinthe de niveaux.",
@@ -540,10 +540,10 @@ const fr: DeepPartial<Dictionary> = {
           "Vous recevez 5 diagnostics complets, la fourchette de prix juste sur chaque rapport et le Coffre Santé. Aucune carte n'est requise pour commencer, et le compte restant est toujours visible.",
       },
       pro: {
-        title: "Pro — supprimer le compteur",
+        title: "Pro — 100 diagnostics par mois",
         body: "Pour les conducteurs qui diagnostiquent plus qu'un problème occasionnel, traquent une panne intermittente ou veulent le niveau d'analyse approfondie disponible quand une première réponse ne suffit pas.",
         detail:
-          "Pro offre des diagnostics standard illimités et une analyse approfondie pour les problèmes résistants, tout en gardant le Coffre et la protection du juste prix de Gratuit.",
+          "Pro offre 100 crédits de diagnostic standard par mois et une analyse approfondie pour les problèmes résistants, tout en gardant le Coffre et la protection du juste prix de Gratuit.",
       },
       shops: {
         title: "Ateliers — être là quand ça compte",
@@ -580,7 +580,7 @@ const fr: DeepPartial<Dictionary> = {
         },
         freeEnd: {
           q: "Que se passe-t-il quand les diagnostics gratuits arrivent à zéro ?",
-          a: "Les diagnostics se mettent en pause. Votre compte, vos voitures, vos rapports et l'historique de votre Coffre restent disponibles, et rien n'est facturé automatiquement. Vous choisissez de commencer Pro ou non.",
+          a: "Les diagnostics se mettent en pause. Votre compte, vos voitures, vos rapports et votre historique Vault restent disponibles, et rien n'est facturé automatiquement. Vous choisissez : acheter un seul diagnostic, ou commencer Pro pour 100 par mois.",
         },
         early: {
           q: "Que reçoivent les premiers membres ?",
@@ -896,7 +896,7 @@ const fr: DeepPartial<Dictionary> = {
   wp6: {
     dashboard: {
       quotaTitle: "Diagnostics",
-      quotaNote: "Quand les diagnostics gratuits sont épuisés, les diagnostics se mettent en pause jusqu'à ce que vous changiez d'offre. Aucun montant n'est jamais prélevé automatiquement.",
+      quotaNote: "Lorsque les diagnostics gratuits sont épuisés, les diagnostics se mettent en pause jusqu'à ce que vous achetiez un diagnostic ou passiez à l'offre supérieure. Rien n'est jamais facturé automatiquement.",
       quotaUpgrade: "Passer à Pro",
       actionVaultSub: "Historique, rappels de sécurité et alertes",
     },

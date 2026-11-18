@@ -13,9 +13,11 @@
  *       does not reset
  *   (d) the 6th diagnosis is refused BEFORE any AI call
  *   (e) countdown values are correct in responses
- * Plus: Pro bypass, deep-tier gate, exact-match cache, latency fields,
- * JWT payload shape (no email — the legacy checkout bug), Stripe
- * checkout email-from-record, Stripe webhook updating a SHOP.
+ * Plus: the Pro monthly bucket (credit model, 2026-11-18 — free
+ * diagnoses burn first, then the bucket), deep-tier gate, exact-match
+ * cache, latency fields, JWT payload shape (no email — the legacy
+ * checkout bug), Stripe checkout email-from-record, Stripe webhook
+ * updating a SHOP.
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
@@ -37,8 +39,10 @@ import { normalizeEmail, normalizePhone } from "../lib/server/identity";
 import { signToken, verifyToken } from "../lib/server/jwt";
 import { StubDiagnosisProvider } from "../lib/server/provider";
 import {
+  FREE_DIAGNOSIS_LIMIT,
   QuotaExhaustedError,
   countdownMessage,
+  quotaStateFor,
 } from "../lib/server/quota";
 import { IdentityConflictError, MemoryIdentityStore } from "../lib/server/store";
 import {
@@ -79,13 +83,21 @@ test("identity normalization: email + phone canonical forms", () => {
 });
 
 test("countdown copy: exact remaining values + the zero message", () => {
-  assert.equal(countdownMessage(4), "You have 4 free diagnoses left.");
-  assert.equal(countdownMessage(2), "You have 2 free diagnoses left.");
-  assert.equal(countdownMessage(1), "You have 1 free diagnosis left.");
-  const zero = countdownMessage(0);
+  // countdownMessage takes the full quota state since the credit
+  // model (2026-11-18): the line depends on which shelf is left.
+  const state = (remaining: number) =>
+    quotaStateFor({ plan: "free", freeDiagnosesUsed: FREE_DIAGNOSIS_LIMIT - remaining });
+  assert.equal(countdownMessage(state(4)), "You have 4 free diagnoses left.");
+  assert.equal(countdownMessage(state(2)), "You have 2 free diagnoses left.");
+  assert.equal(countdownMessage(state(1)), "You have 1 free diagnosis left.");
+  const zero = countdownMessage(state(0));
   assert.ok(zero.includes("used all 5 of your free diagnoses"));
-  assert.ok(zero.includes("subscription is required"));
-  assert.equal(countdownMessage(null), "Pro plan — unlimited diagnoses.");
+  // The owner's two doors are both named; the old "subscription is
+  // required" line and the old "Pro plan — unlimited diagnoses." line
+  // are gone by his order (nothing is unlimited; Pro is a bucket).
+  assert.ok(zero.includes("Buy one diagnosis"));
+  assert.ok(zero.includes("100 diagnoses a month"));
+  assert.ok(!zero.toLowerCase().includes("unlimited"));
 });
 
 test("(a)+(e) quota decrements 5→0 and every response states the countdown", async () => {
@@ -110,7 +122,7 @@ test("(a)+(e) quota decrements 5→0 and every response states the countdown", a
     );
     const done = doneEvent(events);
     assert.equal(done.quota.remaining, expectedRemaining[i], `diagnosis ${i + 1} remaining`);
-    assert.equal(done.message, countdownMessage(expectedRemaining[i]));
+    assert.equal(done.message, countdownMessage(done.quota));
     const quotaEvent = events.find((e) => e.type === "quota") as
       | Extract<DiagnoseServiceEvent, { type: "quota" }>
       | undefined;
@@ -220,7 +232,11 @@ test("(c) re-registration with the same phone under a different email does not r
   assert.equal(original?.freeDiagnosesUsed, 0);
 });
 
-test("pro plan bypasses the quota entirely; deep tier is pro-only", async () => {
+test("pro plan: free diagnoses burn first, then the monthly bucket; deep tier is pro-only", async () => {
+  // REWRITTEN for the credit model (owner's clarification, 2026-11-18):
+  // Pro no longer "bypasses the quota entirely" — the subscription IS
+  // a bucket of 100 credits a month, and the consumption order is
+  // free lifetime → monthly bucket → purchased singles for everyone.
   const store = new MemoryIdentityStore();
   const provider = new StubDiagnosisProvider();
   await registerDriver(store, DRIVER);
@@ -240,22 +256,31 @@ test("pro plan bypasses the quota entirely; deep tier is pro-only", async () => 
   assert.equal(provider.calls.length, 0);
   assert.equal((await store.findUserById(user.id))?.freeDiagnosesUsed, 0);
 
-  // Upgrade to Pro (as the webhook would), then diagnoses never decrement.
+  // Upgrade to Pro (as the webhook would: plan update + bucket refill).
   await store.applyPlanUpdate({ accountType: "driver", accountId: user.id, plan: "pro" });
-  const pro = await store.findUserById(user.id);
-  assert.ok(pro);
+  await store.resetMonthlyBucket("user", user.id, new Date());
   for (let i = 0; i < 7; i++) {
+    const fresh = await store.findUserById(user.id);
+    assert.ok(fresh);
     const events = await collect(
       executeDiagnosis(
         { store, provider },
-        { user: pro, request: { problem: `pro problem ${i}` } },
+        { user: fresh, request: { problem: `pro problem ${i}` } },
       ),
     );
     const done = doneEvent(events);
-    assert.equal(done.quota.remaining, null);
     assert.equal(done.quota.canDiagnose, true);
+    if (i < 5) {
+      assert.equal(done.quota.remaining, 4 - i, `run ${i + 1}: free diagnoses burn first`);
+      assert.equal(done.quota.bucket?.remaining, 100, "the bucket is untouched while free remain");
+    } else {
+      assert.equal(done.quota.remaining, 0);
+      assert.equal(done.quota.bucket?.remaining, 100 - (i - 4), `run ${i + 1}: the bucket pays`);
+    }
   }
-  assert.equal((await store.findUserById(user.id))?.freeDiagnosesUsed, 0);
+  const after = await store.findUserById(user.id);
+  assert.equal(after?.freeDiagnosesUsed, 5);
+  assert.equal(after?.monthlyDiagnosesUsed, 2);
   assert.equal(provider.calls.length, 7);
 });
 
