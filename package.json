@@ -36,5 +36,5 @@
     "typecheck": "tsc --noEmit",
     "test:e2e": "playwright test"
   },
-  "version": "0.4.29-demo-trust"
+  "version": "0.4.30-carousels"
 }

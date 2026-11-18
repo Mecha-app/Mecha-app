@@ -211,6 +211,17 @@ const tr: DeepPartial<Dictionary> = {
     ctaShops: "Yakınınızdaki servisleri bulun",
     accountNote: "Ücretsiz hesap — sonra MECHA size yakınınızdaki servisleri gösterir.",
   },
+  reviews: {
+    eyebrow: "Yorumlar",
+    title: "Sürücüler ne diyor.",
+    sampleBadge: "Örnek yorumlar",
+    prevLabel: "Önceki yorum",
+    nextLabel: "Sonraki yorum",
+  },
+  showcase: {
+    eyebrow: "Kullanımda",
+    title: "MECHA sürücülerin elinde.",
+  },
   howItWorks: {
     eyebrow: "Nasıl çalışır",
     heading: "Uyarı ışığından cevaba, dört adımda.",

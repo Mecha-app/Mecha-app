@@ -211,6 +211,17 @@ const ar: DeepPartial<Dictionary> = {
     ctaShops: "ابحث عن ورش بالقرب منك",
     accountNote: "حساب مجاني — ثم يعرض MECHA الورش القريبة منك.",
   },
+  reviews: {
+    eyebrow: "التقييمات",
+    title: "ماذا يقول السائقون.",
+    sampleBadge: "تقييمات تجريبية",
+    prevLabel: "التقييم السابق",
+    nextLabel: "التقييم التالي",
+  },
+  showcase: {
+    eyebrow: "قيد الاستخدام",
+    title: "MECHA بين أيدي السائقين.",
+  },
   howItWorks: {
     eyebrow: "كيف يعمل",
     heading: "من ضوء تحذير إلى إجابة، في أربع خطوات.",

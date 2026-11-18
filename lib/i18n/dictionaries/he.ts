@@ -211,6 +211,17 @@ const he: DeepPartial<Dictionary> = {
     ctaShops: "מצאו מוסכים בקרבתכם",
     accountNote: "חשבון חינם — ואז MECHA מציג מוסכים בקרבתכם.",
   },
+  reviews: {
+    eyebrow: "ביקורות",
+    title: "מה נהגים אומרים.",
+    sampleBadge: "ביקורות לדוגמה",
+    prevLabel: "הביקורת הקודמת",
+    nextLabel: "הביקורת הבאה",
+  },
+  showcase: {
+    eyebrow: "בשימוש",
+    title: "MECHA בידי הנהגים.",
+  },
   howItWorks: {
     eyebrow: "איך זה עובד",
     heading: "מנורת אזהרה לתשובה, בארבעה צעדים.",

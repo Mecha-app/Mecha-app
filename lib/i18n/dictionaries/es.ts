@@ -198,6 +198,17 @@ const es: DeepPartial<Dictionary> = {
     ctaShops: "Encuentra talleres cerca de ti",
     accountNote: "Cuenta gratuita — luego MECHA te muestra talleres cerca de ti.",
   },
+  reviews: {
+    eyebrow: "Reseñas",
+    title: "Lo que dicen los conductores.",
+    sampleBadge: "Reseñas de ejemplo",
+    prevLabel: "Reseña anterior",
+    nextLabel: "Reseña siguiente",
+  },
+  showcase: {
+    eyebrow: "En uso",
+    title: "MECHA en manos de conductores.",
+  },
   howItWorks: {
     eyebrow: "Cómo funciona",
     heading: "De la luz de advertencia a la respuesta, en cuatro pasos.",

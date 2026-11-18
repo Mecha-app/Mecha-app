@@ -199,6 +199,17 @@ const fr: DeepPartial<Dictionary> = {
     ctaShops: "Trouver des garages près de vous",
     accountNote: "Compte gratuit — ensuite MECHA vous montre les garages près de vous.",
   },
+  reviews: {
+    eyebrow: "Avis",
+    title: "Ce que disent les conducteurs.",
+    sampleBadge: "Avis d'exemple",
+    prevLabel: "Avis précédent",
+    nextLabel: "Avis suivant",
+  },
+  showcase: {
+    eyebrow: "En usage",
+    title: "MECHA entre les mains des conducteurs.",
+  },
   howItWorks: {
     eyebrow: "Comment ça marche",
     heading: "Du voyant allumé à la réponse, en quatre étapes.",

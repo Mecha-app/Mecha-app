@@ -211,6 +211,17 @@ const ru: DeepPartial<Dictionary> = {
     ctaShops: "Найти мастерские рядом",
     accountNote: "Бесплатный аккаунт — затем MECHA покажет мастерские рядом с вами.",
   },
+  reviews: {
+    eyebrow: "Отзывы",
+    title: "Что говорят водители.",
+    sampleBadge: "Примеры отзывов",
+    prevLabel: "Предыдущий отзыв",
+    nextLabel: "Следующий отзыв",
+  },
+  showcase: {
+    eyebrow: "В деле",
+    title: "MECHA в руках водителей.",
+  },
   howItWorks: {
     eyebrow: "Как это работает",
     heading: "От сигнальной лампы до ответа — четыре шага.",

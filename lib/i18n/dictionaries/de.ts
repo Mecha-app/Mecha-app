@@ -211,6 +211,17 @@ const de: DeepPartial<Dictionary> = {
     ctaShops: "Werkstätten in Ihrer Nähe finden",
     accountNote: "Kostenloses Konto — dann zeigt MECHA Werkstätten in Ihrer Nähe.",
   },
+  reviews: {
+    eyebrow: "Bewertungen",
+    title: "Was Fahrer sagen.",
+    sampleBadge: "Beispielbewertungen",
+    prevLabel: "Vorherige Bewertung",
+    nextLabel: "Nächste Bewertung",
+  },
+  showcase: {
+    eyebrow: "Im Einsatz",
+    title: "MECHA in Fahrerhänden.",
+  },
   howItWorks: {
     eyebrow: "So funktioniert es",
     heading: "Von der Warnleuchte zur Antwort, in vier Schritten.",

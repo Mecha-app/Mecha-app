@@ -8,6 +8,8 @@ import { HomeFooter } from "@/components/HomeFooter";
 import { HomeHeader } from "@/components/HomeHeader";
 import { HomeMarketplace } from "@/components/HomeMarketplace";
 import { HomePlans } from "@/components/HomePlans";
+import { HomeReviews } from "@/components/HomeReviews";
+import { HomeShowcase } from "@/components/HomeShowcase";
 import { HomeScan } from "@/components/HomeScan";
 import { HomeShops } from "@/components/HomeShops";
 import { HomeSteps } from "@/components/HomeSteps";
@@ -162,6 +164,17 @@ import { HomeVault } from "@/components/HomeVault";
  * text link to /demo under its two buttons. Nothing else
  * moved; the compare section and the closing films keep
  * their places.
+ *
+ * Pass #19 follow-up (2026-11-17, owner: "make it visible,
+ * like the competitor sites"): TWO sections join the proof
+ * area between the comparison and the closing band —
+ * HomeReviews, a rotating reviews carousel fed ONLY by
+ * lib/reviews (today: SAMPLE reviews under a visible
+ * "Sample reviews" badge; real permissioned reviews replace
+ * the samples wholesale when they exist — the rule lives in
+ * the data file), and HomeShowcase, an auto-passing carousel
+ * reusing the product-in-use loop clips. The closing films
+ * still end the page, directly above the footer.
  */
 export default function HomePage() {
   return (
@@ -174,6 +187,8 @@ export default function HomePage() {
         <HomeMarketplace />
         <HomePlans />
         <HomeCompare />
+        <HomeReviews />
+        <HomeShowcase />
         <HomeCta />
         <HomeDiagnosis />
         <HomeFairPrice />

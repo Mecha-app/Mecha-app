@@ -199,6 +199,17 @@ const ht: DeepPartial<Dictionary> = {
     ctaShops: "Jwenn atelye toupre w",
     accountNote: "Kont gratis — apre sa MECHA montre w atelye toupre w.",
   },
+  reviews: {
+    eyebrow: "Avi",
+    title: "Sa chofè yo di.",
+    sampleBadge: "Avi egzanp",
+    prevLabel: "Avi anvan",
+    nextLabel: "Avi swivan",
+  },
+  showcase: {
+    eyebrow: "An sèvis",
+    title: "MECHA nan men chofè.",
+  },
   howItWorks: {
     eyebrow: "Kijan li mache",
     heading: "Depi limyè avètisman rive nan repons lan, an kat etap.",

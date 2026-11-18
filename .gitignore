@@ -1,0 +1,6 @@
+# Build artifacts — never commit (pass #19 follow-up: a stray
+# `git add tests` once swept tests/.build into a push).
+.next/
+tests/.build/
+tsconfig.tsbuildinfo
+node_modules/

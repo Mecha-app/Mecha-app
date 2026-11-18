@@ -211,6 +211,17 @@ const uk: DeepPartial<Dictionary> = {
     ctaShops: "Знайти майстерні поруч",
     accountNote: "Безкоштовний запис — потім MECHA покаже майстерні поруч із вами.",
   },
+  reviews: {
+    eyebrow: "Відгуки",
+    title: "Що кажуть водії.",
+    sampleBadge: "Приклади відгуків",
+    prevLabel: "Попередній відгук",
+    nextLabel: "Наступний відгук",
+  },
+  showcase: {
+    eyebrow: "У дії",
+    title: "MECHA в руках водіїв.",
+  },
   howItWorks: {
     eyebrow: "Як це працює",
     heading: "Від сигнальної лампи до відповіді — чотири кроки.",

@@ -76,6 +76,13 @@
  *     only; tests/demo.test.ts pins the whole pass). The hero
  *     also carries a small text link to /demo under its two
  *     buttons. Pass #17's film block stays at the bottom.
+ *   - Pass #19 follow-up (2026-11-17, owner): HomeReviews +
+ *     HomeShowcase join the proof area between HomeCompare and
+ *     HomeCta — a data-driven reviews carousel (samples today,
+ *     under a visible "Sample reviews" badge; lib/reviews is
+ *     the single source) and an auto-passing band of the site's
+ *     own loop clips. tests/carousels.test.ts pins both. The
+ *     film block still closes the page.
  *   - NOT taken from the references: #2's left-aligned hero and
  *     example-diagnosis card, #1's form card, possible-causes
  *     card, guidance meter, and card row. The old stacked
@@ -98,6 +105,8 @@ const SECTIONS = [
   "<HomeMarketplace",
   "<HomePlans",
   "<HomeCompare",
+  "<HomeReviews",
+  "<HomeShowcase",
   "<HomeCta",
   "<HomeDiagnosis",
   "<HomeFairPrice",
@@ -107,7 +116,7 @@ const SECTIONS = [
   "<HomeFooter",
 ];
 
-test("homepage composition: header, hero, demo, steps, marketplace, plans, compare, blue band, the film sections at the end, minimal footer — nothing else", () => {
+test("homepage composition: header, hero, demo, steps, marketplace, plans, compare, reviews, showcase, blue band, the film sections at the end, minimal footer — nothing else", () => {
   const page = read("app/page.tsx");
   for (const shell of SECTIONS) {
     assert.ok(page.includes(shell), `homepage renders ${shell}`);

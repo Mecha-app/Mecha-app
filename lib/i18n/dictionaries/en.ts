@@ -220,6 +220,17 @@ const en = {
     ctaShops: "Find shops near you",
     accountNote: "Free account — then MECHA shows shops near you.",
   },
+  reviews: {
+    eyebrow: "Reviews",
+    title: "What drivers say.",
+    sampleBadge: "Sample reviews",
+    prevLabel: "Previous review",
+    nextLabel: "Next review",
+  },
+  showcase: {
+    eyebrow: "In use",
+    title: "MECHA in drivers' hands.",
+  },
   howItWorks: {
     eyebrow: "How it works",
     heading: "From warning light to answer, in four steps.",
