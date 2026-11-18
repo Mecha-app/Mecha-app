@@ -64,6 +64,8 @@ const ar: DeepPartial<Dictionary> = {
     marketTitle: "اشترِ وبِع مع الصورة الكاملة.",
     marketLine: "إعلانات مع مجموعة الصور الموجهة الكاملة — الأمام، الخلف، الجانبان، الداخل.",
     marketCta: "تصفح السيارات",
+    watchWithSound: "شاهد مع الصوت",
+    soundOff: "كتم الصوت",
     compareTitle: "MECHA مقابل",
     compareTitleAlt: "التطبيقات الأخرى.",
     compareMecha: "MECHA",

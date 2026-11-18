@@ -64,6 +64,8 @@ const he: DeepPartial<Dictionary> = {
     marketTitle: "קנו ומכרו עם התמונה המלאה.",
     marketLine: "מודעות עם סט התמונות המודרך המלא — קדימה, אחורה, שני הצדדים, פנים.",
     marketCta: "עיינו ברכבים",
+    watchWithSound: "צפו עם קול",
+    soundOff: "השתקה",
     compareTitle: "MECHA מול",
     compareTitleAlt: "אפליקציות אחרות.",
     compareMecha: "MECHA",

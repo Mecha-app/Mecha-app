@@ -67,6 +67,8 @@ const en = {
     marketTitle: "Buy and sell with the full picture.",
     marketLine: "Listings with the full guided photo set — front, back, both sides, interior.",
     marketCta: "Browse cars",
+    watchWithSound: "Watch with sound",
+    soundOff: "Mute",
     compareTitle: "MECHA vs.",
     compareTitleAlt: "other apps.",
     compareMecha: "MECHA",

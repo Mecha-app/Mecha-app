@@ -64,6 +64,8 @@ const tr: DeepPartial<Dictionary> = {
     marketTitle: "Tam resmi görerek alın ve satın.",
     marketLine: "Rehberli tam fotoğraf setiyle ilanlar — ön, arka, iki yan, iç mekân.",
     marketCta: "Arabalara göz at",
+    watchWithSound: "Sesli izle",
+    soundOff: "Sessize al",
     compareTitle: "MECHA vs.",
     compareTitleAlt: "diğer uygulamalar.",
     compareMecha: "MECHA",

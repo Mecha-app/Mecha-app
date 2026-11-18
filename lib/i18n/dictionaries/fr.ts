@@ -63,6 +63,8 @@ const fr: DeepPartial<Dictionary> = {
     marketTitle: "Achetez et vendez en toute connaissance.",
     marketLine: "Des annonces avec le jeu complet de photos guidées : avant, arrière, les deux côtés, intérieur.",
     marketCta: "Parcourir les voitures",
+    watchWithSound: "Regarder avec le son",
+    soundOff: "Couper le son",
     compareTitle: "MECHA vs.",
     compareTitleAlt: "les autres applis.",
     compareMecha: "MECHA",

@@ -64,6 +64,8 @@ const ru: DeepPartial<Dictionary> = {
     marketTitle: "Покупайте и продавайте с полной картиной.",
     marketLine: "Объявления с полным набором фото по шагам — спереди, сзади, с обеих сторон, салон.",
     marketCta: "Смотреть автомобили",
+    watchWithSound: "Смотреть со звуком",
+    soundOff: "Выключить звук",
     compareTitle: "MECHA vs.",
     compareTitleAlt: "другие приложения.",
     compareMecha: "MECHA",

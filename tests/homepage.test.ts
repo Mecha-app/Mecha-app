@@ -309,10 +309,19 @@ test("home vault: roadside loop, the NHTSA line, one button to /register", () =>
   assert.ok(s.includes('href="/register"'), "the button targets create account — the vault lives inside one");
 });
 
-test("home marketplace: the generated listing photo, one button to /marketplace", () => {
+test("home marketplace: the talking explainer is the visual, one button to /marketplace, watch-with-sound wired", () => {
   const s = read("components/HomeMarketplace.tsx");
-  assert.ok(s.includes('image="/images/marketplace-car.jpg"'), "the generated car-for-sale photo is the visual");
-  assert.ok(existsSync(join(root, "public/images/marketplace-car.jpg")), "the photo ships as a local asset");
+  assert.ok(!s.includes("marketplace-car.jpg"), "the stock photo is gone — the film replaced it");
+  assert.ok(s.includes('src="/videos/mecha-explainer.webm"') && s.includes('src="/videos/mecha-explainer.mp4"'), "the explainer is the visual (webm first, mp4 fallback)");
+  assert.ok(existsSync(join(root, "public/videos/mecha-explainer.mp4")), "the explainer mp4 ships as a local asset");
+  assert.ok(existsSync(join(root, "public/videos/mecha-explainer.webm")), "the explainer webm ships as a local asset");
+  assert.ok(s.includes('poster="/videos/explainer-poster.jpg"'), "the poster is a frame from the film");
+  assert.ok(existsSync(join(root, "public/videos/explainer-poster.jpg")), "the poster ships as a local asset");
+  assert.ok(s.includes("autoPlay") && s.includes("muted") && s.includes("loop") && s.includes("playsInline"), "the ambient pass is a muted autoplaying loop");
+  assert.ok(s.includes('preload="none"') && s.includes("IntersectionObserver"), "the film lazy-loads near the viewport — the homepage does not pay for it up front");
+  assert.ok(s.includes("t.hero.watchWithSound"), "the watch-with-sound control is labeled from the catalog");
+  assert.ok(s.includes("currentTime = 0") && s.includes("muted = false"), "one tap restarts the film from the beginning, unmuted — the narration is the point");
+  assert.ok(s.includes("t.hero.soundOff"), "the mute control is labeled from the catalog");
   assert.ok(s.includes("t.hero.marketTitle") && s.includes("t.hero.marketLine"), "headline + one line from the catalog");
   assert.ok(s.includes("t.hero.marketCta"), "the button label is Browse cars");
   assert.ok(s.includes('href="/marketplace"'), "the button targets the marketplace");

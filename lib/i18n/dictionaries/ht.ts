@@ -63,6 +63,8 @@ const ht: DeepPartial<Dictionary> = {
     marketTitle: "Achte epi vann ak tout imaj la.",
     marketLine: "Anons ak tout seri foto gide yo — devan, dèyè, tou de bò, anndan.",
     marketCta: "Gade machin yo",
+    watchWithSound: "Gade ak son",
+    soundOff: "Koupe son",
     compareTitle: "MECHA vs.",
     compareTitleAlt: "lòt aplikasyon yo.",
     compareMecha: "MECHA",
