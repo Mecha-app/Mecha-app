@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState, type ChangeEvent } from "react";
 import { AppNav } from "@/components/AppNav";
+import { HumanHelpCard } from "@/components/HumanHelpCard";
 import SavedVehicleField from "@/components/SavedVehicleField";
 import { apiDetail, apiFetch } from "@/lib/client/api";
 import { authHeaders, clearSession, getToken } from "@/lib/client/auth";
@@ -730,6 +731,14 @@ export default function ScanPage() {
                     <p className="text-sm leading-relaxed text-ink-3">
                       {photoResult.disclaimer}
                     </p>
+                    {/* The human-help route (pass #19, owner order):
+                        any Critical light in the reading — oil
+                        pressure, brake system, coolant — puts the
+                        urgent card (stop-driving guidance + shops
+                        near you) right under the result. */}
+                    {photoResult.lights.some((light) => light.severity === "Critical") && (
+                      <HumanHelpCard variant="urgent" audience="app" />
+                    )}
                     <div className="flex flex-col gap-3 sm:flex-row">
                       <button
                         type="button"

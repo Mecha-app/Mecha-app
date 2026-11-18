@@ -87,6 +87,16 @@ export function Hero() {
             {t.hero.howCta}
           </Link>
         </div>
+
+        {/* Pass #19 (owner order): the guided demo, reachable
+            from the hero — a quiet text link under the two
+            buttons, not a third button. */}
+        <Link
+          href="/demo"
+          className="mt-6 text-[15px] font-medium text-white/85 underline decoration-white/50 underline-offset-4 transition-colors hover:text-white"
+        >
+          {t.hero.demoCta}
+        </Link>
       </div>
     </section>
   );

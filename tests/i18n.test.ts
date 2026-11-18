@@ -137,9 +137,9 @@ test("translated % per locale (reported in STATUS; fallback is resolution, not t
 
 test("spot content: verdict words and plan names follow the ES/FR pattern in growth locales", () => {
   // Verdict words are translated (never left as raw EN product terms)…
-  assert.equal(getPath(getDictionary("de"), "fairPrice.verdictWord"), "Hoch");
-  assert.equal(getPath(getDictionary("ar"), "fairPrice.verdictWord"), "مرتفع");
-  assert.equal(getPath(getDictionary("he"), "fairPrice.verdictWord"), "יקר");
+  assert.equal(getPath(getDictionary("de"), "fairPrice.verdictWord"), "Über dem Schätzbereich");
+  assert.equal(getPath(getDictionary("ar"), "fairPrice.verdictWord"), "أعلى من نطاق التقدير");
+  assert.equal(getPath(getDictionary("he"), "fairPrice.verdictWord"), "מעל טווח ההערכה");
   // …while brand/plan names stay MECHA / Pro / Business in every locale.
   for (const code of GROWTH) {
     const dict = getDictionary(code);

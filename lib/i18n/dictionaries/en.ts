@@ -43,6 +43,7 @@ const en = {
     copilotTitle: "Your AI mechanic copilot.",
     startFreeCta: "Start a free diagnosis",
     howCta: "See how it works",
+    demoCta: "See a sample first",
     stepsTitle: "Three simple steps.",
     step1Title: "Add your car",
     step1Line: "Tell us what you drive.",
@@ -103,11 +104,11 @@ const en = {
     protect: {
       title: "Protect",
       body: "Photograph any shop quote. MECHA checks it line by line and flags every line priced above the fair range.",
-      point1: "Line-item verdicts: fair, high, or rip-off",
+      point1: "Line-item verdicts: within range, above the estimate range, or ask the shop to explain",
       point2: "The comparison is the receipt — show it at the counter",
       point3: "Shops on MECHA know quotes get checked",
       detail:
-        "Fair: inside the range. High: above it — ask why. Rip-off: far past fair — question it first.",
+        "Within range: at or under the estimate for that job on your car. Above the estimate range: ask why. Far above it: ask the shop to explain before you approve anything.",
     },
     remember: {
       title: "Remember",
@@ -122,20 +123,102 @@ const en = {
   fairPrice: {
     eyebrow: "Fair Price vs Their Quote",
     heading: "The quote, checked line by line.",
-    body: "The check MECHA runs on any repair quote: what the shop asked, what the job fairly costs, and which lines to question.",
+    body: "The check MECHA runs on any repair quote: what the shop asked, what the job fairly costs, and which lines to ask the shop to explain.",
     exampleLabel: "Example — illustrative numbers",
     jobLabel: "Alternator replacement",
     theirQuote: "Their quote",
     fairRange: "Fair range",
     total: "Total",
-    verdictWord: "High",
+    verdictWord: "Above the estimate range",
     verdictText:
-      "Two lines price above the fair range for this car. Question the part markup and the shop-supplies fee before approving.",    lines: {
-      part: { name: "Alternator (part)", verdict: "High" },
-      labor: { name: "Labor", verdict: "Fair" },
-      supplies: { name: "Shop supplies fee", verdict: "Rip-off" },
+      "Two lines price above the estimate range for this car. Ask the shop to explain the part price and the shop-supplies fee before you approve.",
+    lines: {
+      part: { name: "Alternator (part)", verdict: "Above the estimate range" },
+      labor: { name: "Labor", verdict: "Within range" },
+      supplies: { name: "Shop supplies fee", verdict: "Ask the shop to explain" },
     },
     lineTypes: { part: "Part", labor: "Labor", fee: "Fee" },
+  },
+  demo: {
+    eyebrow: "Guided demo",
+    title: "See MECHA work. No account needed.",
+    sampleLabel: "Sample",
+    sampleNote:
+      "A walkthrough with sample results — a real diagnosis of your own car needs a free account.",
+    startCta: "Start the demo",
+    backCta: "Back",
+    nextCta: "Next",
+    step1Title: "A dashboard photo, read",
+    step1Intro:
+      "A real MECHA reading from a real dashboard photo — five warning lights, read in seconds:",
+    sevCritical: "Critical",
+    sevModerate: "Moderate — Fix Soon",
+    sevMinor: "Minor — Monitor",
+    light1Name: "Traction control",
+    light1Meaning:
+      "The system that keeps the wheels from spinning is off or faulty. Drive gently, especially in the rain.",
+    light2Name: "Battery / charging",
+    light2Meaning:
+      "The charging system is failing — the car is running on battery alone, and it will stop when the battery runs out.",
+    light3Name: "Oil pressure",
+    light3Meaning:
+      "Oil is not reaching the engine. Running it like this can ruin the engine in minutes.",
+    light4Name: "Check engine",
+    light4Meaning:
+      "The engine computer found a fault. Get it diagnosed soon, before it grows.",
+    light5Name: "Fuel pump",
+    light5Meaning:
+      "Fuel is not reaching the engine properly. The car may hesitate or stall.",
+    step2Title: "A quote, checked",
+    step2Intro:
+      "A shop quoted $780 to replace an alternator. MECHA checks each line against the estimate range for that car:",
+    step2How: "How MECHA builds an estimate",
+    step3Title: "When MECHA isn't sure",
+    step4Title: "Now your car.",
+    step4Body:
+      "Create a free account and run a real diagnosis on your own car. Your first 5 diagnoses are free — no card required.",
+    step4Cta: "Create your free account",
+    step4Secondary: "See pricing",
+  },
+  estimates: {
+    eyebrow: "How estimates work",
+    heading: "Where the range comes from.",
+    body: "MECHA's AI builds the estimate from your car and the repair itself: the parts the job needs, what those parts cost, and the labor time the job should take. It gives a range, not one number — because the real price moves with three things.",
+    locationTitle: "Where you are",
+    locationBody:
+      "Labor is billed by the hour, and hourly rates differ from city to city — and between a small shop and a dealer.",
+    vehicleTitle: "Your exact car",
+    vehicleBody:
+      "Year, make, model, and engine change the parts the job needs and how long it takes.",
+    partsTitle: "The parts you choose",
+    partsBody:
+      "A factory (OEM) part costs more than an aftermarket part, and a remanufactured part costs less than a new one. Ask the shop which kind they quoted.",
+    note: "An estimate is a range to judge a quote by — never a promise of the final bill.",
+  },
+  uncertainty: {
+    eyebrow: "Honest answers",
+    heading: "When MECHA can't narrow it down, it says so.",
+    symptom: "“A grinding noise when I turn left — but only sometimes.”",
+    answerBody:
+      "Three causes fit, and the description alone can't separate them. So MECHA shows all three with one wide range, instead of picking one and sounding sure.",
+    cause1: "Wheel bearing — possible",
+    cause2: "CV joint — possible",
+    cause3: "Brake hardware — possible",
+    rangeValue: "$150–$700",
+    helpsTitle: "What would narrow it down",
+    help1: "When it happens — speed, turns, braking",
+    help2: "A short video of the noise",
+    help3: "A fault code, if a light is on",
+  },
+  help: {
+    urgentTitle: "This needs a human — now.",
+    urgentBody:
+      "Don't drive on it. Stop somewhere safe, switch the engine off, and have the car towed to a shop.",
+    unsureTitle: "A mechanic should see this one.",
+    unsureBody:
+      "When MECHA can't narrow it down, hands on the car beat a guess — a shop can check it in person.",
+    ctaShops: "Find shops near you",
+    accountNote: "Free account — then MECHA shows shops near you.",
   },
   howItWorks: {
     eyebrow: "How it works",

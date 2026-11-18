@@ -14,7 +14,11 @@ import { Reveal } from "./Reveal";
  * pricing engine per vehicle (WP5); here they demonstrate the component.
  *
  * Verdict colors are product semantics only (§1.2): fair / warn / rip,
- * always shipped with a word label — never color alone.
+ * always shipped with a word label — never color alone. The WORDS
+ * are the safer quote-check vocabulary (pass #19, 2026-11-17):
+ * "Within range", "Above the estimate range", and "Ask the shop to
+ * explain" — the fair-price promise stays, the old accusatory
+ * wording is gone from every locale.
  */
 
 type VerdictKind = "fair" | "warn" | "rip";

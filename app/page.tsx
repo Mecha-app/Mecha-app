@@ -1,5 +1,6 @@
 import { Hero } from "@/components/Hero";
 import { HomeCompare } from "@/components/HomeCompare";
+import { HomeDemo } from "@/components/HomeDemo";
 import { HomeCta } from "@/components/HomeCta";
 import { HomeDiagnosis } from "@/components/HomeDiagnosis";
 import { HomeFairPrice } from "@/components/HomeFairPrice";
@@ -152,6 +153,15 @@ import { HomeVault } from "@/components/HomeVault";
  * card, exactly four short rows of true, live features, and
  * nothing else. No other section moved or changed; the films
  * still close the page.
+ *
+ * Pass #19 (2026-11-17, owner order): ONE new section —
+ * HomeDemo, directly under the hero: the guided demo's door
+ * (one headline, one line, one button to /demo, where a
+ * visitor walks a sample diagnosis and a sample quote check
+ * before creating an account). The hero also gains a small
+ * text link to /demo under its two buttons. Nothing else
+ * moved; the compare section and the closing films keep
+ * their places.
  */
 export default function HomePage() {
   return (
@@ -159,6 +169,7 @@ export default function HomePage() {
       <HomeHeader />
       <main>
         <Hero />
+        <HomeDemo />
         <HomeSteps />
         <HomeMarketplace />
         <HomePlans />

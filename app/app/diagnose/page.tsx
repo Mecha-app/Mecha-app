@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState, type FormEvent } from "react";
+import { HumanHelpCard } from "@/components/HumanHelpCard";
 import PartsNextSteps from "@/components/PartsNextSteps";
 import SavedVehicleField from "@/components/SavedVehicleField";
 import { AppNav } from "@/components/AppNav";
@@ -363,6 +364,28 @@ export default function DiagnosePage() {
             <p className="mt-5 text-sm leading-relaxed text-ink-3">{report.disclaimer}</p>
           </section>
         )}
+
+        {/* The human-help route (pass #19, owner order) — shown
+            from the finished report's own signals, no backend
+            change: a Critical severity or a do-not-drive verdict
+            gets the urgent card (stop-driving guidance + shops
+            near you); a report whose causes are ALL conditional —
+            the model marked nothing most likely — gets the
+            not-narrowed-down card instead of false confidence. */}
+        {report && (report.severity === "Critical" || !report.safeToDriver) && (
+          <div className="mt-6">
+            <HumanHelpCard variant="urgent" audience="app" />
+          </div>
+        )}
+        {report &&
+          report.severity !== "Critical" &&
+          report.safeToDriver &&
+          report.parts.length > 0 &&
+          !report.parts.some((part) => part.likelihood === "likely") && (
+            <div className="mt-6">
+              <HumanHelpCard variant="unsure" audience="app" />
+            </div>
+          )}
 
         {/* After the verdict, the causes, and the next steps — never
             above them: the parts / shops block built from this finished

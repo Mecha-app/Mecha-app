@@ -70,6 +70,12 @@
  *     a white card vs a muted "Other apps" card, exactly four
  *     short rows of true live features, all copy from the hero
  *     catalog. The dedicated test below pins the section.
+ *   - Pass #19 (2026-11-17, owner): HomeDemo sits directly under
+ *     the Hero — one headline + the sample note + one blue button
+ *     to /demo, the guided sample walkthrough (canned content
+ *     only; tests/demo.test.ts pins the whole pass). The hero
+ *     also carries a small text link to /demo under its two
+ *     buttons. Pass #17's film block stays at the bottom.
  *   - NOT taken from the references: #2's left-aligned hero and
  *     example-diagnosis card, #1's form card, possible-causes
  *     card, guidance meter, and card row. The old stacked
@@ -87,6 +93,7 @@ const read = (rel: string) => readFileSync(join(root, rel), "utf8");
 const SECTIONS = [
   "<HomeHeader",
   "<Hero",
+  "<HomeDemo",
   "<HomeSteps",
   "<HomeMarketplace",
   "<HomePlans",
@@ -100,7 +107,7 @@ const SECTIONS = [
   "<HomeFooter",
 ];
 
-test("homepage composition: header, hero, steps, marketplace, plans, compare, blue band, the film sections at the end, minimal footer — nothing else", () => {
+test("homepage composition: header, hero, demo, steps, marketplace, plans, compare, blue band, the film sections at the end, minimal footer — nothing else", () => {
   const page = read("app/page.tsx");
   for (const shell of SECTIONS) {
     assert.ok(page.includes(shell), `homepage renders ${shell}`);

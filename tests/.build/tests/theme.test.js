@@ -1,0 +1,220 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+/**
+ * Theme atomicity tests — regression guard for the owner-caught
+ * production defect of 2026-11-03 (mechatech.io, light theme):
+ * the homepage rendered a LIGHT page background with the DARK theme's
+ * near-white text — headline white-on-white, logo and header pills
+ * ghosted — while /register rendered correctly.
+ *
+ * Root cause pinned here: the design-elevation "cinematic scopes"
+ * (.hero-scope / .header-overlay in app/globals.css) ASSIGNED the dark
+ * theme's --color-ink-* / --color-line / --color-inset values
+ * unconditionally for copy that once sat on the full-bleed hero film.
+ * After the hero restructure (film = framed player, copy on the plain
+ * page background), a light-theme render resolved its background from
+ * the light token set and its foregrounds from those forced dark
+ * values — two theme sets in one render.
+ *
+ * The structural rules these tests enforce:
+ *   1. Each theme block defines the COMPLETE semantic token family —
+ *      background and foreground tokens always ship together.
+ *   2. NO rule outside the two theme blocks may assign a --color-*
+ *      token. Scoped token overrides are the desync mechanism; they
+ *      are banned, not merely audited.
+ *   3. In each theme, the page background and the primary ink sit on
+ *      opposite ends of the luminance range (the pairing a reader
+ *      actually depends on).
+ *   4. Theme selection has exactly ONE mechanism: the pre-paint script
+ *      sets [data-theme] from the stored preference, defaulting to
+ *      light. No prefers-color-scheme input, no scope classes in the
+ *      hero/header components.
+ *   5. ONE WEBSITE (design pass #7, 2026-11-16 — the owner clicked
+ *      from the new light homepage into pages still running the dark
+ *      theme with the gold accent: "it seems like I'm on the other
+ *      website… the colors are not the same"): the LIGHT token set
+ *      is the global default (:root carries it), the primary accent
+ *      is the reference blue #2563eb in BOTH theme blocks, and the
+ *      retired amber/gold hexes appear nowhere in globals.css.
+ */
+const node_test_1 = require("node:test");
+const strict_1 = __importDefault(require("node:assert/strict"));
+const node_fs_1 = require("node:fs");
+const node_path_1 = require("node:path");
+const root = process.cwd();
+const cssRaw = (0, node_fs_1.readFileSync)((0, node_path_1.join)(root, "app/globals.css"), "utf8");
+const css = cssRaw.replace(/\/\*[\s\S]*?\*\//g, "");
+/** The complete semantic family every theme block must define. */
+const THEME_TOKENS = [
+    "--color-bg",
+    "--color-surface",
+    "--color-surface-raised",
+    "--color-inset",
+    "--color-line",
+    "--color-ink-1",
+    "--color-ink-2",
+    "--color-ink-3",
+    "--color-accent",
+    "--color-accent-bright",
+    "--color-accent-deep",
+    "--color-accent-ink",
+];
+/** Minimal brace-matching rule parser (recurses into @media). */
+function parseRules(text) {
+    const rules = [];
+    let i = 0;
+    while (i < text.length) {
+        const open = text.indexOf("{", i);
+        if (open === -1)
+            break;
+        const selector = text.slice(i, open).trim();
+        let depth = 1;
+        let j = open + 1;
+        while (j < text.length && depth > 0) {
+            if (text[j] === "{")
+                depth++;
+            else if (text[j] === "}")
+                depth--;
+            j++;
+        }
+        const body = text.slice(open + 1, j - 1);
+        if (selector.startsWith("@media")) {
+            rules.push(...parseRules(body));
+        }
+        else if (selector && !selector.startsWith("@keyframes")) {
+            rules.push({ selector, body });
+        }
+        i = j;
+    }
+    return rules;
+}
+const rules = parseRules(css);
+function themeBlock(theme) {
+    const rule = rules.find((r) => r.selector.includes(`[data-theme="${theme}"]`));
+    strict_1.default.ok(rule, `globals.css must define a [data-theme="${theme}"] block`);
+    return rule;
+}
+function assignments(body) {
+    const out = new Map();
+    for (const m of body.matchAll(/(--color-[a-z0-9-]+)\s*:\s*([^;]+);/g)) {
+        out.set(m[1], m[2].trim());
+    }
+    return out;
+}
+/** WCAG relative luminance of a #rrggbb color. */
+function luminance(hex) {
+    const m = /^#([0-9a-f]{6})$/i.exec(hex.trim());
+    strict_1.default.ok(m, `expected a #rrggbb color, got "${hex}"`);
+    const [r, g, b] = [0, 2, 4].map((o) => {
+        const c = parseInt(m[1].slice(o, o + 2), 16) / 255;
+        return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+    });
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+}
+function stripTsComments(src) {
+    return src.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/[^\n]*/g, "$1");
+}
+(0, node_test_1.test)("each theme block defines the complete token family (bg + fg together)", () => {
+    for (const theme of ["dark", "light"]) {
+        const tokens = assignments(themeBlock(theme).body);
+        for (const token of THEME_TOKENS) {
+            strict_1.default.ok(tokens.has(token), `[data-theme="${theme}"] must define ${token} — background and foreground tokens ship as one set`);
+        }
+    }
+});
+(0, node_test_1.test)("no rule outside the two theme blocks assigns a --color-* token", () => {
+    for (const rule of rules) {
+        if (rule.selector.includes("[data-theme="))
+            continue;
+        const assigned = [...assignments(rule.body).keys()];
+        strict_1.default.deepEqual(assigned, [], `rule "${rule.selector}" assigns ${assigned.join(", ")} — scoped token overrides desync the theme (see the atomicity rule in globals.css)`);
+    }
+});
+/** WCAG contrast ratio between two #rrggbb colors. */
+function contrast(a, b) {
+    const [x, y] = [luminance(a), luminance(b)];
+    return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05);
+}
+(0, node_test_1.test)("background and primary ink are luminance-opposed in each theme", () => {
+    const dark = assignments(themeBlock("dark").body);
+    const light = assignments(themeBlock("light").body);
+    strict_1.default.ok(luminance(dark.get("--color-bg")) < 0.05, "dark theme bg must be near-black");
+    strict_1.default.ok(luminance(dark.get("--color-ink-1")) > 0.6, "dark theme ink-1 must be near-white");
+    strict_1.default.ok(luminance(light.get("--color-bg")) > 0.6, "light theme bg must be near-white");
+    strict_1.default.ok(luminance(light.get("--color-ink-1")) < 0.05, "light theme ink-1 must be near-black");
+});
+(0, node_test_1.test)("foreground contrast floors hold in both themes (owner readability rule)", () => {
+    // Owner add-on, 2026-11-03: light-mode text must be bold and clearly
+    // readable — near-black headlines, genuinely dark body copy, no
+    // pale-gray text, labels/links with real contrast. Dark mode already
+    // reads fine and must not degrade, so the same floors pin both.
+    const dark = assignments(themeBlock("dark").body);
+    const light = assignments(themeBlock("light").body);
+    for (const [name, tokens] of [
+        ["dark", dark],
+        ["light", light],
+    ]) {
+        const bg = tokens.get("--color-bg");
+        strict_1.default.ok(contrast(tokens.get("--color-ink-1"), bg) >= 12, `${name}: ink-1 (headlines) must reach 12:1 on bg`);
+        strict_1.default.ok(contrast(tokens.get("--color-ink-2"), bg) >= 7, `${name}: ink-2 (body copy) must reach 7:1 on bg`);
+        strict_1.default.ok(contrast(tokens.get("--color-ink-3"), bg) >= 4.5, `${name}: ink-3 (captions/labels) must reach 4.5:1 on bg — no pale gray`);
+        strict_1.default.ok(contrast(tokens.get("--color-accent"), bg) >= 3, `${name}: accent must stay visible on bg`);
+        // The CTA pairing: text ON the accent must be readable in both the
+        // resting and hover (accent-bright) states.
+        strict_1.default.ok(contrast(tokens.get("--color-accent-ink"), tokens.get("--color-accent")) >= 4.5, `${name}: accent-ink on accent must reach 4.5:1`);
+        strict_1.default.ok(contrast(tokens.get("--color-accent-ink"), tokens.get("--color-accent-bright")) >= 4.5, `${name}: accent-ink on accent-bright (hover) must reach 4.5:1`);
+    }
+    // Light theme carries the owner's explicit bar: labels/links in the
+    // accent color itself also meet the text floor on paper + surface.
+    for (const ground of ["--color-bg", "--color-surface"]) {
+        strict_1.default.ok(contrast(light.get("--color-accent"), light.get(ground)) >= 4.5, `light: accent labels must reach 4.5:1 on ${ground}`);
+        strict_1.default.ok(contrast(light.get("--color-ink-3"), light.get(ground)) >= 4.5, `light: ink-3 must reach 4.5:1 on ${ground}`);
+    }
+});
+(0, node_test_1.test)("one theme mechanism: stored preference + light default, no scope classes", () => {
+    const script = stripTsComments((0, node_fs_1.readFileSync)((0, node_path_1.join)(root, "components/ThemeScript.tsx"), "utf8"));
+    strict_1.default.ok(!script.includes("prefers-color-scheme"), "ThemeScript must not consult prefers-color-scheme — [data-theme] has one input: the stored preference");
+    strict_1.default.ok(script.includes('localStorage.getItem("mecha-theme")'));
+    // Pass #7: a first-time visitor (no stored preference) lands on
+    // light everywhere; a stored "dark" is still honored as the
+    // explicit opt-in.
+    strict_1.default.ok(script.includes('dataset.theme="light"'), "ThemeScript must default to light when no stored preference exists");
+    strict_1.default.ok(script.includes('"dark"'), "a stored dark preference remains a valid value");
+    for (const [file, banned] of [
+        ["components/Hero.tsx", "hero-scope"],
+        ["components/Header.tsx", "header-overlay"],
+    ]) {
+        const src = (0, node_fs_1.readFileSync)((0, node_path_1.join)(root, file), "utf8");
+        strict_1.default.ok(!src.includes(banned), `${file} must not use the .${banned} scope — it desyncs the theme`);
+    }
+    for (const rule of rules) {
+        strict_1.default.ok(!rule.selector.includes("hero-scope") && !rule.selector.includes("header-overlay"), `globals.css must not define scope overrides, found "${rule.selector}"`);
+    }
+});
+(0, node_test_1.test)("one website: light is the :root default and the accent is the unified blue in both themes (pass #7)", () => {
+    // The :root default (what a first paint / no-JS render resolves
+    // before any [data-theme] is set) is the light block: its selector
+    // pairs plain :root with [data-theme="light"].
+    const lightRule = rules.find((r) => r.selector.includes('[data-theme="light"]'));
+    strict_1.default.ok(lightRule, "a light theme block must exist");
+    strict_1.default.ok(lightRule.selector
+        .split(",")
+        .map((s) => s.trim())
+        .some((part) => part.endsWith(":root") && !part.includes("[data-theme")), ":root itself must carry the light token set — light is the global default, not a page scope");
+    for (const theme of ["dark", "light"]) {
+        const tokens = assignments(themeBlock(theme).body);
+        strict_1.default.equal(tokens.get("--color-accent"), "#2563eb", `${theme}: the primary accent is the reference blue`);
+        strict_1.default.equal(tokens.get("--color-accent-ink"), "#ffffff", `${theme}: text on the accent is white`);
+    }
+    // The retired amber/gold accent family appears nowhere in the
+    // stylesheet — no page can render the old gold primary again.
+    for (const retired of ["#f5a524", "#ffb84d", "#b97a0f", "#96620a", "#9c6608"]) {
+        strict_1.default.ok(!css.includes(retired), `globals.css must not contain the retired accent ${retired}`);
+    }
+    // The layout's SSR attribute agrees with the script default.
+    const layout = (0, node_fs_1.readFileSync)((0, node_path_1.join)(root, "app/layout.tsx"), "utf8");
+    strict_1.default.ok(layout.includes('data-theme="light"'), "the root layout renders data-theme=light by default");
+});

@@ -5,7 +5,9 @@ import type { ReactNode } from "react";
 import { useLocale } from "@/lib/i18n/LocaleProvider";
 import { Businesses } from "./Businesses";
 import { DiagnosisExample } from "./DiagnosisExample";
+import { EstimateExplainer } from "./EstimateExplainer";
 import { HowItWorks } from "./HowItWorks";
+import { UncertaintyExample } from "./UncertaintyExample";
 import { Pricing } from "./Pricing";
 import { Reveal } from "./Reveal";
 
@@ -260,6 +262,14 @@ export function DiagnosePageContent() {
       </section>
 
       <DiagnosisExample />
+
+      {/* Pass #19 (owner order): how a MECHA estimate is built
+          and what moves it, then the honest half of the evidence
+          — a worked example of MECHA saying it can't narrow a
+          problem down, with the route to a human. */}
+      <EstimateExplainer />
+
+      <UncertaintyExample />
 
       <section>
         <div className="mx-auto max-w-6xl px-4 py-24 sm:px-6 lg:py-36">
