@@ -115,3 +115,23 @@ export async function readOutcome(
   await ownedDiagnosis(store, userId, diagnosisId);
   return store.getDiagnosisOutcome(diagnosisId);
 }
+
+/**
+ * One saved diagnosis, read back whole for its owner (Pass #20b) —
+ * the record behind the detail view (/app/diagnoses/[id]). The
+ * detail page renders the STORED record — the same object the
+ * history lists and the share card are built from — so the range
+ * and verdict a driver sees there are the run's own, never a
+ * re-derivation. Another driver's id answers NotFoundError,
+ * indistinguishable from a missing one; the saved outcome rides
+ * along (null until the driver records one).
+ */
+export async function readDiagnosisDetail(
+  store: IdentityStore,
+  userId: string,
+  diagnosisId: string,
+): Promise<{ diagnosis: DiagnosisRecord; outcome: DiagnosisOutcome | null }> {
+  const diagnosis = await ownedDiagnosis(store, userId, diagnosisId);
+  const outcome = await store.getDiagnosisOutcome(diagnosisId);
+  return { diagnosis, outcome };
+}

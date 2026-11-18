@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useCallback, useEffect, useState, type FormEvent } from "react";
 import MaintenanceSection from "@/components/MaintenanceSection";
 import { AppNav } from "@/components/AppNav";
@@ -80,6 +81,11 @@ export default function VaultPage() {
   const { t } = useLocale();
   const v = t.wp6.vault;
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
+  // First-load gates (Pass #20b): until the first fetch resolves the
+  // page shows a loading state — never the empty add form, and the
+  // history's empty copy waits for a completed fetch too.
+  const [vehiclesLoaded, setVehiclesLoaded] = useState(false);
+  const [historyLoading, setHistoryLoading] = useState(false);
   const [selected, setSelected] = useState<Vehicle | null>(null);
   const [diagnoses, setDiagnoses] = useState<Diagnosis[]>([]);
   const [recalls, setRecalls] = useState<Recall[] | null>(null);
@@ -106,8 +112,12 @@ export default function VaultPage() {
   });
 
   const loadVehicles = useCallback(async () => {
-    const res = await apiFetch<{ vehicles: Vehicle[] }>("/api/vehicles");
-    if (res.status === 200) setVehicles(res.data.vehicles);
+    try {
+      const res = await apiFetch<{ vehicles: Vehicle[] }>("/api/vehicles");
+      if (res.status === 200) setVehicles(res.data.vehicles);
+    } finally {
+      setVehiclesLoaded(true);
+    }
   }, []);
 
   useEffect(() => {
@@ -128,8 +138,17 @@ export default function VaultPage() {
     setSafetyRatings(null);
     setRecallsState("idle");
     setNotice("");
-    const res = await apiFetch<{ diagnoses: Diagnosis[] }>(`/api/vehicles/${vehicle.id}`);
-    if (res.status === 200) setDiagnoses(res.data.diagnoses);
+    // A fresh vehicle's history starts empty AND loading — the
+    // previous vehicle's entries (or the empty copy) must never
+    // paint for this one (Pass #20b).
+    setDiagnoses([]);
+    setHistoryLoading(true);
+    try {
+      const res = await apiFetch<{ diagnoses: Diagnosis[] }>(`/api/vehicles/${vehicle.id}`);
+      if (res.status === 200) setDiagnoses(res.data.diagnoses);
+    } finally {
+      setHistoryLoading(false);
+    }
   }
 
   async function onAdd(e: FormEvent) {
@@ -241,7 +260,13 @@ export default function VaultPage() {
           {v.title}
         </h1>
 
-        {vehicles.length > 0 && (
+        {!vehiclesLoaded && (
+          <p className="mt-6 text-base text-ink-2" role="status">
+            Loading…
+          </p>
+        )}
+
+        {vehiclesLoaded && vehicles.length > 0 && (
           <ul className="mt-6 flex flex-col gap-2">
             {vehicles.map((vehicle) => (
               <li key={vehicle.id}>
@@ -271,7 +296,7 @@ export default function VaultPage() {
           </ul>
         )}
 
-        {selected && (
+        {vehiclesLoaded && selected && (
           <section className="mt-6 rounded-2xl border border-line bg-surface px-5 py-5">
             <h2 className="font-display text-xl font-semibold text-ink-1">
               {selected.year} {selected.make} {selected.model}
@@ -374,24 +399,37 @@ export default function VaultPage() {
             <h3 className="mt-6 text-sm font-semibold uppercase tracking-eyebrow text-ink-2">
               {v.historyTitle}
             </h3>
-            {diagnoses.length === 0 ? (
+            {historyLoading ? (
+              <p className="mt-2 text-base text-ink-2" role="status">
+                Loading…
+              </p>
+            ) : diagnoses.length === 0 ? (
               <p className="mt-2 text-base text-ink-2">{v.noHistory}</p>
             ) : (
               <ul className="mt-2 flex flex-col gap-2">
                 {diagnoses.map((diag) => (
-                  <li key={diag.id} className="rounded-xl bg-inset px-4 py-3">
-                    <span className="text-sm text-ink-2">
-                      {new Date(diag.createdAt).toLocaleDateString()}
-                      {diag.aiResult?.severity ? ` · ${diag.aiResult.severity}` : ""}
-                    </span>
-                    <span className="mt-1 block text-base text-ink-1">
-                      {diag.aiResult?.diagnosis ?? diag.problemText ?? ""}
-                    </span>
-                    {diag.aiResult?.estimatedCost && (
-                      <span className="mt-1 block font-mono text-sm text-ink-2">
-                        ${diag.aiResult.estimatedCost.min}–${diag.aiResult.estimatedCost.max}
+                  <li key={diag.id}>
+                    {/* Every entry opens its saved diagnosis
+                        (Pass #20b) — the detail view carries the
+                        share link and the outcome prompt for this
+                        run, and shows this record's own range. */}
+                    <Link
+                      href={`/app/diagnoses/${diag.id}`}
+                      className="block rounded-xl bg-inset px-4 py-3 transition-colors hover:bg-raised"
+                    >
+                      <span className="text-sm text-ink-2">
+                        {new Date(diag.createdAt).toLocaleDateString()}
+                        {diag.aiResult?.severity ? ` · ${diag.aiResult.severity}` : ""}
                       </span>
-                    )}
+                      <span className="mt-1 block text-base text-ink-1">
+                        {diag.aiResult?.diagnosis ?? diag.problemText ?? ""}
+                      </span>
+                      {diag.aiResult?.estimatedCost && (
+                        <span className="mt-1 block font-mono text-sm text-ink-2">
+                          ${diag.aiResult.estimatedCost.min}–${diag.aiResult.estimatedCost.max}
+                        </span>
+                      )}
+                    </Link>
                   </li>
                 ))}
               </ul>
@@ -411,6 +449,7 @@ export default function VaultPage() {
           </section>
         )}
 
+        {vehiclesLoaded && (
         <section className="mt-10">
           <h2 className="font-display text-xl font-semibold text-ink-1">
             {welcome ? v.firstTitle : v.addTitle}
@@ -506,6 +545,7 @@ export default function VaultPage() {
             )}
           </form>
         </section>
+        )}
       </main>
     </>
   );

@@ -36,5 +36,5 @@
     "typecheck": "tsc --noEmit",
     "test:e2e": "playwright test"
   },
-  "version": "0.4.31-steal"
+  "version": "0.4.32-diagnosis-detail"
 }

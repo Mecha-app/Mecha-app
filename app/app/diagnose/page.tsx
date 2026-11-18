@@ -426,6 +426,20 @@ export default function DiagnosePage() {
             prompt — both keyed to the saved record's id, so they
             render only when the run was actually saved. */}
         {report && <ShopScript report={report} vehicleInfo={vehicleInfo} />}
+        {/* The saved record's own page (Pass #20b): this run is
+            filed the moment it finishes, and its detail view shows
+            the stored report — the range here and the range there
+            are the same number, checkable in one tap. */}
+        {report && diagnosisId && (
+          <p className="mt-6">
+            <Link
+              href={`/app/diagnoses/${diagnosisId}`}
+              className="text-base font-medium text-accent"
+            >
+              View this diagnosis — it is saved to your history
+            </Link>
+          </p>
+        )}
         {report && diagnosisId && <DiagnosisShare diagnosisId={diagnosisId} />}
         {report && diagnosisId && <DiagnosisOutcome diagnosisId={diagnosisId} />}
       </main>

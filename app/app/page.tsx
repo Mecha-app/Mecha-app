@@ -633,7 +633,15 @@ export default function DashboardPage() {
 
             <section className={`${CARD} mt-6`}>
               <CardHeading>{d.recentDiagnoses}</CardHeading>
-              {diagnoses.length === 0 ? (
+              {!driverLoaded ? (
+                // First load still in flight: a loading line, never
+                // the empty state — "No diagnoses yet" may only
+                // appear once a completed fetch returned none
+                // (Pass #20b: the empty-state flicker fix).
+                <p className="mt-3 text-base text-ink-3" role="status">
+                  Loading…
+                </p>
+              ) : diagnoses.length === 0 ? (
                 <>
                   <p className="mt-3 text-base text-ink-3">{d.noDiagnoses}</p>
                   <div className="mt-6">
@@ -648,14 +656,23 @@ export default function DashboardPage() {
               ) : (
                 <ul className="mt-2 divide-y divide-line">
                   {diagnoses.map((diag) => (
-                    <li key={diag.id} className="py-4">
-                      <span className="text-sm text-ink-3">
-                        {new Date(diag.createdAt).toLocaleDateString()}
-                        {diag.aiResult?.severity ? ` · ${diag.aiResult.severity}` : ""}
-                      </span>
-                      <span className="mt-1 block text-base text-ink-1">
-                        {diag.problemText ?? diag.aiResult?.diagnosis ?? ""}
-                      </span>
+                    <li key={diag.id}>
+                      {/* Every entry opens its saved diagnosis
+                          (Pass #20b) — the detail view is where the
+                          share link and the outcome prompt live for
+                          a past run, not only the fresh one. */}
+                      <Link
+                        href={`/app/diagnoses/${diag.id}`}
+                        className="block py-4 transition-colors hover:text-accent"
+                      >
+                        <span className="text-sm text-ink-3">
+                          {new Date(diag.createdAt).toLocaleDateString()}
+                          {diag.aiResult?.severity ? ` · ${diag.aiResult.severity}` : ""}
+                        </span>
+                        <span className="mt-1 block text-base text-ink-1">
+                          {diag.problemText ?? diag.aiResult?.diagnosis ?? ""}
+                        </span>
+                      </Link>
                     </li>
                   ))}
                 </ul>
