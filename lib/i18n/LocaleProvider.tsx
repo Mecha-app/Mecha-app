@@ -13,11 +13,11 @@ import {
   DEFAULT_LOCALE,
   LOCALE_STORAGE_KEY,
   getDictionary,
-  isLocaleCode,
   localeMeta,
   type Dictionary,
   type LocaleCode,
 } from "./index";
+import { parseLangParam, resolveInitialLocale } from "./localeLink";
 
 /**
  * Mirror the locale into a cookie so the server-rendered <html lang dir>
@@ -50,19 +50,33 @@ const LocaleContext = createContext<LocaleContextValue>({
  * localStorage for visitors (account preference for signed-in users lands
  * in WP3). Sets <html lang> + dir on change — logical CSS properties only,
  * so RTL growth locales mirror without new layout code.
+ *
+ * Initial resolution (localized-landing pass, 2026-11-19): a `?lang=`
+ * locale link — the form outreach emails use, e.g. /shops?lang=es —
+ * wins over the saved choice, because the sender picked that language
+ * for this reader; the applied locale then persists exactly like a
+ * switcher pick. Without a link, the saved choice wins, then EN.
  */
 export function LocaleProvider({ children }: { children: ReactNode }) {
   const [locale, setLocaleState] = useState<LocaleCode>(DEFAULT_LOCALE);
 
   useEffect(() => {
+    let saved: string | null = null;
     try {
-      const saved = localStorage.getItem(LOCALE_STORAGE_KEY);
-      if (isLocaleCode(saved)) {
-        setLocaleState(saved);
-        syncLocaleCookie(saved);
-      }
+      saved = localStorage.getItem(LOCALE_STORAGE_KEY);
     } catch {
       /* private mode — session-only locale */
+    }
+    const link = parseLangParam(window.location.search);
+    const initial = resolveInitialLocale(link, saved);
+    setLocaleState(initial);
+    syncLocaleCookie(initial);
+    if (link) {
+      try {
+        localStorage.setItem(LOCALE_STORAGE_KEY, initial);
+      } catch {
+        /* ignore */
+      }
     }
   }, []);
 
