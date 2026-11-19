@@ -2,12 +2,16 @@ import { NextResponse } from "next/server";
 import { AiNotConfiguredError, type DiagnosisRequest } from "@/lib/server/ai";
 import {
   ProRequiredError,
+  ShopQuotaExhaustedError,
   executeDiagnosis,
+  executeShopDiagnosis,
   type DiagnoseServiceEvent,
+  type ShopDiagnoseServiceEvent,
 } from "@/lib/server/diagnoseService";
 import { PayloadTooLargeError, apiError, readJsonBody } from "@/lib/server/http";
+import { bearerPayload } from "@/lib/server/jwt";
 import { getActiveDiagnosisProvider } from "@/lib/server/providerAiSdk";
-import { requireDriverUser } from "@/lib/server/routeAuth";
+import { requireDriverUser, requireShopUser } from "@/lib/server/routeAuth";
 import { QuotaExhaustedError } from "@/lib/server/quota";
 import { getAppStore } from "@/lib/server/appStore";
 import { getIdentityStore } from "@/lib/server/store";
@@ -71,8 +75,52 @@ function str(v: unknown, max: number): string | undefined {
 
 const NL = String.fromCharCode(10);
 
-function sseChunk(event: DiagnoseServiceEvent): string {
+type AnyDiagnoseEvent = DiagnoseServiceEvent | ShopDiagnoseServiceEvent;
+
+function sseChunk(event: AnyDiagnoseEvent): string {
   return `event: ${event.type}${NL}data: ${JSON.stringify(event)}${NL}${NL}`;
+}
+
+/**
+ * Pull the first event before committing to a stream: the quota gate
+ * throws here (before any byte is sent) when the account is
+ * exhausted, which maps to a clean 402 instead of a broken stream.
+ */
+async function streamResponse(
+  generator: AsyncGenerator<AnyDiagnoseEvent>,
+): Promise<Response> {
+  const first = await generator.next();
+  if (first.done) {
+    return NextResponse.json({ status: "error", error: "diagnosis_failed" }, { status: 502 });
+  }
+  const encoder = new TextEncoder();
+  const stream = new ReadableStream<Uint8Array>({
+    async start(controller) {
+      try {
+        controller.enqueue(encoder.encode(sseChunk(first.value)));
+        for await (const event of generator) {
+          controller.enqueue(encoder.encode(sseChunk(event)));
+        }
+      } catch {
+        const errorEvent = {
+          type: "error",
+          error: "diagnosis_failed",
+          detail: "The diagnosis could not be completed.",
+        } as unknown as DiagnoseServiceEvent;
+        controller.enqueue(encoder.encode(sseChunk(errorEvent)));
+      } finally {
+        controller.close();
+      }
+    },
+  });
+  return new Response(stream, {
+    status: 200,
+    headers: {
+      "content-type": "text/event-stream; charset=utf-8",
+      "cache-control": "no-cache, no-transform",
+      connection: "keep-alive",
+    },
+  });
 }
 
 export async function POST(request: Request) {
@@ -110,6 +158,37 @@ export async function POST(request: Request) {
   }
 
   try {
+    const req: DiagnosisRequest = {
+      problem,
+      vehicleInfo: str(b.vehicleInfo, 300),
+      language: str(b.language, 64),
+      imageUrl: str(b.imageUrl, 1024),
+      tier: b.tier,
+    };
+
+    // SHOP path (owner addition, 2026-11-19): a shop diagnoses the
+    // cars in its own bays against its trial/plan credits. The token
+    // type picks the gate; a shop token never falls through to the
+    // driver gate (which would 401 it), and a driver token never
+    // reaches the shop shelves.
+    let tokenPayload = null;
+    try {
+      tokenPayload = bearerPayload(request);
+    } catch {
+      tokenPayload = null;
+    }
+    if (tokenPayload?.type === "shop") {
+      const auth = await requireShopUser(request, () => getIdentityStore());
+      if ("response" in auth) return auth.response;
+      const { shop, store } = auth;
+      const provider = getActiveDiagnosisProvider();
+      if (!provider) throw new AiNotConfiguredError();
+      // Shops hold no saved vehicles — the run is the typed-in car,
+      // saved against the shop. Any vehicleId in the body is ignored.
+      const generator = executeShopDiagnosis({ store, provider }, { shop, request: req });
+      return await streamResponse(generator);
+    }
+
     // The account gate (owner rule, 2026-11-16: no account, no
     // diagnosis) — the shared requireDriverUser gate refuses an
     // anonymous, wrong-account, or deleted-account call HERE,
@@ -123,13 +202,6 @@ export async function POST(request: Request) {
     const provider = getActiveDiagnosisProvider();
     if (!provider) throw new AiNotConfiguredError();
 
-    const req: DiagnosisRequest = {
-      problem,
-      vehicleInfo: str(b.vehicleInfo, 300),
-      language: str(b.language, 64),
-      imageUrl: str(b.imageUrl, 1024),
-      tier: b.tier,
-    };
     // A named vehicle links the saved record to the driver's Vault —
     // but only when the vehicle is actually HIS: a foreign or stale id
     // is dropped (the run proceeds unlinked) rather than writing one
@@ -141,45 +213,20 @@ export async function POST(request: Request) {
     }
 
     const generator = executeDiagnosis({ store, provider }, { user, request: req, vehicleId });
-
-    // Pull the first event before committing to a stream: the quota
-    // gate throws here (before any byte is sent) when the identity is
-    // exhausted, which maps to a clean 402 instead of a broken stream.
-    const first = await generator.next();
-    if (first.done) {
-      return NextResponse.json({ status: "error", error: "diagnosis_failed" }, { status: 502 });
-    }
-
-    const encoder = new TextEncoder();
-    const stream = new ReadableStream<Uint8Array>({
-      async start(controller) {
-        try {
-          controller.enqueue(encoder.encode(sseChunk(first.value)));
-          for await (const event of generator) {
-            controller.enqueue(encoder.encode(sseChunk(event)));
-          }
-        } catch {
-          const errorEvent = {
-            type: "error",
-            error: "diagnosis_failed",
-            detail: "The diagnosis could not be completed.",
-          } as unknown as DiagnoseServiceEvent;
-          controller.enqueue(encoder.encode(sseChunk(errorEvent)));
-        } finally {
-          controller.close();
-        }
-      },
-    });
-
-    return new Response(stream, {
-      status: 200,
-      headers: {
-        "content-type": "text/event-stream; charset=utf-8",
-        "cache-control": "no-cache, no-transform",
-        connection: "keep-alive",
-      },
-    });
+    return await streamResponse(generator);
   } catch (err) {
+    if (err instanceof ShopQuotaExhaustedError) {
+      return NextResponse.json(
+        {
+          status: "blocked",
+          error: err.code,
+          detail: err.message,
+          quota: err.quota,
+          message: err.message,
+        },
+        { status: 402 },
+      );
+    }
     if (err instanceof QuotaExhaustedError) {
       return NextResponse.json(
         {

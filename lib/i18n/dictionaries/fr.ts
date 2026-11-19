@@ -355,8 +355,8 @@ const fr: DeepPartial<Dictionary> = {
       badge: "Pour ateliers et remorquage",
       point1: "Votre entreprise dans la liste de proximité que les conducteurs appellent",
       point2: "Le nom en premier, la distance affichée, un toucher pour vous appeler",
-      point3: "500 crédits de diagnostic par mois pour les voitures de vos clients",
-      point4: "10 diagnostics gratuits à l'inscription",
+      point3: "500 crédits de diagnostic par mois — diagnostiquez les voitures dans vos propres ateliers, plus vite",
+      point4: "14 jours gratuits — 25 diagnostics offerts, sans carte. Puis 149 $/mois.",
       cta: "Inscrivez votre entreprise",
     },
     meterTitle: "Le compteur, en pleine vue",
@@ -590,7 +590,7 @@ const fr: DeepPartial<Dictionary> = {
         },
         business: {
           q: "Le forfait Ateliers est-il facturé par entreprise ou par établissement ?",
-          a: "Par établissement — 149 $ par mois pour chaque atelier ou dépanneuse listée. Une entreprise qui veut lister un autre établissement utilise un forfait pour cet établissement.",
+          a: "Par établissement — 14 jours gratuits pour commencer, puis 149 $ par mois pour chaque atelier ou dépanneuse listée. Une entreprise qui veut lister un autre établissement utilise un forfait pour cet établissement.",
         },
       },
     },
@@ -632,7 +632,7 @@ const fr: DeepPartial<Dictionary> = {
     plan: {
       eyebrow: "Le forfait Ateliers",
       heading: "Un établissement. Un prix mensuel clair.",
-      body: "Diagnostiquez les voitures de vos clients au comptoir — 10 diagnostics gratuits à l'inscription, puis 500 crédits de diagnostic par mois avec le plan. Chaque conducteur repart en sachant ce qu'il faut à sa voiture.",
+      body: "Diagnostiquez les voitures dans vos propres ateliers, plus vite — la voiture d'un client sur le pont, une reprise sur le parc, n'importe quelle voiture que vous saisissez. 14 jours gratuits — 25 diagnostics offerts, sans carte. Puis 149 $/mois avec 500 crédits de diagnostic par mois. Chaque conducteur repart en sachant ce qu'il faut à sa voiture.",
       priceLabel: "Par mois, par établissement",
       point1: "Une annonce de proximité pour un établissement de réparation ou de remorquage",
       point2: "Une présentation nom d'abord, avec distance et appel en un toucher",
@@ -669,7 +669,7 @@ const fr: DeepPartial<Dictionary> = {
         },
         cost: {
           q: "Combien coûte le forfait entreprise ?",
-          a: "Le forfait Ateliers coûte 149 $ par mois, par établissement. Un atelier de réparation et une dépanneuse utilisent le même forfait entreprise par établissement.",
+          a: "14 jours gratuits — 25 diagnostics offerts, sans carte. Puis le forfait Ateliers coûte 149 $ par mois, par établissement — le même forfait pour un atelier de réparation et une dépanneuse.",
         },
         cancel: {
           q: "Une entreprise peut-elle annuler ?",

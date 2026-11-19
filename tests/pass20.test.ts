@@ -307,7 +307,8 @@ test("guarantee: honest make-it-right wording, no invented refund terms", () => 
 
 test("shops framing: drivers ready to act, settled credit model, no invented volumes", () => {
   assert.equal(en.shopsPage.heading, "Drivers ready to act");
-  assert.ok(en.shopsPage.plan.body.includes("10 free diagnoses"), "the shops trial is stated");
+  assert.ok(en.shopsPage.plan.body.includes("14 days free"), "the shops trial is stated");
+  assert.ok(en.shopsPage.plan.body.includes("25 diagnoses on us, no card"), "the trial credits are stated");
   assert.ok(en.shopsPage.plan.body.includes("500 diagnosis credits"), "the settled monthly bucket is stated");
   const text = `${en.shopsPage.heading} ${en.shopsPage.sub} ${en.shopsPage.plan.body}`;
   assert.ok(!/\d[\d,]*\s*(shops|garages|customers|drivers)\s+(already|use|trust)/i.test(text), "no invented adoption numbers");

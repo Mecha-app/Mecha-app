@@ -2,6 +2,7 @@ import { Pool } from "pg";
 import { DatabaseNotConfiguredError, isDatabaseConfigured } from "./db";
 import { createDatabasePool } from "./poolConfig";
 import { haversineMiles, type LatLng } from "./geo";
+import { shopTrialWindow } from "./credits";
 
 /**
  * Product persistence (WP6) — vehicles/vault, marketplace listings,
@@ -46,7 +47,10 @@ export interface VehicleRecord {
 
 export interface DiagnosisSummary {
   id: string;
-  userId: string;
+  /** The driver who ran it — null on a shop-owned record (0020: a
+   * diagnosis belongs to a driver OR a shop). Driver history reads
+   * filter on their own id, so a shop record never surfaces there. */
+  userId: string | null;
   /** The saved vehicle this run belongs to — null for a free-text run
    * (migration 0016: a diagnosis is saved for the ACCOUNT always, and
    * linked to a vehicle only when the run named one). */
@@ -156,6 +160,10 @@ export interface ShopProfileRecord {
   passwordHash: string | null;
   authMethod: "email" | "google" | "both";
   createdAt: string;
+  /** The free-trial window (0020): ISO timestamps, null when the row
+   * predates the trial (the migration backfills them). */
+  trialStartedAt: string | null;
+  trialEndsAt: string | null;
 }
 
 export interface TowingProfileRecord {
@@ -315,6 +323,11 @@ export interface CreateShopInput {
   specialties?: string[];
   languages?: string[];
   hours?: string | null;
+  /** The free-trial window (0020) — set by the registration service
+   * (shopTrialWindow); the stores default it from the creation
+   * moment when the caller doesn't pass one. */
+  trialStartedAt?: string | null;
+  trialEndsAt?: string | null;
 }
 
 export type ShopPatch = Partial<
@@ -644,10 +657,12 @@ interface ShopRow {
   password_hash: string | null;
   auth_method: "email" | "google" | "both";
   created_at: Date | string;
+  trial_started_at: Date | string | null;
+  trial_ends_at: Date | string | null;
 }
 
 const SHOP_COLUMNS =
-  "id, shop_name, owner_name, email, phone, address, city, state, zip, lat, lng, about, specialties, languages, hours, rating, review_count, is_verified, is_active, plan, stripe_customer_id, password_hash, auth_method, created_at";
+  "id, shop_name, owner_name, email, phone, address, city, state, zip, lat, lng, about, specialties, languages, hours, rating, review_count, is_verified, is_active, plan, stripe_customer_id, password_hash, auth_method, created_at, trial_started_at, trial_ends_at";
 
 function toStringArray(raw: unknown): string[] {
   if (!Array.isArray(raw)) return [];
@@ -680,6 +695,8 @@ function toShop(row: ShopRow): ShopProfileRecord {
     passwordHash: row.password_hash,
     authMethod: row.auth_method,
     createdAt: iso(row.created_at),
+    trialStartedAt: row.trial_started_at ? iso(row.trial_started_at) : null,
+    trialEndsAt: row.trial_ends_at ? iso(row.trial_ends_at) : null,
   };
 }
 
@@ -1077,10 +1094,12 @@ export class PgAppStore implements AppStore {
   }
 
   async createShop(input: CreateShopInput): Promise<ShopProfileRecord> {
+    const trial = shopTrialWindow(new Date());
     const { rows } = await getPool().query<ShopRow>(
       `INSERT INTO shops (shop_name, owner_name, email, phone, password_hash, address, city,
-                          state, zip, lat, lng, about, specialties, languages, hours)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13::jsonb,$14::jsonb,$15)
+                          state, zip, lat, lng, about, specialties, languages, hours,
+                          trial_started_at, trial_ends_at)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13::jsonb,$14::jsonb,$15,$16,$17)
        RETURNING ${SHOP_COLUMNS}`,
       [
         input.shopName,
@@ -1098,6 +1117,8 @@ export class PgAppStore implements AppStore {
         JSON.stringify(input.specialties ?? []),
         JSON.stringify(input.languages ?? ["EN"]),
         input.hours ?? null,
+        input.trialStartedAt ?? trial.startedAt,
+        input.trialEndsAt ?? trial.endsAt,
       ],
     );
     return toShop(rows[0]);
@@ -1609,6 +1630,7 @@ export class MemoryAppStore implements AppStore {
   }
 
   async createShop(input: CreateShopInput): Promise<ShopProfileRecord> {
+    const trial = shopTrialWindow(new Date());
     const shop: ShopProfileRecord = {
       id: this.nextId("shop"),
       shopName: input.shopName,
@@ -1634,6 +1656,8 @@ export class MemoryAppStore implements AppStore {
       passwordHash: input.passwordHash ?? null,
       authMethod: "email",
       createdAt: this.now(),
+      trialStartedAt: input.trialStartedAt ?? trial.startedAt,
+      trialEndsAt: input.trialEndsAt ?? trial.endsAt,
     };
     this.shops.set(shop.id, shop);
     return shop;

@@ -109,11 +109,18 @@ export interface ShopRecord {
   currentPeriodEnd?: string | null;
   cancelAtPeriodEnd?: boolean;
   // Optional for the same reason (0019): the shop's own free-diagnosis
-  // counter (10 at signup) and monthly-bucket counter (500/month on
-  // the business plan). Readers treat absent as 0 / unanchored.
+  // counter (the trial credit pool — 25, pricing.SHOP_TRIAL_CREDITS)
+  // and monthly-bucket counter (500/month on the business plan).
+  // Readers treat absent as 0 / unanchored.
   freeDiagnosesUsed?: number;
   monthlyDiagnosesUsed?: number;
   monthlyPeriodStart?: string | null;
+  // The free-trial window (0020): set at shop signup, 14 days. Trial
+  // expiry is computed from trialEndsAt (lib/server/credits.ts).
+  // Absent on records seeded before 0020 — readers treat absent as
+  // "no window recorded" (trial over for an unsubscribed shop).
+  trialStartedAt?: string | null;
+  trialEndsAt?: string | null;
 }
 
 export interface TowingRecord {
@@ -172,10 +179,13 @@ export interface PlanUpdate {
   cancelAtPeriodEnd?: boolean;
 }
 
-/** A saved diagnosis row (migration 0004 + 0016), read back whole. */
+/** A saved diagnosis row (migration 0004 + 0016 + 0020), read back
+ * whole. Owned by a driver (userId) or — for a shop's own bay
+ * diagnoses — by a shop (shopId); exactly one is set. */
 export interface DiagnosisRecord {
   id: string;
-  userId: string;
+  userId: string | null;
+  shopId: string | null;
   vehicleId: string | null;
   vehicleInfo: string | null;
   problemText: string | null;
@@ -224,6 +234,15 @@ export interface IdentityStore {
     stripeSessionId: string,
   ): Promise<{ granted: boolean; balance: number }>;
   /**
+   * Record that a subscription checkout session's activation has
+   * been applied (0020). Returns true the FIRST time a session id is
+   * recorded — the webhook handler fills the monthly bucket only on
+   * that first application, so a replayed checkout.session.completed
+   * delivery can never reset a partially used bucket (a second
+   * grant). The plan update itself is idempotent and may re-run.
+   */
+  markCheckoutSessionApplied(stripeSessionId: string): Promise<boolean>;
+  /**
    * Atomically consume one purchased credit. `consumed: false` means
    * the balance was already zero — credits never go negative.
    */
@@ -250,7 +269,11 @@ export interface IdentityStore {
   getCachedDiagnosis(cacheKey: string): Promise<CachedDiagnosis | null>;
   putCachedDiagnosis(cacheKey: string, entry: CachedDiagnosis): Promise<void>;
   saveDiagnosisRecord(input: {
-    userId: string;
+    /** The owning driver — or null for a shop-owned run (0020). */
+    userId?: string | null;
+    /** The owning shop for a shop-run diagnosis (0020); the record
+     * saves against the shop, never a driver. */
+    shopId?: string | null;
     /** The saved vehicle the run belongs to, when the run named one
      * (Pass 15 / migration 0016) — null for a free-text run, which is
      * still saved, against the account. */
@@ -546,6 +569,19 @@ export class PgIdentityStore implements IdentityStore {
     return { granted: true, balance: rows[0]?.diagnosis_credits ?? 0 };
   }
 
+  async markCheckoutSessionApplied(stripeSessionId: string): Promise<boolean> {
+    // The insert IS the gate (0020): the session id is the primary
+    // key, so exactly one delivery ever records it.
+    const { rows } = await getPool().query(
+      `INSERT INTO applied_checkout_sessions (stripe_session_id)
+       VALUES ($1)
+       ON CONFLICT (stripe_session_id) DO NOTHING
+       RETURNING stripe_session_id`,
+      [stripeSessionId],
+    );
+    return rows.length > 0;
+  }
+
   async consumePurchasedCredit(userId: string): Promise<{ consumed: boolean; balance: number }> {
     const pool = getPool();
     const updated = await pool.query<{ diagnosis_credits: number }>(
@@ -646,7 +682,8 @@ export class PgIdentityStore implements IdentityStore {
   }
 
   async saveDiagnosisRecord(input: {
-    userId: string;
+    userId?: string | null;
+    shopId?: string | null;
     vehicleId?: string | null;
     vehicleInfo?: string | null;
     problemText?: string;
@@ -654,10 +691,11 @@ export class PgIdentityStore implements IdentityStore {
     aiResult: unknown;
   }): Promise<{ id: string }> {
     const { rows } = await getPool().query<{ id: string }>(
-      `INSERT INTO diagnostics (user_id, vehicle_id, vehicle_info, problem_text, image_url, ai_result)
-       VALUES ($1, $2, $3, $4, $5, $6::jsonb) RETURNING id`,
+      `INSERT INTO diagnostics (user_id, shop_id, vehicle_id, vehicle_info, problem_text, image_url, ai_result)
+       VALUES ($1, $2, $3, $4, $5, $6, $7::jsonb) RETURNING id`,
       [
-        input.userId,
+        input.userId ?? null,
+        input.shopId ?? null,
         input.vehicleId ?? null,
         input.vehicleInfo ?? null,
         input.problemText ?? null,
@@ -671,7 +709,8 @@ export class PgIdentityStore implements IdentityStore {
   async findDiagnosisRecord(id: string): Promise<DiagnosisRecord | null> {
     const { rows } = await getPool().query<{
       id: string;
-      user_id: string;
+      user_id: string | null;
+      shop_id: string | null;
       vehicle_id: string | null;
       vehicle_info: string | null;
       problem_text: string | null;
@@ -679,7 +718,7 @@ export class PgIdentityStore implements IdentityStore {
       ai_result: unknown;
       created_at: Date | string;
     }>(
-      `SELECT id, user_id, vehicle_id, vehicle_info, problem_text, image_url, ai_result, created_at
+      `SELECT id, user_id, shop_id, vehicle_id, vehicle_info, problem_text, image_url, ai_result, created_at
        FROM diagnostics WHERE id = $1 LIMIT 1`,
       [id],
     );
@@ -688,6 +727,7 @@ export class PgIdentityStore implements IdentityStore {
     return {
       id: row.id,
       userId: row.user_id,
+      shopId: row.shop_id,
       vehicleId: row.vehicle_id,
       vehicleInfo: row.vehicle_info,
       problemText: row.problem_text,
@@ -806,9 +846,11 @@ export class PgIdentityStore implements IdentityStore {
         free_diagnoses_used: number;
         monthly_diagnoses_used: number;
         monthly_period_start: Date | string | null;
+        trial_started_at: Date | string | null;
+        trial_ends_at: Date | string | null;
       } & BillingRow
     >(
-      `SELECT id, shop_name, email, plan, stripe_customer_id, ${BILLING_COLUMNS}, free_diagnoses_used, monthly_diagnoses_used, monthly_period_start FROM shops WHERE id = $1 LIMIT 1`,
+      `SELECT id, shop_name, email, plan, stripe_customer_id, ${BILLING_COLUMNS}, free_diagnoses_used, monthly_diagnoses_used, monthly_period_start, trial_started_at, trial_ends_at FROM shops WHERE id = $1 LIMIT 1`,
       [id],
     );
     if (rows.length === 0) return null;
@@ -823,6 +865,8 @@ export class PgIdentityStore implements IdentityStore {
       freeDiagnosesUsed: r.free_diagnoses_used ?? 0,
       monthlyDiagnosesUsed: r.monthly_diagnoses_used ?? 0,
       monthlyPeriodStart: toIso(r.monthly_period_start),
+      trialStartedAt: toIso(r.trial_started_at),
+      trialEndsAt: toIso(r.trial_ends_at),
     };
   }
 
@@ -1081,6 +1125,9 @@ export class MemoryIdentityStore implements IdentityStore {
   /** Stripe checkout sessions already granted a credit (0019) — the
    * in-memory twin of the credit_ledger UNIQUE index. */
   readonly grantedCreditSessions = new Set<string>();
+  /** Subscription checkout sessions whose activation was applied
+   * (0020) — the in-memory twin of applied_checkout_sessions. */
+  readonly appliedCheckoutSessions = new Set<string>();
   private seq = 0;
 
   private nextId(prefix: string): string {
@@ -1259,6 +1306,12 @@ export class MemoryIdentityStore implements IdentityStore {
     return { granted: true, balance: user.diagnosisCredits };
   }
 
+  async markCheckoutSessionApplied(stripeSessionId: string): Promise<boolean> {
+    if (this.appliedCheckoutSessions.has(stripeSessionId)) return false;
+    this.appliedCheckoutSessions.add(stripeSessionId);
+    return true;
+  }
+
   async consumePurchasedCredit(userId: string): Promise<{ consumed: boolean; balance: number }> {
     const user = this.users.get(userId);
     if (!user) return { consumed: false, balance: 0 };
@@ -1316,7 +1369,8 @@ export class MemoryIdentityStore implements IdentityStore {
   }
 
   async saveDiagnosisRecord(input: {
-    userId: string;
+    userId?: string | null;
+    shopId?: string | null;
     vehicleId?: string | null;
     vehicleInfo?: string | null;
     problemText?: string;
@@ -1338,7 +1392,8 @@ export class MemoryIdentityStore implements IdentityStore {
     if (!row) return null;
     return {
       id: row.id,
-      userId: String(row.userId ?? ""),
+      userId: (row.userId as string | null) ?? null,
+      shopId: (row.shopId as string | null) ?? null,
       vehicleId: (row.vehicleId as string | null) ?? null,
       vehicleInfo: (row.vehicleInfo as string | null) ?? null,
       problemText: (row.problemText as string | null) ?? null,

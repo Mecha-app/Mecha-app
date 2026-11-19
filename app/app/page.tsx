@@ -723,6 +723,14 @@ export default function DashboardPage() {
               </div>
             </dl>
             <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+              {business.type === "shop" && (
+                <Link
+                  href="/app/diagnose"
+                  className="flex h-12 items-center justify-center rounded-full bg-accent px-8 text-base font-semibold text-accent-ink"
+                >
+                  {d.businessDiagnose}
+                </Link>
+              )}
               <Link
                 href="/app/messages"
                 className="flex h-12 items-center justify-center rounded-full bg-accent px-8 text-base font-semibold text-accent-ink"

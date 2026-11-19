@@ -6,7 +6,7 @@ import { PricingPageContent } from "@/components/MarketingRoutes";
 export const metadata: Metadata = {
   title: "Pricing — MECHA",
   description:
-    "MECHA pricing: Free with 5 diagnoses, Pro $9.99/month, Shops $149/month per location. The meter and cancel-anytime billing, explained.",
+    "MECHA pricing: Free with 5 diagnoses, Pro $9.99/month, Shops free for 14 days then $149/month per location. The meter and cancel-anytime billing, explained.",
 };
 
 /**

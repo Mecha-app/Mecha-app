@@ -1,12 +1,13 @@
 /**
  * Stripe credit-model tests (2026-11-18) — the settled pricing model:
  *
- *   Free    5 diagnoses, lifetime (drivers) / 10 (shops)
+ *   Free    5 diagnoses, lifetime (drivers) / shops: the 14-day,
+ *           25-credit free trial (2026-11-19, tests/shops-trial.test.ts)
  *   Pro     $9.99/month = 100 diagnosis credits per month (bucket,
  *           resets each cycle, no rollover)
  *   Single  one purchased diagnosis credit ($4.00 default — the ONE
  *           configurable price, lib/server/pricing.ts), never expires
- *   Shops   $149/month = 500 credits/month + the 10 free at signup
+ *   Shops   $149/month = 500 credits/month after the free trial
  *
  * Consumption order: free lifetime → monthly bucket → purchased
  * singles. Credits land ONLY through a signature-verified webhook,
@@ -507,36 +508,41 @@ test("pro renewal (period end advances) refills the bucket; deletion ends the pl
 });
 
 // ---------------------------------------------------------------------------
-// Shops: 10 free, activation, the 500 bucket, monthly reset, cancel
+// Shops: the 14-day / 25-credit free trial, activation, the 500 bucket,
+// monthly reset, cancel
 // ---------------------------------------------------------------------------
 
 function seedShop(store: MemoryIdentityStore) {
+  const started = new Date();
   store.shops.set("shop-1", {
     id: "shop-1",
     shopName: "Fair Fix Auto",
     email: "owner@fairfix.example",
     plan: "free",
     stripeCustomerId: null,
+    trialStartedAt: started.toISOString(),
+    trialEndsAt: new Date(started.getTime() + 14 * 24 * 60 * 60 * 1000).toISOString(),
   });
 }
 
-test("shops: 10 free diagnoses, then nothing until the plan activates the bucket", async () => {
+test("shops: 25 free trial diagnoses, then nothing until the plan activates the bucket", async () => {
   const store = new MemoryIdentityStore();
   seedShop(store);
   const shop = await store.findShopById("shop-1");
   assert.ok(shop);
-  for (let i = 0; i < 10; i++) {
+  for (let i = 0; i < 25; i++) {
     const fresh = await store.findShopById("shop-1");
     assert.ok(fresh);
     const result = await consumeShopDiagnosis(store, fresh);
-    assert.equal(result.ok, true, `free diagnosis ${i + 1}`);
+    assert.equal(result.ok, true, `trial diagnosis ${i + 1}`);
     assert.equal(result.source, "free");
   }
   const exhausted = await store.findShopById("shop-1");
   assert.ok(exhausted);
   const blocked = await consumeShopDiagnosis(store, exhausted);
-  assert.equal(blocked.ok, false, "no plan, no bucket — the shop waits or subscribes");
-  assert.equal(blocked.freeUsed, 10);
+  assert.equal(blocked.ok, false, "trial credits spent — the shop subscribes or waits");
+  assert.equal(blocked.freeUsed, 25);
+  assert.equal(blocked.trial?.endedReason, "credits", "the trial ended on credits, inside its window");
 });
 
 test("shops: subscription activation fills the 500 bucket; cancel returns to free", async () => {
@@ -557,8 +563,8 @@ test("shops: subscription activation fills the 500 bucket; cancel returns to fre
   let shop = await store.findShopById("shop-1");
   assert.equal(shop?.plan, "business");
 
-  // Free allowance first (10), then the bucket.
-  for (let i = 0; i < 10; i++) {
+  // Free allowance first (25 trial credits), then the bucket.
+  for (let i = 0; i < 25; i++) {
     const fresh = await store.findShopById("shop-1");
     assert.ok(fresh);
     const result = await consumeShopDiagnosis(store, fresh);
@@ -573,7 +579,7 @@ test("shops: subscription activation fills the 500 bucket; cancel returns to fre
   assert.equal(fromBucket.bucket?.remaining, 499);
 
   const view = await getCreditsView(store, { id: "shop-1", type: "shop" });
-  assert.equal(view?.freeLimit, 10);
+  assert.equal(view?.freeLimit, 25);
   assert.equal(view?.freeRemaining, 0);
   assert.equal(view?.bucket?.limit, 500);
   assert.equal(view?.bucket?.remaining, 499);
@@ -609,7 +615,7 @@ test("shops: the bucket window resets monthly at consume time", async () => {
   const record = store.shops.get("shop-1");
   assert.ok(record);
   record.plan = "business";
-  record.freeDiagnosesUsed = 10;
+  record.freeDiagnosesUsed = 25;
   record.monthlyDiagnosesUsed = 500;
   record.monthlyPeriodStart = "2026-10-01T00:00:00.000Z";
   const shop = await store.findShopById("shop-1");

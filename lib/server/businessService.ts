@@ -1,4 +1,5 @@
 import { InvalidCredentialsError, ValidationError } from "./authService";
+import { shopTrialWindow } from "./credits";
 import { NotFoundError } from "./errors";
 import { isValidLatLng, normalizeZip, zipCentroid, type LatLng } from "./geo";
 import { normalizeEmail, normalizePhone } from "./identity";
@@ -50,6 +51,9 @@ export interface PublicShop {
   reviewCount: number;
   isVerified: boolean;
   plan: string;
+  /** The free-trial window (0020), when one is recorded. */
+  trialStartedAt: string | null;
+  trialEndsAt: string | null;
 }
 
 export interface PublicTowing {
@@ -150,6 +154,8 @@ export function publicShop(shop: ShopProfileRecord): PublicShop {
     reviewCount: shop.reviewCount,
     isVerified: shop.isVerified,
     plan: shop.plan,
+    trialStartedAt: shop.trialStartedAt ?? null,
+    trialEndsAt: shop.trialEndsAt ?? null,
   };
 }
 
@@ -189,6 +195,11 @@ export async function registerBusiness(
     if (!zipRaw) throw new ValidationError('A valid 5-digit "zip" is required — drivers find you by it.');
     if (await store.findShopByEmail(email)) throw new IdentityConflictError("email");
     const coords = resolveLatLng(body, zipRaw);
+    // The Shops free trial starts at signup (owner decision,
+    // 2026-11-19): 14 days + 25 diagnosis credits, no card. The
+    // window is stored on the shop record; expiry is computed from
+    // it, never from session state.
+    const trial = shopTrialWindow(new Date());
     try {
       const shop = await store.createShop({
         shopName,
@@ -206,6 +217,8 @@ export async function registerBusiness(
         specialties: stringList(body.specialties, 12, 60),
         languages: stringList(body.languages, 8, 10),
         hours: optionalString(body.hours, 200),
+        trialStartedAt: trial.startedAt,
+        trialEndsAt: trial.endsAt,
       });
       return { token: signToken({ id: shop.id, type: "shop" }), business: publicShop(shop) };
     } catch (err) {

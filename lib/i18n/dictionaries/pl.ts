@@ -365,8 +365,8 @@ const pl: DeepPartial<Dictionary> = {
       badge: "Dla warsztatów i holowania",
       point1: "Twoja firma na liście okolicy, z której dzwonią kierowcy",
       point2: "Nazwa pierwsza, pokazana odległość, jedno dotknięcie, by do ciebie zadzwonić",
-      point3: "500 kredytów diagnostycznych miesięcznie na samochody Twoich klientów",
-      point4: "10 darmowych diagnoz przy rejestracji",
+      point3: "500 kredytów diagnostycznych miesięcznie — diagnozuj auta na własnych stanowiskach, szybciej",
+      point4: "14 dni za darmo — 25 diagnoz na nasz koszt, bez karty. Potem $149/mies.",
       cta: "Wpisz swoją firmę",
     },
     single: {
@@ -593,7 +593,7 @@ const pl: DeepPartial<Dictionary> = {
         },
         business: {
           q: "Czy plan Warsztaty jest rozliczany za firmę czy za lokalizację?",
-          a: "Na lokalizację — $149 miesięcznie za każdą ogłoszoną lokalizację warsztatu lub pomocy drogowej. Firma, która chce ogłosić kolejną lokalizację, używa planu dla tej lokalizacji.",
+          a: "Na lokalizację — 14 dni za darmo na start, potem $149 miesięcznie za każdą ogłoszoną lokalizację warsztatu lub pomocy drogowej. Firma, która chce ogłosić kolejną lokalizację, używa planu dla tej lokalizacji.",
         },
       },
     },
@@ -635,7 +635,7 @@ const pl: DeepPartial<Dictionary> = {
     plan: {
       eyebrow: "Plan Warsztaty",
       heading: "Jedna lokalizacja. Jedna jasna cena miesięczna.",
-      body: "Diagnozuj auta swoich klientów przy ladzie — 10 darmowych diagnoz przy rejestracji, potem 500 kredytów diagnostycznych miesięcznie w planie. Każdy kierowca wychodzi z wiedzą, czego potrzebuje jego auto.",
+      body: "Diagnozuj auta na własnych stanowiskach, szybciej — auto klienta na podnośniku, auto w rozliczeniu na placu, każde auto, które wpiszesz. 14 dni za darmo — 25 diagnoz na nasz koszt, bez karty. Potem $149/mies. z 500 kredytami diagnostycznymi miesięcznie. Każdy kierowca wychodzi z wiedzą, czego potrzebuje jego auto.",
       priceLabel: "Miesięcznie, za lokalizację",
       point1: "Pobliskie ogłoszenie dla jednej lokalizacji warsztatu lub pomocy drogowej",
       point2: "Prezentacja nazwa-najpierw z odległością i dotknij-aby-zadzwonić",
@@ -671,7 +671,7 @@ const pl: DeepPartial<Dictionary> = {
         },
         cost: {
           q: "Ile kosztuje plan firmowy?",
-          a: "Plan Warsztaty kosztuje $149 miesięcznie, za lokalizację. Warsztat i firma pomocy drogowej używają tego samego planu firmowego na lokalizację.",
+          a: "14 dni za darmo — 25 diagnoz na nasz koszt, bez karty. Potem plan Warsztaty kosztuje $149 miesięcznie, za lokalizację — ten sam plan dla warsztatu i firmy pomocy drogowej.",
         },
         cancel: {
           q: "Czy firma może anulować?",
@@ -901,6 +901,7 @@ const pl: DeepPartial<Dictionary> = {
       businessPlan: "Plan",
       businessProfile: "Profil twojej firmy",
       businessMessages: "Wiadomości klientów",
+      businessDiagnose: "Zdiagnozuj auto w swoim warsztacie",
       verifyTitle: "Zweryfikuj swój e-mail",
       verifyBody: "Wysłaliśmy 6-cyfrowy kod na twój adres e-mail. Wpisz go tutaj, aby zweryfikować konto — wszystko działa bez tego; to tylko dowód, że adres jest twój.",
       verifyCodeLabel: "Kod weryfikacyjny",
@@ -937,6 +938,8 @@ const pl: DeepPartial<Dictionary> = {
       creditsFreeLine: "Zostało Ci {count} z {limit} darmowych diagnoz.",
       creditsBucketLine: "Kredyty miesięczne: w tym miesiącu zostało {count} z {limit}.",
       creditsSinglesLine: "Kupione kredyty diagnostyczne: {count}.",
+      trialLine: "Bezpłatny okres próbny — zostało {days} dni, kończy się {date}.",
+      trialEndedLine: "Twój bezpłatny okres próbny się skończył. Wykup plan, aby dalej diagnozować auta w swoim warsztacie.",
     },
     vault: {
       title: "Health Vault",

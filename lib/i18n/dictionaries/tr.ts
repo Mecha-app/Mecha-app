@@ -365,8 +365,8 @@ const tr: DeepPartial<Dictionary> = {
       badge: "Servisler ve çekiciler için",
       point1: "İşletmeniz, sürücülerin aradığı yakınlık listesinde",
       point2: "Ad önce, mesafe gösterilir, sizi aramak için bir dokunuş",
-      point3: "Müşterilerinizin arabaları için ayda 500 teşhis kredisi",
-      point4: "Kayıt olduğunuzda 10 ücretsiz teşhis",
+      point3: "Ayda 500 teşhis kredisi — kendi liftlerinizdeki arabaları teşhis edin, daha hızlı",
+      point4: "14 gün ücretsiz — 25 teşhis bizden, kart gerekmez. Sonra aylık $149.",
       cta: "İşletmenizi listeleyin",
     },
     single: {
@@ -593,7 +593,7 @@ const tr: DeepPartial<Dictionary> = {
         },
         business: {
           q: "Servisler planı şirket başına mı yoksa konum başına mı ücretlendirilir?",
-          a: "Konum başına — listelenen her servis veya çekici konumu için aylık $149. Başka bir konumun listelenmesini isteyen bir işletme, o konum için bir plan kullanır.",
+          a: "Konum başına — başlamak için 14 gün ücretsiz, sonra listelenen her servis veya çekici konumu için aylık $149. Başka bir konumun listelenmesini isteyen bir işletme, o konum için bir plan kullanır.",
         },
       },
     },
@@ -635,7 +635,7 @@ const tr: DeepPartial<Dictionary> = {
     plan: {
       eyebrow: "Servisler planı",
       heading: "Tek konum. Tek net aylık fiyat.",
-      body: "Müşterilerinizin araçlarını tezgâhta tanılayın — kayıtta 10 ücretsiz tanı, sonra planda ayda 500 tanı kredisi. Her sürücü, arabasının neye ihtiyacı olduğunu bilerek ayrılır.",
+      body: "Kendi liftlerinizdeki arabaları teşhis edin, daha hızlı — liftteki bir müşteri arabası, takastaki bir araç, yazdığınız herhangi bir araba. 14 gün ücretsiz — 25 teşhis bizden, kart gerekmez. Sonra ayda 500 teşhis kredisiyle aylık $149. Her sürücü, arabasının neye ihtiyacı olduğunu bilerek ayrılır.",
       priceLabel: "Aylık, konum başına",
       point1: "Tek bir servis veya çekici konumu için yakındaki bir liste",
       point2: "Mesafe ve dokun-ara ile isim-önce sunum",
@@ -671,7 +671,7 @@ const tr: DeepPartial<Dictionary> = {
         },
         cost: {
           q: "İşletme planı ne kadar?",
-          a: "Servisler planı aylık $149, konum başınadır. Bir servis ve bir çekici şirketi aynı konum başına işletme planını kullanır.",
+          a: "14 gün ücretsiz — 25 teşhis bizden, kart gerekmez. Sonra Servisler planı aylık $149, konum başınadır — bir servis ve bir çekici şirketi için aynı plan.",
         },
         cancel: {
           q: "Bir işletme iptal edebilir mi?",
@@ -901,6 +901,7 @@ const tr: DeepPartial<Dictionary> = {
       businessPlan: "Plan",
       businessProfile: "İşletme profiliniz",
       businessMessages: "Müşteri mesajları",
+      businessDiagnose: "Servisinizde bir arabayı teşhis edin",
       verifyTitle: "E-postanızı onaylayın",
       verifyBody: "E-postanıza 6 haneli bir kod gönderdik. Hesabınızı doğrulamak için buraya girin — doğrulamanız olmasa da her şey çalışır; bu yalnızca adresin size ait olduğunu kanıtlar.",
       verifyCodeLabel: "Doğrulama kodu",
@@ -937,6 +938,8 @@ const tr: DeepPartial<Dictionary> = {
       creditsFreeLine: "{limit} ücretsiz teşhisinizden {count} tanesi kaldı.",
       creditsBucketLine: "Aylık krediler: bu ay {limit} krediden {count} tanesi kaldı.",
       creditsSinglesLine: "Satın alınmış teşhis kredileri: {count}.",
+      trialLine: "Ücretsiz deneme — {days} gün kaldı, {date} tarihinde bitiyor.",
+      trialEndedLine: "Ücretsiz denemeniz sona erdi. Servisinizdeki arabaları teşhis etmeye devam etmek için abone olun.",
     },
     vault: {
       title: "Health Vault",

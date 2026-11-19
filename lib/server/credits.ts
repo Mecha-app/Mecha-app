@@ -1,5 +1,10 @@
 import type { IdentityStore, ShopRecord } from "./store";
-import { SHOP_FREE_DIAGNOSES, SHOP_MONTHLY_CREDITS } from "./pricing";
+import {
+  SHOP_FREE_DIAGNOSES,
+  SHOP_MONTHLY_CREDITS,
+  SHOP_TRIAL_CREDITS,
+  SHOP_TRIAL_DAYS,
+} from "./pricing";
 
 /**
  * credits.ts — the monthly-bucket math and the shop-side consumption
@@ -61,17 +66,162 @@ export function monthlyBucketView(input: {
 /** Which shelf a consumed diagnosis came from, in consumption order. */
 export type CreditSource = "free" | "monthly" | "purchased";
 
-export type ShopConsumeResult =
-  | { ok: true; source: CreditSource; freeUsed: number; bucket: MonthlyBucketState | null }
-  | { ok: false; freeUsed: number; bucket: MonthlyBucketState | null };
+// ---------------------------------------------------------------------------
+// The Shops free trial (owner decision, 2026-11-19 — final spec)
+// ---------------------------------------------------------------------------
+//
+// A shop's trial is a WINDOW plus a CREDIT POOL, both on the shop
+// record (migration 0020): trial_started_at / trial_ends_at bound
+// the 14 days, and free_diagnoses_used counts against the 25 trial
+// credits (pricing.SHOP_TRIAL_CREDITS). The trial ends at whichever
+// comes first. Expiry is computed from the stored ends_at — never
+// from session state — so a shop that never signs in still runs out
+// of trial on day 14.
+//
+// A shop ON the business plan is not "in trial" for consumption:
+// the settled order (free first, then the bucket) keeps applying,
+// so converting mid-trial never double-grants — the bucket starts
+// on payment (webhook reset) and the remaining trial credits are
+// simply drawn first, exactly as the pre-trial model drew the free
+// allowance first.
+
+export interface ShopTrialView {
+  /** True while the shop may still spend trial credits. */
+  active: boolean;
+  /** ISO timestamps of the stored window; null when none is recorded. */
+  startedAt: string | null;
+  endsAt: string | null;
+  /** Whole days left in the window (0 once the window has passed). */
+  daysLeft: number;
+  /** Trial credits: limit, used, remaining. */
+  creditsLimit: number;
+  creditsUsed: number;
+  creditsRemaining: number;
+  /** Why the trial is over, when it is: the clock or the credits. */
+  endedReason: "time" | "credits" | null;
+}
+
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+export function shopTrialView(shop: ShopRecord, now: Date = new Date()): ShopTrialView {
+  const creditsUsed = Math.max(0, Math.min(shop.freeDiagnosesUsed ?? 0, SHOP_TRIAL_CREDITS));
+  const creditsRemaining = SHOP_TRIAL_CREDITS - creditsUsed;
+  const endsAt = shop.trialEndsAt ?? null;
+  const endsMs = endsAt ? new Date(endsAt).getTime() : NaN;
+  const hasWindow = Number.isFinite(endsMs);
+  const timeLeft = hasWindow ? endsMs - now.getTime() : 0;
+  const timeExpired = !hasWindow || timeLeft <= 0;
+  const daysLeft = timeExpired ? 0 : Math.ceil(timeLeft / DAY_MS);
+  const endedReason: ShopTrialView["endedReason"] =
+    shop.plan === "business"
+      ? null
+      : creditsRemaining <= 0
+        ? "credits"
+        : timeExpired
+          ? "time"
+          : null;
+  return {
+    active: shop.plan !== "business" && endedReason === null,
+    startedAt: shop.trialStartedAt ?? null,
+    endsAt,
+    daysLeft,
+    creditsLimit: SHOP_TRIAL_CREDITS,
+    creditsUsed,
+    creditsRemaining,
+    endedReason,
+  };
+}
+
+/** The trial window for a shop signing up at `start`. */
+export function shopTrialWindow(start: Date): { startedAt: string; endsAt: string } {
+  const ends = new Date(start.getTime() + SHOP_TRIAL_DAYS * DAY_MS);
+  return { startedAt: start.toISOString(), endsAt: ends.toISOString() };
+}
 
 /**
- * Consume one diagnosis for a SHOP, in the settled order: the shop's
- * free allowance first (SHOP_FREE_DIAGNOSES at signup), then — only
- * while the business plan is active — the monthly bucket. Shops hold
- * no purchased singles in this model, so an exhausted shop waits for
- * renewal or resubscribes. Mirrors the driver rule: consumption
- * happens BEFORE the work runs and is never refunded by a failure.
+ * The shop-side quota state — the shape the diagnosis stream, the
+ * check-limit route, and /api/auth/me hand to the shop's screens.
+ * `remaining`/`limit` describe the trial-credit shelf while it is
+ * the shelf being drawn from, so the shared diagnose page renders
+ * the same countdown card it renders for drivers.
+ */
+export interface ShopQuotaState {
+  accountKind: "shop";
+  /** "business" on the paid plan, "trial" while the trial runs,
+   * "free" once the trial is over and nothing is left. */
+  plan: "business" | "trial" | "free";
+  used: number;
+  limit: number;
+  remaining: number;
+  bucket: MonthlyBucketState | null;
+  trial: ShopTrialView;
+  canDiagnose: boolean;
+}
+
+export function shopQuotaStateFor(shop: ShopRecord, now: Date = new Date()): ShopQuotaState {
+  const trial = shopTrialView(shop, now);
+  const bucket = shopBucketView(shop, now);
+  const onPlan = shop.plan === "business";
+  const freeOpen = onPlan
+    ? trial.creditsRemaining > 0
+    : trial.active;
+  return {
+    accountKind: "shop",
+    plan: onPlan ? "business" : trial.active ? "trial" : "free",
+    used: trial.creditsUsed,
+    limit: trial.creditsLimit,
+    remaining: freeOpen ? trial.creditsRemaining : 0,
+    bucket,
+    trial,
+    canDiagnose: freeOpen || (bucket !== null && bucket.remaining > 0),
+  };
+}
+
+/** The countdown line a shop hears after each diagnosis. */
+export function shopCountdownMessage(state: ShopQuotaState): string {
+  if (state.remaining > 1) {
+    return `You have ${state.remaining} free trial diagnoses left (${state.trial.daysLeft} ${state.trial.daysLeft === 1 ? "day" : "days"} left in your free trial).`;
+  }
+  if (state.remaining === 1) {
+    return "You have 1 free trial diagnosis left.";
+  }
+  if (state.bucket && state.bucket.remaining > 0) {
+    return `Your free trial diagnoses are used up. Shop plan credits: ${state.bucket.remaining} of ${state.bucket.limit} left this month.`;
+  }
+  return shopPaywallMessage(state);
+}
+
+/** The honest wall: the trial is over — subscribing is the way back in. */
+export function shopPaywallMessage(state: ShopQuotaState): string {
+  if (state.plan === "business") {
+    return "Your Shop plan's 500 monthly diagnosis credits are used up for this cycle. They renew with your next billing cycle — nothing more is charged until you choose.";
+  }
+  return "Your free trial has ended — 14 days free, 25 diagnoses on us, no card. Subscribe to MECHA for Shops ($149/mo, 500 diagnoses a month) to keep diagnosing cars in your shop. Nothing is charged until you choose.";
+}
+
+export type ShopConsumeResult =
+  | {
+      ok: true;
+      source: CreditSource;
+      freeUsed: number;
+      bucket: MonthlyBucketState | null;
+      trial: ShopTrialView;
+    }
+  | { ok: false; freeUsed: number; bucket: MonthlyBucketState | null; trial: ShopTrialView };
+
+/**
+ * Consume one diagnosis for a SHOP, in the settled order: the free
+ * shelf first, then — only while the business plan is active — the
+ * monthly bucket. The free shelf is the TRIAL pool (2026-11-19): for
+ * an unsubscribed shop it is open only while the trial is active —
+ * inside the 14-day window AND under the 25-credit limit; when the
+ * trial ends (whichever comes first) unused trial credits lapse. A
+ * subscribed shop keeps the settled free-first order (its remaining
+ * trial credits draw first, then the bucket), so converting
+ * mid-trial never double-grants. Shops hold no purchased singles in
+ * this model, so an exhausted shop waits for renewal or subscribes.
+ * Mirrors the driver rule: consumption happens BEFORE the work runs
+ * and is never refunded by a failure.
  */
 export async function consumeShopDiagnosis(
   store: IdentityStore,
@@ -79,14 +229,19 @@ export async function consumeShopDiagnosis(
   now: Date = new Date(),
 ): Promise<ShopConsumeResult> {
   const freeUsed = shop.freeDiagnosesUsed ?? 0;
-  if (freeUsed < SHOP_FREE_DIAGNOSES) {
+  const trialBefore = shopTrialView(shop, now);
+  const freeOpen =
+    shop.plan === "business" ? trialBefore.creditsRemaining > 0 : trialBefore.active;
+  if (freeOpen && freeUsed < SHOP_FREE_DIAGNOSES) {
     const taken = await store.consumeShopFreeDiagnosis(shop.id);
     if (taken) {
+      const after: ShopRecord = { ...shop, freeDiagnosesUsed: freeUsed + 1 };
       return {
         ok: true,
         source: "free",
         freeUsed: freeUsed + 1,
         bucket: shopBucketView(shop, now),
+        trial: shopTrialView(after, now),
       };
     }
   }
@@ -104,10 +259,16 @@ export async function consumeShopDiagnosis(
         source: "monthly",
         freeUsed,
         bucket: { remaining: before.limit - used, used, limit: before.limit, stale: false },
+        trial: trialBefore,
       };
     }
   }
-  return { ok: false, freeUsed, bucket: shop.plan === "business" ? shopBucketView(shop, now) : null };
+  return {
+    ok: false,
+    freeUsed,
+    bucket: shop.plan === "business" ? shopBucketView(shop, now) : null,
+    trial: trialBefore,
+  };
 }
 
 /** The shop's current bucket view (business plan only). */

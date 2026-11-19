@@ -354,8 +354,8 @@ const es: DeepPartial<Dictionary> = {
       badge: "Para talleres y grúas",
       point1: "Tu negocio en la lista cercana desde la que llaman los conductores",
       point2: "Nombre primero, distancia visible, un toque para llamarte",
-      point3: "500 créditos de diagnóstico al mes para los autos de tus clientes",
-      point4: "10 diagnósticos gratis al registrarte",
+      point3: "500 créditos de diagnóstico al mes — diagnostica los autos en tus propios talleres, más rápido",
+      point4: "14 días gratis — 25 diagnósticos por nuestra cuenta, sin tarjeta. Luego $149/mes.",
       cta: "Anuncia tu negocio",
     },
     meterTitle: "El medidor, a plena vista",
@@ -589,7 +589,7 @@ const es: DeepPartial<Dictionary> = {
         },
         business: {
           q: "¿El plan Talleres se cobra por empresa o por ubicación?",
-          a: "Por ubicación — $149 al mes por cada ubicación anunciada de taller o grúa. Un negocio que quiere anunciar otra ubicación usa un plan para esa ubicación.",
+          a: "Por ubicación — 14 días gratis para empezar, luego $149 al mes por cada ubicación anunciada de taller o grúa. Un negocio que quiere anunciar otra ubicación usa un plan para esa ubicación.",
         },
       },
     },
@@ -631,7 +631,7 @@ const es: DeepPartial<Dictionary> = {
     plan: {
       eyebrow: "El plan Talleres",
       heading: "Una ubicación. Un precio mensual claro.",
-      body: "Diagnostica los autos de tus clientes en el mostrador: 10 diagnósticos gratis al registrarte y luego 500 créditos de diagnóstico al mes con el plan. Cada conductor se va sabiendo qué necesita su auto.",
+      body: "Diagnostica los autos en tus propios talleres, más rápido: el auto de un cliente en el elevador, uno de intercambio en el lote, cualquier auto que escribas. 14 días gratis — 25 diagnósticos por nuestra cuenta, sin tarjeta. Luego $149/mes con 500 créditos de diagnóstico al mes. Cada conductor se va sabiendo qué necesita su auto.",
       priceLabel: "Por mes, por ubicación",
       point1: "Un anuncio cercano para una ubicación de taller de reparación o de grúa",
       point2: "Presentación con el nombre primero, distancia y llamada con un toque",
@@ -668,7 +668,7 @@ const es: DeepPartial<Dictionary> = {
         },
         cost: {
           q: "¿Cuánto cuesta el plan para negocios?",
-          a: "El plan Talleres cuesta $149 al mes, por ubicación. Un taller de reparación y una compañía de grúa usan el mismo plan de negocio por ubicación.",
+          a: "14 días gratis — 25 diagnósticos por nuestra cuenta, sin tarjeta. Luego el plan Talleres cuesta $149 al mes, por ubicación — el mismo plan para un taller de reparación o una compañía de grúa.",
         },
         cancel: {
           q: "¿Un negocio puede cancelar?",

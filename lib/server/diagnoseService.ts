@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { DIAGNOSIS_PROMPT_VERSION, buildDiagnosisPrompt, type DiagnosisRequest } from "./ai";
+import { DIAGNOSIS_PROMPT_VERSION, buildDiagnosisPrompt, type DiagnosisRequest, type DiagnosisTier } from "./ai";
 import type { DiagnosisProvider } from "./provider";
 import { startDiagnosisTrace } from "./tracing";
 import {
@@ -9,8 +9,15 @@ import {
   type QuotaState,
 } from "./quota";
 import { monthlyBucketView } from "./credits";
+import {
+  consumeShopDiagnosis,
+  shopCountdownMessage,
+  shopPaywallMessage,
+  shopQuotaStateFor,
+  type ShopQuotaState,
+} from "./credits";
 import { PRO_MONTHLY_CREDITS } from "./pricing";
-import type { IdentityStore, UserRecord } from "./store";
+import type { IdentityStore, ShopRecord, UserRecord } from "./store";
 
 /**
  * Diagnosis orchestration (WP5) — the one path every authenticated
@@ -40,8 +47,8 @@ import type { IdentityStore, UserRecord } from "./store";
  * structurally unable to burn paid AI calls.
  */
 
-export type DiagnoseServiceEvent =
-  | { type: "quota"; quota: QuotaState; message: string }
+type StreamEvent<Q> =
+  | { type: "quota"; quota: Q; message: string }
   | { type: "delta"; text: string }
   | {
       type: "done";
@@ -50,13 +57,31 @@ export type DiagnoseServiceEvent =
       tier: string;
       source: "model" | "cache";
       latency: { ttftMs: number; totalMs: number } | null;
-      quota: QuotaState;
+      quota: Q;
       message: string;
       /** The saved record's id (Pass #20) — the handle the share
        * link and the outcome prompt work against. Null only when the
        * save itself failed (logged, never thrown). */
       diagnosisId: string | null;
     };
+
+export type DiagnoseServiceEvent = StreamEvent<QuotaState>;
+
+/** The shop stream: identical mechanics, the shop quota shape. */
+export type ShopDiagnoseServiceEvent = StreamEvent<ShopQuotaState>;
+
+/** Thrown when a shop has nothing left on any shelf — the trial is
+ * over or the plan bucket is spent. Carries the shop state so the
+ * route answers 402 with the honest subscribe message. */
+export class ShopQuotaExhaustedError extends Error {
+  readonly code = "quota_exhausted";
+  readonly quota: ShopQuotaState;
+  constructor(quota: ShopQuotaState) {
+    super(shopPaywallMessage(quota));
+    this.name = "ShopQuotaExhaustedError";
+    this.quota = quota;
+  }
+}
 
 export class ProRequiredError extends Error {
   readonly code = "pro_required";
@@ -85,7 +110,7 @@ export async function* executeDiagnosis(
   deps: DiagnoseDeps,
   input: { user: UserRecord; request: DiagnosisRequest; vehicleId?: string },
 ): AsyncGenerator<DiagnoseServiceEvent> {
-  const { store, provider } = deps;
+  const { store } = deps;
   const { user, request } = input;
   const tier = request.tier === "deep" ? "deep" : "triage";
 
@@ -148,7 +173,6 @@ export async function* executeDiagnosis(
     if (!consumed) throw new QuotaExhaustedError(stateAfter());
   }
   const quotaAfter = stateAfter();
-  yield { type: "quota", quota: quotaAfter, message: countdownMessage(quotaAfter) };
 
   // PERSIST (step 5, hoisted): EVERY completed run saves a diagnosis
   // record against the account — linked to the named vehicle when the
@@ -181,9 +205,40 @@ export async function* executeDiagnosis(
     }
   };
 
-  // 3. Cache — identical question, identical answer, zero AI spend.
-  // A cache hit is still a run the driver made: it saves a record too
-  // (linked the same way), so history shows every consumed run.
+  yield* streamDiagnosis(deps, {
+    request,
+    tier,
+    quota: quotaAfter,
+    message: countdownMessage(quotaAfter),
+    traceId: user.id,
+    persistRecord,
+  });
+}
+
+/**
+ * Steps 3–5 of a diagnosis, shared by the driver path above and the
+ * shop path below: yield the quota event, serve an exact-match cache
+ * hit when one exists, otherwise stream the provider — persisting
+ * the finished report through the caller's persistRecord either way.
+ */
+async function* streamDiagnosis<Q>(
+  deps: DiagnoseDeps,
+  args: {
+    request: DiagnosisRequest;
+    tier: DiagnosisTier;
+    quota: Q;
+    message: string;
+    traceId: string;
+    persistRecord: (report: unknown) => Promise<string | null>;
+  },
+): AsyncGenerator<StreamEvent<Q>> {
+  const { store, provider } = deps;
+  const { request, tier, quota, message, persistRecord } = args;
+  yield { type: "quota", quota, message };
+
+  // Cache — identical question, identical answer, zero AI spend. A
+  // cache hit is still a run the account made: it saves a record too,
+  // so history shows every consumed run.
   const cacheKey = diagnosisCacheKey(request);
   const cached = await store.getCachedDiagnosis(cacheKey);
   if (cached) {
@@ -195,18 +250,18 @@ export async function* executeDiagnosis(
       tier: cached.tier,
       source: "cache",
       latency: null,
-      quota: quotaAfter,
-      message: countdownMessage(quotaAfter),
+      quota,
+      message,
       diagnosisId: cachedDiagnosisId,
     };
     return;
   }
 
-  // 4 + 5. Stream the provider, then persist. The Langfuse trace handle
-  // is a no-op unless tracing is wired (lib/server/tracing.ts); cache
+  // Stream the provider, then persist. The Langfuse trace handle is
+  // a no-op unless tracing is wired (lib/server/tracing.ts); cache
   // hits above never reach it — no LLM call, nothing to trace.
   const trace = startDiagnosisTrace({
-    userId: user.id,
+    userId: args.traceId,
     tier,
     language: request.language,
     promptVersion: DIAGNOSIS_PROMPT_VERSION,
@@ -217,50 +272,131 @@ export async function* executeDiagnosis(
       if (event.type === "delta") {
         yield { type: "delta", text: event.text };
       } else {
-      // Persistence must never fail a diagnosis the owner already paid
-      // for: cache/save errors are logged, not thrown.
-      try {
-        await store.putCachedDiagnosis(cacheKey, {
+        // Persistence must never fail a diagnosis the account already
+        // paid for: cache/save errors are logged, not thrown.
+        try {
+          await store.putCachedDiagnosis(cacheKey, {
+            report: event.report,
+            model: event.model,
+            tier: event.tier,
+          });
+        } catch (err) {
+          console.error(
+            JSON.stringify({
+              event: "diagnosis_persistence_warning",
+              detail: err instanceof Error ? err.message : "unknown",
+            }),
+          );
+        }
+        const savedDiagnosisId = await persistRecord(event.report);
+        // Trace BEFORE the done yield: consumers stop iterating at
+        // done, so anything after the yield is not guaranteed to run.
+        // The call is a no-op when Langfuse is unwired and can never
+        // throw.
+        await trace.recordSuccess({
+          model: event.model,
+          report: event.report,
+          usage: event.usage,
+          latency: event.latency,
+        });
+        yield {
+          type: "done",
           report: event.report,
           model: event.model,
           tier: event.tier,
-        });
-      } catch (err) {
-        console.error(
-          JSON.stringify({
-            event: "diagnosis_persistence_warning",
-            detail: err instanceof Error ? err.message : "unknown",
-          }),
-        );
-      }
-      const savedDiagnosisId = await persistRecord(event.report);
-      // Trace BEFORE the done yield: consumers stop iterating at done,
-      // so anything after the yield is not guaranteed to run. The call
-      // is a no-op when Langfuse is unwired and can never throw.
-      await trace.recordSuccess({
-        model: event.model,
-        report: event.report,
-        usage: event.usage,
-        latency: event.latency,
-      });
-      yield {
-        type: "done",
-        report: event.report,
-        model: event.model,
-        tier: event.tier,
-        source: "model",
-        latency: {
-          ttftMs: Math.round(event.latency.ttftMs),
-          totalMs: Math.round(event.latency.totalMs),
-        },
-        quota: quotaAfter,
-        message: countdownMessage(quotaAfter),
-        diagnosisId: savedDiagnosisId,
-      };
+          source: "model",
+          latency: {
+            ttftMs: Math.round(event.latency.ttftMs),
+            totalMs: Math.round(event.latency.totalMs),
+          },
+          quota,
+          message,
+          diagnosisId: savedDiagnosisId,
+        };
       }
     }
   } catch (err) {
     await trace.recordError(err);
     throw err;
   }
+}
+
+/**
+ * The SHOP diagnosis path (owner addition, 2026-11-19) — a shop
+ * diagnoses the cars in its own bays: a customer's car on the lift,
+ * a trade-in on the lot, any vehicle the shop types in. Same engine,
+ * same cache, same ordering discipline as the driver path —
+ * consumption BEFORE the provider call, against the shop's own
+ * shelves (lib/server/credits.ts): the free TRIAL pool while the
+ * trial is active (14 days / 25 credits, whichever ends first), then
+ * the business plan's 500-credit monthly bucket. At zero on every
+ * shelf, ShopQuotaExhaustedError — nothing else runs.
+ *
+ * The vehicle is the shop's typed-in car (vehicleInfo): shops hold
+ * no garage of saved vehicles in the data model, so there is no
+ * vehicleId link — the record saves against the SHOP (0020), with
+ * the vehicle string carried, exactly like a driver's free-text run.
+ * The deep tier is the paid tier's: business plan only.
+ */
+export async function* executeShopDiagnosis(
+  deps: DiagnoseDeps,
+  input: { shop: ShopRecord; request: DiagnosisRequest },
+): AsyncGenerator<ShopDiagnoseServiceEvent> {
+  const { store } = deps;
+  const { shop, request } = input;
+  const tier = request.tier === "deep" ? "deep" : "triage";
+
+  // 1. Tier gate — deep analysis rides the paid plan.
+  if (tier === "deep" && shop.plan !== "business") throw new ProRequiredError();
+
+  // 2. Consumption — before anything that could cost money.
+  const now = new Date();
+  const result = await consumeShopDiagnosis(store, shop, now);
+  if (!result.ok) {
+    throw new ShopQuotaExhaustedError(shopQuotaStateFor(shop, now));
+  }
+  // The after-state, tracked from the consume's own report so the
+  // countdown the shop sees is exact without a second read.
+  const afterShop: ShopRecord = {
+    ...shop,
+    freeDiagnosesUsed: result.freeUsed,
+    monthlyDiagnosesUsed: result.bucket ? result.bucket.used : shop.monthlyDiagnosesUsed,
+    monthlyPeriodStart:
+      result.source === "monthly" && result.bucket
+        ? (shop.monthlyPeriodStart ?? now.toISOString())
+        : shop.monthlyPeriodStart,
+  };
+  const quotaAfter = shopQuotaStateFor(afterShop, now);
+
+  const persistRecord = async (report: unknown): Promise<string | null> => {
+    try {
+      const saved = await store.saveDiagnosisRecord({
+        userId: null,
+        shopId: shop.id,
+        vehicleId: null,
+        vehicleInfo: request.vehicleInfo ?? null,
+        problemText: request.problem,
+        imageUrl: request.imageUrl,
+        aiResult: report,
+      });
+      return saved.id;
+    } catch (err) {
+      console.error(
+        JSON.stringify({
+          event: "diagnosis_persistence_warning",
+          detail: err instanceof Error ? err.message : "unknown",
+        }),
+      );
+      return null;
+    }
+  };
+
+  yield* streamDiagnosis(deps, {
+    request,
+    tier,
+    quota: quotaAfter,
+    message: shopCountdownMessage(quotaAfter),
+    traceId: shop.id,
+    persistRecord,
+  });
 }

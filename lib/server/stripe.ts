@@ -552,11 +552,20 @@ export async function handleStripeEvent(
     });
     // Activation fills the monthly bucket: Pro drivers get their 100,
     // shops their 500. (Towing buys the listing plan only — no bucket.)
-    if (applied && plan === "pro" && accountType === "driver") {
-      await store.resetMonthlyBucket("user", accountId, new Date());
-    }
-    if (applied && plan === "business" && accountType === "shop") {
-      await store.resetMonthlyBucket("shop", accountId, new Date());
+    // The fill happens only on the FIRST application of this checkout
+    // session (0020): Stripe retries webhook deliveries, and a replay
+    // must never reset a partially used bucket — that would be a
+    // second grant. The plan update above is idempotent and may
+    // safely re-run; renewals refill through the subscription
+    // lifecycle events and the lazy consume-time reset, not here.
+    if (applied) {
+      const firstApplication = await store.markCheckoutSessionApplied(event.session.id);
+      if (firstApplication && plan === "pro" && accountType === "driver") {
+        await store.resetMonthlyBucket("user", accountId, new Date());
+      }
+      if (firstApplication && plan === "business" && accountType === "shop") {
+        await store.resetMonthlyBucket("shop", accountId, new Date());
+      }
     }
     return applied;
   }

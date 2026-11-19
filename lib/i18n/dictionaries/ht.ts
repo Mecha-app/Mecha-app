@@ -355,8 +355,8 @@ const ht: DeepPartial<Dictionary> = {
       badge: "Pou atelye ak remòkaj",
       point1: "Biznis ou nan lis tou pre a chofè yo rele ladan l lan",
       point2: "Non an premye, distans la parèt, yon touch pou rele w",
-      point3: "500 kredi dyagnostik pa mwa pou machin kliyan w yo",
-      point4: "10 dyagnostik gratis lè w enskri",
+      point3: "500 kredi dyagnostik pa mwa — dyagnostike machin nan pwòp atelye w yo, pi vit",
+      point4: "14 jou gratis — 25 dyagnostik sou kont nou, san kat. Apre $149/mwa.",
       cta: "Anrejistre biznis ou",
     },
     meterTitle: "Kontè a, an plen vi",
@@ -590,7 +590,7 @@ const ht: DeepPartial<Dictionary> = {
         },
         business: {
           q: "Èske plan Atelye yo chaje pa konpayi oswa pa lokal?",
-          a: "Pa lokal — $149 pa mwa pou chak lokal atelye oswa remòkaj ki anrejistre. Yon biznis ki vle anrejistre yon lòt lokal itilize yon plan pou lokal sa a.",
+          a: "Pa lokal — 14 jou gratis pou kòmanse, apre $149 pa mwa pou chak lokal atelye oswa remòkaj ki anrejistre. Yon biznis ki vle anrejistre yon lòt lokal itilize yon plan pou lokal sa a.",
         },
       },
     },
@@ -632,7 +632,7 @@ const ht: DeepPartial<Dictionary> = {
     plan: {
       eyebrow: "Plan Atelye yo",
       heading: "Yon lokal. Yon pri mansyèl ki klè.",
-      body: "Dyagnostike machin kliyan w yo nan kontwa a — 10 dyagnostik gratis lè w enskri, apre 500 kredi dyagnostik pa mwa nan plan an. Chak chofè ale ak konesans sa machin li bezwen.",
+      body: "Dyagnostike machin nan pwòp atelye w yo, pi vit — machin yon kliyan sou pon an, yon machin echanj sou teren an, nenpòt machin ou tape. 14 jou gratis — 25 dyagnostik sou kont nou, san kat. Apre $149/mwa ak 500 kredi dyagnostik pa mwa. Chak chofè ale ak konesans sa machin li bezwen.",
       priceLabel: "Pa mwa, pa lokal",
       point1: "Yon anons tou pre pou yon lokal atelye reparasyon oswa remòkaj",
       point2: "Prezantasyon ki kòmanse avèk non, avèk distans ak apèl yon sèl touch",
@@ -669,7 +669,7 @@ const ht: DeepPartial<Dictionary> = {
         },
         cost: {
           q: "Konbyen plan biznis la koute?",
-          a: "Plan Atelye yo koute $149 pa mwa, pa lokal. Yon atelye reparasyon ak yon konpayi remòkaj itilize menm plan biznis pa lokal la.",
+          a: "14 jou gratis — 25 dyagnostik sou kont nou, san kat. Apre Plan Atelye yo koute $149 pa mwa, pa lokal — menm plan an pou yon atelye reparasyon ak yon konpayi remòkaj.",
         },
         cancel: {
           q: "Èske yon biznis ka anile?",

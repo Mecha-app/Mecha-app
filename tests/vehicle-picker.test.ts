@@ -344,7 +344,7 @@ test("storage: the unlinked read is owner-scoped; the save writes both fields", 
   const identityStore = read("lib/server/store.ts");
   assert.match(
     identityStore,
-    /INSERT INTO diagnostics \(user_id, vehicle_id, vehicle_info, problem_text, image_url, ai_result\)/,
+    /INSERT INTO diagnostics \(user_id, shop_id, vehicle_id, vehicle_info, problem_text, image_url, ai_result\)/,
   );
   // The route drops a vehicleId that is not the driver's own.
   const route = read("app/api/diagnose/route.ts");

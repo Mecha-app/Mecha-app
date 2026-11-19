@@ -3,7 +3,7 @@ import type { AccountType } from "./jwt";
 import type { IdentityStore } from "./store";
 import { StripeNotConfiguredError, type StripeClient } from "./stripe";
 import { quotaStateFor } from "./quota";
-import { shopBucketView } from "./credits";
+import { shopBucketView, shopTrialView, type ShopTrialView } from "./credits";
 import { SHOP_FREE_DIAGNOSES } from "./pricing";
 
 /**
@@ -120,6 +120,10 @@ export interface CreditsView {
   /** Purchased single credits (drivers); null where the concept doesn't apply. */
   purchasedCredits: number | null;
   bucket: { limit: number; used: number; remaining: number } | null;
+  /** The free-trial state (shops, 2026-11-19); null for drivers. For
+   * a shop past its trial window the free counts above read 0
+   * remaining — lapsed trial credits are not spendable. */
+  trial?: ShopTrialView | null;
 }
 
 export async function getCreditsView(
@@ -149,16 +153,23 @@ export async function getCreditsView(
   if (account.type === "shop") {
     const shop = await store.findShopById(account.id);
     if (!shop) throw new NotFoundError("Account not found.");
-    const freeUsed = shop.freeDiagnosesUsed ?? 0;
+    const trial = shopTrialView(shop);
     const bucket = shopBucketView(shop);
+    // The free shelf is the trial pool: it reads as remaining only
+    // while the trial is active (or the shop is subscribed, where
+    // the settled free-first order still applies). A lapsed trial
+    // shows 0 — the credits are gone, and the card says so via the
+    // trial state below.
+    const freeOpen = shop.plan === "business" ? trial.creditsRemaining > 0 : trial.active;
     return {
-      freeUsed,
+      freeUsed: trial.creditsUsed,
       freeLimit: SHOP_FREE_DIAGNOSES,
-      freeRemaining: Math.max(0, SHOP_FREE_DIAGNOSES - freeUsed),
+      freeRemaining: freeOpen ? trial.creditsRemaining : 0,
       purchasedCredits: null,
       bucket: bucket
         ? { limit: bucket.limit, used: bucket.used, remaining: bucket.remaining }
         : null,
+      trial,
     };
   }
   return null;

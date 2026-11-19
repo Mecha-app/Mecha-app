@@ -85,6 +85,12 @@ interface CreditsView {
   freeRemaining: number;
   purchasedCredits: number | null;
   bucket: { limit: number; used: number; remaining: number } | null;
+  trial?: {
+    active: boolean;
+    endsAt: string | null;
+    daysLeft: number;
+    endedReason: "time" | "credits" | null;
+  } | null;
 }
 
 function RowCheck() {
@@ -252,6 +258,22 @@ export function BillingSection({
   const showCancelNote = Boolean(view?.cancelAtPeriodEnd && view.subscriptionStatus === "active");
   const hasFactRows = Boolean(statusWord || showCancelNote || credits);
 
+  // The Shops free trial (2026-11-19), stated on the card while it
+  // runs and plainly once it ends: days left + the end date from the
+  // shop record (via the credits view), never a countdown invented
+  // in the browser.
+  const trial = kind === "business" ? (credits?.trial ?? null) : null;
+  const trialEndDate =
+    trial?.endsAt != null
+      ? new Date(trial.endsAt).toLocaleDateString(undefined, {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        })
+      : null;
+  const showTrialRow = Boolean(trial && !isPaidPlan && (trial.active || trial.endedReason));
+  const factRows = hasFactRows || showTrialRow;
+
   return (
     <section id="billing" className="mt-6 scroll-mt-24">
       <div className="rounded-2xl border border-line bg-surface p-6 sm:p-8">
@@ -274,8 +296,20 @@ export function BillingSection({
           <p className="mt-4 text-sm font-medium text-ink-1">{b.statusPastDue}</p>
         )}
 
-        {hasFactRows && (
+        {factRows && (
           <ul className="mt-5 space-y-2.5">
+            {showTrialRow && trial && (
+              <li className="flex gap-2.5 text-sm leading-relaxed text-ink-2">
+                <RowCheck />
+                <span>
+                  {trial.active
+                    ? b.trialLine
+                        .replace("{days}", String(trial.daysLeft))
+                        .replace("{date}", trialEndDate ?? "")
+                    : b.trialEndedLine}
+                </span>
+              </li>
+            )}
             {statusWord && (
               <li className="flex gap-2.5 text-sm leading-relaxed text-ink-2">
                 <RowCheck />

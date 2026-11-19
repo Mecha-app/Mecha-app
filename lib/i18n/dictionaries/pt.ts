@@ -365,8 +365,8 @@ const pt: DeepPartial<Dictionary> = {
       badge: "Para oficinas e reboques",
       point1: "Sua empresa na lista de proximidade de onde os motoristas ligam",
       point2: "Nome primeiro, distância mostrada, um toque para ligar para você",
-      point3: "500 créditos de diagnóstico por mês para os carros dos seus clientes",
-      point4: "10 diagnósticos grátis ao se cadastrar",
+      point3: "500 créditos de diagnóstico por mês — diagnostique os carros nas suas próprias baias, mais rápido",
+      point4: "14 dias grátis — 25 diagnósticos por nossa conta, sem cartão. Depois $149/mês.",
       cta: "Cadastre sua empresa",
     },
     single: {
@@ -593,7 +593,7 @@ const pt: DeepPartial<Dictionary> = {
         },
         business: {
           q: "O plano Oficinas é cobrado por empresa ou por local?",
-          a: "Por local — $149 por mês para cada oficina ou local de reboque anunciado. Um negócio que quer outro local anunciado usa um plano para esse local.",
+          a: "Por local — 14 dias grátis para começar, depois $149 por mês para cada oficina ou local de reboque anunciado. Um negócio que quer outro local anunciado usa um plano para esse local.",
         },
       },
     },
@@ -635,7 +635,7 @@ const pt: DeepPartial<Dictionary> = {
     plan: {
       eyebrow: "O plano Oficinas",
       heading: "Um local. Um preço mensal claro.",
-      body: "Diagnostique os carros dos seus clientes no balcão — 10 diagnósticos grátis ao se cadastrar e depois 500 créditos de diagnóstico por mês no plano. Cada motorista sai sabendo do que o carro precisa.",
+      body: "Diagnostique os carros nas suas próprias baias, mais rápido — o carro de um cliente no elevador, um usado no pátio, qualquer carro que você digitar. 14 dias grátis — 25 diagnósticos por nossa conta, sem cartão. Depois $149/mês com 500 créditos de diagnóstico por mês. Cada motorista sai sabendo do que o carro precisa.",
       priceLabel: "Por mês, por local",
       point1: "Um anúncio próximo para um local de oficina ou reboque",
       point2: "Apresentação com nome primeiro, distância e tocar para ligar",
@@ -671,7 +671,7 @@ const pt: DeepPartial<Dictionary> = {
         },
         cost: {
           q: "Quanto custa o plano comercial?",
-          a: "O plano Oficinas custa $149 por mês, por local. Uma oficina e uma empresa de reboque usam o mesmo plano comercial por local.",
+          a: "14 dias grátis — 25 diagnósticos por nossa conta, sem cartão. Depois o plano Oficinas custa $149 por mês, por local — o mesmo plano para uma oficina e uma empresa de reboque.",
         },
         cancel: {
           q: "Um negócio pode cancelar?",
@@ -901,6 +901,7 @@ const pt: DeepPartial<Dictionary> = {
       businessPlan: "Plano",
       businessProfile: "O perfil da sua empresa",
       businessMessages: "Mensagens de clientes",
+      businessDiagnose: "Diagnosticar um carro na sua oficina",
       verifyTitle: "Verifique seu e-mail",
       verifyBody: "Enviamos um código de 6 dígitos para o seu e-mail. Insira-o aqui para verificar sua conta — tudo funciona sem ele; ele só prova que o endereço é seu.",
       verifyCodeLabel: "Código de verificação",
@@ -937,6 +938,8 @@ const pt: DeepPartial<Dictionary> = {
       creditsFreeLine: "Restam {count} dos seus {limit} diagnósticos grátis.",
       creditsBucketLine: "Créditos mensais: restam {count} de {limit} neste mês.",
       creditsSinglesLine: "Créditos de diagnóstico comprados: {count}.",
+      trialLine: "Teste grátis — faltam {days} dias, termina em {date}.",
+      trialEndedLine: "Seu teste grátis terminou. Assine para continuar diagnosticando carros na sua oficina.",
     },
     vault: {
       title: "Health Vault",

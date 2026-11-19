@@ -365,8 +365,8 @@ const de: DeepPartial<Dictionary> = {
       badge: "Für Werkstätten & Abschleppen",
       point1: "Ihr Unternehmen in der Nähe-Liste, von der Fahrer anrufen",
       point2: "Name zuerst, Entfernung angezeigt, ein Tipp, um Sie anzurufen",
-      point3: "500 Diagnose-Guthaben pro Monat für die Autos Ihrer Kunden",
-      point4: "10 kostenlose Diagnosen bei der Anmeldung",
+      point3: "500 Diagnose-Guthaben pro Monat — diagnostizieren Sie die Autos in Ihren eigenen Werkstattboxen, schneller",
+      point4: "14 Tage kostenlos — 25 Diagnosen gehen auf uns, keine Karte nötig. Danach $149/Monat.",
       cta: "Ihr Unternehmen eintragen",
     },
     single: {
@@ -593,7 +593,7 @@ const de: DeepPartial<Dictionary> = {
         },
         business: {
           q: "Wird der Werkstätten-Plan pro Firma oder pro Standort berechnet?",
-          a: "Pro Standort — $149 pro Monat für jeden eingetragenen Werkstatt- oder Abschleppsstandort. Eine Firma, die einen weiteren Standort eingetragen haben will, nutzt einen Plan für diesen Standort.",
+          a: "Pro Standort — 14 Tage kostenlos zum Start, danach $149 pro Monat für jeden eingetragenen Werkstatt- oder Abschleppsstandort. Eine Firma, die einen weiteren Standort eingetragen haben will, nutzt einen Plan für diesen Standort.",
         },
       },
     },
@@ -635,7 +635,7 @@ const de: DeepPartial<Dictionary> = {
     plan: {
       eyebrow: "Der Werkstätten-Plan",
       heading: "Ein Standort. Ein klarer Monatspreis.",
-      body: "Diagnostizieren Sie die Autos Ihrer Kunden an der Theke — 10 kostenlose Diagnosen bei der Anmeldung, danach 500 Diagnose-Credits pro Monat im Plan. Jeder Fahrer geht mit dem Wissen, was sein Auto braucht.",
+      body: "Diagnostizieren Sie die Autos in Ihren eigenen Werkstattboxen, schneller — ein Kundenauto auf der Hebebühne, ein Inzahlungnahme-Auto auf dem Hof, jedes Auto, das Sie eingeben. 14 Tage kostenlos — 25 Diagnosen gehen auf uns, keine Karte nötig. Danach $149/Monat mit 500 Diagnose-Credits pro Monat. Jeder Fahrer geht mit dem Wissen, was sein Auto braucht.",
       priceLabel: "Pro Monat, pro Standort",
       point1: "Ein naher Eintrag für einen Werkstatt- oder Abschleppsstandort",
       point2: "Name-zuerst-Darstellung mit Entfernung und Antippen zum Anrufen",
@@ -671,7 +671,7 @@ const de: DeepPartial<Dictionary> = {
         },
         cost: {
           q: "Was kostet der Firmenplan?",
-          a: "Der Werkstätten-Plan kostet $149 pro Monat und Standort. Eine Werkstatt und eine Abschleppfirma nutzen denselben Firmenplan pro Standort.",
+          a: "14 Tage kostenlos — 25 Diagnosen gehen auf uns, keine Karte nötig. Danach kostet der Werkstätten-Plan $149 pro Monat und Standort — derselbe Plan für eine Werkstatt und eine Abschleppfirma.",
         },
         cancel: {
           q: "Kann eine Firma kündigen?",
@@ -901,6 +901,7 @@ const de: DeepPartial<Dictionary> = {
       businessPlan: "Plan",
       businessProfile: "Ihr Unternehmensprofil",
       businessMessages: "Kundennachrichten",
+      businessDiagnose: "Ein Auto in Ihrer Werkstatt diagnostizieren",
       verifyTitle: "Verifizieren Sie Ihre E-Mail",
       verifyBody: "Wir haben einen 6-stelligen Code an Ihre E-Mail-Adresse gesendet. Geben Sie ihn hier ein, um Ihr Konto zu verifizieren — alles funktioniert auch ohne, er beweist nur, dass die Adresse Ihnen gehört.",
       verifyCodeLabel: "Verifizierungscode",
@@ -937,6 +938,8 @@ const de: DeepPartial<Dictionary> = {
       creditsFreeLine: "Sie haben noch {count} Ihrer {limit} kostenlosen Diagnosen übrig.",
       creditsBucketLine: "Monatsguthaben: Diesen Monat sind noch {count} von {limit} übrig.",
       creditsSinglesLine: "Gekaufte Diagnose-Guthaben: {count}.",
+      trialLine: "Kostenlose Testphase — noch {days} Tage, endet am {date}.",
+      trialEndedLine: "Ihre kostenlose Testphase ist beendet. Abonnieren Sie, um weiter Autos in Ihrer Werkstatt zu diagnostizieren.",
     },
     vault: {
       title: "Health Vault",

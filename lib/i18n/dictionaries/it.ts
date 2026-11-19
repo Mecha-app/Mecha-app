@@ -365,8 +365,8 @@ const it: DeepPartial<Dictionary> = {
       badge: "Per officine e soccorso",
       point1: "La tua attività nell'elenco di prossimità da cui chiamano i guidatori",
       point2: "Nome per primo, distanza mostrata, un tocco per chiamarti",
-      point3: "500 crediti di diagnosi al mese per le auto dei tuoi clienti",
-      point4: "10 diagnosi gratuite alla registrazione",
+      point3: "500 crediti di diagnosi al mese — diagnostica le auto nei tuoi ponti, più in fretta",
+      point4: "14 giorni gratis — 25 diagnosi le offriamo noi, senza carta. Poi $149/mese.",
       cta: "Registra la tua attività",
     },
     single: {
@@ -593,7 +593,7 @@ const it: DeepPartial<Dictionary> = {
         },
         business: {
           q: "Il piano Officine si paga per azienda o per sede?",
-          a: "Per sede — $149 al mese per ogni officina o sede di traino inserita. Un'attività che vuole un'altra sede inserita usa un piano per quella sede.",
+          a: "Per sede — 14 giorni gratis per iniziare, poi $149 al mese per ogni officina o sede di traino inserita. Un'attività che vuole un'altra sede inserita usa un piano per quella sede.",
         },
       },
     },
@@ -635,7 +635,7 @@ const it: DeepPartial<Dictionary> = {
     plan: {
       eyebrow: "Il piano Officine",
       heading: "Una sede. Un prezzo mensile chiaro.",
-      body: "Diagnostica le auto dei tuoi clienti al banco — 10 diagnosi gratuite all'iscrizione, poi 500 crediti di diagnosi al mese con il piano. Ogni automobilista se ne va sapendo cosa serve alla sua auto.",
+      body: "Diagnostica le auto nei tuoi ponti, più in fretta — l'auto di un cliente sul ponte, una permuta nel piazzale, qualsiasi auto tu scriva. 14 giorni gratis — 25 diagnosi le offriamo noi, senza carta. Poi $149/mese con 500 crediti di diagnosi al mese. Ogni automobilista se ne va sapendo cosa serve alla sua auto.",
       priceLabel: "Al mese, per sede",
       point1: "Un'inserzione vicina per una sede di officina o traino",
       point2: "Presentazione nome-prima con distanza e tocca-per-chiamare",
@@ -671,7 +671,7 @@ const it: DeepPartial<Dictionary> = {
         },
         cost: {
           q: "Quanto costa il piano commerciale?",
-          a: "Il piano Officine costa $149 al mese, per sede. Un'officina e un'azienda di traino usano lo stesso piano commerciale per sede.",
+          a: "14 giorni gratis — 25 diagnosi le offriamo noi, senza carta. Poi il piano Officine costa $149 al mese, per sede — lo stesso piano per un'officina e un'azienda di traino.",
         },
         cancel: {
           q: "Un'attività può cancellare?",
@@ -901,6 +901,7 @@ const it: DeepPartial<Dictionary> = {
       businessPlan: "Piano",
       businessProfile: "Il profilo della tua attività",
       businessMessages: "Messaggi dei clienti",
+      businessDiagnose: "Diagnostica un'auto nella tua officina",
       verifyTitle: "Verifica la tua email",
       verifyBody: "Abbiamo inviato un codice di 6 cifre alla tua email. Inseriscilo qui per verificare il tuo account — tutto funziona anche senza; prova solo che l'indirizzo è tuo.",
       verifyCodeLabel: "Codice di verifica",
@@ -937,6 +938,8 @@ const it: DeepPartial<Dictionary> = {
       creditsFreeLine: "Ti restano {count} delle tue {limit} diagnosi gratuite.",
       creditsBucketLine: "Crediti mensili: questo mese restano {count} di {limit}.",
       creditsSinglesLine: "Crediti di diagnosi acquistati: {count}.",
+      trialLine: "Prova gratuita — restano {days} giorni, finisce il {date}.",
+      trialEndedLine: "La tua prova gratuita è terminata. Abbonati per continuare a diagnosticare le auto nella tua officina.",
     },
     vault: {
       title: "Health Vault",

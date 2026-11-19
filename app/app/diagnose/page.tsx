@@ -37,6 +37,14 @@ interface QuotaView {
   /** The Pro monthly bucket, when the plan carries one. */
   bucket?: { limit: number; used: number; remaining: number } | null;
   canDiagnose: boolean;
+  /** "shop" when the signed-in account is a shop diagnosing against
+   * its trial/plan shelves (2026-11-19); absent for drivers. */
+  accountKind?: string;
+  trial?: {
+    active: boolean;
+    daysLeft: number;
+    endedReason: "time" | "credits" | null;
+  } | null;
 }
 
 type Phase = "loading" | "ready" | "streaming" | "done" | "blocked" | "error";
@@ -60,8 +68,10 @@ export default function DiagnosePage() {
   const [receivedChars, setReceivedChars] = useState(0);
   const [detail, setDetail] = useState("");
   // The paywall's purchase doors (credit model, 2026-11-18).
-  const [buying, setBuying] = useState<"pro" | "credit" | null>(null);
+  const [buying, setBuying] = useState<"pro" | "credit" | "business" | null>(null);
   const [paywallError, setPaywallError] = useState("");
+  // A shop runs this same screen against its own shelves (2026-11-19).
+  const isShop = quota?.accountKind === "shop";
 
   useEffect(() => {
     // Scan handoff (Scan package): /app/scan may arrive here with a
@@ -238,7 +248,7 @@ export default function DiagnosePage() {
     }
   }, [paywallShown]);
 
-  async function buyDoor(plan: "pro" | "credit") {
+  async function buyDoor(plan: "pro" | "credit" | "business") {
     setBuying(plan);
     setPaywallError("");
     try {
@@ -250,7 +260,7 @@ export default function DiagnosePage() {
       const data = (await res.json().catch(() => ({}))) as { url?: string; detail?: string };
       if (res.status === 200 && data.url) {
         trackEvent("checkout_started", {
-          product: plan === "pro" ? "pro" : "single_credit",
+          product: plan === "pro" ? "pro" : plan === "business" ? "business" : "single_credit",
         });
         window.location.href = data.url;
         return;
@@ -272,7 +282,7 @@ export default function DiagnosePage() {
       <CheckoutReturnTracker product="single_credit" />
       <main className="mx-auto w-full max-w-2xl px-4 py-8 sm:py-12">
         <h1 className="font-display text-3xl font-semibold tracking-[-0.01em] text-ink-1">
-          Diagnose my car
+          {isShop ? "Diagnose a car" : "Diagnose my car"}
         </h1>
 
         {/* The countdown — server-stated, always visible. It names
@@ -287,7 +297,7 @@ export default function DiagnosePage() {
             {quota.remaining > 0 ? (
               <>
                 <p className="font-display text-2xl font-semibold text-ink-1">
-                  {quota.remaining} of {quota.limit} free{" "}
+                  {quota.remaining} of {quota.limit} free{isShop ? " trial" : ""}{" "}
                   {quota.remaining === 1 ? "diagnosis" : "diagnoses"} left
                 </p>
                 <p className="mt-1 text-base text-ink-2">{message}</p>
@@ -295,7 +305,7 @@ export default function DiagnosePage() {
             ) : quota.bucket && quota.bucket.remaining > 0 ? (
               <>
                 <p className="font-display text-2xl font-semibold text-ink-1">
-                  Pro — {quota.bucket.remaining} of {quota.bucket.limit} monthly diagnoses left
+                  {isShop ? "Shop plan" : "Pro"} — {quota.bucket.remaining} of {quota.bucket.limit} monthly diagnoses left
                 </p>
                 <p className="mt-1 text-base text-ink-2">{message}</p>
               </>
@@ -313,6 +323,47 @@ export default function DiagnosePage() {
         )}
 
         {phase === "blocked" || exhausted ? (
+          isShop ? (
+            <section className="mt-8 rounded-2xl border border-line bg-surface px-5 py-6">
+              <h2 className="font-display text-xl font-semibold text-ink-1">
+                {quota?.plan === "business"
+                  ? "Your Shop plan's monthly credits are used up"
+                  : "Your free trial has ended"}
+              </h2>
+              <p className="mt-2 text-base leading-relaxed text-ink-2">
+                {message ||
+                  "Your free trial has ended — 14 days free, 25 diagnoses on us, no card. Subscribe to MECHA for Shops ($149/mo, 500 diagnoses a month) to keep diagnosing cars in your shop — nothing is charged until you choose."}
+              </p>
+              {quota?.plan !== "business" && (
+                <div className="mt-5">
+                  <button
+                    type="button"
+                    onClick={() => void buyDoor("business")}
+                    disabled={buying !== null}
+                    className="flex h-12 w-full items-center justify-center rounded-full bg-accent px-6 text-base font-semibold text-accent-ink disabled:opacity-60"
+                  >
+                    {buying === "business" ? "Opening checkout…" : "Subscribe to MECHA for Shops — $149/mo"}
+                  </button>
+                </div>
+              )}
+              {quota?.plan === "business" && (
+                <p className="mt-3 text-sm leading-relaxed text-ink-2">
+                  Your 500 monthly credits renew with your next billing cycle.
+                </p>
+              )}
+              {paywallError && (
+                <p className="mt-3 text-base text-ink-1" role="alert">
+                  {paywallError}
+                </p>
+              )}
+              <Link
+                href="/pricing"
+                className="mt-4 inline-block text-base font-medium text-accent underline underline-offset-4"
+              >
+                Compare the plans
+              </Link>
+            </section>
+          ) : (
           <section className="mt-8 rounded-2xl border border-line bg-surface px-5 py-6">
             <h2 className="font-display text-xl font-semibold text-ink-1">
               {proSpent ? "Your Pro monthly credits are used up" : "You are out of free diagnoses"}
@@ -370,6 +421,7 @@ export default function DiagnosePage() {
               Compare the plans
             </Link>
           </section>
+          )
         ) : (
           <form onSubmit={onSubmit} className="mt-8 flex flex-col gap-5" noValidate>
             {/* The car: a picker of the driver's saved vehicles when
@@ -380,7 +432,7 @@ export default function DiagnosePage() {
                 the vehicle in the Health Vault. */}
             <SavedVehicleField
               id="diag-vehicle"
-              label="Your car"
+              label={isShop ? "The car" : "Your car"}
               placeholder="Year, make, and model"
               otherOptionLabel="Other vehicle…"
               savedOptionLabel="Use a saved vehicle"
@@ -537,13 +589,17 @@ export default function DiagnosePage() {
         {/* The closing blocks of a finished result (Pass #20): the
             counter script first, then the share card and the outcome
             prompt — both keyed to the saved record's id, so they
-            render only when the run was actually saved. */}
-        {report && <ShopScript report={report} vehicleInfo={vehicleInfo} />}
+            render only when the run was actually saved. For a SHOP
+            run the record is the shop's own (0020): the counter
+            script is a driver's tool, and the share/outcome/detail
+            surfaces are driver-scoped today, so all three are
+            driver-only here. */}
+        {report && !isShop && <ShopScript report={report} vehicleInfo={vehicleInfo} />}
         {/* The saved record's own page (Pass #20b): this run is
             filed the moment it finishes, and its detail view shows
             the stored report — the range here and the range there
             are the same number, checkable in one tap. */}
-        {report && diagnosisId && (
+        {report && diagnosisId && !isShop && (
           <p className="mt-6">
             <Link
               href={`/app/diagnoses/${diagnosisId}`}
@@ -553,8 +609,8 @@ export default function DiagnosePage() {
             </Link>
           </p>
         )}
-        {report && diagnosisId && <DiagnosisShare diagnosisId={diagnosisId} />}
-        {report && diagnosisId && <DiagnosisOutcome diagnosisId={diagnosisId} />}
+        {report && diagnosisId && !isShop && <DiagnosisShare diagnosisId={diagnosisId} />}
+        {report && diagnosisId && !isShop && <DiagnosisOutcome diagnosisId={diagnosisId} />}
       </main>
     </>
   );

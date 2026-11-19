@@ -375,8 +375,8 @@ const en = {
       badge: "For shops & towing",
       point1: "Your business in the nearby list drivers call from",
       point2: "Name first, distance shown, one tap to call you",
-      point3: "500 diagnosis credits a month for your customers' cars",
-      point4: "10 free diagnoses when you sign up",
+      point3: "500 diagnosis credits a month — diagnose the cars in your own bays, faster",
+      point4: "14 days free — 25 diagnoses on us, no card. Then $149/mo.",
       cta: "List your business",
     },
     single: {
@@ -615,7 +615,7 @@ const en = {
         },
         business: {
           q: "Is the Shops plan priced per company or per location?",
-          a: "Per location — $149 per month for each listed shop or towing location.",
+          a: "Per location — 14 days free to start, then $149 per month for each listed shop or towing location.",
         },
       },
     },
@@ -657,7 +657,7 @@ const en = {
     plan: {
       eyebrow: "The Shops plan",
       heading: "One location. One clear monthly price.",
-      body: "Diagnose your customers' cars at the counter — 10 free diagnoses when you sign up, then 500 diagnosis credits a month on the plan. Every driver leaves knowing what their car needs.",
+      body: "Diagnose the cars in your own bays, faster — a customer's car on the lift, a trade-in on the lot, any car you type in. 14 days free — 25 diagnoses on us, no card. Then $149/mo with 500 diagnosis credits a month. Every driver leaves knowing what their car needs.",
       priceLabel: "Per month, per location",
       point1: "A nearby listing for one repair-shop or towing location",
       point2: "Name-first presentation with distance and tap-to-call",
@@ -694,7 +694,7 @@ const en = {
         },
         cost: {
           q: "What does the business plan cost?",
-          a: "The Shops plan is $149 per month, per location — the same plan for a repair shop or a towing company.",
+          a: "14 days free — 25 diagnoses on us, no card. Then the Shops plan is $149 per month, per location — the same plan for a repair shop or a towing company.",
         },
         cancel: {
           q: "Can a business cancel?",
@@ -992,6 +992,7 @@ const en = {
       businessPlan: "Plan",
       businessProfile: "Your business profile",
       businessMessages: "Customer messages",
+      businessDiagnose: "Diagnose a car in your shop",
       verifyTitle: "Verify your email",
       verifyBody:
         "We sent a 6-digit code to your email. Enter it to verify your account — everything works without it; this just proves the address is yours.",
@@ -1030,6 +1031,8 @@ const en = {
       creditsFreeLine: "{count} of your {limit} free diagnoses are left.",
       creditsBucketLine: "Monthly credits: {count} of {limit} left this month.",
       creditsSinglesLine: "Purchased diagnosis credits: {count}.",
+      trialLine: "Free trial — {days} days left, ends {date}.",
+      trialEndedLine: "Your free trial has ended. Subscribe to keep diagnosing cars in your shop.",
     },
     vault: {
       title: "Health Vault",
