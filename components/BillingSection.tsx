@@ -52,6 +52,23 @@ import { useLocale } from "@/lib/i18n/LocaleProvider";
  * row, and "Manage or cancel anytime" is a small text link at the
  * bottom — housekeeping never shouts like a purchase. Data, flows,
  * prices, and copy are unchanged.
+ *
+ * Billing-card polish, round 2 (2026-11-19, owner reviewed the
+ * round-1 card live and circled the buy-one block): a bordered row
+ * with a pale outline pill still read as an afterthought next to
+ * the Pro card. Kreova gives EVERY option the same card treatment,
+ * so the single diagnosis is now a full sibling plan card in the
+ * same family: name large, its note as the muted subtitle, the
+ * price big from the pricing catalog (pricing.single) with its
+ * period small under it, and ONE button. Per the owner's word the
+ * button is SOLID — the same filled pill as the upgrade's, never a
+ * washed-out outline; the hierarchy is carried by the cards
+ * themselves (Pro highlighted with the accent border and first
+ * position, Single on the plain soft tint). Both purchase cards
+ * share one geometry: same radius, padding, border logic, price
+ * size, and button. The upgrade card also gains its catalog badge
+ * as the muted subtitle under its name, so the two cards read
+ * line-for-line alike. Presentation only, again.
  */
 
 interface BillingView {
@@ -166,6 +183,7 @@ export function BillingSection({
       ? kind === "driver"
         ? {
             name: b.planPro,
+            badge: t.pricing.pro.badge,
             price: t.pricing.pro.price,
             period: t.pricing.pro.period,
             label: b.upgradePro,
@@ -174,6 +192,7 @@ export function BillingSection({
         : kind === "business" && !view.hasBillingAccount
           ? {
               name: b.planBusiness,
+              badge: t.pricing.shops.badge,
               price: t.pricing.shops.price,
               period: t.pricing.shops.period,
               label: b.upgradeBusiness,
@@ -183,7 +202,7 @@ export function BillingSection({
       : null;
 
   // Whether a purchase block renders above the manage link
-  // (drivers always get the buy-one row; the upgrade card counts
+  // (drivers always get the buy-one card; the upgrade card counts
   // too). Presentation only — it decides whether the manage link
   // needs its own divider above it.
   const hasPurchaseAction = kind === "driver" || upgrade !== null;
@@ -220,13 +239,13 @@ export function BillingSection({
     setError(apiDetail(res.data, t.wp6.common.somethingWrong));
   }
 
-  // Kreova geometry (2026-11-19 polish): one clean pill per card —
-  // the solid primary lives alone in the highlighted upgrade card;
-  // the buy-one pill is the same shape in quiet outline.
+  // Kreova geometry (2026-11-19 polish, round 2): ONE solid pill
+  // for every purchase card — the upgrade and the single diagnosis
+  // carry the exact same filled button (owner: "we have to have a
+  // solid button. Just like the 9.99"). The cards themselves carry
+  // the hierarchy; no purchase button is ever a pale outline.
   const buttonClass =
     "flex h-11 w-full items-center justify-center rounded-full bg-accent px-6 text-[15px] font-semibold text-accent-ink transition-colors duration-150 hover:bg-accent-bright disabled:opacity-60";
-  const secondaryButtonClass =
-    "flex h-11 w-full items-center justify-center rounded-full border border-line bg-surface px-6 text-[15px] font-semibold text-ink-1 transition-colors duration-150 hover:border-ink-3 disabled:opacity-60 sm:w-auto sm:min-w-[13rem] sm:shrink-0";
   const manageLinkClass =
     "inline-flex items-center py-1 text-sm font-medium text-accent-deep underline-offset-4 transition-colors duration-150 hover:underline disabled:opacity-60";
 
@@ -313,11 +332,12 @@ export function BillingSection({
             {upgrade && (
               <div className="rounded-2xl border-2 border-accent bg-inset p-6">
                 <p className="font-display text-lg font-semibold text-ink-1">{upgrade.name}</p>
-                <p className="mt-3">
-                  <span className="tnum font-display text-4xl font-semibold tracking-[-0.02em] text-ink-1">
+                <p className="mt-1 text-sm text-ink-3">{upgrade.badge}</p>
+                <p className="mt-4">
+                  <span className="tnum font-display text-5xl font-semibold tracking-[-0.02em] text-ink-1">
                     {upgrade.price}
                   </span>
-                  <span className="mt-1 block text-sm text-ink-3">{upgrade.period}</span>
+                  <span className="mt-1.5 block text-sm text-ink-3">{upgrade.period}</span>
                 </p>
                 <button
                   type="button"
@@ -333,16 +353,23 @@ export function BillingSection({
 
             {kind === "driver" && (
               <div
-                className={`flex flex-col gap-3 rounded-2xl border border-line bg-surface p-5 sm:flex-row sm:items-center sm:justify-between ${
-                  upgrade ? "mt-5" : ""
-                }`}
+                className={`rounded-2xl border border-line bg-inset p-6 ${upgrade ? "mt-5" : ""}`}
               >
-                <p className="text-sm leading-relaxed text-ink-2">{b.buyDiagnosisNote}</p>
+                <p className="font-display text-lg font-semibold text-ink-1">
+                  {t.pricing.single.name}
+                </p>
+                <p className="mt-1 text-sm leading-relaxed text-ink-3">{b.buyDiagnosisNote}</p>
+                <p className="mt-4">
+                  <span className="tnum font-display text-5xl font-semibold tracking-[-0.02em] text-ink-1">
+                    {t.pricing.single.price}
+                  </span>
+                  <span className="mt-1.5 block text-sm text-ink-3">{t.pricing.single.period}</span>
+                </p>
                 <button
                   type="button"
                   onClick={() => void openCheckout("credit")}
                   disabled={busy !== null}
-                  className={secondaryButtonClass}
+                  className={`${buttonClass} mt-6`}
                 >
                   {busy === "credit" ? b.openingCheckout : b.buyDiagnosis}
                 </button>

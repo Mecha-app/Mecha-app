@@ -369,6 +369,11 @@ const pt: DeepPartial<Dictionary> = {
       point4: "10 diagnósticos grátis ao se cadastrar",
       cta: "Cadastre sua empresa",
     },
+    single: {
+      name: "Diagnóstico único",
+      price: "$4",
+      period: "Pagamento único",
+    },
     meterTitle: "O medidor, à vista de todos",
     meterNote: "A contagem gratuita está ligada a você — seu e-mail e seu número de telefone — nunca a um cookie do navegador ou a um único login. Sair e cadastrar-se de novo não a zera, e não é para zerar: cinco diagnósticos gratuitos por pessoa é o acordo, e o acordo é o mesmo para todos.",
     guaranteeLabel: "Nossa promessa.",

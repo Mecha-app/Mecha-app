@@ -369,6 +369,11 @@ const pl: DeepPartial<Dictionary> = {
       point4: "10 darmowych diagnoz przy rejestracji",
       cta: "Wpisz swoją firmę",
     },
+    single: {
+      name: "Pojedyncza diagnoza",
+      price: "$4",
+      period: "Jednorazowo",
+    },
     meterTitle: "Licznik, w pełni widoczny",
     meterNote: "Darmowy licznik jest związany z tobą — twoim e-mailem i numerem telefonu — nigdy z plikiem cookie przeglądarki ani jednym logowaniem. Wylogowanie i ponowna rejestracja go nie resetują i nie mają resetować: pięć darmowych diagnoz na osobę to umowa, a umowa jest taka sama dla wszystkich.",
     guaranteeLabel: "Nasza obietnica.",

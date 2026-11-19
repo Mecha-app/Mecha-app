@@ -379,6 +379,11 @@ const en = {
       point4: "10 free diagnoses when you sign up",
       cta: "List your business",
     },
+    single: {
+      name: "Single Diagnosis",
+      price: "$4",
+      period: "One-time",
+    },
     meterTitle: "The meter, in plain sight",
     meterNote:
       "Tied to your email and phone number — not a cookie or a login. Signing out and back up doesn't reset it: five free diagnoses per person, the same deal for everyone.",

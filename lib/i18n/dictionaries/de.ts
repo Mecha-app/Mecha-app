@@ -369,6 +369,11 @@ const de: DeepPartial<Dictionary> = {
       point4: "10 kostenlose Diagnosen bei der Anmeldung",
       cta: "Ihr Unternehmen eintragen",
     },
+    single: {
+      name: "Einzeldiagnose",
+      price: "$4",
+      period: "Einmalig",
+    },
     meterTitle: "Der Zähler, offen sichtbar",
     meterNote: "Der kostenlose Zähler ist an Sie gebunden — Ihre E-Mail und Ihre Telefonnummer — nie an ein Browser-Cookie oder einen einzelnen Login. Abmelden und neu Anmelden setzt ihn nicht zurück, und das soll er auch nicht: Fünf kostenlose Diagnosen pro Person sind der Deal, und der Deal ist für alle gleich.",
     guaranteeLabel: "Unser Versprechen.",

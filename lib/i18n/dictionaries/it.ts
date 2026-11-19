@@ -369,6 +369,11 @@ const it: DeepPartial<Dictionary> = {
       point4: "10 diagnosi gratuite alla registrazione",
       cta: "Registra la tua attività",
     },
+    single: {
+      name: "Diagnosi singola",
+      price: "$4",
+      period: "Una tantum",
+    },
     meterTitle: "Il contatore, in bella vista",
     meterNote: "Il conteggio gratuito è legato a te — la tua email e il tuo numero di telefono — mai a un cookie del browser o a un singolo login. Uscire e registrarsi di nuovo non lo azzera, e non deve azzerarlo: cinque diagnosi gratuite a persona è l'accordo, e l'accordo è uguale per tutti.",
     guaranteeLabel: "La nostra promessa.",

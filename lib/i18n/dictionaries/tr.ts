@@ -369,6 +369,11 @@ const tr: DeepPartial<Dictionary> = {
       point4: "Kayıt olduğunuzda 10 ücretsiz teşhis",
       cta: "İşletmenizi listeleyin",
     },
+    single: {
+      name: "Tek teşhis",
+      price: "$4",
+      period: "Tek seferlik",
+    },
     meterTitle: "Sayaç, açıkta",
     meterNote: "Ücretsiz sayaç size bağlıdır — e-postanıza ve telefon numaranıza — asla bir tarayıcı çerezine veya tek bir girişe değil. Çıkış yapıp yeniden kaydolmak onu sıfırlamaz ve sıfırlamamalıdır: kişi başı beş ücretsiz teşhis anlaşmadır ve anlaşma herkes için aynıdır.",
     guaranteeLabel: "Sözümüz.",
