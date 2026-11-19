@@ -37,6 +37,21 @@ import { useLocale } from "@/lib/i18n/LocaleProvider";
  * included (a top-up when the month's bucket runs dry). When Stripe
  * is not wired, the checkout attempt answers with the honest
  * not-wired message on the card — never a dead button.
+ *
+ * Billing-card polish (2026-11-19, owner verdict on the stacked
+ * giant pill buttons: "they don't look professional"): the card now
+ * mirrors the owner's Kreova pricing-card reference — the pattern he
+ * holds up as MECHA's design north star (minimal, straight to the
+ * point), in MECHA's own light blue/white palette. The current plan
+ * reads like a plan card: name large and calm, the price big and
+ * confident with its period small and muted under it, and the
+ * status / credit lines as calm rows with small circled checks and
+ * generous spacing. ONE purchase leads: the upgrade is a soft-tinted
+ * highlighted sub-card carrying the single solid primary pill. The
+ * buy-one diagnosis is a quiet outlined option in its own bordered
+ * row, and "Manage or cancel anytime" is a small text link at the
+ * bottom — housekeeping never shouts like a purchase. Data, flows,
+ * prices, and copy are unchanged.
  */
 
 interface BillingView {
@@ -53,6 +68,26 @@ interface CreditsView {
   freeRemaining: number;
   purchasedCredits: number | null;
   bucket: { limit: number; used: number; remaining: number } | null;
+}
+
+function RowCheck() {
+  return (
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      className="mt-[1px] shrink-0 text-accent"
+    >
+      <circle cx="12" cy="12" r="9" />
+      <path d="M8.5 12.5l2.5 2.5 4.5-5" />
+    </svg>
+  );
 }
 
 export function BillingSection({
@@ -120,6 +155,39 @@ export function BillingSection({
       })
     : null;
 
+  // The ONE upgrade offer, when there is one (2026-11-19 polish):
+  // drivers on a free plan get the Pro card; businesses with no
+  // billing account yet get the Shops card. Paid plans and
+  // businesses already in Stripe get none — the manage link below
+  // is their door. Name and price come from the same catalog
+  // strings as everywhere else; only the presentation is new.
+  const upgrade =
+    view && !isPaidPlan
+      ? kind === "driver"
+        ? {
+            name: b.planPro,
+            price: t.pricing.pro.price,
+            period: t.pricing.pro.period,
+            label: b.upgradePro,
+            plan: "pro" as const,
+          }
+        : kind === "business" && !view.hasBillingAccount
+          ? {
+              name: b.planBusiness,
+              price: t.pricing.shops.price,
+              period: t.pricing.shops.period,
+              label: b.upgradeBusiness,
+              plan: "business" as const,
+            }
+          : null
+      : null;
+
+  // Whether a purchase block renders above the manage link
+  // (drivers always get the buy-one row; the upgrade card counts
+  // too). Presentation only — it decides whether the manage link
+  // needs its own divider above it.
+  const hasPurchaseAction = kind === "driver" || upgrade !== null;
+
   async function openPortal() {
     setBusy("portal");
     setError(null);
@@ -152,130 +220,153 @@ export function BillingSection({
     setError(apiDetail(res.data, t.wp6.common.somethingWrong));
   }
 
+  // Kreova geometry (2026-11-19 polish): one clean pill per card —
+  // the solid primary lives alone in the highlighted upgrade card;
+  // the buy-one pill is the same shape in quiet outline.
   const buttonClass =
-    "flex h-12 w-full items-center justify-center rounded-full bg-accent px-6 text-base font-semibold text-accent-ink disabled:opacity-60 sm:w-auto sm:min-w-[16rem]";
+    "flex h-11 w-full items-center justify-center rounded-full bg-accent px-6 text-[15px] font-semibold text-accent-ink transition-colors duration-150 hover:bg-accent-bright disabled:opacity-60";
   const secondaryButtonClass =
-    "flex h-12 w-full items-center justify-center rounded-full border border-line bg-surface px-6 text-base font-semibold text-ink-1 disabled:opacity-60 sm:w-auto sm:min-w-[16rem]";
+    "flex h-11 w-full items-center justify-center rounded-full border border-line bg-surface px-6 text-[15px] font-semibold text-ink-1 transition-colors duration-150 hover:border-ink-3 disabled:opacity-60 sm:w-auto sm:min-w-[13rem] sm:shrink-0";
+  const manageLinkClass =
+    "inline-flex items-center py-1 text-sm font-medium text-accent-deep underline-offset-4 transition-colors duration-150 hover:underline disabled:opacity-60";
+
+  const showCancelNote = Boolean(view?.cancelAtPeriodEnd && view.subscriptionStatus === "active");
+  const hasFactRows = Boolean(statusWord || showCancelNote || credits);
 
   return (
     <section id="billing" className="mt-6 scroll-mt-24">
       <div className="rounded-2xl border border-line bg-surface p-6 sm:p-8">
         <h2 className="font-display text-xl font-semibold text-ink-1">{b.title}</h2>
 
-        <p className="mt-6 text-[11px] font-semibold uppercase tracking-eyebrow text-ink-3">
+        <p className="mt-5 text-[11px] font-semibold uppercase tracking-eyebrow text-ink-3">
           {b.currentPlan}
         </p>
-        <div className="mt-1.5 flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1">
-          <p className="font-display text-2xl font-semibold text-ink-1">{planLabel}</p>
-          {planPrice && (
-            <p>
-              <span className="tnum font-display text-2xl font-semibold text-ink-1">
-                {planPrice.price}
-              </span>{" "}
-              <span className="text-sm text-ink-3">{planPrice.period}</span>
-            </p>
-          )}
-        </div>
-
-        {view?.subscriptionStatus === "past_due" && (
-          <p className="mt-3 text-base font-medium text-ink-1">{b.statusPastDue}</p>
-        )}
-        {statusWord && (
-          <p className="mt-3 text-base text-ink-2">
-            {statusWord}
-            {periodDate && (
-              <>
-                {" · "}
-                {view?.cancelAtPeriodEnd ? b.endsOn : b.renewsOn} {periodDate}
-              </>
-            )}
+        <p className="mt-1.5 font-display text-2xl font-semibold text-ink-1">{planLabel}</p>
+        {planPrice && (
+          <p className="mt-3">
+            <span className="tnum font-display text-5xl font-semibold tracking-[-0.02em] text-ink-1">
+              {planPrice.price}
+            </span>
+            <span className="mt-1.5 block text-sm text-ink-3">{planPrice.period}</span>
           </p>
         )}
-        {view?.cancelAtPeriodEnd && view.subscriptionStatus === "active" && (
-          <p className="mt-2 text-base text-ink-2">{b.cancelScheduledNote}</p>
+
+        {view?.subscriptionStatus === "past_due" && (
+          <p className="mt-4 text-sm font-medium text-ink-1">{b.statusPastDue}</p>
         )}
 
-        {credits && (
-          <div className="mt-4 space-y-1 text-base text-ink-2">
-            <p>
-              {b.creditsFreeLine
-                .replace("{count}", String(credits.freeRemaining))
-                .replace("{limit}", String(credits.freeLimit))}
-            </p>
-            {credits.bucket && (
-              <p>
-                {b.creditsBucketLine
-                  .replace("{count}", String(credits.bucket.remaining))
-                  .replace("{limit}", String(credits.bucket.limit))}
-              </p>
+        {hasFactRows && (
+          <ul className="mt-5 space-y-2.5">
+            {statusWord && (
+              <li className="flex gap-2.5 text-sm leading-relaxed text-ink-2">
+                <RowCheck />
+                <span>
+                  {statusWord}
+                  {periodDate && (
+                    <>
+                      {" · "}
+                      {view?.cancelAtPeriodEnd ? b.endsOn : b.renewsOn} {periodDate}
+                    </>
+                  )}
+                </span>
+              </li>
             )}
-            {credits.purchasedCredits !== null && credits.purchasedCredits > 0 && (
-              <p>{b.creditsSinglesLine.replace("{count}", String(credits.purchasedCredits))}</p>
+            {showCancelNote && (
+              <li className="flex gap-2.5 text-sm leading-relaxed text-ink-2">
+                <RowCheck />
+                <span>{b.cancelScheduledNote}</span>
+              </li>
             )}
-          </div>
+            {credits && (
+              <li className="flex gap-2.5 text-sm leading-relaxed text-ink-2">
+                <RowCheck />
+                <span>
+                  {b.creditsFreeLine
+                    .replace("{count}", String(credits.freeRemaining))
+                    .replace("{limit}", String(credits.freeLimit))}
+                </span>
+              </li>
+            )}
+            {credits?.bucket && (
+              <li className="flex gap-2.5 text-sm leading-relaxed text-ink-2">
+                <RowCheck />
+                <span>
+                  {b.creditsBucketLine
+                    .replace("{count}", String(credits.bucket.remaining))
+                    .replace("{limit}", String(credits.bucket.limit))}
+                </span>
+              </li>
+            )}
+            {credits && credits.purchasedCredits !== null && credits.purchasedCredits > 0 && (
+              <li className="flex gap-2.5 text-sm leading-relaxed text-ink-2">
+                <RowCheck />
+                <span>{b.creditsSinglesLine.replace("{count}", String(credits.purchasedCredits))}</span>
+              </li>
+            )}
+          </ul>
         )}
 
-        {unavailable && <p className="mt-3 text-base text-ink-2">{b.unavailable}</p>}
+        {unavailable && <p className="mt-3 text-sm text-ink-2">{b.unavailable}</p>}
 
-        {!unavailable && view?.hasBillingAccount && (
-          <>
-            <button
-              type="button"
-              onClick={openPortal}
-              disabled={busy !== null}
-              className={`mt-6 ${buttonClass}`}
-            >
-              {busy === "portal" ? b.openingPortal : b.manageButton}
-            </button>
-            <p className="mt-3 text-sm leading-relaxed text-ink-2">{b.manageNote}</p>
-          </>
-        )}
-
-        {!unavailable && view && kind === "business" && !view.hasBillingAccount && !isPaidPlan && (
-          <>
-            <button
-              type="button"
-              onClick={() => void openCheckout("business")}
-              disabled={busy !== null}
-              className={`mt-6 ${buttonClass}`}
-            >
-              {busy === "checkout" ? b.openingCheckout : b.upgradeBusiness}
-            </button>
-            <p className="mt-3 text-sm leading-relaxed text-ink-2">{b.upgradeNote}</p>
-          </>
-        )}
-
-        {!unavailable && view && kind === "driver" && (
-          <div className="mt-6 flex flex-col gap-3">
-            {!isPaidPlan && (
-              <div>
+        {!unavailable && view && (kind === "driver" || view.hasBillingAccount || upgrade) && (
+          <div className="mt-7 border-t border-line pt-7">
+            {upgrade && (
+              <div className="rounded-2xl border-2 border-accent bg-inset p-6">
+                <p className="font-display text-lg font-semibold text-ink-1">{upgrade.name}</p>
+                <p className="mt-3">
+                  <span className="tnum font-display text-4xl font-semibold tracking-[-0.02em] text-ink-1">
+                    {upgrade.price}
+                  </span>
+                  <span className="mt-1 block text-sm text-ink-3">{upgrade.period}</span>
+                </p>
                 <button
                   type="button"
-                  onClick={() => void openCheckout("pro")}
+                  onClick={() => void openCheckout(upgrade.plan)}
                   disabled={busy !== null}
-                  className={buttonClass}
+                  className={`${buttonClass} mt-6`}
                 >
-                  {busy === "checkout" ? b.openingCheckout : b.upgradePro}
+                  {busy === "checkout" ? b.openingCheckout : upgrade.label}
                 </button>
-                <p className="mt-3 text-sm leading-relaxed text-ink-2">{b.upgradeNote}</p>
+                <p className="mt-3 text-sm leading-relaxed text-ink-3">{b.upgradeNote}</p>
               </div>
             )}
-            <div>
-              <button
-                type="button"
-                onClick={() => void openCheckout("credit")}
-                disabled={busy !== null}
-                className={isPaidPlan ? buttonClass : secondaryButtonClass}
+
+            {kind === "driver" && (
+              <div
+                className={`flex flex-col gap-3 rounded-2xl border border-line bg-surface p-5 sm:flex-row sm:items-center sm:justify-between ${
+                  upgrade ? "mt-5" : ""
+                }`}
               >
-                {busy === "credit" ? b.openingCheckout : b.buyDiagnosis}
-              </button>
-              <p className="mt-3 text-sm leading-relaxed text-ink-2">{b.buyDiagnosisNote}</p>
-            </div>
+                <p className="text-sm leading-relaxed text-ink-2">{b.buyDiagnosisNote}</p>
+                <button
+                  type="button"
+                  onClick={() => void openCheckout("credit")}
+                  disabled={busy !== null}
+                  className={secondaryButtonClass}
+                >
+                  {busy === "credit" ? b.openingCheckout : b.buyDiagnosis}
+                </button>
+              </div>
+            )}
+
+            {view.hasBillingAccount && (
+              <div className={hasPurchaseAction ? "mt-6 border-t border-line pt-5" : "mt-6"}>
+                <button
+                  type="button"
+                  onClick={openPortal}
+                  disabled={busy !== null}
+                  className={manageLinkClass}
+                >
+                  {busy === "portal" ? b.openingPortal : b.manageButton}
+                </button>
+                <p className="mt-1.5 text-sm leading-relaxed text-ink-3">{b.manageNote}</p>
+              </div>
+            )}
           </div>
         )}
 
         {error && (
-          <p className="mt-3 text-base text-ink-1" role="alert">
+          <p className="mt-3 text-sm text-ink-1" role="alert">
             {error}
           </p>
         )}
