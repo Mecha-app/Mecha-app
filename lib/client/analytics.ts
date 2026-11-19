@@ -13,12 +13,19 @@
  * env vars unset) or gtag has not loaded, the call is a silent no-op,
  * and any error is swallowed — analytics must never break the
  * product it measures.
+ *
+ * CONSENT (cookie-consent pass, 2026-11-19): an event fires only
+ * when the visitor's stored cookie choice is an explicit Accept.
+ * Before any choice — and forever on Decline — trackEvent is a
+ * no-op even if a vendor script somehow loaded, so the consent gate
+ * holds at both doors (script loading and event firing).
  */
 
 import {
   sanitizeEventParams,
   type FunnelEventName,
 } from "../analytics";
+import { readConsentChoice } from "./consent";
 
 type GtagFn = (command: string, eventName: string, params: Record<string, string>) => void;
 
@@ -28,6 +35,7 @@ export function trackEvent(
 ): void {
   try {
     if (typeof window === "undefined") return;
+    if (readConsentChoice() !== "accepted") return;
     const gtag = (window as unknown as { gtag?: GtagFn }).gtag;
     if (typeof gtag !== "function") return;
     gtag("event", name, sanitizeEventParams(params));

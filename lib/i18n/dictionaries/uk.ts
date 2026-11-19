@@ -708,6 +708,13 @@ const uk: DeepPartial<Dictionary> = {
     operator: "MECHA Technologies, Inc.",
     disclaimer: "Діагнози MECHA мають лише інформаційний характер і не замінюють огляд сертифікованим механіком.",
   },
+  consent: {
+    label: "Згода на використання cookie",
+    message: "MECHA використовує файли cookie, щоб сайт працював і ми розуміли, як ним користуються.",
+    accept: "Прийняти",
+    decline: "Відхилити",
+    settings: "Налаштування файлів cookie",
+  },
   scan: {
     landing: {
       eyebrow: "MECHA Scan",

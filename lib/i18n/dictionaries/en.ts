@@ -732,6 +732,13 @@ const en = {
     disclaimer:
       "MECHA's diagnoses are informational only and are not a substitute for inspection by a certified mechanic.",
   },
+  consent: {
+    label: "Cookie consent",
+    message: "MECHA uses cookies to run the site and understand how it's used.",
+    accept: "Accept",
+    decline: "Decline",
+    settings: "Cookie settings",
+  },
   scan: {
     landing: {
       eyebrow: "MECHA Scan",

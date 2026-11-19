@@ -75,6 +75,7 @@ export default function PrivacyPage() {
         heading="8. Analytics"
         paragraphs={[
           "We use Google Analytics and Microsoft Clarity to understand how people use MECHA: which pages they visit, where they click, how far they scroll, and where they stop in steps like starting a diagnosis, reaching the paywall, or subscribing. Clarity records sessions — clicks and scrolling — so we can see where the site confuses people. Both tools use cookies.",
+          "These tools stay off until you say yes: the cookie bar at the bottom of the page asks first, and analytics loads only when you tap Accept. If you decline, neither tool loads and neither sets cookies. You can change your mind any time with the Cookie settings link in the footer.",
           "We never send these tools your diagnosis text, your photos, or your vehicle identification number, and we do not sell analytics data. You can opt out of Google Analytics with Google's opt-out browser add-on (tools.google.com/dlpage/gaoptout).",
         ]}
       />

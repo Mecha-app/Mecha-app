@@ -86,6 +86,10 @@ test("payload hygiene: only an allowlisted product survives sanitizing", () => {
 test("trackEvent: sends the sanitized payload to gtag, and only that", () => {
   const calls: Array<{ command: string; name: string; params: Record<string, string> }> = [];
   (globalThis as Record<string, unknown>).window = {
+    // Consent pass (2026-11-19): events fire only on a stored Accept,
+    // so the stub carries one — the no-consent cases live in
+    // tests/consent.test.ts.
+    localStorage: { getItem: () => "accepted" },
     gtag: (command: string, name: string, params: Record<string, string>) => {
       calls.push({ command, name, params });
     },
@@ -127,12 +131,21 @@ test("the funnel vocabulary is exactly the six agreed events", () => {
   ]);
 });
 
-test("layout: scripts mounted in head, verification meta env-gated", () => {
+test("layout: consent gate + banner mounted, verification meta env-gated", () => {
   const layout = read("app/layout.tsx");
-  assert.ok(layout.includes("<AnalyticsScripts />"), "the layout renders the analytics scripts");
+  assert.ok(layout.includes("<AnalyticsScripts />"), "the layout mounts the analytics gate");
+  assert.ok(layout.includes("<CookieConsent />"), "the layout mounts the consent banner");
   assert.ok(layout.includes("verification: gscToken"), "the GSC meta is gated on the token");
   const component = read("components/AnalyticsScripts.tsx");
-  assert.ok(component.includes("analyticsSnippets(analyticsConfig())"));
+  assert.ok(component.includes("analyticsConfig()"), "the mount reads the env config");
+  assert.ok(component.includes("<AnalyticsGate"), "the mount hands the ids to the consent gate");
+  assert.ok(
+    !component.includes("dangerouslySetInnerHTML"),
+    "vendor scripts are no longer server-rendered — the client gate loads them after Accept",
+  );
+  const gate = read("components/AnalyticsGate.tsx");
+  assert.ok(gate.includes("analyticsSnippets("), "the gate builds the vendor payloads");
+  assert.ok(gate.includes("readConsentChoice()"), "the gate reads the stored choice");
 });
 
 test("funnel wiring: every event sits at its real code point", () => {

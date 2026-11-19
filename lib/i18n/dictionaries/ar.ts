@@ -708,6 +708,13 @@ const ar: DeepPartial<Dictionary> = {
     operator: "MECHA Technologies, Inc.",
     disclaimer: "تشخيصات MECHA إعلامية فقط ولا تحلّ محل فحص من ميكانيكي معتمد.",
   },
+  consent: {
+    label: "الموافقة على ملفات تعريف الارتباط",
+    message: "تستخدم MECHA ملفات تعريف الارتباط لتشغيل الموقع وفهم كيفية استخدامه.",
+    accept: "قبول",
+    decline: "رفض",
+    settings: "إعدادات ملفات تعريف الارتباط",
+  },
   scan: {
     landing: {
       eyebrow: "MECHA Scan",

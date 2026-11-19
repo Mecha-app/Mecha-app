@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useLocale } from "@/lib/i18n/LocaleProvider";
+import { openCookieSettings } from "@/lib/client/consent";
 import { LogoLockup } from "./Logo";
 
 /**
@@ -46,6 +47,13 @@ export function HomeFooter() {
             >
               {f.terms}
             </Link>
+            <button
+              type="button"
+              onClick={() => openCookieSettings()}
+              className="inline-flex min-h-[48px] items-center text-ink-2 transition-colors duration-150 hover:text-ink-1"
+            >
+              {t.consent.settings}
+            </button>
           </nav>
         </div>
         <p className="mt-6 text-[13px] text-ink-3">

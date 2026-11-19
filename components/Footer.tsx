@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useLocale } from "@/lib/i18n/LocaleProvider";
+import { openCookieSettings } from "@/lib/client/consent";
 import { LogoLockup } from "./Logo";
 
 /**
@@ -59,6 +60,13 @@ export function Footer() {
               <Link href="/terms" className="inline-flex min-h-[48px] items-center text-ink-2 transition-colors duration-150 hover:text-ink-1">
                 {f.terms}
               </Link>
+              <button
+                type="button"
+                onClick={() => openCookieSettings()}
+                className="inline-flex min-h-[48px] items-center text-left text-ink-2 transition-colors duration-150 hover:text-ink-1"
+              >
+                {t.consent.settings}
+              </button>
             </div>
           </nav>
         </div>

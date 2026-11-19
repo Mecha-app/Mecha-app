@@ -708,6 +708,13 @@ const de: DeepPartial<Dictionary> = {
     operator: "MECHA Technologies, Inc.",
     disclaimer: "MECHAs Diagnosen sind nur informativ und kein Ersatz für die Prüfung durch einen zertifizierten Mechaniker.",
   },
+  consent: {
+    label: "Cookie-Einwilligung",
+    message: "MECHA verwendet Cookies, damit die Website läuft und wir verstehen, wie sie genutzt wird.",
+    accept: "Akzeptieren",
+    decline: "Ablehnen",
+    settings: "Cookie-Einstellungen",
+  },
   scan: {
     landing: {
       eyebrow: "MECHA Scan",

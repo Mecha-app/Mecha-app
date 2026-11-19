@@ -708,6 +708,13 @@ const tr: DeepPartial<Dictionary> = {
     operator: "MECHA Technologies, Inc.",
     disclaimer: "MECHA'nın teşhisleri yalnızca bilgilendirme amaçlıdır ve sertifikalı bir tamircinin incelemesinin yerine geçmez.",
   },
+  consent: {
+    label: "Çerez onayı",
+    message: "MECHA, sitenin çalışması ve nasıl kullanıldığını anlamak için çerezler kullanır.",
+    accept: "Kabul et",
+    decline: "Reddet",
+    settings: "Çerez ayarları",
+  },
   scan: {
     landing: {
       eyebrow: "MECHA Scan",

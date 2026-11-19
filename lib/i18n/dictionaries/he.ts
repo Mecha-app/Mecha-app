@@ -708,6 +708,13 @@ const he: DeepPartial<Dictionary> = {
     operator: "MECHA Technologies, Inc.",
     disclaimer: "אבחוני MECHA הם למידע בלבד ואינם מחליפים בדיקה של מכונאי מוסמך.",
   },
+  consent: {
+    label: "הסכמה לעוגיות",
+    message: "MECHA משתמשת בעוגיות כדי שהאתר יעבוד וכדי להבין איך משתמשים בו.",
+    accept: "אישור",
+    decline: "דחייה",
+    settings: "הגדרות עוגיות",
+  },
   scan: {
     landing: {
       eyebrow: "MECHA Scan",

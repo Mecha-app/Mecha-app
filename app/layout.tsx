@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { cookies } from "next/headers";
 import type { ReactNode } from "react";
 import { AnalyticsScripts } from "@/components/AnalyticsScripts";
+import { CookieConsent } from "@/components/CookieConsent";
 import NativeShell from "@/components/NativeShell";
 import { ThemeScript } from "@/components/ThemeScript";
 import { analyticsConfig } from "@/lib/analytics";
@@ -110,10 +111,21 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
     >
       <head>
         <ThemeScript />
-        <AnalyticsScripts />
       </head>
       <body>
-        <LocaleProvider>{children}</LocaleProvider>
+        <LocaleProvider>
+          {children}
+          {/* Cookie consent bar (2026-11-19): renders only when the
+              visitor has not chosen yet (or re-opens from the
+              footer's Cookie settings link). Inside the provider so
+              its strings follow the reader's language. */}
+          <CookieConsent />
+        </LocaleProvider>
+        {/* Consent-gated analytics mount (2026-11-19): renders the
+            client gate only when the env carries analytics ids; the
+            gate loads GA/Clarity after the visitor accepts in the
+            banner — never before, never on Decline. */}
+        <AnalyticsScripts />
         {/* No-ops in a browser; wires the Capacitor shell's native
             behaviors (status bar, splash, back button, external
             links) when the site runs inside the app. */}
