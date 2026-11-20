@@ -357,7 +357,7 @@ const tr: DeepPartial<Dictionary> = {
       point1: "Her ay 100 teşhis kredisi",
       point2: "İlk cevaba direnen sorunlar için derinlemesine analiz",
       point3: "Önce ücretsiz teşhisler, sonra aylık paket — bu sırayla",
-      point4: "Erken üyeler: 3 ay Pro ücretsiz, lansman fiyatı ömür boyu kilitli Ödeme sırasında kart gereklidir.",
+      point4: "Erken üyeler: 3 ay Pro ücretsiz, lansman fiyatı ömür boyu kilitli. Ödeme sırasında kart gereklidir.",
       cta: "Pro'yu başlat",
     },
     shops: {

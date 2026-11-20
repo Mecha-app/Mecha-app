@@ -367,7 +367,7 @@ const en = {
       point1: "100 diagnosis credits every month",
       point2: "Deep-dive analysis for the problems that resist a first answer",
       point3: "Free diagnoses first, then the bucket — in that order",
-      point4: "Early members: 3 months of Pro free, launch pricing locked for life Card required at checkout.",
+      point4: "Early members: 3 months of Pro free, launch pricing locked for life. Card required at checkout.",
       cta: "Start Pro",
     },
     shops: {

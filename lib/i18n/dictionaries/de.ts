@@ -357,7 +357,7 @@ const de: DeepPartial<Dictionary> = {
       point1: "100 Diagnose-Guthaben jeden Monat",
       point2: "Tiefenanalyse für die Probleme, die einer ersten Antwort widerstehen",
       point3: "Erst die kostenlosen Diagnosen, dann das Monatsguthaben — in dieser Reihenfolge",
-      point4: "Frühe Mitglieder: 3 Monate Pro kostenlos, Startpreis lebenslang fixiert Karte beim Bezahlen erforderlich.",
+      point4: "Frühe Mitglieder: 3 Monate Pro kostenlos, Startpreis lebenslang fixiert. Karte beim Bezahlen erforderlich.",
       cta: "Pro starten",
     },
     shops: {

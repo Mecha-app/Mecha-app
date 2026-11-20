@@ -357,7 +357,7 @@ const pl: DeepPartial<Dictionary> = {
       point1: "100 kredytów diagnostycznych co miesiąc",
       point2: "Pogłębiona analiza problemów, które opierają się pierwszej odpowiedzi",
       point3: "Najpierw darmowe diagnozy, potem miesięczny pakiet — w tej kolejności",
-      point4: "Wcześni członkowie: 3 miesiące Pro za darmo, cena startowa zamrożona na zawsze Karta wymagana przy płatności.",
+      point4: "Wcześni członkowie: 3 miesiące Pro za darmo, cena startowa zamrożona na zawsze. Karta wymagana przy płatności.",
       cta: "Zacznij Pro",
     },
     shops: {

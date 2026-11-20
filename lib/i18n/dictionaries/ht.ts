@@ -347,7 +347,7 @@ const ht: DeepPartial<Dictionary> = {
       point1: "100 kredi dyagnostik chak mwa",
       point2: "Analiz apwofondi pou pwoblèm ki reziste yon premye repons",
       point3: "Dyagnostik gratis yo anvan, apre pakè mansyèl la — nan lòd sa a",
-      point4: "Manm bonè yo: 3 mwa Pro gratis, pri lansman bloke pou lavi Kat obligatwa lè w ap peye.",
+      point4: "Manm bonè yo: 3 mwa Pro gratis, pri lansman bloke pou lavi. Kat obligatwa lè w ap peye.",
       cta: "Kòmanse Pro",
     },
     shops: {

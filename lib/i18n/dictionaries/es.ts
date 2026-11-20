@@ -346,7 +346,7 @@ const es: DeepPartial<Dictionary> = {
       point1: "100 créditos de diagnóstico cada mes",
       point2: "Análisis profundo para los problemas que se resisten a una primera respuesta",
       point3: "Primero los diagnósticos gratis, luego el paquete mensual — en ese orden",
-      point4: "Miembros tempranos: 3 meses de Pro gratis, precio de lanzamiento bloqueado de por vida Se requiere tarjeta al pagar.",
+      point4: "Miembros tempranos: 3 meses de Pro gratis, precio de lanzamiento bloqueado de por vida. Se requiere tarjeta al pagar.",
       cta: "Comenzar Pro",
     },
     shops: {
