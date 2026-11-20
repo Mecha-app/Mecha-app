@@ -726,7 +726,10 @@ const pl: DeepPartial<Dictionary> = {
     title: "Dodaj MECHA do ekranu głównego",
     body: "Jedno dotknięcie, by otworzyć — na pełnym ekranie, jak aplikacja.",
     button: "Zainstaluj",
-    iosHint: "Dotknij ikony Udostępnij, a potem «Dodaj do ekranu początkowego».",
+    stepShare: "Udostępnij",
+    stepAdd: "Dodaj do ekranu początkowego",
+    stepOpenSafari: "Otwórz w Safari",
+    webviewHint: "Otwórz MECHA w Safari, aby dodać ją do ekranu początkowego.",
     dismiss: "Nie teraz",
   },
   scan: {

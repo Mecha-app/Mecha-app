@@ -30,7 +30,10 @@ const ht: DeepPartial<Dictionary> = {
     title: "Mete MECHA sou ekran lakay ou",
     body: "Yon sèl tape pou ouvri — plen ekran, tankou yon app.",
     button: "Enstale",
-    iosHint: "Tape ikòn Pataje a, apre «Ajoute sou ekran lakay».",
+    stepShare: "Pataje",
+    stepAdd: "Ajoute sou ekran lakay",
+    stepOpenSafari: "Ouvri nan Safari",
+    webviewHint: "Ouvri MECHA nan Safari pou w ajoute l sou ekran lakay ou.",
     dismiss: "Pa kounye a",
   },
   hero: {

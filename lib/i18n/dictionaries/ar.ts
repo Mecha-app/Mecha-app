@@ -726,7 +726,10 @@ const ar: DeepPartial<Dictionary> = {
     title: "أضف MECHA إلى شاشتك الرئيسية",
     body: "نقرة واحدة للفتح — بملء الشاشة، مثل التطبيق.",
     button: "تثبيت",
-    iosHint: "اضغط أيقونة المشاركة، ثم «إضافة إلى الشاشة الرئيسية».",
+    stepShare: "مشاركة",
+    stepAdd: "إضافة إلى الشاشة الرئيسية",
+    stepOpenSafari: "الفتح في Safari",
+    webviewHint: "افتح MECHA في Safari لإضافتها إلى شاشتك الرئيسية.",
     dismiss: "ليس الآن",
   },
   scan: {

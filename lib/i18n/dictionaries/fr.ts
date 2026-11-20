@@ -30,7 +30,10 @@ const fr: DeepPartial<Dictionary> = {
     title: "Ajoutez MECHA à votre écran d'accueil",
     body: "Un toucher pour ouvrir — en plein écran, comme une app.",
     button: "Installer",
-    iosHint: "Touchez l'icône Partager, puis « Sur l'écran d'accueil ».",
+    stepShare: "Partager",
+    stepAdd: "Sur l'écran d'accueil",
+    stepOpenSafari: "Ouvrir dans Safari",
+    webviewHint: "Ouvrez MECHA dans Safari pour l'ajouter à votre écran d'accueil.",
     dismiss: "Pas maintenant",
   },
   hero: {

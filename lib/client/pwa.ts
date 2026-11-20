@@ -35,10 +35,16 @@ export function isStandaloneDisplay(
   return standaloneMedia || navigatorStandalone === true;
 }
 
+/** An iPhone/iPad/iPod UA — or an iPad on iOS 13+ sending a
+ *  Macintosh UA, where touch points break the tie. */
+export function isIosDevice(userAgent: string, maxTouchPoints = 0): boolean {
+  if (/iPhone|iPad|iPod/.test(userAgent)) return true;
+  return /Macintosh/.test(userAgent) && maxTouchPoints > 1;
+}
+
 /**
  * iOS Safari — the one browser with no beforeinstallprompt, where
- * the hint must teach Share → Add to Home Screen instead. iPads on
- * iOS 13+ send a Macintosh UA, so touch points break the tie.
+ * the hint must teach Share → Add to Home Screen instead.
  * In-app webviews and other iOS browsers (Chrome/Firefox/Edge
  * tokens) are excluded: they cannot add to the home screen from
  * their own menus the same way, and Safari is the door that works.
@@ -46,10 +52,27 @@ export function isStandaloneDisplay(
 export function isIosSafari(userAgent: string, maxTouchPoints = 0): boolean {
   const ua = userAgent;
   if (/CriOS|FxiOS|EdgiOS|OPiOS/.test(ua)) return false;
-  const iDevice = /iPhone|iPad|iPod/.test(ua);
-  const iPadDesktopUa = /Macintosh/.test(ua) && maxTouchPoints > 1;
-  if (!iDevice && !iPadDesktopUa) return false;
+  if (!isIosDevice(ua, maxTouchPoints)) return false;
   return /Safari/.test(ua);
+}
+
+/**
+ * An iOS in-app webview (or a non-Safari iOS browser): the page is
+ * running inside another app — Facebook (FBAN/FBAV), Instagram,
+ * TikTok (musical_ly/ByteDance), the Muse app, a generic
+ * WKWebView whose UA carries no Safari token — or in CriOS/FxiOS.
+ * NONE of these can add to the home screen, and most don't even
+ * offer the Share → Add to Home Screen path; the only door is
+ * "Open in Safari". Detection is deliberately the complement of
+ * isIosSafari on an iOS device: an iOS UA that is not Safari's is
+ * a webview or a third-party browser, and the Safari guidance is
+ * the correct instruction for every one of them (owner report
+ * 2026-11-20: the hint bar showed inside a webview, where its
+ * "Add to Home Screen" line could never work).
+ */
+export function isIosWebview(userAgent: string, maxTouchPoints = 0): boolean {
+  if (!isIosDevice(userAgent, maxTouchPoints)) return false;
+  return !isIosSafari(userAgent, maxTouchPoints);
 }
 
 /** Phones and small tablets get the hint; desktops never do. */

@@ -726,7 +726,10 @@ const uk: DeepPartial<Dictionary> = {
     title: "Додайте MECHA на головний екран",
     body: "Один дотик — і MECHA відкривається на весь екран, як застосунок.",
     button: "Установити",
-    iosHint: "Торкніться значка «Поділитися», потім «На початковий екран».",
+    stepShare: "Поділитися",
+    stepAdd: "На початковий екран",
+    stepOpenSafari: "Відкрити в Safari",
+    webviewHint: "Відкрийте MECHA в Safari, щоб додати її на початковий екран.",
     dismiss: "Не зараз",
   },
   scan: {

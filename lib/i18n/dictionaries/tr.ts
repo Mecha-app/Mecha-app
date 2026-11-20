@@ -726,7 +726,10 @@ const tr: DeepPartial<Dictionary> = {
     title: "MECHA'yı ana ekranınıza ekleyin",
     body: "Açmak için tek dokunuş — tam ekran, bir uygulama gibi.",
     button: "Yükle",
-    iosHint: "Paylaş simgesine, ardından «Ana Ekrana Ekle»ye dokunun.",
+    stepShare: "Paylaş",
+    stepAdd: "Ana Ekrana Ekle",
+    stepOpenSafari: "Safari'de Aç",
+    webviewHint: "MECHA'yı ana ekranınıza eklemek için Safari'de açın.",
     dismiss: "Şimdi değil",
   },
   scan: {

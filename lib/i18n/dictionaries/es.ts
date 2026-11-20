@@ -29,7 +29,10 @@ const es: DeepPartial<Dictionary> = {
     title: "Añade MECHA a tu pantalla de inicio",
     body: "Un toque para abrir — a pantalla completa, como una app.",
     button: "Instalar",
-    iosHint: "Toca el icono Compartir y luego «Añadir a pantalla de inicio».",
+    stepShare: "Compartir",
+    stepAdd: "Añadir a pantalla de inicio",
+    stepOpenSafari: "Abrir en Safari",
+    webviewHint: "Abre MECHA en Safari para añadirlo a tu pantalla de inicio.",
     dismiss: "Ahora no",
   },
   hero: {

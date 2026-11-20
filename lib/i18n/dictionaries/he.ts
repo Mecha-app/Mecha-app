@@ -726,7 +726,10 @@ const he: DeepPartial<Dictionary> = {
     title: "הוסיפו את MECHA למסך הבית",
     body: "הקשה אחת לפתיחה — במסך מלא, כמו אפליקציה.",
     button: "התקנה",
-    iosHint: "הקישו על סמל השיתוף, ואז על «הוספה למסך הבית».",
+    stepShare: "שיתוף",
+    stepAdd: "הוספה למסך הבית",
+    stepOpenSafari: "פתיחה ב-Safari",
+    webviewHint: "פתחו את MECHA ב-Safari כדי להוסיף אותה למסך הבית.",
     dismiss: "לא עכשיו",
   },
   scan: {

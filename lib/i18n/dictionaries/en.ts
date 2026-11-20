@@ -750,7 +750,10 @@ const en = {
     title: "Add MECHA to your home screen",
     body: "One tap to open — full-screen, like an app.",
     button: "Install",
-    iosHint: "Tap the Share icon, then “Add to Home Screen”.",
+    stepShare: "Share",
+    stepAdd: "Add to Home Screen",
+    stepOpenSafari: "Open in Safari",
+    webviewHint: "Open MECHA in Safari to add it to your home screen.",
     dismiss: "Not now",
   },
   scan: {

@@ -726,7 +726,10 @@ const it: DeepPartial<Dictionary> = {
     title: "Aggiungi MECHA alla schermata Home",
     body: "Un tocco per aprire — a schermo intero, come un'app.",
     button: "Installa",
-    iosHint: "Tocca l'icona Condividi, poi «Aggiungi alla schermata Home».",
+    stepShare: "Condividi",
+    stepAdd: "Aggiungi alla schermata Home",
+    stepOpenSafari: "Apri in Safari",
+    webviewHint: "Apri MECHA in Safari per aggiungerlo alla schermata Home.",
     dismiss: "Non ora",
   },
   scan: {

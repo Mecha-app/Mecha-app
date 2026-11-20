@@ -726,7 +726,10 @@ const de: DeepPartial<Dictionary> = {
     title: "MECHA zum Startbildschirm hinzufügen",
     body: "Ein Tippen zum Öffnen — im Vollbild, wie eine App.",
     button: "Installieren",
-    iosHint: "Tippen Sie auf das Teilen-Symbol und dann auf «Zum Home-Bildschirm».",
+    stepShare: "Teilen",
+    stepAdd: "Zum Home-Bildschirm",
+    stepOpenSafari: "In Safari öffnen",
+    webviewHint: "Öffnen Sie MECHA in Safari, um es zum Startbildschirm hinzuzufügen.",
     dismiss: "Nicht jetzt",
   },
   scan: {

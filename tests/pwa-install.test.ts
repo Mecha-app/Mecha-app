@@ -9,9 +9,18 @@
  *     listed static assets and can never intercept /api, auth, or
  *     a page (no offline cache by design);
  *   - the hint's gates (second view, consent settled, dismissal
- *     cooldown, standalone/shell exclusion) and both install paths
- *     (beforeinstallprompt button; iOS Safari Share line) exist in
- *     the component, and the pure detectors behave;
+ *     cooldown, standalone/shell exclusion) and all three install
+ *     surfaces exist in the component: the Chromium
+ *     beforeinstallprompt button (the ONLY tappable install
+ *     action anywhere), the iOS Safari two-step visual guide, and
+ *     the iOS in-app-webview "Open in Safari" guide;
+ *   - NO DEAD BUTTON (owner report 2026-11-20 ~15:47 ET — "The
+ *     Add to Home Screen button doesn't work when clicking it"):
+ *     iOS has no programmatic install, so the guide variants must
+ *     never render a button wired to the install handler, and a
+ *     tap on the steps must visibly respond (the highlight walk);
+ *   - the pure detectors behave, including webview UAs (Facebook,
+ *     Instagram, TikTok, bare WKWebView, CriOS);
  *   - the install strings resolve in every locale, genuinely
  *     translated in the launch + growth spot checks.
  */
@@ -21,7 +30,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
 import { getDictionary } from "../lib/i18n";
-import { isIosSafari, isStandaloneDisplay } from "../lib/client/pwa";
+import { isIosSafari, isIosWebview, isStandaloneDisplay } from "../lib/client/pwa";
 
 const root = process.cwd();
 const read = (rel: string) => readFileSync(join(root, rel), "utf8");
@@ -107,15 +116,21 @@ test("service worker: static install assets only, never /api or pages", () => {
   assert.ok(read("app/layout.tsx").includes("<ServiceWorkerRegister />"), "the layout mounts it");
 });
 
-test("install hint: both doors, every gate, dismissal remembered", () => {
+test("install hint: three surfaces, every gate, dismissal remembered", () => {
   const hint = read("components/PwaInstall.tsx");
   // Android/Chromium: the real event, stashed and fired by the button.
   assert.ok(hint.includes('"beforeinstallprompt"'), "the install event is captured");
   assert.ok(hint.includes("deferred.prompt()"), "the Install button fires the real prompt");
   assert.ok(hint.includes('"appinstalled"'), "installing retires the hint");
-  // iOS Safari: the Share → Add to Home Screen teaching line.
-  assert.ok(hint.includes("isIosSafari"), "the iOS path is detected");
-  assert.ok(hint.includes("t.install.iosHint"), "the iOS line renders from the catalog");
+  // iOS Safari: the Share → Add to Home Screen visual guide.
+  assert.ok(hint.includes("isIosSafari"), "the iOS Safari surface is detected");
+  assert.ok(hint.includes("t.install.stepShare"), "guide step 1 renders from the catalog");
+  assert.ok(hint.includes("t.install.stepAdd"), "guide step 2 renders the iOS menu item");
+  // iOS in-app webview: Add to Home Screen does not exist there —
+  // the guide's second step is the Safari door instead.
+  assert.ok(hint.includes("isIosWebview"), "the webview surface is detected");
+  assert.ok(hint.includes("t.install.webviewHint"), "the webview headline renders from the catalog");
+  assert.ok(hint.includes("t.install.stepOpenSafari"), "guide step 2 becomes Open in Safari");
   // Gates.
   assert.ok(hint.includes("readInstallViews() < 2"), "no hint before the second view");
   assert.ok(hint.includes("readConsentChoice() === null"), "the cookie bar settles first");
@@ -131,6 +146,49 @@ test("install hint: both doors, every gate, dismissal remembered", () => {
   assert.ok(hint.includes("bg-surface px-4"), "the bar uses the opaque surface token");
   assert.ok(!hint.includes("bg-surface/"), "no alpha-variant surface class (it cannot compile)");
   assert.ok(read("app/layout.tsx").includes("<PwaInstall />"), "the layout mounts the hint");
+});
+
+test("install hint: no dead button — iOS guides teach, they never pretend", () => {
+  const hint = read("components/PwaInstall.tsx");
+  // The install handler is wired exactly once, and it lives
+  // behind the Chromium-only conditional: on iOS there is no
+  // prompt to fire, so a button there could only sit dead.
+  assert.equal(
+    hint.split("onClick={install}").length - 1,
+    1,
+    "the install handler is wired to exactly one element",
+  );
+  const promptGate = hint.indexOf('mode === "prompt" ? (');
+  assert.ok(promptGate !== -1, "the Chromium variant is a distinct branch");
+  assert.ok(
+    promptGate < hint.indexOf("onClick={install}"),
+    "the one install button renders only in the prompt branch",
+  );
+  assert.ok(
+    hint.includes("{mode === \"prompt\" ? ("),
+    "the Install button element itself is prompt-gated",
+  );
+  // The guide is a picture, not a control: the steps container is
+  // a plain div (no <button>), styled like the phone's own menu
+  // (inset tiles, a menu row) — no filled accent pill to mistake
+  // for an action.
+  assert.ok(hint.includes("data-install-steps"), "the steps block is marked");
+  const stepsAt = hint.indexOf("data-install-steps");
+  const stepsBlock = hint.slice(stepsAt, stepsAt + 400);
+  assert.ok(!stepsBlock.includes("<button"), "no button element wraps the steps");
+  assert.ok(stepsBlock.includes("onClick"), "tapping the steps has a handler");
+  assert.ok(
+    hint.includes("runGuideRef.current()"),
+    "a tap on the steps replays the highlight walk — visibly responding",
+  );
+  assert.ok(hint.includes("setPulseStep(1)"), "the walk lights step 1");
+  assert.ok(hint.includes("setPulseStep(2)"), "the walk lights step 2");
+  assert.ok(
+    hint.includes("bg-inset"),
+    "the steps use inset menu styling, not a filled button surface",
+  );
+  // The variant is observable end to end (screenshots/e2e key on it).
+  assert.ok(hint.includes("data-install-variant={mode}"), "the bar exposes its variant");
 });
 
 test("detectors: iOS Safari and standalone, pinned without a browser", () => {
@@ -149,6 +207,30 @@ test("detectors: iOS Safari and standalone, pinned without a browser", () => {
   const androidChrome =
     "Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Mobile Safari/537.36";
   assert.equal(isIosSafari(androidChrome), false);
+  // In-app webviews: an iOS UA that is not Safari's is a webview
+  // or a third-party browser — Add to Home Screen does not exist
+  // in any of them, and "Open in Safari" is the only door.
+  const facebookIos =
+    "Mozilla/5.0 (iPhone; CPU iPhone OS 17_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 [FBAN/FBIOS;FBAV/443.0.0.0.0;FBDV/iPhone15,2;FBMD/iPhone;FBSN/iOS;FBSV/17.2;FBSS/2;FBID/phone;FBLC/en_US;FBOP/5]";
+  assert.equal(isIosWebview(facebookIos), true, "the Facebook app webview is a webview");
+  assert.equal(isIosSafari(facebookIos), false);
+  const instagramIos =
+    "Mozilla/5.0 (iPhone; CPU iPhone OS 17_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 Instagram 312.0.0.0 (iPhone15,2; iOS 17_2; en_US; en; scale=3.00; 1179x2556; 546372901)";
+  assert.equal(isIosWebview(instagramIos), true, "the Instagram app webview is a webview");
+  const tiktokIos =
+    "Mozilla/5.0 (iPhone; CPU iPhone OS 17_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 musical_ly_2023205030 JsSdk/2.0 NetType/WIFI Channel/App Store ByteLocale/en Region/US BytedanceWebview/d8a21c6";
+  assert.equal(isIosWebview(tiktokIos), true, "the TikTok app webview is a webview");
+  const bareWebview =
+    "Mozilla/5.0 (iPhone; CPU iPhone OS 17_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148";
+  assert.equal(isIosWebview(bareWebview), true, "a WKWebView UA without a Safari token is a webview");
+  assert.equal(
+    isIosWebview(iphoneSafari.replace("Version/17.0", "CriOS/120.0")),
+    true,
+    "iOS Chrome gets the Safari guidance too — it cannot add from its own menu",
+  );
+  assert.equal(isIosWebview(iphoneSafari), false, "real iOS Safari is not a webview");
+  assert.equal(isIosWebview(androidChrome), false, "Android is never an iOS webview");
+  assert.equal(isIosWebview(ipadDesktopUa, 0), false, "a real Mac is not a webview");
   assert.equal(isStandaloneDisplay(true, undefined), true);
   assert.equal(isStandaloneDisplay(false, true), true);
   assert.equal(isStandaloneDisplay(false, false), false);
@@ -158,12 +240,30 @@ test("detectors: iOS Safari and standalone, pinned without a browser", () => {
 test("install strings: every locale resolves them, spot locales translate them", () => {
   for (const code of ["en", "es", "fr", "ht", "pt", "de", "it", "pl", "ru", "uk", "tr", "ar", "he"] as const) {
     const dict = getDictionary(code);
-    for (const key of ["label", "title", "body", "button", "iosHint", "dismiss"] as const) {
+    for (const key of [
+      "label",
+      "title",
+      "body",
+      "button",
+      "stepShare",
+      "stepAdd",
+      "stepOpenSafari",
+      "webviewHint",
+      "dismiss",
+    ] as const) {
       assert.ok(dict.install[key].length > 0, `${code}: install.${key} resolves non-empty`);
     }
   }
   assert.equal(getDictionary("es").install.button, "Instalar");
   assert.equal(getDictionary("de").install.title, "MECHA zum Startbildschirm hinzufügen");
   assert.equal(getDictionary("ht").install.button, "Enstale");
-  assert.notEqual(getDictionary("ar").install.iosHint, getDictionary("en").install.iosHint);
+  // The guide steps are translated too — the menu item a Spanish
+  // phone actually shows, the Safari door in German, Share in
+  // Haitian Creole, the webview line in Arabic.
+  assert.equal(getDictionary("en").install.stepAdd, "Add to Home Screen");
+  assert.equal(getDictionary("es").install.stepAdd, "Añadir a pantalla de inicio");
+  assert.equal(getDictionary("de").install.stepOpenSafari, "In Safari öffnen");
+  assert.equal(getDictionary("ht").install.stepShare, "Pataje");
+  assert.notEqual(getDictionary("ar").install.webviewHint, getDictionary("en").install.webviewHint);
+  assert.notEqual(getDictionary("fr").install.stepAdd, getDictionary("en").install.stepAdd);
 });
