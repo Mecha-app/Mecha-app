@@ -745,6 +745,14 @@ const en = {
     decline: "Decline",
     settings: "Cookie settings",
   },
+  install: {
+    label: "Install MECHA",
+    title: "Add MECHA to your home screen",
+    body: "One tap to open — full-screen, like an app.",
+    button: "Install",
+    iosHint: "Tap the Share icon, then “Add to Home Screen”.",
+    dismiss: "Not now",
+  },
   scan: {
     landing: {
       eyebrow: "MECHA Scan",

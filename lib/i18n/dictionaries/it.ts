@@ -721,6 +721,14 @@ const it: DeepPartial<Dictionary> = {
     decline: "Rifiuta",
     settings: "Impostazioni cookie",
   },
+  install: {
+    label: "Installa MECHA",
+    title: "Aggiungi MECHA alla schermata Home",
+    body: "Un tocco per aprire — a schermo intero, come un'app.",
+    button: "Installa",
+    iosHint: "Tocca l'icona Condividi, poi «Aggiungi alla schermata Home».",
+    dismiss: "Non ora",
+  },
   scan: {
     landing: {
       eyebrow: "MECHA Scan",

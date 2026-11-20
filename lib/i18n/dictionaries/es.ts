@@ -24,6 +24,14 @@ const es: DeepPartial<Dictionary> = {
     logoHomeLabel: "MECHA — inicio",
     logoAppLabel: "MECHA — inicio de la app",
   },
+  install: {
+    label: "Instalar MECHA",
+    title: "Añade MECHA a tu pantalla de inicio",
+    body: "Un toque para abrir — a pantalla completa, como una app.",
+    button: "Instalar",
+    iosHint: "Toca el icono Compartir y luego «Añadir a pantalla de inicio».",
+    dismiss: "Ahora no",
+  },
   hero: {
     eyebrow: "El copiloto de IA de tu coche",
     titleLine1: "Sabe qué está mal.",

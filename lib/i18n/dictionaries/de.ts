@@ -721,6 +721,14 @@ const de: DeepPartial<Dictionary> = {
     decline: "Ablehnen",
     settings: "Cookie-Einstellungen",
   },
+  install: {
+    label: "MECHA installieren",
+    title: "MECHA zum Startbildschirm hinzufügen",
+    body: "Ein Tippen zum Öffnen — im Vollbild, wie eine App.",
+    button: "Installieren",
+    iosHint: "Tippen Sie auf das Teilen-Symbol und dann auf «Zum Home-Bildschirm».",
+    dismiss: "Nicht jetzt",
+  },
   scan: {
     landing: {
       eyebrow: "MECHA Scan",

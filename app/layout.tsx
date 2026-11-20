@@ -4,6 +4,8 @@ import type { ReactNode } from "react";
 import { AnalyticsScripts } from "@/components/AnalyticsScripts";
 import { CookieConsent } from "@/components/CookieConsent";
 import NativeShell from "@/components/NativeShell";
+import { PwaInstall } from "@/components/PwaInstall";
+import { ServiceWorkerRegister } from "@/components/ServiceWorkerRegister";
 import { ThemeScript } from "@/components/ThemeScript";
 import { analyticsConfig } from "@/lib/analytics";
 import { LocaleProvider } from "@/lib/i18n/LocaleProvider";
@@ -120,6 +122,14 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
               footer's Cookie settings link). Inside the provider so
               its strings follow the reader's language. */}
           <CookieConsent />
+          {/* Home-screen install hint (PWA install pass, 2026-11-20):
+              a slim bottom bar for engaged mobile visitors who can
+              add MECHA to their home screen — Android gets the real
+              install prompt, iOS Safari gets the Share → Add to
+              Home Screen line. Gated inside the component (second
+              view, consent settled, dismissal cooldown); renders
+              nothing otherwise. */}
+          <PwaInstall />
         </LocaleProvider>
         {/* Consent-gated analytics mount (2026-11-19): renders the
             client gate only when the env carries analytics ids; the
@@ -130,6 +140,10 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
             behaviors (status bar, splash, back button, external
             links) when the site runs inside the app. */}
         <NativeShell />
+        {/* PWA service worker (install support + static icon cache
+            only — public/sw.js never intercepts /api, auth, or
+            pages). Production browser only; inert in the shell. */}
+        <ServiceWorkerRegister />
       </body>
     </html>
   );

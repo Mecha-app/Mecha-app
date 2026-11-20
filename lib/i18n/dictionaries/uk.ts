@@ -721,6 +721,14 @@ const uk: DeepPartial<Dictionary> = {
     decline: "Відхилити",
     settings: "Налаштування файлів cookie",
   },
+  install: {
+    label: "Установити MECHA",
+    title: "Додайте MECHA на головний екран",
+    body: "Один дотик — і MECHA відкривається на весь екран, як застосунок.",
+    button: "Установити",
+    iosHint: "Торкніться значка «Поділитися», потім «На початковий екран».",
+    dismiss: "Не зараз",
+  },
   scan: {
     landing: {
       eyebrow: "MECHA Scan",

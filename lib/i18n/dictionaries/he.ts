@@ -721,6 +721,14 @@ const he: DeepPartial<Dictionary> = {
     decline: "דחייה",
     settings: "הגדרות עוגיות",
   },
+  install: {
+    label: "התקנת MECHA",
+    title: "הוסיפו את MECHA למסך הבית",
+    body: "הקשה אחת לפתיחה — במסך מלא, כמו אפליקציה.",
+    button: "התקנה",
+    iosHint: "הקישו על סמל השיתוף, ואז על «הוספה למסך הבית».",
+    dismiss: "לא עכשיו",
+  },
   scan: {
     landing: {
       eyebrow: "MECHA Scan",

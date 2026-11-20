@@ -721,6 +721,14 @@ const tr: DeepPartial<Dictionary> = {
     decline: "Reddet",
     settings: "Çerez ayarları",
   },
+  install: {
+    label: "MECHA'yı yükle",
+    title: "MECHA'yı ana ekranınıza ekleyin",
+    body: "Açmak için tek dokunuş — tam ekran, bir uygulama gibi.",
+    button: "Yükle",
+    iosHint: "Paylaş simgesine, ardından «Ana Ekrana Ekle»ye dokunun.",
+    dismiss: "Şimdi değil",
+  },
   scan: {
     landing: {
       eyebrow: "MECHA Scan",

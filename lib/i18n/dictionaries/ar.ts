@@ -721,6 +721,14 @@ const ar: DeepPartial<Dictionary> = {
     decline: "رفض",
     settings: "إعدادات ملفات تعريف الارتباط",
   },
+  install: {
+    label: "تثبيت MECHA",
+    title: "أضف MECHA إلى شاشتك الرئيسية",
+    body: "نقرة واحدة للفتح — بملء الشاشة، مثل التطبيق.",
+    button: "تثبيت",
+    iosHint: "اضغط أيقونة المشاركة، ثم «إضافة إلى الشاشة الرئيسية».",
+    dismiss: "ليس الآن",
+  },
   scan: {
     landing: {
       eyebrow: "MECHA Scan",

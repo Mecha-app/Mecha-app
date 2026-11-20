@@ -25,6 +25,14 @@ const ht: DeepPartial<Dictionary> = {
     logoHomeLabel: "MECHA — akèy",
     logoAppLabel: "MECHA — akèy app la",
   },
+  install: {
+    label: "Enstale MECHA",
+    title: "Mete MECHA sou ekran lakay ou",
+    body: "Yon sèl tape pou ouvri — plen ekran, tankou yon app.",
+    button: "Enstale",
+    iosHint: "Tape ikòn Pataje a, apre «Ajoute sou ekran lakay».",
+    dismiss: "Pa kounye a",
+  },
   hero: {
     eyebrow: "Kopilòt IA pou machin ou",
     titleLine1: "Konnen sa ki pa mache.",
