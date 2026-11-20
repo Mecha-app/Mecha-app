@@ -164,6 +164,9 @@ export interface ShopProfileRecord {
    * predates the trial (the migration backfills them). */
   trialStartedAt: string | null;
   trialEndsAt: string | null;
+  /** The shop's logo upload (0021), null when the shop has none —
+   * every display surface falls back to a clean initials block. */
+  logoUploadId: string | null;
 }
 
 export interface TowingProfileRecord {
@@ -185,6 +188,8 @@ export interface TowingProfileRecord {
   passwordHash: string | null;
   authMethod: "email" | "google" | "both";
   createdAt: string;
+  /** The company's logo upload (0021), null when none. */
+  logoUploadId: string | null;
 }
 
 export interface NearbyBusiness {
@@ -205,6 +210,64 @@ export interface NearbyBusiness {
   hours: string | null;
   serviceRadiusMi: number | null;
   isVerified: boolean;
+  /** Serving path of the business's logo (0021), null when it has
+   * none — listings render the initials placeholder instead. */
+  logoUrl: string | null;
+}
+
+/** The serving path for a business logo upload (0021) — the same
+ * URL shape discipline as listing photos: the profile and nearby
+ * surfaces store/render this path, never the bytes. */
+export function businessLogoUrl(uploadId: string): string {
+  return `/api/business/logo/${uploadId}`;
+}
+
+/**
+ * A business logo file (0021) — businesses are their own auth actors,
+ * so their uploads live apart from the driver-keyed 0015 table, same
+ * shape and rules.
+ */
+export interface BusinessUploadRecord {
+  id: string;
+  businessId: string;
+  businessKind: "shop" | "towing";
+  /** 'logo' — the profile logo; 'gallery' — a gallery photo (0021). */
+  role: "logo" | "gallery";
+  contentType: string;
+  data: Buffer;
+  createdAt: string;
+}
+
+export interface CreateBusinessUploadInput {
+  businessId: string;
+  businessKind: "shop" | "towing";
+  role: "logo" | "gallery";
+  contentType: string;
+  data: Buffer;
+}
+
+/**
+ * One REAL customer review of a shop (0022) — written only by a
+ * signed-in driver through the profile page's form; one row per
+ * (shop, account), a resubmission edits it. Never seeded.
+ */
+export interface ShopReviewRecord {
+  id: string;
+  shopId: string;
+  userId: string;
+  authorName: string;
+  rating: number;
+  body: string;
+  /** Ids into the 0015 uploads table — the reviewer's own uploaded
+   * photos (at most 3, enforced by the review service). */
+  photoIds: string[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ShopReviewAggregate {
+  average: number;
+  count: number;
 }
 
 export type MessageSender = "user" | "shop";
@@ -346,6 +409,7 @@ export type ShopPatch = Partial<
     | "specialties"
     | "languages"
     | "hours"
+    | "logoUploadId"
   >
 >;
 
@@ -365,7 +429,15 @@ export interface CreateTowingInput {
 export type TowingPatch = Partial<
   Pick<
     TowingProfileRecord,
-    "companyName" | "ownerName" | "phone" | "zip" | "lat" | "lng" | "serviceRadiusMi" | "truckCount"
+    | "companyName"
+    | "ownerName"
+    | "phone"
+    | "zip"
+    | "lat"
+    | "lng"
+    | "serviceRadiusMi"
+    | "truckCount"
+    | "logoUploadId"
   >
 >;
 
@@ -408,6 +480,13 @@ export interface AppStore {
   saveUpload(input: CreateUploadInput): Promise<UploadRecord>;
   getUpload(id: string): Promise<UploadRecord | null>;
 
+  // Business uploads (shop/towing logos + galleries — 0021)
+  saveBusinessUpload(input: CreateBusinessUploadInput): Promise<BusinessUploadRecord>;
+  getBusinessUpload(id: string): Promise<BusinessUploadRecord | null>;
+  deleteBusinessUpload(id: string): Promise<boolean>;
+  /** The business's gallery photos, oldest first (0021). */
+  listBusinessGallery(businessId: string): Promise<BusinessUploadRecord[]>;
+
   // Business accounts (shops + towing)
   findShopByEmail(emailNormalized: string): Promise<ShopProfileRecord | null>;
   findShopProfileById(id: string): Promise<ShopProfileRecord | null>;
@@ -421,6 +500,18 @@ export interface AppStore {
   // Nearby search (lat/lng present + active only; ordered by distance)
   nearbyShops(origin: LatLng, radiusMi: number, limit: number): Promise<NearbyBusiness[]>;
   nearbyTowing(origin: LatLng, radiusMi: number, limit: number): Promise<NearbyBusiness[]>;
+
+  // Shop reviews (0022 — real, one per driver account per shop)
+  listShopReviews(shopId: string, limit: number): Promise<ShopReviewRecord[]>;
+  getShopReview(shopId: string, userId: string): Promise<ShopReviewRecord | null>;
+  upsertShopReview(input: {
+    shopId: string;
+    userId: string;
+    authorName: string;
+    rating: number;
+    body: string;
+    photoIds: string[];
+  }): Promise<{ review: ShopReviewRecord; aggregate: ShopReviewAggregate }>;
 
   // Messaging (thread = one user + one shop)
   postMessage(input: {
@@ -659,10 +750,21 @@ interface ShopRow {
   created_at: Date | string;
   trial_started_at: Date | string | null;
   trial_ends_at: Date | string | null;
+  /** May be absent on rows returned by INSERT/UPDATE (the alias is
+   * only selected on reads) — the mapper defaults it to null. */
+  logo_upload_id?: string | null;
 }
 
 const SHOP_COLUMNS =
   "id, shop_name, owner_name, email, phone, address, city, state, zip, lat, lng, about, specialties, languages, hours, rating, review_count, is_verified, is_active, plan, stripe_customer_id, password_hash, auth_method, created_at, trial_started_at, trial_ends_at";
+
+/**
+ * The logo column (0021) is read through to_jsonb so every read
+ * tolerates the migration not being applied yet — a missing key
+ * yields NULL (no logo) instead of an unknown-column error.
+ */
+const SHOP_LOGO_EXPR = "(to_jsonb(shops)->>'logo_upload_id') AS logo_upload_id";
+const TOWING_LOGO_EXPR = "(to_jsonb(towing_companies)->>'logo_upload_id') AS logo_upload_id";
 
 function toStringArray(raw: unknown): string[] {
   if (!Array.isArray(raw)) return [];
@@ -697,6 +799,7 @@ function toShop(row: ShopRow): ShopProfileRecord {
     createdAt: iso(row.created_at),
     trialStartedAt: row.trial_started_at ? iso(row.trial_started_at) : null,
     trialEndsAt: row.trial_ends_at ? iso(row.trial_ends_at) : null,
+    logoUploadId: row.logo_upload_id ?? null,
   };
 }
 
@@ -719,6 +822,7 @@ interface TowingRow {
   password_hash: string | null;
   auth_method: "email" | "google" | "both";
   created_at: Date | string;
+  logo_upload_id?: string | null;
 }
 
 const TOWING_COLUMNS =
@@ -744,7 +848,68 @@ function toTowing(row: TowingRow): TowingProfileRecord {
     passwordHash: row.password_hash,
     authMethod: row.auth_method,
     createdAt: iso(row.created_at),
+    logoUploadId: row.logo_upload_id ?? null,
   };
+}
+
+interface BusinessUploadRow {
+  id: string;
+  business_id: string;
+  business_kind: "shop" | "towing";
+  role: "logo" | "gallery";
+  content_type: string;
+  data: Buffer;
+  created_at: Date | string;
+}
+
+function toBusinessUpload(row: BusinessUploadRow): BusinessUploadRecord {
+  return {
+    id: row.id,
+    businessId: row.business_id,
+    businessKind: row.business_kind,
+    role: row.role,
+    contentType: row.content_type,
+    data: row.data,
+    createdAt: iso(row.created_at),
+  };
+}
+
+interface ShopReviewRow {
+  id: string;
+  shop_id: string;
+  user_id: string;
+  author_name: string;
+  rating: number;
+  body: string;
+  photo_ids: unknown;
+  created_at: Date | string;
+  updated_at: Date | string;
+}
+
+function toPhotoIds(value: unknown): string[] {
+  if (!Array.isArray(value)) return [];
+  return value.filter((v): v is string => typeof v === "string");
+}
+
+function toShopReview(row: ShopReviewRow): ShopReviewRecord {
+  return {
+    id: row.id,
+    shopId: row.shop_id,
+    userId: row.user_id,
+    authorName: row.author_name,
+    rating: row.rating,
+    body: row.body,
+    photoIds: toPhotoIds(row.photo_ids),
+    createdAt: iso(row.created_at),
+    updatedAt: iso(row.updated_at),
+  };
+}
+
+/** True when a query failed only because a migration's table is not
+ * there yet (Postgres 42P01) — the pre-migration tolerance the logo
+ * and review reads promise: answer "none" instead of erroring. */
+function isMissingRelation(err: unknown): boolean {
+  return (err as { code?: unknown } | null)?.code === "42P01";
 }
 
 interface MessageRow {
@@ -1076,10 +1241,73 @@ export class PgAppStore implements AppStore {
     return rows[0] ? toUpload(rows[0]) : null;
   }
 
+  // -- Business uploads (logos, 0021) ---------------------------------------
+  async saveBusinessUpload(
+    input: CreateBusinessUploadInput,
+  ): Promise<BusinessUploadRecord> {
+    const { rows } = await getPool().query<BusinessUploadRow>(
+      `INSERT INTO business_uploads (business_id, business_kind, role, content_type, byte_size, data)
+       VALUES ($1, $2, $3, $4, $5, $6)
+       RETURNING id, business_id, business_kind, role, content_type, data, created_at`,
+      [
+        input.businessId,
+        input.businessKind,
+        input.role,
+        input.contentType,
+        input.data.length,
+        input.data,
+      ],
+    );
+    return toBusinessUpload(rows[0]);
+  }
+
+  async getBusinessUpload(id: string): Promise<BusinessUploadRecord | null> {
+    try {
+      const { rows } = await getPool().query<BusinessUploadRow>(
+        `SELECT id, business_id, business_kind, role, content_type, data, created_at
+           FROM business_uploads WHERE id = $1 LIMIT 1`,
+        [id],
+      );
+      return rows[0] ? toBusinessUpload(rows[0]) : null;
+    } catch (err) {
+      if (isMissingRelation(err)) return null;
+      throw err;
+    }
+  }
+
+  async listBusinessGallery(businessId: string): Promise<BusinessUploadRecord[]> {
+    try {
+      const { rows } = await getPool().query<BusinessUploadRow>(
+        `SELECT id, business_id, business_kind, role, content_type, data, created_at
+           FROM business_uploads
+          WHERE business_id = $1 AND role = 'gallery'
+          ORDER BY created_at ASC`,
+        [businessId],
+      );
+      return rows.map(toBusinessUpload);
+    } catch (err) {
+      if (isMissingRelation(err)) return [];
+      throw err;
+    }
+  }
+
+  async deleteBusinessUpload(id: string): Promise<boolean> {
+    try {
+      const { rowCount } = await getPool().query(
+        "DELETE FROM business_uploads WHERE id = $1",
+        [id],
+      );
+      return (rowCount ?? 0) > 0;
+    } catch (err) {
+      if (isMissingRelation(err)) return false;
+      throw err;
+    }
+  }
+
   // -- Business accounts ------------------------------------------------------
   async findShopByEmail(emailNormalized: string): Promise<ShopProfileRecord | null> {
     const { rows } = await getPool().query<ShopRow>(
-      `SELECT ${SHOP_COLUMNS} FROM shops WHERE lower(email) = $1 LIMIT 1`,
+      `SELECT ${SHOP_COLUMNS}, ${SHOP_LOGO_EXPR} FROM shops WHERE lower(email) = $1 LIMIT 1`,
       [emailNormalized],
     );
     return rows[0] ? toShop(rows[0]) : null;
@@ -1087,7 +1315,7 @@ export class PgAppStore implements AppStore {
 
   async findShopProfileById(id: string): Promise<ShopProfileRecord | null> {
     const { rows } = await getPool().query<ShopRow>(
-      `SELECT ${SHOP_COLUMNS} FROM shops WHERE id = $1 LIMIT 1`,
+      `SELECT ${SHOP_COLUMNS}, ${SHOP_LOGO_EXPR} FROM shops WHERE id = $1 LIMIT 1`,
       [id],
     );
     return rows[0] ? toShop(rows[0]) : null;
@@ -1142,18 +1370,21 @@ export class PgAppStore implements AppStore {
       specialties: "specialties",
       languages: "languages",
       hours: "hours",
+      logoUploadId: "logo_upload_id",
     }, 2);
     if (!clause) return this.findShopProfileById(id);
     const { rows } = await getPool().query<ShopRow>(
       `UPDATE shops SET ${clause} WHERE id = $1 RETURNING ${SHOP_COLUMNS}`,
       [id, ...values],
     );
-    return rows[0] ? toShop(rows[0]) : null;
+    // Re-read so the record carries the logo alias the RETURNING list
+    // doesn't select.
+    return rows[0] ? this.findShopProfileById(id) : null;
   }
 
   async findTowingByEmail(emailNormalized: string): Promise<TowingProfileRecord | null> {
     const { rows } = await getPool().query<TowingRow>(
-      `SELECT ${TOWING_COLUMNS} FROM towing_companies WHERE lower(email) = $1 LIMIT 1`,
+      `SELECT ${TOWING_COLUMNS}, ${TOWING_LOGO_EXPR} FROM towing_companies WHERE lower(email) = $1 LIMIT 1`,
       [emailNormalized],
     );
     return rows[0] ? toTowing(rows[0]) : null;
@@ -1161,7 +1392,7 @@ export class PgAppStore implements AppStore {
 
   async findTowingProfileById(id: string): Promise<TowingProfileRecord | null> {
     const { rows } = await getPool().query<TowingRow>(
-      `SELECT ${TOWING_COLUMNS} FROM towing_companies WHERE id = $1 LIMIT 1`,
+      `SELECT ${TOWING_COLUMNS}, ${TOWING_LOGO_EXPR} FROM towing_companies WHERE id = $1 LIMIT 1`,
       [id],
     );
     return rows[0] ? toTowing(rows[0]) : null;
@@ -1198,13 +1429,14 @@ export class PgAppStore implements AppStore {
       lng: "lng",
       serviceRadiusMi: "service_radius_mi",
       truckCount: "truck_count",
+      logoUploadId: "logo_upload_id",
     }, 2);
     if (!clause) return this.findTowingProfileById(id);
     const { rows } = await getPool().query<TowingRow>(
       `UPDATE towing_companies SET ${clause} WHERE id = $1 RETURNING ${TOWING_COLUMNS}`,
       [id, ...values],
     );
-    return rows[0] ? toTowing(rows[0]) : null;
+    return rows[0] ? this.findTowingProfileById(id) : null;
   }
 
   // -- Nearby -----------------------------------------------------------------
@@ -1224,10 +1456,11 @@ export class PgAppStore implements AppStore {
       specialties: unknown;
       hours: string | null;
       is_verified: boolean;
+      logo_upload_id: string | null;
       distance_mi: string | number;
     }>(
       `SELECT id, shop_name, phone, address, city, state, zip, lat, lng, rating, review_count,
-              specialties, hours, is_verified,
+              specialties, hours, is_verified, ${SHOP_LOGO_EXPR},
               haversine_km(lat, lng, $1, $2) / ${KM_PER_MILE} AS distance_mi
          FROM shops
         WHERE is_active AND lat IS NOT NULL AND lng IS NOT NULL
@@ -1254,6 +1487,7 @@ export class PgAppStore implements AppStore {
       hours: r.hours,
       serviceRadiusMi: null,
       isVerified: r.is_verified,
+      logoUrl: r.logo_upload_id ? businessLogoUrl(r.logo_upload_id) : null,
     }));
   }
 
@@ -1268,9 +1502,11 @@ export class PgAppStore implements AppStore {
       rating: string | number;
       service_radius_mi: number;
       is_verified: boolean;
+      logo_upload_id: string | null;
       distance_mi: string | number;
     }>(
       `SELECT id, company_name, phone, zip, lat, lng, rating, service_radius_mi, is_verified,
+              ${TOWING_LOGO_EXPR},
               haversine_km(lat, lng, $1, $2) / ${KM_PER_MILE} AS distance_mi
          FROM towing_companies
         WHERE is_active AND lat IS NOT NULL AND lng IS NOT NULL
@@ -1298,7 +1534,85 @@ export class PgAppStore implements AppStore {
       hours: null,
       serviceRadiusMi: r.service_radius_mi,
       isVerified: r.is_verified,
+      logoUrl: r.logo_upload_id ? businessLogoUrl(r.logo_upload_id) : null,
     }));
+  }
+
+  // -- Shop reviews (0022) ----------------------------------------------------
+  async listShopReviews(shopId: string, limit: number): Promise<ShopReviewRecord[]> {
+    try {
+      const { rows } = await getPool().query<ShopReviewRow>(
+        `SELECT id, shop_id, user_id, author_name, rating, body,
+                (to_jsonb(shop_reviews)->'photo_ids') AS photo_ids, created_at, updated_at
+           FROM shop_reviews WHERE shop_id = $1
+          ORDER BY created_at DESC LIMIT $2`,
+        [shopId, limit],
+      );
+      return rows.map(toShopReview);
+    } catch (err) {
+      if (isMissingRelation(err)) return [];
+      throw err;
+    }
+  }
+
+  async getShopReview(shopId: string, userId: string): Promise<ShopReviewRecord | null> {
+    try {
+      const { rows } = await getPool().query<ShopReviewRow>(
+        `SELECT id, shop_id, user_id, author_name, rating, body,
+                (to_jsonb(shop_reviews)->'photo_ids') AS photo_ids, created_at, updated_at
+           FROM shop_reviews WHERE shop_id = $1 AND user_id = $2 LIMIT 1`,
+        [shopId, userId],
+      );
+      return rows[0] ? toShopReview(rows[0]) : null;
+    } catch (err) {
+      if (isMissingRelation(err)) return null;
+      throw err;
+    }
+  }
+
+  async upsertShopReview(input: {
+    shopId: string;
+    userId: string;
+    authorName: string;
+    rating: number;
+    body: string;
+    photoIds: string[];
+  }): Promise<{ review: ShopReviewRecord; aggregate: ShopReviewAggregate }> {
+    const { rows } = await getPool().query<ShopReviewRow>(
+      `INSERT INTO shop_reviews (shop_id, user_id, author_name, rating, body, photo_ids)
+       VALUES ($1, $2, $3, $4, $5, $6::jsonb)
+       ON CONFLICT (shop_id, user_id)
+       DO UPDATE SET author_name = EXCLUDED.author_name,
+                     rating = EXCLUDED.rating,
+                     body = EXCLUDED.body,
+                     photo_ids = EXCLUDED.photo_ids
+       RETURNING id, shop_id, user_id, author_name, rating, body, photo_ids, created_at, updated_at`,
+      [
+        input.shopId,
+        input.userId,
+        input.authorName,
+        input.rating,
+        input.body,
+        JSON.stringify(input.photoIds),
+      ],
+    );
+    const review = toShopReview(rows[0]);
+    // Keep the shop row's counters honest: they are recomputed FROM
+    // the review rows on every write, never incremented blind.
+    const { rows: agg } = await getPool().query<{ avg: string | number; count: number }>(
+      `SELECT COALESCE(AVG(rating), 0) AS avg, COUNT(*)::int AS count
+         FROM shop_reviews WHERE shop_id = $1`,
+      [input.shopId],
+    );
+    const aggregate: ShopReviewAggregate = {
+      average: Math.round((num(agg[0]?.avg) ?? 0) * 100) / 100,
+      count: agg[0]?.count ?? 0,
+    };
+    await getPool().query(
+      `UPDATE shops SET rating = $2, review_count = $3 WHERE id = $1`,
+      [input.shopId, aggregate.average, aggregate.count],
+    );
+    return { review, aggregate };
   }
 
   // -- Messaging ---------------------------------------------------------------
@@ -1420,6 +1734,8 @@ export class MemoryAppStore implements AppStore {
   readonly diagnoses: DiagnosisSummary[] = [];
   readonly listings = new Map<string, ListingRecord>();
   readonly uploads = new Map<string, UploadRecord>();
+  readonly businessUploads = new Map<string, BusinessUploadRecord>();
+  readonly shopReviews = new Map<string, ShopReviewRecord>();
   readonly shops = new Map<string, ShopProfileRecord>();
   readonly towing = new Map<string, TowingProfileRecord>();
   readonly messages: MessageRecord[] = [];
@@ -1619,6 +1935,37 @@ export class MemoryAppStore implements AppStore {
     return this.uploads.get(id) ?? null;
   }
 
+  // -- Business uploads (logos, 0021) ---------------------------------------
+  async saveBusinessUpload(
+    input: CreateBusinessUploadInput,
+  ): Promise<BusinessUploadRecord> {
+    const upload: BusinessUploadRecord = {
+      id: this.nextId("bizupload"),
+      businessId: input.businessId,
+      businessKind: input.businessKind,
+      role: input.role,
+      contentType: input.contentType,
+      data: input.data,
+      createdAt: this.now(),
+    };
+    this.businessUploads.set(upload.id, upload);
+    return upload;
+  }
+
+  async getBusinessUpload(id: string): Promise<BusinessUploadRecord | null> {
+    return this.businessUploads.get(id) ?? null;
+  }
+
+  async listBusinessGallery(businessId: string): Promise<BusinessUploadRecord[]> {
+    return [...this.businessUploads.values()]
+      .filter((u) => u.businessId === businessId && u.role === "gallery")
+      .sort((a, b) => a.createdAt.localeCompare(b.createdAt));
+  }
+
+  async deleteBusinessUpload(id: string): Promise<boolean> {
+    return this.businessUploads.delete(id);
+  }
+
   // -- Business accounts ------------------------------------------------------
   async findShopByEmail(emailNormalized: string): Promise<ShopProfileRecord | null> {
     for (const s of this.shops.values()) if (s.email === emailNormalized) return s;
@@ -1658,6 +2005,7 @@ export class MemoryAppStore implements AppStore {
       createdAt: this.now(),
       trialStartedAt: input.trialStartedAt ?? trial.startedAt,
       trialEndsAt: input.trialEndsAt ?? trial.endsAt,
+      logoUploadId: null,
     };
     this.shops.set(shop.id, shop);
     return shop;
@@ -1701,6 +2049,7 @@ export class MemoryAppStore implements AppStore {
       passwordHash: input.passwordHash ?? null,
       authMethod: "email",
       createdAt: this.now(),
+      logoUploadId: null,
     };
     this.towing.set(towing.id, towing);
     return towing;
@@ -1740,6 +2089,7 @@ export class MemoryAppStore implements AppStore {
         hours: s.hours,
         serviceRadiusMi: null,
         isVerified: s.isVerified,
+        logoUrl: s.logoUploadId ? businessLogoUrl(s.logoUploadId) : null,
       });
     }
     return out.sort((a, b) => a.distanceMi - b.distanceMi).slice(0, limit);
@@ -1769,9 +2119,72 @@ export class MemoryAppStore implements AppStore {
         hours: null,
         serviceRadiusMi: t.serviceRadiusMi,
         isVerified: t.isVerified,
+        logoUrl: t.logoUploadId ? businessLogoUrl(t.logoUploadId) : null,
       });
     }
     return out.sort((a, b) => a.distanceMi - b.distanceMi).slice(0, limit);
+  }
+
+  // -- Shop reviews (0022) ----------------------------------------------------
+  async listShopReviews(shopId: string, limit: number): Promise<ShopReviewRecord[]> {
+    return [...this.shopReviews.values()]
+      .filter((r) => r.shopId === shopId)
+      .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+      .slice(0, limit);
+  }
+
+  async getShopReview(shopId: string, userId: string): Promise<ShopReviewRecord | null> {
+    for (const r of this.shopReviews.values()) {
+      if (r.shopId === shopId && r.userId === userId) return r;
+    }
+    return null;
+  }
+
+  async upsertShopReview(input: {
+    shopId: string;
+    userId: string;
+    authorName: string;
+    rating: number;
+    body: string;
+    photoIds: string[];
+  }): Promise<{ review: ShopReviewRecord; aggregate: ShopReviewAggregate }> {
+    const existing = await this.getShopReview(input.shopId, input.userId);
+    let review: ShopReviewRecord;
+    if (existing) {
+      existing.authorName = input.authorName;
+      existing.rating = input.rating;
+      existing.body = input.body;
+      existing.photoIds = [...input.photoIds];
+      existing.updatedAt = this.now();
+      review = existing;
+    } else {
+      review = {
+        id: this.nextId("review"),
+        shopId: input.shopId,
+        userId: input.userId,
+        authorName: input.authorName,
+        rating: input.rating,
+        body: input.body,
+        photoIds: [...input.photoIds],
+        createdAt: this.now(),
+        updatedAt: this.now(),
+      };
+      this.shopReviews.set(review.id, review);
+    }
+    const all = [...this.shopReviews.values()].filter((r) => r.shopId === input.shopId);
+    const aggregate: ShopReviewAggregate = {
+      average:
+        all.length === 0
+          ? 0
+          : Math.round((all.reduce((sum, r) => sum + r.rating, 0) / all.length) * 100) / 100,
+      count: all.length,
+    };
+    const shop = this.shops.get(input.shopId);
+    if (shop) {
+      shop.rating = aggregate.average;
+      shop.reviewCount = aggregate.count;
+    }
+    return { review, aggregate };
   }
 
   // -- Messaging ---------------------------------------------------------------

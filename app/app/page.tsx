@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { AppNav } from "@/components/AppNav";
 import { BillingSection } from "@/components/BillingSection";
+import { BusinessAvatar } from "@/components/BusinessAvatar";
 import { CheckoutReturnTracker } from "@/components/CheckoutReturnTracker";
 import { LoopClip } from "@/components/LoopClip";
 import { apiDetail, apiFetch } from "@/lib/client/api";
@@ -139,6 +140,8 @@ interface Business {
   phone: string;
   zip: string | null;
   plan: string;
+  logoUrl?: string | null;
+  galleryUrls?: string[];
 }
 
 export default function DashboardPage() {
@@ -174,6 +177,116 @@ export default function DashboardPage() {
     "idle" | "working" | "done" | "sent" | "unavailable" | "error"
   >("idle");
   const [verifyDetail, setVerifyDetail] = useState("");
+
+  // Business phone edit + logo (owner order 2026-11-20: the number
+  // drivers call and the logo drivers see are the shop's to manage
+  // right here in the dashboard).
+  const [bizPhoneEdit, setBizPhoneEdit] = useState(false);
+  const [bizPhoneDraft, setBizPhoneDraft] = useState("");
+  const [bizPhoneState, setBizPhoneState] = useState<"idle" | "saving" | "error">("idle");
+  const [bizPhoneDetail, setBizPhoneDetail] = useState("");
+  const [logoState, setLogoState] = useState<"idle" | "saving" | "error">("idle");
+  const [logoDetail, setLogoDetail] = useState("");
+
+  async function refreshBusiness() {
+    const res = await apiFetch<{ business: Business }>("/api/business/me");
+    if (res.status === 200) setBusiness(res.data.business);
+  }
+
+  async function saveBizPhone(e: FormEvent) {
+    e.preventDefault();
+    setBizPhoneState("saving");
+    const res = await apiFetch<{ business: Business }>("/api/business/me", {
+      method: "PATCH",
+      body: JSON.stringify({ phone: bizPhoneDraft }),
+    });
+    if (res.status === 200) {
+      setBusiness(res.data.business);
+      setBizPhoneEdit(false);
+      setBizPhoneState("idle");
+    } else {
+      setBizPhoneState("error");
+      setBizPhoneDetail(apiDetail(res.data, t.wp6.common.somethingWrong));
+    }
+  }
+
+  async function onLogoFile(file: File) {
+    setLogoState("saving");
+    setLogoDetail("");
+    const form = new FormData();
+    form.append("photo", file);
+    const token = getToken();
+    const res = await fetch("/api/business/logo", {
+      method: "POST",
+      headers: token ? { authorization: `Bearer ${token}` } : {},
+      body: form,
+    });
+    if (res.ok) {
+      await refreshBusiness();
+      setLogoState("idle");
+    } else {
+      const data = (await res.json().catch(() => ({}))) as { detail?: string };
+      setLogoState("error");
+      setLogoDetail(
+        typeof data.detail === "string" && data.detail
+          ? data.detail
+          : t.wp6.common.somethingWrong,
+      );
+    }
+  }
+
+  async function onRemoveLogo() {
+    setLogoState("saving");
+    setLogoDetail("");
+    const res = await apiFetch("/api/business/logo", { method: "DELETE" });
+    if (res.status === 200) {
+      await refreshBusiness();
+      setLogoState("idle");
+    } else {
+      setLogoState("error");
+      setLogoDetail(apiDetail(res.data, t.wp6.common.somethingWrong));
+    }
+  }
+
+  async function onGalleryFile(file: File) {
+    setLogoState("saving");
+    setLogoDetail("");
+    const form = new FormData();
+    form.append("photo", file);
+    const token = getToken();
+    const res = await fetch("/api/business/gallery", {
+      method: "POST",
+      headers: token ? { authorization: `Bearer ${token}` } : {},
+      body: form,
+    });
+    if (res.ok) {
+      await refreshBusiness();
+      setLogoState("idle");
+    } else {
+      const data = (await res.json().catch(() => ({}))) as { detail?: string };
+      setLogoState("error");
+      setLogoDetail(
+        typeof data.detail === "string" && data.detail
+          ? data.detail
+          : t.wp6.common.somethingWrong,
+      );
+    }
+  }
+
+  async function onRemoveGallery(url: string) {
+    const uploadId = url.split("/").pop();
+    if (!uploadId) return;
+    setLogoState("saving");
+    setLogoDetail("");
+    const res = await apiFetch(`/api/business/gallery/${uploadId}`, { method: "DELETE" });
+    if (res.status === 200) {
+      await refreshBusiness();
+      setLogoState("idle");
+    } else {
+      setLogoState("error");
+      setLogoDetail(apiDetail(res.data, t.wp6.common.somethingWrong));
+    }
+  }
 
   useEffect(() => {
     if (!getToken()) {
@@ -713,15 +826,142 @@ export default function DashboardPage() {
                 <dt className="text-ink-3">{d.businessPlan}</dt>
                 <dd className="font-medium text-ink-1">{business.plan}</dd>
               </div>
-              <div className="flex justify-between gap-4 py-3.5">
+              <div className="flex items-center justify-between gap-4 py-3.5">
                 <dt className="text-ink-3">{t.wp6.business.phone}</dt>
-                <dd className="font-medium text-ink-1">{business.phone}</dd>
+                <dd className="flex items-center gap-3">
+                  <span className="font-medium text-ink-1">{business.phone}</span>
+                  {!bizPhoneEdit && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setBizPhoneDraft(business.phone);
+                        setBizPhoneState("idle");
+                        setBizPhoneEdit(true);
+                      }}
+                      className="text-sm font-semibold text-accent"
+                    >
+                      {t.wp6.common.edit}
+                    </button>
+                  )}
+                </dd>
               </div>
               <div className="flex justify-between gap-4 py-3.5">
                 <dt className="text-ink-3">{t.wp6.business.zip}</dt>
                 <dd className="font-medium text-ink-1">{business.zip ?? "—"}</dd>
               </div>
             </dl>
+            {bizPhoneEdit && (
+              <form onSubmit={saveBizPhone} className="mt-4 flex flex-col gap-2">
+                <label htmlFor="biz-phone" className="text-sm font-medium text-ink-2">
+                  {t.wp6.business.phone}
+                </label>
+                <div className="flex gap-2">
+                  <input
+                    id="biz-phone"
+                    type="tel"
+                    inputMode="tel"
+                    autoComplete="tel"
+                    value={bizPhoneDraft}
+                    onChange={(e) => setBizPhoneDraft(e.target.value)}
+                    className="h-12 w-full rounded-xl border border-line bg-surface px-4 text-base text-ink-1"
+                  />
+                  <button
+                    type="submit"
+                    disabled={bizPhoneState === "saving" || bizPhoneDraft.trim().length === 0}
+                    className="flex h-12 shrink-0 items-center justify-center rounded-full bg-accent px-6 text-base font-semibold text-accent-ink disabled:opacity-50"
+                  >
+                    {t.wp6.common.save}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setBizPhoneEdit(false)}
+                    className="flex h-12 shrink-0 items-center justify-center rounded-full border border-line px-5 text-base font-semibold text-ink-1"
+                  >
+                    {t.wp6.common.cancel}
+                  </button>
+                </div>
+                {bizPhoneState === "error" && (
+                  <p className="text-sm text-danger">{bizPhoneDetail}</p>
+                )}
+              </form>
+            )}
+            <div className="mt-5 border-t border-line pt-5">
+              <p className="text-sm font-medium text-ink-2">{t.wp6.business.logoLabel}</p>
+              <div className="mt-3 flex items-center gap-4">
+                <BusinessAvatar
+                  name={business.shopName ?? business.companyName ?? business.email}
+                  logoUrl={business.logoUrl ?? null}
+                />
+                <div className="flex flex-wrap gap-2">
+                  <label
+                    className="flex h-11 cursor-pointer items-center justify-center rounded-full bg-accent px-5 text-sm font-semibold text-accent-ink"
+                    aria-disabled={logoState === "saving"}
+                  >
+                    {business.logoUrl ? t.wp6.business.logoReplace : t.wp6.business.logoAdd}
+                    <input
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp"
+                      className="hidden"
+                      disabled={logoState === "saving"}
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        e.target.value = "";
+                        if (file) void onLogoFile(file);
+                      }}
+                    />
+                  </label>
+                  {business.logoUrl && (
+                    <button
+                      type="button"
+                      onClick={() => void onRemoveLogo()}
+                      disabled={logoState === "saving"}
+                      className="flex h-11 items-center justify-center rounded-full border border-line px-5 text-sm font-semibold text-ink-1 disabled:opacity-50"
+                    >
+                      {t.wp6.business.logoRemove}
+                    </button>
+                  )}
+                </div>
+              </div>
+              <p className="mt-2 text-sm text-ink-3">{t.wp6.business.logoHint}</p>
+              {logoState === "error" && <p className="mt-1 text-sm text-danger">{logoDetail}</p>}
+              <div className="mt-5">
+                <p className="text-sm font-medium text-ink-2">{t.wp6.business.galleryLabel}</p>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {(business.galleryUrls ?? []).map((url) => (
+                    <span key={url} className="relative inline-block">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={url} alt="" className="h-16 w-16 rounded-xl object-cover" />
+                      <button
+                        type="button"
+                        aria-label={t.wp6.common.delete}
+                        disabled={logoState === "saving"}
+                        onClick={() => void onRemoveGallery(url)}
+                        className="absolute -right-1.5 -top-1.5 flex h-6 w-6 items-center justify-center rounded-full bg-ink-1 text-xs font-bold text-white disabled:opacity-50"
+                      >
+                        ×
+                      </button>
+                    </span>
+                  ))}
+                  {(business.galleryUrls ?? []).length < 4 && (
+                    <label className="flex h-16 w-16 cursor-pointer items-center justify-center rounded-xl border border-dashed border-line text-2xl text-ink-3">
+                      +
+                      <input
+                        type="file"
+                        accept="image/jpeg,image/png,image/webp"
+                        className="hidden"
+                        disabled={logoState === "saving"}
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          e.target.value = "";
+                          if (file) void onGalleryFile(file);
+                        }}
+                      />
+                    </label>
+                  )}
+                </div>
+                <p className="mt-2 text-sm text-ink-3">{t.wp6.business.galleryHint}</p>
+              </div>
+            </div>
             <div className="mt-6 flex flex-col gap-3 sm:flex-row">
               {business.type === "shop" && (
                 <Link

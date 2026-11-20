@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useState, type FormEvent } from "react";
 import { AppNav } from "@/components/AppNav";
+import { BusinessAvatar } from "@/components/BusinessAvatar";
 import { apiDetail, apiFetch } from "@/lib/client/api";
 import { useLocale } from "@/lib/i18n/LocaleProvider";
 
@@ -32,6 +33,7 @@ interface NearbyBusiness {
   specialties: string[];
   hours: string | null;
   isVerified: boolean;
+  logoUrl: string | null;
 }
 
 interface NearbyResponse {
@@ -204,17 +206,26 @@ export default function NearbyPage() {
             <ul className="mt-5 flex flex-col gap-3">
               {result.results.map((b) => (
                 <li key={b.id} className="rounded-2xl border border-line bg-surface px-5 py-4">
-                  {/* THE NAME LEADS — largest element on the card. */}
-                  <h3 className="font-display text-2xl font-semibold leading-tight text-ink-1">
-                    {b.name}
-                  </h3>
-                  <p className="mt-1 text-base text-ink-2">
-                    {b.distanceLabel}
-                    {b.city ? ` · ${b.city}` : ""}
-                    {b.state ? `, ${b.state}` : ""}
-                    {b.isVerified ? ` · ${n.verified}` : ""}
-                    {b.rating > 0 ? ` · ${b.rating.toFixed(1)} / 5` : ""}
-                  </p>
+                  {/* THE NAME LEADS — largest element on the card, and
+                      the door to the shop's profile page. The logo
+                      (or its initials placeholder) sits beside it. */}
+                  <div className="flex items-start gap-3">
+                    <BusinessAvatar name={b.name} logoUrl={b.logoUrl} />
+                    <div className="min-w-0 flex-1">
+                      <h3 className="font-display text-2xl font-semibold leading-tight text-ink-1">
+                        <Link href={`/app/shops/${b.id}`} className="hover:underline">
+                          {b.name}
+                        </Link>
+                      </h3>
+                      <p className="mt-1 text-base text-ink-2">
+                        {b.distanceLabel}
+                        {b.city ? ` · ${b.city}` : ""}
+                        {b.state ? `, ${b.state}` : ""}
+                        {b.isVerified ? ` · ${n.verified}` : ""}
+                        {b.rating > 0 ? ` · ${b.rating.toFixed(1)} / 5` : ""}
+                      </p>
+                    </div>
+                  </div>
                   {b.specialties.length > 0 && (
                     <p className="mt-1 text-sm text-ink-2">
                       {n.services}: {b.specialties.join(", ")}

@@ -1,4 +1,5 @@
 import { ZIP_CENTROIDS_RAW } from "./zipData";
+import { ZIP_SUPPLEMENTS } from "./zipSupplements";
 
 /**
  * Geography for the nearby flows (WP6) — dependency-free by design:
@@ -62,11 +63,16 @@ export function normalizeZip(raw: unknown): string | null {
   return match ? match[1] : null;
 }
 
-/** Centroid for a 5-digit ZIP, or null when the ZIP is unknown. */
+/**
+ * Centroid for a 5-digit ZIP, or null when the ZIP is unknown. The
+ * Census table answers first; the hand-kept supplements (real USPS
+ * ZIPs with no ZCTA — 02101 and its downtown-Boston siblings) answer
+ * when the table misses.
+ */
 export function zipCentroid(zip: string): LatLng | null {
   const normalized = normalizeZip(zip);
   if (!normalized) return null;
-  return centroids().get(normalized) ?? null;
+  return centroids().get(normalized) ?? ZIP_SUPPLEMENTS[normalized] ?? null;
 }
 
 export function isValidLatLng(lat: unknown, lng: unknown): lat is number {

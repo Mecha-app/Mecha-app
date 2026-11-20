@@ -13,6 +13,7 @@ import type {
   TowingPatch,
   TowingProfileRecord,
 } from "./appStore";
+import { businessLogoUrl } from "./appStore";
 
 /**
  * Business accounts (WP6) — self-signup + login for mechanic shops and
@@ -54,6 +55,12 @@ export interface PublicShop {
   /** The free-trial window (0020), when one is recorded. */
   trialStartedAt: string | null;
   trialEndsAt: string | null;
+  /** Serving path of the shop's logo (0021); null = no logo, and
+   * every surface renders the clean initials placeholder. */
+  logoUrl: string | null;
+  /** Serving paths of the shop's gallery photos (0021), oldest
+   * first; filled by the profile reads, [] on a bare mapper call. */
+  galleryUrls: string[];
 }
 
 export interface PublicTowing {
@@ -71,6 +78,10 @@ export interface PublicTowing {
   rating: number;
   isVerified: boolean;
   plan: string;
+  /** Serving path of the company's logo (0021); null = none. */
+  logoUrl: string | null;
+  /** Serving paths of the company's gallery photos (0021). */
+  galleryUrls: string[];
 }
 
 export interface BusinessAuthResult {
@@ -156,6 +167,8 @@ export function publicShop(shop: ShopProfileRecord): PublicShop {
     plan: shop.plan,
     trialStartedAt: shop.trialStartedAt ?? null,
     trialEndsAt: shop.trialEndsAt ?? null,
+    logoUrl: shop.logoUploadId ? businessLogoUrl(shop.logoUploadId) : null,
+    galleryUrls: [],
   };
 }
 
@@ -175,7 +188,20 @@ export function publicTowing(towing: TowingProfileRecord): PublicTowing {
     rating: towing.rating,
     isVerified: towing.isVerified,
     plan: towing.plan,
+    logoUrl: towing.logoUploadId ? businessLogoUrl(towing.logoUploadId) : null,
+    galleryUrls: [],
   };
+}
+
+/** Fill a business DTO's gallery from the store (the mappers above
+ * are pure record→DTO; the gallery lives in its own table). */
+async function withGallery<T extends PublicShop | PublicTowing>(
+  store: AppStore,
+  dto: T,
+): Promise<T> {
+  const gallery = await store.listBusinessGallery(dto.id);
+  dto.galleryUrls = gallery.map((u) => businessLogoUrl(u.id));
+  return dto;
 }
 
 export async function registerBusiness(
@@ -294,12 +320,12 @@ export async function getBusinessProfile(
   if (payload.type === "shop") {
     const shop = await store.findShopProfileById(payload.id);
     if (!shop) throw new NotFoundError("Business account not found.");
-    return publicShop(shop);
+    return withGallery(store, publicShop(shop));
   }
   if (payload.type === "towing") {
     const towing = await store.findTowingProfileById(payload.id);
     if (!towing) throw new NotFoundError("Business account not found.");
-    return publicTowing(towing);
+    return withGallery(store, publicTowing(towing));
   }
   throw new ValidationError("This endpoint serves shop and towing accounts.");
 }
@@ -340,7 +366,7 @@ export async function updateBusinessProfile(
     }
     const updated = await store.updateShopProfile(payload.id, patch);
     if (!updated) throw new NotFoundError("Business account not found.");
-    return publicShop(updated);
+    return withGallery(store, publicShop(updated));
   }
   if (payload.type === "towing") {
     const patch: TowingPatch = {};
@@ -375,7 +401,7 @@ export async function updateBusinessProfile(
     }
     const updated = await store.updateTowingProfile(payload.id, patch);
     if (!updated) throw new NotFoundError("Business account not found.");
-    return publicTowing(updated);
+    return withGallery(store, publicTowing(updated));
   }
   throw new ValidationError("This endpoint serves shop and towing accounts.");
 }
