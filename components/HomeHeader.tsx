@@ -30,6 +30,12 @@ import { ThemeToggle } from "./ThemeToggle";
  * via its homepage section button); the shared Header keeps them
  * on every other page.
  *
+ * Conversion pass (2026-11-20, owner-approved audit): the nav is
+ * How It Works · Pricing · For Shops — Pricing and For Shops join
+ * the bar (the audit found Pricing missing from the homepage nav)
+ * and the "Safety" link leaves it (the /diagnose page it pointed
+ * to stays live and linked from the rest of the site).
+ *
  * The bar resolves the same global tokens as every other page
  * (design pass #7, 2026-11-16: one website — the light blue/white
  * set is the global default in globals.css; the homepage's old
@@ -71,8 +77,11 @@ export function HomeHeader() {
           <Link href="#how-it-works" className="transition-colors duration-150 hover:text-[#2563eb]">
             {t.header.navHowItWorks}
           </Link>
-          <Link href="/diagnose" className="transition-colors duration-150 hover:text-[#2563eb]">
-            {t.header.navSafety}
+          <Link href="/pricing" className="transition-colors duration-150 hover:text-[#2563eb]">
+            {t.header.navPricing}
+          </Link>
+          <Link href="/shops" className="transition-colors duration-150 hover:text-[#2563eb]">
+            {t.header.navShops}
           </Link>
         </nav>
 

@@ -433,7 +433,7 @@ export default function DiagnosePage() {
             <SavedVehicleField
               id="diag-vehicle"
               label={isShop ? "The car" : "Your car"}
-              placeholder="Year, make, and model"
+              placeholder="e.g. 2018 Honda Accord, 84,000 miles"
               otherOptionLabel="Other vehicle…"
               savedOptionLabel="Use a saved vehicle"
               value={vehicleInfo}
@@ -450,7 +450,7 @@ export default function DiagnosePage() {
               <textarea
                 id="diag-problem"
                 className="w-full rounded-xl border border-line bg-surface px-4 py-3 text-base leading-relaxed text-ink-1 placeholder:text-ink-3"
-                placeholder="Describe the noise, the light, the feeling — in your own words."
+                placeholder="e.g. Orange check-engine light, rough idle when cold, started yesterday"
                 rows={5}
                 value={problem}
                 onChange={(e) => setProblem(e.target.value)}
@@ -469,7 +469,7 @@ export default function DiagnosePage() {
               disabled={phase === "streaming" || phase === "loading"}
               className="h-14 w-full rounded-full bg-accent px-6 text-base font-semibold text-accent-ink disabled:opacity-60"
             >
-              {phase === "streaming" ? "Diagnosing…" : "Run diagnosis"}
+              {phase === "streaming" ? "Diagnosing…" : "Get my diagnosis"}
             </button>
             {phase === "streaming" && (
               <p className="text-center text-sm text-ink-2" role="status">

@@ -8,8 +8,9 @@ import { signIn } from "./helpers";
  * Real behaviour (verified in source — app/app/diagnose/page.tsx and
  * app/api/diagnose/route.ts):
  *   - Heading "Diagnose my car"; fields "Your car" and "What is
- *     happening?" (placeholder "Describe the noise, the light, the
- *     feeling — in your own words."); submit "Run diagnosis".
+ *     happening?" (placeholder "e.g. Orange check-engine light,
+ *     rough idle when cold, started yesterday"); submit "Get my
+ *     diagnosis" (conversion pass, 2026-11-20).
  *   - The free-diagnosis meter is rendered from the server quota BEFORE
  *     the form, as "<n> of 5 free diagnoses left" (role="status"), or
  *     "Pro plan — unlimited diagnoses." It must be visible either way.
@@ -49,7 +50,7 @@ test.describe("diagnosis", () => {
     await page
       .getByLabel("What is happening?")
       .fill("My brakes grind when I stop");
-    await page.getByRole("button", { name: "Run diagnosis" }).click();
+    await page.getByRole("button", { name: "Get my diagnosis" }).click();
 
     // Either outcome is acceptable — and only one of them may appear:
     // (a) a real report, or (b) the honest not-configured alert.

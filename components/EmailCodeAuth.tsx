@@ -212,6 +212,14 @@ export function EmailCodeAuth({
           <button type="submit" disabled={busy} className={primaryButton}>
             {busy ? t.auth.code.sending : t.auth.code.continueCta}
           </button>
+          {/* What happens next, stated before the tap (conversion
+              pass, 2026-11-20): the register door's own intro —
+              a one-time code by email, then a password, no card.
+              Register mode only; the login door keeps its own
+              copy. */}
+          {mode === "register" && (
+            <p className="text-sm leading-relaxed text-ink-3">{t.auth.code.registerIntro}</p>
+          )}
         </form>
       )}
 

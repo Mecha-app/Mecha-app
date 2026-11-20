@@ -19,6 +19,13 @@ function GlobeIcon() {
  * Launch locales EN/ES/FR/HT; the catalog framework (§2.2) makes locale #5+
  * a translation delivery, not an engineering project. The site states the
  * TRUE supported count — four at launch, growing honestly.
+ *
+ * The button shows the current locale's own name ONLY (conversion
+ * pass, 2026-11-20): it previously rendered the label and the code
+ * as two spans toggled by breakpoint, which text extraction (and
+ * the owner's conversion audit) read as one glued word — the
+ * label fused with its two-letter code. One span, one word, at
+ * every width.
  */
 export function LanguageSwitcher() {
   const { locale, setLocale, t } = useLocale();
@@ -46,8 +53,7 @@ export function LanguageSwitcher() {
         className="inline-flex h-12 items-center gap-1.5 rounded-full border border-line bg-surface px-3.5 text-[13px] font-medium text-ink-2 transition-colors duration-200 hover:text-ink-1 hover:border-ink-3"
       >
         <GlobeIcon />
-        <span className="hidden sm:inline">{current?.label}</span>
-        <span className="sm:hidden uppercase">{locale}</span>
+        <span>{current?.label}</span>
       </button>
       {open && (
         <ul

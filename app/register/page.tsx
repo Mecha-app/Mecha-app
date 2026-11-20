@@ -1,21 +1,26 @@
 "use client";
 
 import Link from "next/link";
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { SocialSignIn } from "@/components/SocialSignIn";
 import { EmailCodeAuth } from "@/components/EmailCodeAuth";
 import { MinimalTopBar } from "@/components/MinimalTopBar";
 import { saveSession } from "@/lib/client/auth";
+import { capturePlanIntentFromUrl, planIntentDestination } from "@/lib/client/planIntent";
 import { useLocale } from "@/lib/i18n/LocaleProvider";
 import { RETURN_TO_KEY } from "@/lib/server/scan";
 
 /**
  * Where a successful registration lands: the page that sent the
  * visitor here (e.g. /app/scan sets a return-to before bouncing to
- * sign-in) still wins — that flow had an intent. Otherwise the owner
- * ordered onboarding: land on "Add your first vehicle" (the vault add
- * form in welcome mode, with a clear Skip — never a trap). Only
- * in-app paths are honored, and the key is cleared on use.
+ * sign-in) still wins — that flow had an intent. Next, a plan
+ * intent from /pricing (conversion pass, 2026-11-20): the visitor
+ * picked Pro or a single diagnosis, so they land on the
+ * dashboard's billing card with that purchase highlighted.
+ * Otherwise the owner ordered onboarding: land on "Add your first
+ * vehicle" (the vault add form in welcome mode, with a clear
+ * Skip — never a trap). Only in-app paths are honored, and the
+ * key is cleared on use.
  */
 function postAuthDestination(): string {
   try {
@@ -25,6 +30,8 @@ function postAuthDestination(): string {
   } catch {
     // Private mode — default destination.
   }
+  const planTarget = planIntentDestination();
+  if (planTarget) return planTarget;
   return "/app/vault?welcome=1";
 }
 
@@ -53,6 +60,13 @@ function postAuthDestination(): string {
  */
 export default function RegisterPage() {
   const { t } = useLocale();
+
+  // A /pricing CTA may have carried the plan choice in the URL
+  // (?plan=pro / ?plan=single) — capture it before any door runs.
+  useEffect(() => {
+    capturePlanIntentFromUrl();
+  }, []);
+
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
@@ -121,8 +135,9 @@ export default function RegisterPage() {
       <MinimalTopBar />
       <main className="mx-auto w-full max-w-md px-4 py-10 sm:py-16">
         <h1 className="font-display text-3xl font-semibold tracking-[-0.01em] text-ink-1">
-          Create your account
+          {t.auth.register.headline}
         </h1>
+        <p className="mt-3 text-base leading-relaxed text-ink-2">{t.auth.register.freeSub}</p>
 
         <SocialSignIn />
 

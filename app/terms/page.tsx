@@ -15,7 +15,7 @@ export const metadata: Metadata = {
  */
 export default function TermsPage() {
   return (
-    <LegalShell title="Terms of Service" updated="Last updated: January 1, 2026">
+    <LegalShell title="Terms of Service" updated="Last updated: November 20, 2026">
       <LegalSection
         heading="1. Acceptance of Terms"
         paragraphs={[
@@ -73,7 +73,17 @@ export default function TermsPage() {
           "These terms are governed by Florida law. Disputes resolved in Miami-Dade County courts.",
         ]}
       />
-      <LegalSection heading="9. Contact" paragraphs={["Questions? Email legal@mechaai.com"]} />
+      <LegalSection
+        heading="9. Billing"
+        items={[
+          "MECHA Pro costs $9.99 per month. It renews monthly until you cancel.",
+          "You can cancel anytime from Billing in your dashboard. Your access continues until the end of the paid period.",
+          "Pro's 100 monthly diagnosis credits do not roll over — each new month starts a fresh 100.",
+          "A single diagnosis is a one-time $4 charge. It is not a subscription.",
+          "If a paid report doesn't help you, email support within 14 days and we'll refund it or credit your account.",
+        ]}
+      />
+      <LegalSection heading="10. Contact" paragraphs={["Questions? Email legal@mechaai.com"]} />
     </LegalShell>
   );
 }

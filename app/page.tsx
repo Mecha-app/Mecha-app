@@ -6,7 +6,6 @@ import { HomeDiagnosis } from "@/components/HomeDiagnosis";
 import { HomeFairPrice } from "@/components/HomeFairPrice";
 import { HomeFooter } from "@/components/HomeFooter";
 import { HomeHeader } from "@/components/HomeHeader";
-import { HomeMarketplace } from "@/components/HomeMarketplace";
 import { HomePlans } from "@/components/HomePlans";
 import { HomeReviews } from "@/components/HomeReviews";
 import { HomeShowcase } from "@/components/HomeShowcase";
@@ -175,6 +174,14 @@ import { HomeVault } from "@/components/HomeVault";
  * the data file), and HomeShowcase, an auto-passing carousel
  * reusing the product-in-use loop clips. The closing films
  * still end the page, directly above the footer.
+ *
+ * Conversion pass (2026-11-20, owner-approved audit): the
+ * Marketplace section leaves the homepage body — /marketplace
+ * has no listings yet, and promoting an empty marketplace
+ * costs trust at the exact moment a visitor decides. The
+ * HomeMarketplace component and the /marketplace route stay
+ * in the codebase untouched; the section returns here when
+ * the marketplace has real listings.
  */
 export default function HomePage() {
   return (
@@ -184,7 +191,6 @@ export default function HomePage() {
         <Hero />
         <HomeDemo />
         <HomeSteps />
-        <HomeMarketplace />
         <HomePlans />
         <HomeCompare />
         <HomeReviews />

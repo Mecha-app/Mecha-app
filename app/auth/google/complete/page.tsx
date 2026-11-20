@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { saveSession, type StoredUser } from "@/lib/client/auth";
+import { planIntentDestination } from "@/lib/client/planIntent";
 import { MinimalTopBar } from "@/components/MinimalTopBar";
 import { RETURN_TO_KEY } from "@/lib/server/scan";
 
@@ -59,6 +60,9 @@ export default function GoogleCompletePage() {
       } catch {
         // Private mode — default destination.
       }
+      // A plan intent from /pricing survives the Google round
+      // trip in localStorage (conversion pass, 2026-11-20).
+      if (target === "/app") target = planIntentDestination() ?? target;
       window.location.href = target;
     };
     const run = async () => {
@@ -92,6 +96,7 @@ export default function GoogleCompletePage() {
         } catch {
           // Private mode — default destination.
         }
+        if (target === "/app") target = planIntentDestination() ?? target;
         window.location.href = `/api/auth/google/establish?to=${encodeURIComponent(target)}`;
       } catch {
         fail();

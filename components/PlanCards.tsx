@@ -1,7 +1,12 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { useLocale } from "@/lib/i18n/LocaleProvider";
+import { apiFetch } from "@/lib/client/api";
+import { trackEvent } from "@/lib/client/analytics";
+import { getToken } from "@/lib/client/auth";
+import { savePlanIntent } from "@/lib/client/planIntent";
 
 /**
  * PlanCards — the ONE professional pricing presentation (design
@@ -25,6 +30,23 @@ import { useLocale } from "@/lib/i18n/LocaleProvider";
  * + the catalog's "Most popular" badge. Shops is the business
  * card, badged from its catalog entry. TRUE features only: the
  * points are the catalog's own, never invented here.
+ *
+ * Conversion pass (2026-11-20, owner-approved audit): the full
+ * variant gains the two things /pricing was missing —
+ *   - the one-problem line above the plans (pricing.singleLine)
+ *     and a proper SINGLE DIAGNOSIS block under them: the $4
+ *     one-time door, priced from the catalog (pricing.single),
+ *     whose button runs the SAME checkout the dashboard's billing
+ *     card runs (POST /api/payments/create-checkout, plan
+ *     "credit") for a signed-in driver, and sends a signed-out
+ *     visitor to /register?plan=single with the intent saved;
+ *   - plan intent on the Pro CTA: "Start Pro" records "pro"
+ *     (lib/client/planIntent) and lands a signed-in driver on
+ *     /app#billing, a signed-out visitor on /register?plan=pro —
+ *     either way the choice survives signup and the billing card
+ *     highlights the Pro upgrade.
+ * Pro also gains its subhead (pricing.pro.sub — who Pro is for)
+ * and its period now carries the cancel-anytime truth.
  */
 
 function CheckIcon() {
@@ -51,16 +73,45 @@ interface Plan {
   name: string;
   price: string;
   period: string;
+  sub?: string;
   badge?: string;
   points: string[];
   cta: string;
   href: string;
+  onCtaClick?: () => void;
   featured: boolean;
 }
 
 export function PlanCards({ variant = "full" }: { variant?: "full" | "compact" }) {
   const { t } = useLocale();
   const p = t.pricing;
+  const [signedIn, setSignedIn] = useState(false);
+  const [buyingSingle, setBuyingSingle] = useState(false);
+  const [singleError, setSingleError] = useState(false);
+
+  useEffect(() => {
+    setSignedIn(getToken() !== null);
+  }, []);
+
+  // The single-diagnosis door for a signed-in driver: the exact
+  // checkout the dashboard billing card starts (same route, same
+  // plan word, same funnel event) — /pricing never invents a
+  // second purchase path.
+  async function buySingle() {
+    setBuyingSingle(true);
+    setSingleError(false);
+    const res = await apiFetch<{ url: string }>("/api/payments/create-checkout", {
+      method: "POST",
+      body: JSON.stringify({ plan: "credit" }),
+    });
+    if (res.status === 200 && res.data.url) {
+      trackEvent("checkout_started", { product: "single_credit" });
+      window.location.href = res.data.url;
+      return;
+    }
+    setBuyingSingle(false);
+    setSingleError(true);
+  }
 
   const plans: Plan[] = [
     {
@@ -78,10 +129,12 @@ export function PlanCards({ variant = "full" }: { variant?: "full" | "compact" }
       name: p.pro.name,
       price: p.pro.price,
       period: p.pro.period,
+      sub: p.pro.sub,
       badge: p.popularBadge,
       points: [p.pro.point1, p.pro.point2, p.pro.point3, p.pro.point4],
       cta: p.pro.cta,
-      href: "/register",
+      href: signedIn ? "/app#billing" : "/register?plan=pro",
+      onCtaClick: () => savePlanIntent("pro"),
       featured: true,
     },
     {
@@ -99,6 +152,14 @@ export function PlanCards({ variant = "full" }: { variant?: "full" | "compact" }
 
   return (
     <>
+    {/* The one-problem line (conversion pass, 2026-11-20): most
+        visitors have ONE repair to check, not a subscription to
+        shop for — the free start is named before the plans. */}
+    {variant === "full" && (
+      <p className="mb-10 text-center font-display text-xl font-medium text-ink-1">
+        {p.singleLine}
+      </p>
+    )}
     <div className="grid gap-6 md:grid-cols-3">
       {plans.map((plan) => (
         <article
@@ -127,6 +188,9 @@ export function PlanCards({ variant = "full" }: { variant?: "full" | "compact" }
             </span>
             <span className="mt-1.5 block text-sm text-ink-3">{plan.period}</span>
           </p>
+          {plan.sub && (
+            <p className="mt-3 text-sm leading-relaxed text-ink-2">{plan.sub}</p>
+          )}
           <ul className="mt-6 flex-1 space-y-3">
             {(variant === "compact" ? plan.points.slice(0, 1) : plan.points).map((point) => (
               <li key={point} className="flex gap-2.5 text-sm leading-relaxed text-ink-2">
@@ -140,6 +204,7 @@ export function PlanCards({ variant = "full" }: { variant?: "full" | "compact" }
           {variant === "full" && (
             <Link
               href={plan.href}
+              onClick={plan.onCtaClick}
               className={
                 plan.featured
                   ? "mt-8 inline-flex h-12 items-center justify-center rounded-full bg-accent px-8 font-display text-base font-semibold text-accent-ink transition-colors duration-150 hover:bg-accent-bright"
@@ -152,11 +217,54 @@ export function PlanCards({ variant = "full" }: { variant?: "full" | "compact" }
         </article>
       ))}
     </div>
+    {/* The single-diagnosis block (conversion pass, 2026-11-20):
+        the one-time door, priced from the catalog like every
+        plan — it was previously named only in an FAQ with no
+        price and no way to buy it from this page. */}
+    {variant === "full" && (
+      <div className="mt-6 flex flex-col gap-6 rounded-2xl border border-line bg-surface p-7 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h3 className="font-display text-lg font-semibold text-ink-1">{p.single.name}</h3>
+          <p className="mt-2">
+            <span className="tnum font-display text-5xl font-semibold tracking-[-0.02em] text-ink-1">
+              {p.single.price}
+            </span>
+            <span className="mt-1.5 block text-sm text-ink-3">{p.single.period}</span>
+          </p>
+          <p className="mt-3 text-sm leading-relaxed text-ink-2">{p.single.tagline}</p>
+          {singleError && (
+            <p className="mt-3 text-sm text-ink-1" role="alert">
+              {t.wp6.common.somethingWrong}
+            </p>
+          )}
+        </div>
+        {signedIn ? (
+          <button
+            type="button"
+            onClick={() => void buySingle()}
+            disabled={buyingSingle}
+            className="inline-flex h-12 shrink-0 items-center justify-center rounded-full bg-accent px-8 font-display text-base font-semibold text-accent-ink transition-colors duration-150 hover:bg-accent-bright disabled:opacity-60"
+          >
+            {p.single.cta}
+          </button>
+        ) : (
+          <Link
+            href="/register?plan=single"
+            onClick={() => savePlanIntent("single")}
+            className="inline-flex h-12 shrink-0 items-center justify-center rounded-full bg-accent px-8 font-display text-base font-semibold text-accent-ink transition-colors duration-150 hover:bg-accent-bright"
+          >
+            {p.single.cta}
+          </Link>
+        )}
+      </div>
+    )}
     {/* The guarantee badge (Pass #20, the FIXD lesson) — full
-        variant only, one line under the plans. Honest "make it
-        right" language from the catalog (pricing.guarantee): a
-        standing offer to fix a paid report that didn't help, NOT a
-        formal refund policy with terms Frantz hasn't set. */}
+        variant only, one line under the plans. Wording is the
+        catalog's (pricing.guarantee): since the conversion pass
+        (2026-11-20) it states the owner's actual policy — email
+        support within 14 days for a refund or an account credit —
+        the same policy /terms now publishes in its Billing
+        section. */}
     {variant === "full" && (
       <p className="mt-8 text-center text-base leading-relaxed text-ink-2">
         <span className="font-semibold text-ink-1">{t.pricing.guaranteeLabel}</span>{" "}

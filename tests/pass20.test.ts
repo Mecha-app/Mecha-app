@@ -294,15 +294,21 @@ test("compat: photo/symptom/fair-price apply to any car; VIN data starts at 1996
 // 6 + 8. Copy pins — guarantee wording and the shops demand framing
 // ---------------------------------------------------------------------
 
-test("guarantee: honest make-it-right wording, no invented refund terms", () => {
+test("guarantee: the owner's set policy — 14 days, refund or credit (conversion pass, 2026-11-20)", () => {
   assert.equal(en.pricing.guaranteeLabel, "Our promise.");
+  // Pass #20 pinned "no invented refund terms" because Frantz had
+  // not set a policy. He has now (2026-11-20, via the approved
+  // conversion audit): the wording states the real policy, and
+  // /terms publishes the same terms in its Billing section.
   assert.equal(
     en.pricing.guarantee,
-    "If a paid report doesn't help you, tell us — we'll make it right.",
+    "If a paid report doesn't help you, email support within 14 days and we'll refund it or credit your account.",
   );
-  assert.ok(!/refund|money back|days/i.test(en.pricing.guarantee), "no policy terms Frantz hasn't set");
   const cards = readFileSync(join(process.cwd(), "components/PlanCards.tsx"), "utf8");
   assert.ok(cards.includes("pricing.guarantee"), "the badge renders from the catalog");
+  const terms = readFileSync(join(process.cwd(), "app/terms/page.tsx"), "utf8");
+  assert.ok(terms.includes("9. Billing"), "/terms carries the Billing section");
+  assert.ok(terms.includes("within 14 days"), "/terms states the same 14-day policy");
 });
 
 test("shops framing: drivers ready to act, settled credit model, no invented volumes", () => {

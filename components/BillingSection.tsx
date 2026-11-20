@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { apiDetail, apiFetch } from "@/lib/client/api";
+import { clearPlanIntent, readPlanIntent, type PlanIntent } from "@/lib/client/planIntent";
 import { trackEvent } from "@/lib/client/analytics";
 import { useLocale } from "@/lib/i18n/LocaleProvider";
 
@@ -127,6 +128,21 @@ export function BillingSection({
   const [unavailable, setUnavailable] = useState(false);
   const [busy, setBusy] = useState<"portal" | "checkout" | "credit" | null>(null);
   const [error, setError] = useState<string | null>(null);
+  // Plan intent (conversion pass, 2026-11-20): a /pricing CTA
+  // choice that survived signup. Read once on mount, cleared
+  // immediately, and used only to highlight the matching purchase
+  // card below + bring this section into view — the purchase
+  // itself still takes the visitor's own tap here.
+  const [intent, setIntent] = useState<PlanIntent | null>(null);
+
+  useEffect(() => {
+    const pending = readPlanIntent();
+    if (pending) {
+      clearPlanIntent();
+      setIntent(pending);
+      document.getElementById("billing")?.scrollIntoView({ block: "start" });
+    }
+  }, []);
 
   useEffect(() => {
     void (async () => {
@@ -364,7 +380,11 @@ export function BillingSection({
         {!unavailable && view && (kind === "driver" || view.hasBillingAccount || upgrade) && (
           <div className="mt-7 border-t border-line pt-7">
             {upgrade && (
-              <div className="rounded-2xl border-2 border-accent bg-inset p-6">
+              <div
+                className={`rounded-2xl border-2 border-accent bg-inset p-6 ${
+                  intent === "pro" ? "ring-2 ring-accent ring-offset-2" : ""
+                }`}
+              >
                 <p className="font-display text-lg font-semibold text-ink-1">{upgrade.name}</p>
                 <p className="mt-1 text-sm text-ink-3">{upgrade.badge}</p>
                 <p className="mt-4">
@@ -387,7 +407,9 @@ export function BillingSection({
 
             {kind === "driver" && (
               <div
-                className={`rounded-2xl border border-line bg-inset p-6 ${upgrade ? "mt-5" : ""}`}
+                className={`rounded-2xl border border-line bg-inset p-6 ${upgrade ? "mt-5" : ""} ${
+                  intent === "single" ? "ring-2 ring-accent ring-offset-2" : ""
+                }`}
               >
                 <p className="font-display text-lg font-semibold text-ink-1">
                   {t.pricing.single.name}

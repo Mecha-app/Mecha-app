@@ -6,6 +6,7 @@ import { SocialSignIn } from "@/components/SocialSignIn";
 import { EmailCodeAuth } from "@/components/EmailCodeAuth";
 import { MinimalTopBar } from "@/components/MinimalTopBar";
 import { saveSession } from "@/lib/client/auth";
+import { capturePlanIntentFromUrl, planIntentDestination } from "@/lib/client/planIntent";
 import { useLocale } from "@/lib/i18n/LocaleProvider";
 import { RETURN_TO_KEY } from "@/lib/server/scan";
 
@@ -25,6 +26,10 @@ function postAuthDestination(): string {
   } catch {
     // Private mode — default destination.
   }
+  // A plan intent from /pricing (conversion pass, 2026-11-20)
+  // beats the plain dashboard: the billing card, highlighted.
+  const planTarget = planIntentDestination();
+  if (planTarget) return planTarget;
   return "/app";
 }
 
@@ -52,6 +57,8 @@ export default function LoginPage() {
   // (the callback deliberately carries no provider detail) — show the
   // one generic, honest message.
   useEffect(() => {
+    // A /pricing CTA may have carried the plan choice in the URL.
+    capturePlanIntentFromUrl();
     try {
       const params = new URLSearchParams(window.location.search);
       if (params.get("error") === "google") setGoogleFailed(true);

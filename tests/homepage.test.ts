@@ -18,20 +18,24 @@
  *     page-scoped token override is gone — one website, no
  *     page-scoped hacks; theme.test.ts pins the unification).
  *   - HomeHeader: the WHITE bar — MECHA lockup (unchanged), the
- *     nav CENTERED — exactly "How It Works" (anchor to the steps
- *     section) + "Safety" → /diagnose, per the owner's third
- *     reference — Sign in + the blue "Start Free" pill → /register
+ *     nav CENTERED — "How It Works" (anchor to the steps section)
+ *     + Pricing + For Shops (conversion pass, 2026-11-20: the
+ *     audit found Pricing missing and the "Safety" link crowding
+ *     the bar; /diagnose stays live, linked elsewhere) — Sign in
+ *     + the blue "Start Free" pill → /register
  *     (signed out) / Open app + Run a diagnosis (signed in). The
  *     shared Header is NOT on home.
  *   - Hero: ONE full-screen photo (the generated sunrise road,
  *     a local asset), centered eyebrow "Drive with confidence."
  *     (pass #13, 2026-11-16: the owner replaced the old domain
- *     eyebrow — visitors are already on the site), the headline
- *     "Your AI mechanic copilot.", ONE subline — our brand line,
- *     NOT the reference's "Know what to do next" — and exactly two
- *     buttons: blue "Start a free diagnosis" (account-first, the
- *     pass #4 gate behavior) + outline "See how it works"
- *     → /diagnose.
+ *     eyebrow — visitors are already on the site), the outcome
+ *     headline "Know what's wrong with your car — and what the
+ *     repair should cost.", the supporting copy (hero.sub), and
+ *     exactly ONE filled button: blue "Diagnose my car free"
+ *     (account-first, the pass #4 gate behavior); the sample
+ *     report is a text link under it and the microcopy line
+ *     (free account · no card · informational only) closes the
+ *     block (conversion pass, 2026-11-20).
  *   - HomeSteps: #2's treatment — "Three simple steps." + three
  *     numbered steps, bold title + ONE short line each, on white.
  *   - Pass #6 Audi-length sections (the shared HomeFeature shape:
@@ -43,9 +47,9 @@
  *       HomeScan — warning-light loop → /scan.
  *       HomeVault — roadside loop → /register (the line states
  *         the live NHTSA truth only).
- *       HomeMarketplace — the generated car-for-sale photo
- *         → /marketplace (the line states the shipped
- *         guided-photo truth only).
+ *       HomeMarketplace — OFF the homepage since the conversion
+ *         pass (2026-11-20): /marketplace has no listings yet;
+ *         the component and route stay in the codebase.
  *       HomePlans — the shared pricing cards (pass #8: the
  *         compact PlanCards, the same cards /pricing renders),
  *         every string reused from the pricing catalog, one
@@ -102,7 +106,6 @@ const SECTIONS = [
   "<Hero",
   "<HomeDemo",
   "<HomeSteps",
-  "<HomeMarketplace",
   "<HomePlans",
   "<HomeCompare",
   "<HomeReviews",
@@ -116,7 +119,7 @@ const SECTIONS = [
   "<HomeFooter",
 ];
 
-test("homepage composition: header, hero, demo, steps, marketplace, plans, compare, reviews, showcase, blue band, the film sections at the end, minimal footer — nothing else", () => {
+test("homepage composition: header, hero, demo, steps, plans, compare, reviews, showcase, blue band, the film sections at the end, minimal footer — nothing else (marketplace section hidden, conversion pass 2026-11-20)", () => {
   const page = read("app/page.tsx");
   for (const shell of SECTIONS) {
     assert.ok(page.includes(shell), `homepage renders ${shell}`);
@@ -175,20 +178,25 @@ test("home header: white bar — wordmark, centered routes, Sign in + blue Start
   assert.ok(header.includes("<LogoLockup"), "the wordmark lockup leads");
   assert.ok(header.includes("bg-surface"), "the bar is the light surface (white — the global default since pass #7)");
   assert.ok(header.includes("grid-cols-[1fr_auto_1fr]"), "the three-column grid centers the nav");
-  // Owner's third reference: exactly How It Works + Safety in the
-  // nav — How It Works anchors to the steps section on this page,
-  // Safety goes to /diagnose (safety guidance lives in results).
+  // Conversion pass (2026-11-20, owner-approved audit): the nav
+  // is How It Works + Pricing + For Shops — How It Works anchors
+  // to the steps section on this page; Pricing and For Shops are
+  // real routes the audit found missing from the homepage nav.
   assert.ok(
     header.includes('href="#how-it-works"') && header.includes("t.header.navHowItWorks"),
     "nav carries How It Works → the steps anchor",
   );
   assert.ok(
-    header.includes('href="/diagnose"') && header.includes("t.header.navSafety"),
-    "nav carries Safety → /diagnose",
+    header.includes('href="/pricing"') && header.includes("t.header.navPricing"),
+    "nav carries Pricing → /pricing",
   );
-  // The Diagnose / Pricing / For shops links left this bar (they
-  // remain on the shared Header and reachable elsewhere).
-  for (const gone of ['href="/pricing"', 'href="/shops"', "t.header.navDiagnose", "t.header.navPricing", "t.header.navShops"]) {
+  assert.ok(
+    header.includes('href="/shops"') && header.includes("t.header.navShops"),
+    "nav carries For Shops → /shops",
+  );
+  // The Safety link left this bar (the /diagnose page it pointed
+  // to stays live elsewhere); the Diagnose link stays off it too.
+  for (const gone of ["t.header.navSafety", "t.header.navDiagnose"]) {
     assert.ok(!header.includes(gone), `home header no longer carries ${gone}`);
   }
   // Signed out: Sign in + the blue Start Free pill to /register.
@@ -212,29 +220,32 @@ test("home header: white bar — wordmark, centered routes, Sign in + blue Start
   assert.ok(!header.includes("crosshatch"), "no texture on the home bar");
 });
 
-test("hero: one full-screen photo, centered eyebrow + copilot headline + brand subline, exactly two buttons", () => {
+test("hero: one full-screen photo, centered eyebrow + outcome headline + supporting copy, exactly ONE filled button (conversion pass, 2026-11-20)", () => {
   const hero = read("components/Hero.tsx");
   assert.ok(hero.includes('src="/images/hero-road.jpg"'), "the generated road photo is the hero visual");
   assert.ok(existsSync(join(root, "public/images/hero-road.jpg")), "the hero photo ships as a local asset");
   assert.ok(hero.includes("min-h-[calc(100svh-4rem)]"), "the hero fills the screen under the bar");
   assert.ok(hero.includes("Drive with confidence."), "the eyebrow tagline (an owner-set literal, pass #13)");
   assert.ok(!hero.includes("MECHATECH.IO"), "the old domain eyebrow is gone (pass #13)");
-  assert.ok(hero.includes("t.hero.copilotTitle"), "the headline is Your AI mechanic copilot.");
+  assert.ok(hero.includes("t.hero.copilotTitle"), "the headline is the outcome line (catalog: hero.copilotTitle)");
   assert.ok(
-    hero.includes("t.hero.titleLine1") && hero.includes("t.hero.titleLine2"),
-    "the one subline is our brand line — Know what's wrong. Know what it should cost.",
+    hero.includes("t.hero.sub"),
+    "the supporting copy is hero.sub — what you do, what you get, 5 free / no card",
   );
-  // Primary: Start a free diagnosis → /app/diagnose, with the
+  // Primary: Diagnose my car free → /app/diagnose, with the
   // account-first return-to saved for signed-out visitors (the
   // diagnosis gate, pass #4 behavior).
   assert.ok(hero.includes('href="/app/diagnose"'), "primary targets the diagnosis");
-  assert.ok(hero.includes("t.hero.startFreeCta"), "primary label is Start a free diagnosis");
+  assert.ok(hero.includes("t.hero.startFreeCta"), "primary label is Diagnose my car free");
   assert.ok(hero.includes("bg-[#2563eb]"), "primary is the reference blue");
   assert.ok(hero.includes("RETURN_TO_KEY"), "signed-out clicks save the return-to");
   assert.ok(hero.includes("getToken()"), "the return-to is saved only when signed out");
-  // Secondary: See how it works → /diagnose.
-  assert.ok(hero.includes('href="/diagnose"'), "secondary targets /diagnose");
-  assert.ok(hero.includes("t.hero.howCta"), "secondary label is See how it works");
+  // ONE path: the "See how it works" button is gone; the sample
+  // report is a text link, and the microcopy line closes the
+  // block (free account · no card · informational only).
+  assert.ok(!hero.includes("t.hero.howCta"), "the See how it works button left the hero");
+  assert.ok(hero.includes('href="/demo"') && hero.includes("t.hero.demoCta"), "the sample report is a text link to /demo");
+  assert.ok(hero.includes("t.hero.microcopy"), "the microcopy line renders under the actions");
   // The old hero machinery is gone from the hero.
   assert.ok(!hero.includes("LoopClip"), "the hero loop left the hero — the photo carries it");
   assert.ok(!hero.includes("t.hero.pricingCta"), "the pricing CTA left the hero");
@@ -280,7 +291,7 @@ test("home diagnosis: mechanic loop, the hero primary as its button", () => {
   const s = read("components/HomeDiagnosis.tsx");
   assert.ok(s.includes('loop="mechanic"'), "the diagnosis-shown-to-a-mechanic loop is the visual");
   assert.ok(s.includes("t.hero.diagTitle") && s.includes("t.hero.diagLine"), "headline + one line from the catalog");
-  assert.ok(s.includes("t.hero.startFreeCta"), "the button label is Start a free diagnosis");
+  assert.ok(s.includes("t.hero.startFreeCta"), "the button label is Diagnose my car free");
   assert.ok(s.includes('href="/app/diagnose"'), "the button targets the diagnosis");
   assert.ok(s.includes("gate"), "the button carries the account-first gate behavior");
 });

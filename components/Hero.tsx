@@ -23,6 +23,18 @@ import { RETURN_TO_KEY } from "@/lib/server/scan";
  * a free diagnosis" and the white/outline "See how it works"
  * → /diagnose.
  *
+ * Conversion pass (2026-11-20, owner-approved audit): ONE path.
+ * The headline is now the outcome ("Know what's wrong with your
+ * car — and what the repair should cost.", hero.copilotTitle),
+ * the subline is the audit's supporting copy (hero.sub: what you
+ * do, what you get, 5 free / no card), and there is exactly ONE
+ * filled button — "Diagnose my car free" (hero.startFreeCta).
+ * The "See how it works" button is GONE (the three steps sit
+ * right below the hero); "See a sample report first"
+ * (hero.demoCta) stays as the quiet text link under it, and the
+ * microcopy line (hero.microcopy) closes the block: free account,
+ * no card, informational only.
+ *
  * The primary keeps pass #4's behavior: signed in it lands on
  * /app/diagnose directly; signed out, the click saves the
  * return-to (the /app/scan pattern) so the diagnosis account gate's
@@ -68,8 +80,8 @@ export function Hero() {
         <h1 className="mx-auto mt-5 max-w-4xl font-display text-[clamp(2.6rem,6vw,4.75rem)] font-semibold leading-[1.05] tracking-[-0.02em] text-white">
           {t.hero.copilotTitle}
         </h1>
-        <p className="mt-5 text-lg text-white/90 sm:text-xl">
-          {t.hero.titleLine1} {t.hero.titleLine2}
+        <p className="mt-5 max-w-2xl text-lg text-white/90 sm:text-xl">
+          {t.hero.sub}
         </p>
 
         <div className="mt-9 flex flex-wrap items-center justify-center gap-3.5">
@@ -80,23 +92,21 @@ export function Hero() {
           >
             {t.hero.startFreeCta}
           </Link>
-          <Link
-            href="/diagnose"
-            className="inline-flex h-[52px] items-center rounded-lg border border-white/70 px-8 font-display text-base font-medium text-white transition-colors duration-150 hover:bg-white/10"
-          >
-            {t.hero.howCta}
-          </Link>
         </div>
 
-        {/* Pass #19 (owner order): the guided demo, reachable
-            from the hero — a quiet text link under the two
-            buttons, not a third button. */}
+        {/* The sample report is a text link, not a second button
+            (conversion pass, 2026-11-20) — one filled action above
+            the fold; the demo stays one tap away for the curious. */}
         <Link
           href="/demo"
           className="mt-6 text-[15px] font-medium text-white/85 underline decoration-white/50 underline-offset-4 transition-colors hover:text-white"
         >
           {t.hero.demoCta}
         </Link>
+
+        <p className="mt-5 max-w-xl text-[13px] leading-relaxed text-white/70">
+          {t.hero.microcopy}
+        </p>
       </div>
     </section>
   );
