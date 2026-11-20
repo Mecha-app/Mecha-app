@@ -4,7 +4,10 @@ import type { ReactNode } from "react";
 import { AnalyticsScripts } from "@/components/AnalyticsScripts";
 import { CookieConsent } from "@/components/CookieConsent";
 import NativeShell from "@/components/NativeShell";
-import { PwaInstall } from "@/components/PwaInstall";
+// PAUSED by owner order 2026-11-20: the install hint bar is not
+// mounted (see the mount site below). Re-enable = restore this
+// import and the <PwaInstall /> mount.
+// import { PwaInstall } from "@/components/PwaInstall";
 import { ServiceWorkerRegister } from "@/components/ServiceWorkerRegister";
 import { ThemeScript } from "@/components/ThemeScript";
 import { analyticsConfig } from "@/lib/analytics";
@@ -127,14 +130,17 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
               footer's Cookie settings link). Inside the provider so
               its strings follow the reader's language. */}
           <CookieConsent />
-          {/* Home-screen install hint (PWA install pass, 2026-11-20):
-              a slim bottom bar for engaged mobile visitors who can
-              add MECHA to their home screen — Android gets the real
-              install prompt, iOS Safari gets the Share → Add to
-              Home Screen line. Gated inside the component (second
-              view, consent settled, dismissal cooldown); renders
-              nothing otherwise. */}
+          {/* Home-screen install hint — PAUSED by owner order
+              2026-11-20 ("too much distraction on the website right
+              now, it's still not working"): the bar is NOT mounted,
+              so it never renders. The component
+              (components/PwaInstall.tsx) and the rest of the PWA
+              setup (manifest, icons, service worker) stay in place —
+              visitors can still add MECHA via Share → Add to Home
+              Screen manually. RE-ENABLE: uncomment the PwaInstall
+              import at the top of this file and the mount below.
           <PwaInstall />
+          */}
         </LocaleProvider>
         {/* Consent-gated analytics mount (2026-11-19): renders the
             client gate only when the env carries analytics ids; the

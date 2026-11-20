@@ -46,5 +46,5 @@
     "typecheck": "tsc --noEmit",
     "test:e2e": "playwright test"
   },
-  "version": "0.4.51-pwa-install-fix"
+  "version": "0.4.52-pwa-hint-paused"
 }

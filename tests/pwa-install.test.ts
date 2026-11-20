@@ -145,7 +145,21 @@ test("install hint: three surfaces, every gate, dismissal remembered", () => {
   // and the bar renders transparent. The bar must stay opaque.
   assert.ok(hint.includes("bg-surface px-4"), "the bar uses the opaque surface token");
   assert.ok(!hint.includes("bg-surface/"), "no alpha-variant surface class (it cannot compile)");
-  assert.ok(read("app/layout.tsx").includes("<PwaInstall />"), "the layout mounts the hint");
+  // PAUSED by owner order 2026-11-20: the component stays in the
+  // repo (everything above still pins its behavior), but the
+  // layout must not mount it — the import is commented out and
+  // the pause is recorded at the mount site. Re-enabling the bar
+  // means restoring the import + mount AND this assertion.
+  const layoutSrc = read("app/layout.tsx");
+  assert.ok(
+    layoutSrc.includes('// import { PwaInstall } from "@/components/PwaInstall";'),
+    "the hint import is commented out while paused",
+  );
+  assert.ok(
+    !layoutSrc.includes('\nimport { PwaInstall } from "@/components/PwaInstall";'),
+    "no active hint import while paused",
+  );
+  assert.ok(layoutSrc.includes("PAUSED by owner order"), "the layout records the pause");
 });
 
 test("install hint: no dead button — iOS guides teach, they never pretend", () => {
