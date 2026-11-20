@@ -71,6 +71,13 @@ test("manifest: installable, MECHA-named, returning users land on /app", () => {
     assert.deepEqual(pngSize(rel), { width: w, height: h }, `${icon.src} is really ${icon.sizes}`);
   }
   assert.deepEqual(pngSize("public/apple-touch-icon.png"), { width: 180, height: 180 });
+  // Safari keys standalone chrome on the apple-prefixed capable
+  // tag; Next renders appleWebApp under the standard name only, so
+  // the layout ships the prefixed one explicitly.
+  assert.ok(
+    read("app/layout.tsx").includes('<meta name="apple-mobile-web-app-capable" content="yes" />'),
+    "the apple-prefixed capable meta ships in the layout head",
+  );
 });
 
 test("service worker: static install assets only, never /api or pages", () => {

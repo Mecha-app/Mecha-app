@@ -113,6 +113,11 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
     >
       <head>
         <ThemeScript />
+        {/* iOS standalone chrome (PWA install pass, 2026-11-20):
+            Next renders appleWebApp.capable under the standard
+            mobile-web-app-capable name; Safari still keys on the
+            apple-prefixed tag, so it ships explicitly here. */}
+        <meta name="apple-mobile-web-app-capable" content="yes" />
       </head>
       <body>
         <LocaleProvider>
