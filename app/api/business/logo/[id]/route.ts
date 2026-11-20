@@ -20,6 +20,9 @@ export async function GET(
 ) {
   const { id } = await params;
   try {
+    if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)) {
+      throw new NotFoundError("That photo does not exist.");
+    }
     const upload = await getAppStore().getBusinessUpload(id);
     if (!upload) throw new NotFoundError("That photo does not exist.");
     return new Response(new Uint8Array(upload.data), {

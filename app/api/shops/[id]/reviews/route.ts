@@ -32,6 +32,12 @@ export async function POST(
   const auth = requireAuth(request, ["driver"]);
   if ("response" in auth) return auth.response;
   const { id } = await params;
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)) {
+    return NextResponse.json(
+      { status: "error", error: "not_found", detail: "That shop does not exist." },
+      { status: 404 },
+    );
+  }
   let body;
   try {
     body = await readJsonBody(request);

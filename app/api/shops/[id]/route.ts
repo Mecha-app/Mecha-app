@@ -26,6 +26,11 @@ export async function GET(
 ) {
   const { id } = await params;
   try {
+    // Ids are uuids; anything else is simply "not found" (asking
+    // Postgres would surface a type error instead of an empty row).
+    if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)) {
+      throw new NotFoundError("That business does not exist.");
+    }
     const store = getAppStore();
     const profile = await getPublicBusinessProfile(store, id);
     if (!profile) throw new NotFoundError("That business does not exist.");
