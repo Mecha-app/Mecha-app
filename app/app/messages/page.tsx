@@ -1,11 +1,17 @@
 "use client";
 
-import { useCallback, useEffect, useState, type FormEvent } from "react";
+import { useCallback, useEffect, useRef, useState, type FormEvent } from "react";
 import { AppNav } from "@/components/AppNav";
 import { apiDetail, apiFetch } from "@/lib/client/api";
 import { getStoredUser, getToken } from "@/lib/client/auth";
 import { useLocale } from "@/lib/i18n/LocaleProvider";
 import { RETURN_TO_KEY } from "@/lib/server/scan";
+import {
+  mergeThreadMessages,
+  THREAD_LIST_POLL_MS,
+  THREAD_POLL_MS,
+  TYPING_PING_MS,
+} from "@/lib/threadLive";
 
 /**
  * /app/messages — driver ↔ shop conversations (WP6). The thread is
@@ -13,6 +19,14 @@ import { RETURN_TO_KEY } from "@/lib/server/scan";
  * A driver arriving from a nearby-shop card (?shopId=…) lands
  * straight in that thread, even before the first message exists.
  * Shops see their customer threads with the same screen.
+ *
+ * LIVE (owner order 2026-11-20): the screen polls — the open
+ * thread re-reads every few seconds so the other side's messages
+ * appear on their own (merged by id, never duplicated or
+ * reordered), the thread list refreshes on a slower beat, and the
+ * composer heartbeats a typing signal while it holds unsent text
+ * so the other side sees a "typing…" indicator. No socket — the
+ * codebase's request-based design, tightened to seconds.
  */
 
 interface Thread {
@@ -31,6 +45,17 @@ interface Message {
   createdAt: string;
 }
 
+/** Tell the nav badge to re-read its count (it lives outside this
+ * page's tree state; the hook listens for this event). */
+function refreshBadge() {
+  try {
+    window.dispatchEvent(new Event("mecha:unread-refresh"));
+  } catch {
+    // No window (never in this client page) — the badge also
+    // refreshes on every navigation regardless.
+  }
+}
+
 export default function MessagesPage() {
   const { t } = useLocale();
   const m = t.wp6.messages;
@@ -40,24 +65,98 @@ export default function MessagesPage() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [draft, setDraft] = useState("");
   const [error, setError] = useState("");
+  const [counterpartTyping, setCounterpartTyping] = useState(false);
+  // Refs mirror the open thread so the poll intervals always read
+  // the CURRENT conversation, never a stale closure.
+  const openRef = useRef(open);
+  openRef.current = open;
+  const isShopRef = useRef(isShop);
+  isShopRef.current = isShop;
 
   const loadThreads = useCallback(async () => {
     const res = await apiFetch<{ threads: Thread[] }>("/api/messages");
     if (res.status === 200) setThreads(res.data.threads);
   }, []);
 
+  const threadQuery = useCallback((userId: string, shopId: string, shop: boolean) => {
+    return shop
+      ? `userId=${encodeURIComponent(userId)}`
+      : `shopId=${encodeURIComponent(shopId)}`;
+  }, []);
+
   const openThread = useCallback(
     async (userId: string, shopId: string, name: string) => {
       setOpen({ userId, shopId, name });
-      const qs = isShop
-        ? `userId=${encodeURIComponent(userId)}`
-        : `shopId=${encodeURIComponent(shopId)}`;
-      const res = await apiFetch<{ messages: Message[] }>(`/api/messages/thread?${qs}`);
-      if (res.status === 200) setMessages(res.data.messages);
-      else setMessages([]);
+      setCounterpartTyping(false);
+      const res = await apiFetch<{ messages: Message[]; counterpartTyping?: boolean }>(
+        `/api/messages/thread?${threadQuery(userId, shopId, isShop)}`,
+      );
+      if (res.status === 200) {
+        setMessages(res.data.messages);
+        setCounterpartTyping(Boolean(res.data.counterpartTyping));
+      } else setMessages([]);
+      // Opening marked the thread read server-side — the badge
+      // count just dropped; have the nav re-read it now.
+      refreshBadge();
     },
-    [isShop],
+    [isShop, threadQuery],
   );
+
+  // Live thread poll: while a conversation is open, re-read it on
+  // the THREAD_POLL_MS beat and merge by id — the other side's new
+  // messages appear without a refresh, and nothing duplicates or
+  // reorders. Paused while the tab is hidden.
+  useEffect(() => {
+    if (!open) return;
+    const id = window.setInterval(() => {
+      if (document.hidden) return;
+      const current = openRef.current;
+      if (!current) return;
+      void (async () => {
+        const res = await apiFetch<{ messages: Message[]; counterpartTyping?: boolean }>(
+          `/api/messages/thread?${threadQuery(current.userId, current.shopId, isShopRef.current)}`,
+        );
+        if (res.status !== 200) return;
+        if (!openRef.current) return;
+        setMessages((prev) => mergeThreadMessages(prev, res.data.messages));
+        setCounterpartTyping(Boolean(res.data.counterpartTyping));
+      })();
+    }, THREAD_POLL_MS);
+    return () => window.clearInterval(id);
+  }, [open, threadQuery]);
+
+  // Live thread list: unread counts and last-message previews stay
+  // fresh while the screen is open (pairs with the nav badge).
+  useEffect(() => {
+    const id = window.setInterval(() => {
+      if (document.hidden) return;
+      void loadThreads();
+    }, THREAD_LIST_POLL_MS);
+    return () => window.clearInterval(id);
+  }, [loadThreads]);
+
+  // Typing heartbeat: while the composer holds unsent text in an
+  // open thread, ping on the TYPING_PING_MS beat (each ping buys a
+  // few seconds of "typing" on the other side). Clearing the
+  // composer or sending stops the pings; the last ping expires on
+  // its own.
+  const hasDraft = draft.trim().length > 0;
+  useEffect(() => {
+    if (!open || !hasDraft) return;
+    const ping = () => {
+      const current = openRef.current;
+      if (!current) return;
+      void apiFetch("/api/messages/typing", {
+        method: "POST",
+        body: JSON.stringify(
+          isShopRef.current ? { userId: current.userId } : { shopId: current.shopId },
+        ),
+      });
+    };
+    ping();
+    const id = window.setInterval(ping, TYPING_PING_MS);
+    return () => window.clearInterval(id);
+  }, [open, hasDraft]);
 
   useEffect(() => {
     if (!getToken()) {
@@ -200,6 +299,22 @@ export default function MessagesPage() {
                 );
               })}
             </ul>
+            {counterpartTyping && (
+              <p className="mt-3 flex items-center gap-2 text-sm text-ink-3" role="status">
+                <span className="flex items-center gap-1" aria-hidden="true">
+                  <span className="h-2 w-2 animate-pulse rounded-full bg-ink-3" />
+                  <span
+                    className="h-2 w-2 animate-pulse rounded-full bg-ink-3"
+                    style={{ animationDelay: "150ms" }}
+                  />
+                  <span
+                    className="h-2 w-2 animate-pulse rounded-full bg-ink-3"
+                    style={{ animationDelay: "300ms" }}
+                  />
+                </span>
+                {m.typing}
+              </p>
+            )}
             <form onSubmit={onSend} className="mt-5 flex gap-2" noValidate>
               <input
                 className="h-12 w-full rounded-xl border border-line bg-surface px-4 text-base text-ink-1 placeholder:text-ink-3"

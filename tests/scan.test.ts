@@ -349,3 +349,145 @@ test("route inventory: every internal href in the product maps to a real route",
   assert.ok(checked >= 30, `the sweep should examine a real inventory (saw ${checked})`);
   assert.deepEqual(failures, [], `dead links found:\n${failures.join("\n")}`);
 });
+
+/* ------------- Vehicle tab: add by details (2026-11-20) -------------
+ * Owner order: the VIN-first tab becomes a "Vehicle" tab whose
+ * PRIMARY door is a proper manual form — year, car brand, model,
+ * engine size, mileage — with the VIN kept as the second door. The
+ * manual path must land in the SAME records and the SAME diagnosis
+ * handoff as a decoded VIN; these tests pin the form math, the
+ * handoff parity, the save parity, and the page's structure. */
+
+import {
+  COMMON_MAKES,
+  OTHER_OPTION,
+  VEHICLE_YEARS,
+  isVehicleYear,
+  manualDiagnoseReady,
+  manualSaveReady,
+  parseMileageInput,
+  type ManualVehicleInput,
+} from "../lib/vehicleCatalog";
+import { MemoryAppStore } from "../lib/server/appStore";
+import { createVehicle, listVehicles } from "../lib/server/vehicleService";
+import enDict from "../lib/i18n/dictionaries/en";
+
+const CAMRY: ManualVehicleInput = {
+  year: "2019",
+  make: "Toyota",
+  model: "Camry",
+  engine: "2.5L",
+  mileage: "82,000",
+};
+
+test("vehicle catalog: mileage parsing mirrors the vault's rule", () => {
+  assert.equal(parseMileageInput("82,000"), 82000);
+  assert.equal(parseMileageInput("82000"), 82000);
+  assert.equal(parseMileageInput("0"), 0);
+  assert.equal(parseMileageInput(" 12 500 "), 12500);
+  assert.equal(parseMileageInput(""), null);
+  assert.equal(parseMileageInput("abc"), null);
+  assert.equal(parseMileageInput("-5"), null);
+  assert.equal(parseMileageInput("3000001"), null);
+});
+
+test("vehicle catalog: years and makes are sane option lists", () => {
+  assert.ok(isVehicleYear("2019"));
+  assert.ok(!isVehicleYear("99"));
+  assert.ok(!isVehicleYear("1800"));
+  assert.ok(!isVehicleYear("201A"));
+  const nextYear = String(new Date().getFullYear() + 1);
+  assert.equal(VEHICLE_YEARS[0], nextYear);
+  assert.ok(VEHICLE_YEARS.includes("1980"));
+  assert.ok(!VEHICLE_YEARS.includes("1979"));
+  for (const make of ["Ford", "Toyota", "Honda", "Chevrolet", "Nissan", "Jeep"]) {
+    assert.ok(COMMON_MAKES.includes(make), `/cars make ${make} is in the form list`);
+  }
+  assert.equal(new Set(COMMON_MAKES).size, COMMON_MAKES.length, "no duplicate makes");
+  assert.ok(OTHER_OPTION.length > 0);
+});
+
+test("manual form readiness: diagnose needs identity, save needs all five", () => {
+  assert.ok(manualDiagnoseReady(CAMRY));
+  assert.ok(manualSaveReady(CAMRY));
+  // Engine + mileage missing: diagnosable (the VIN handoff carries
+  // no mileage either) but NOT saveable — the vault requires them.
+  const noExtras = { ...CAMRY, engine: "", mileage: "" };
+  assert.ok(manualDiagnoseReady(noExtras));
+  assert.ok(!manualSaveReady(noExtras));
+  // No model: neither.
+  assert.ok(!manualDiagnoseReady({ ...CAMRY, model: " " }));
+  assert.ok(!manualSaveReady({ ...CAMRY, model: " " }));
+  // Bad year / bad mileage block their respective doors.
+  assert.ok(!manualDiagnoseReady({ ...CAMRY, year: "19" }));
+  assert.ok(!manualSaveReady({ ...CAMRY, mileage: "-1" }));
+  assert.ok(!manualSaveReady({ ...CAMRY, mileage: "many" }));
+});
+
+test("manual handoff parity: the details form builds the VIN path's prefill", () => {
+  // The exact object the page hands off for the sample vehicle —
+  // the same builder a decoded VIN feeds, so the diagnosis flow
+  // cannot tell the two doors apart.
+  const prefill = buildVinDiagnosisPrefill({
+    year: CAMRY.year,
+    make: CAMRY.make,
+    model: CAMRY.model,
+    engine: CAMRY.engine,
+  });
+  assert.equal(prefill.vehicleInfo, "2019 Toyota Camry (2.5L)");
+  assert.equal(prefill.problem, "");
+  const decodedPrefill = buildVinDiagnosisPrefill({
+    year: "2019",
+    make: "Toyota",
+    model: "Camry",
+    trim: null,
+    engine: "2.5L",
+  });
+  assert.equal(prefill.vehicleInfo, decodedPrefill.vehicleInfo);
+});
+
+test("manual save parity: the details form lands in the same vault record", async () => {
+  const store = new MemoryAppStore();
+  // The exact body the page posts for the sample vehicle.
+  const saved = await createVehicle(store, "driver-manual", {
+    year: CAMRY.year,
+    make: CAMRY.make,
+    model: CAMRY.model,
+    engine: CAMRY.engine,
+    mileage: parseMileageInput(CAMRY.mileage),
+  });
+  // The record carries the form's values as supplied — the same
+  // shape the VIN save path posts (decoded years are strings too).
+  assert.equal(String(saved.year), "2019");
+  assert.equal(saved.make, "Toyota");
+  assert.equal(saved.model, "Camry");
+  assert.equal(saved.engine, "2.5L");
+  assert.equal(saved.mileage, 82000);
+  const vault = await listVehicles(store, "driver-manual");
+  assert.equal(vault.length, 1);
+  assert.equal(vault[0].id, saved.id);
+});
+
+test("vehicle tab contract: details first, VIN second, tab renamed", () => {
+  const root = process.cwd();
+  const page = readFileSync(join(root, "app/app/scan/page.tsx"), "utf8");
+  // The tab label dictionary value is the rename.
+  assert.equal(enDict.scan.app.tabVin, "Vehicle");
+  // The manual form leads: its heading renders before the VIN door.
+  const detailsAt = page.indexOf("s.detailsHeading");
+  const vinDoorAt = page.indexOf("s.vinDoorHeading");
+  assert.ok(detailsAt > -1 && vinDoorAt > -1, "both doors are on the tab");
+  assert.ok(detailsAt < vinDoorAt, "add-by-details renders before add-by-VIN");
+  // The VIN door is a collapsed toggle; the decode flow survives.
+  assert.ok(page.includes("aria-expanded={vinOpen}"), "the VIN door is a toggle");
+  assert.ok(page.includes('"/api/vin/decode"'), "VIN decode is unchanged behind it");
+  // The form is built on the catalog + the vPIC cascade route.
+  assert.ok(page.includes("VEHICLE_YEARS") && page.includes("COMMON_MAKES"));
+  assert.ok(page.includes("COMMON_ENGINE_SIZES"));
+  assert.ok(page.includes("/api/vehicles/models"), "models cascade through the server route");
+  assert.ok(page.includes("manualDiagnoseReady") && page.includes("manualSaveReady"));
+  // Both saves post to the one vehicle record endpoint.
+  assert.ok((page.match(/"\/api\/vehicles"/g) ?? []).length >= 2, "manual + VIN saves share /api/vehicles");
+  // The photo and code tabs are untouched doors on the same page.
+  assert.ok(page.includes("s.tabPhoto") && page.includes("s.tabCode"));
+});

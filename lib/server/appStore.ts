@@ -524,6 +524,30 @@ export interface AppStore {
   listThreadsForUser(userId: string): Promise<ThreadSummary[]>;
   listThreadsForShop(shopId: string): Promise<ThreadSummary[]>;
   markThreadRead(userId: string, shopId: string, reader: MessageSender): Promise<void>;
+  /** Unread badge counts (owner order 2026-11-20): the total number
+   * of unread INCOMING messages across all of the reader's threads —
+   * for a driver, the shops' messages to them; for a shop, the
+   * drivers' messages to it. One number, kept in step with the
+   * per-thread unread the thread list already computes. */
+  countUnreadMessagesForUser(userId: string): Promise<number>;
+  countUnreadMessagesForShop(shopId: string): Promise<number>;
+  /** Typing heartbeat (live chat, owner order 2026-11-20): one
+   * expiring row per (driver, shop, side). setThreadTyping upserts
+   * the caller's expiry; getThreadTyping returns each side's
+   * current expiry ISO (or null) — the SERVICE decides who counts
+   * as typing by comparing against now, so the store stays a dumb
+   * record. Implementations fail soft: typing is a courtesy
+   * signal and must never break messaging. */
+  setThreadTyping(
+    userId: string,
+    shopId: string,
+    senderType: MessageSender,
+    expiresAt: string,
+  ): Promise<void>;
+  getThreadTyping(
+    userId: string,
+    shopId: string,
+  ): Promise<{ user: string | null; shop: string | null }>;
 }
 
 // ---------------------------------------------------------------------------
@@ -1721,6 +1745,67 @@ export class PgAppStore implements AppStore {
       [userId, shopId, senderToMark],
     );
   }
+
+  async countUnreadMessagesForUser(userId: string): Promise<number> {
+    const { rows } = await getPool().query<{ n: string | number }>(
+      `SELECT count(*) AS n FROM shop_messages
+        WHERE from_user_id = $1 AND sender_type = 'shop' AND NOT is_read`,
+      [userId],
+    );
+    return Number(rows[0]?.n) || 0;
+  }
+
+  async countUnreadMessagesForShop(shopId: string): Promise<number> {
+    const { rows } = await getPool().query<{ n: string | number }>(
+      `SELECT count(*) AS n FROM shop_messages
+        WHERE shop_id = $1 AND sender_type = 'user' AND NOT is_read`,
+      [shopId],
+    );
+    return Number(rows[0]?.n) || 0;
+  }
+
+  async setThreadTyping(
+    userId: string,
+    shopId: string,
+    senderType: MessageSender,
+    expiresAt: string,
+  ): Promise<void> {
+    // Fail soft until migration 0024 lands (and on any transient
+    // error): a typing ping must never surface as a messaging
+    // failure — the indicator simply doesn't light.
+    try {
+      await getPool().query(
+        `INSERT INTO thread_typing (from_user_id, shop_id, sender_type, expires_at)
+         VALUES ($1, $2, $3, $4)
+         ON CONFLICT (from_user_id, shop_id, sender_type)
+         DO UPDATE SET expires_at = EXCLUDED.expires_at`,
+        [userId, shopId, senderType, expiresAt],
+      );
+    } catch {
+      // Table not migrated yet — typing stays dark, messaging fine.
+    }
+  }
+
+  async getThreadTyping(
+    userId: string,
+    shopId: string,
+  ): Promise<{ user: string | null; shop: string | null }> {
+    try {
+      const { rows } = await getPool().query<{
+        sender_type: MessageSender;
+        expires_at: Date | string;
+      }>(
+        `SELECT sender_type, expires_at FROM thread_typing
+          WHERE from_user_id = $1 AND shop_id = $2`,
+        [userId, shopId],
+      );
+      const out: { user: string | null; shop: string | null } = { user: null, shop: null };
+      for (const r of rows) out[r.sender_type] = iso(r.expires_at);
+      return out;
+    } catch {
+      return { user: null, shop: null };
+    }
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -1739,6 +1824,7 @@ export class MemoryAppStore implements AppStore {
   readonly shops = new Map<string, ShopProfileRecord>();
   readonly towing = new Map<string, TowingProfileRecord>();
   readonly messages: MessageRecord[] = [];
+  readonly typing = new Map<string, { user?: string; shop?: string }>();
   readonly serviceMarks = new Map<string, ServiceMarkRecord>();
   private seq = 0;
 
@@ -2270,6 +2356,38 @@ export class MemoryAppStore implements AppStore {
         m.isRead = true;
       }
     }
+  }
+
+  async countUnreadMessagesForUser(userId: string): Promise<number> {
+    return this.messages.filter(
+      (m) => m.userId === userId && m.senderType === "shop" && !m.isRead,
+    ).length;
+  }
+
+  async countUnreadMessagesForShop(shopId: string): Promise<number> {
+    return this.messages.filter(
+      (m) => m.shopId === shopId && m.senderType === "user" && !m.isRead,
+    ).length;
+  }
+
+  async setThreadTyping(
+    userId: string,
+    shopId: string,
+    senderType: MessageSender,
+    expiresAt: string,
+  ): Promise<void> {
+    const key = `${userId}|${shopId}`;
+    const entry = this.typing.get(key) ?? {};
+    entry[senderType] = expiresAt;
+    this.typing.set(key, entry);
+  }
+
+  async getThreadTyping(
+    userId: string,
+    shopId: string,
+  ): Promise<{ user: string | null; shop: string | null }> {
+    const entry = this.typing.get(`${userId}|${shopId}`);
+    return { user: entry?.user ?? null, shop: entry?.shop ?? null };
   }
 }
 

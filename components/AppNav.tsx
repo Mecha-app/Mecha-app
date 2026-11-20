@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { clearSession } from "@/lib/client/auth";
 import { useLocale } from "@/lib/i18n/LocaleProvider";
 import { GaugeMMark } from "./Logo";
+import { UnreadBadge, useUnreadCount } from "./UnreadBadge";
 
 /**
  * App chrome for the signed-in surfaces (WP6): the Gauge M, the working
@@ -42,6 +43,10 @@ export function AppNav({
 }) {
   const { t } = useLocale();
   const router = useRouter();
+  // Unread-messages badge (owner order 2026-11-20): the Messages
+  // entry shows how many messages are waiting, so nobody has to
+  // open Messages to find out. Zero = no badge.
+  const unread = useUnreadCount();
 
   function signOut() {
     clearSession();
@@ -90,9 +95,15 @@ export function AppNav({
             <Link
               key={link.href}
               href={link.href}
+              aria-label={
+                link.href === "/app/messages" && unread > 0
+                  ? `${link.label} (${unread})`
+                  : undefined
+              }
               className="flex h-12 items-center px-0 text-base font-medium text-ink-2 hover:text-ink-1 md:px-3"
             >
               {link.label}
+              {link.href === "/app/messages" && <UnreadBadge count={unread} />}
             </Link>
           ))}
         </nav>

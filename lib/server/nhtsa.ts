@@ -272,6 +272,37 @@ export async function decodeVin(vin: string): Promise<VinDecode | null> {
   });
 }
 
+/** Model lists are published once per model year, like ratings. */
+const MODELS_TTL_MS = 24 * 60 * 60 * 1000;
+
+/**
+ * The model names vPIC carries for a (make, model year) — the
+ * cascade behind the manual add-a-vehicle form's model select
+ * (Scan redesign, 2026-11-20). Same honesty posture as every feed
+ * here: a slow or down vPIC degrades to null ("no list — type it")
+ * rather than failing the driver's form, and an empty list is a
+ * real answer (vPIC simply has nothing for that year+make), not
+ * an error. Names are de-duplicated and sorted for the select.
+ */
+export async function fetchModelsForMakeYear(
+  make: string,
+  year: string,
+): Promise<string[] | null> {
+  const makeKey = make.trim();
+  const yearKey = year.trim();
+  if (!makeKey || !/^(19|20)\d{2}$/.test(yearKey)) return null;
+  return cached(`models:${yearKey}:${makeKey.toUpperCase()}`, MODELS_TTL_MS, async () => {
+    const data = await fetchJson(
+      `https://vpic.nhtsa.dot.gov/api/vehicles/GetModelsForMakeYear/make/${encodeURIComponent(makeKey)}/modelyear/${encodeURIComponent(yearKey)}?format=json`,
+    );
+    if (!data) return null;
+    const names = rowsOf(data)
+      .map((row) => str(row.Model_Name))
+      .filter((name): name is string => name !== null);
+    return [...new Set(names)].sort((a, b) => a.localeCompare(b));
+  });
+}
+
 export async function fetchRecalls(input: {
   make: string;
   model: string;

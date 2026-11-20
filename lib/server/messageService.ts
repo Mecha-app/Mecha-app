@@ -32,18 +32,40 @@ export async function listThreads(
   throw new ForbiddenError("Messaging is between drivers and shops.");
 }
 
+/**
+ * The nav unread badge's number (owner order 2026-11-20): how many
+ * incoming messages are waiting, summed across every thread — so a
+ * person can SEE "you have messages" without opening Messages.
+ * Request-based like the rest of messaging: the nav asks on each
+ * page load; nothing is pushed.
+ */
+export async function countUnreadMessages(
+  store: AppStore,
+  payload: TokenPayload,
+): Promise<number> {
+  if (payload.type === "driver") return store.countUnreadMessagesForUser(payload.id);
+  if (payload.type === "shop") return store.countUnreadMessagesForShop(payload.id);
+  throw new ForbiddenError("Messaging is between drivers and shops.");
+}
+
 export async function getThread(
   store: AppStore,
   payload: TokenPayload,
   query: { shopId?: string | null; userId?: string | null },
-): Promise<{ messages: MessageRecord[]; userId: string; shopId: string }> {
+): Promise<{
+  messages: MessageRecord[];
+  userId: string;
+  shopId: string;
+  counterpartTyping: boolean;
+}> {
   if (payload.type === "driver") {
     const shopId = query.shopId ?? "";
     const shop = await store.findShopProfileById(shopId);
     if (!shop) throw new NotFoundError("Shop not found.");
     const messages = await store.listThreadMessages(payload.id, shopId);
     await store.markThreadRead(payload.id, shopId, "user");
-    return { messages, userId: payload.id, shopId };
+    const counterpartTyping = await isCounterpartTyping(store, payload, payload.id, shopId);
+    return { messages, userId: payload.id, shopId, counterpartTyping };
   }
   if (payload.type === "shop") {
     const userId = query.userId ?? "";
@@ -51,9 +73,67 @@ export async function getThread(
     const messages = await store.listThreadMessages(userId, payload.id);
     if (messages.length === 0) throw new NotFoundError("Conversation not found.");
     await store.markThreadRead(userId, payload.id, "shop");
-    return { messages, userId, shopId: payload.id };
+    const counterpartTyping = await isCounterpartTyping(store, payload, userId, payload.id);
+    return { messages, userId, shopId: payload.id, counterpartTyping };
   }
   throw new ForbiddenError("Messaging is between drivers and shops.");
+}
+
+// ---------------------------------------------------------------------------
+// Typing heartbeat (live chat, owner order 2026-11-20): while the
+// composer holds unsent text, the client pings every few seconds;
+// each ping extends the caller's expiry by TYPING_TTL_MS. The other
+// side's thread poll reads the expiry — in the future = typing.
+// Deliberately as loose as the rest of messaging: no socket, no
+// presence service, just one expiring row per side (migration
+// 0024). The clock is a parameter so tests can walk time.
+// ---------------------------------------------------------------------------
+
+export const TYPING_TTL_MS = 6000;
+
+export async function pingTyping(
+  store: AppStore,
+  users: IdentityStore,
+  payload: TokenPayload,
+  body: Record<string, unknown>,
+  now: Date = new Date(),
+): Promise<{ expiresAt: string }> {
+  const expiresAt = new Date(now.getTime() + TYPING_TTL_MS).toISOString();
+  if (payload.type === "driver") {
+    const shopId = typeof body.shopId === "string" ? body.shopId : "";
+    const shop = await store.findShopProfileById(shopId);
+    if (!shop) throw new NotFoundError("Shop not found.");
+    await store.setThreadTyping(payload.id, shopId, "user", expiresAt);
+    return { expiresAt };
+  }
+  if (payload.type === "shop") {
+    const userId = typeof body.userId === "string" ? body.userId : "";
+    if (!userId) throw new ValidationError('A "userId" is required to show typing.');
+    // Same guard as posting: an existing thread, or a real driver.
+    const existing = await store.listThreadMessages(userId, payload.id);
+    if (existing.length === 0) {
+      const user = await users.findUserById(userId);
+      if (!user) throw new NotFoundError("Driver not found.");
+    }
+    await store.setThreadTyping(userId, payload.id, "shop", expiresAt);
+    return { expiresAt };
+  }
+  throw new ForbiddenError("Messaging is between drivers and shops.");
+}
+
+/** Is the OTHER side of this thread inside its typing window? */
+export async function isCounterpartTyping(
+  store: AppStore,
+  payload: TokenPayload,
+  userId: string,
+  shopId: string,
+  now: Date = new Date(),
+): Promise<boolean> {
+  const typing = await store.getThreadTyping(userId, shopId);
+  const other = payload.type === "driver" ? typing.shop : typing.user;
+  if (!other) return false;
+  const expiry = Date.parse(other);
+  return Number.isFinite(expiry) && expiry > now.getTime();
 }
 
 export async function postMessage(

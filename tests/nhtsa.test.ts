@@ -543,3 +543,61 @@ test("fetchSafetyRatings: variant-filed vehicle resolves through sibling model n
     restoreFetch();
   }
 });
+
+/* ------------- Models for make+year (Scan redesign, 2026-11-20) -------------
+ * The manual add-a-vehicle form's model select cascades from vPIC's
+ * GetModelsForMakeYear. Contract: names de-duplicated + sorted; an
+ * empty Results is a REAL empty list (the form falls back to free
+ * entry); a network failure degrades to null, never a throw; bad
+ * inputs never reach the network. */
+
+import { fetchModelsForMakeYear } from "../lib/server/nhtsa";
+
+const MODELS_FIXTURE = {
+  Count: 4,
+  Message: "Results returned successfully",
+  Results: [
+    { Make_ID: 448, Make_Name: "Toyota", Model_ID: 1861, Model_Name: "Camry" },
+    { Make_ID: 448, Make_Name: "Toyota", Model_ID: 1859, Model_Name: "Corolla" },
+    { Make_ID: 448, Make_Name: "Toyota", Model_ID: 1861, Model_Name: "Camry" },
+    { Make_ID: 448, Make_Name: "Toyota", Model_ID: 9760, Model_Name: "86" },
+  ],
+};
+
+test("models for make+year: vPIC names, de-duplicated and sorted", async () => {
+  installFetch({ "GetModelsForMakeYear/make/Toyota/modelyear/2019": { body: MODELS_FIXTURE } });
+  try {
+    const models = await fetchModelsForMakeYear("Toyota", "2019");
+    assert.deepEqual(models, ["86", "Camry", "Corolla"]);
+    assert.ok(
+      fetchCalls.some((url) => url.includes("GetModelsForMakeYear/make/Toyota/modelyear/2019")),
+    );
+  } finally {
+    restoreFetch();
+  }
+});
+
+test("models for make+year: empty Results is an empty list, not an error", async () => {
+  installFetch({
+    "GetModelsForMakeYear": { body: { Count: 0, Message: "No results", Results: [] } },
+  });
+  try {
+    assert.deepEqual(await fetchModelsForMakeYear("Toyota", "1981"), []);
+  } finally {
+    restoreFetch();
+  }
+});
+
+test("models for make+year: vPIC down degrades to null; bad input never fetches", async () => {
+  installFetch({ "GetModelsForMakeYear": "throw" });
+  try {
+    assert.equal(await fetchModelsForMakeYear("Honda", "2020"), null);
+    const callsBefore = fetchCalls.length;
+    assert.equal(await fetchModelsForMakeYear("", "2020"), null);
+    assert.equal(await fetchModelsForMakeYear("Honda", "20"), null);
+    assert.equal(await fetchModelsForMakeYear("Honda", "1800"), null);
+    assert.equal(fetchCalls.length, callsBefore, "invalid input must not hit the network");
+  } finally {
+    restoreFetch();
+  }
+});

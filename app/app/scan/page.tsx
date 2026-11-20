@@ -12,6 +12,17 @@ import { authHeaders, clearSession, getToken } from "@/lib/client/auth";
 import { vehicleFormFillFromDecode } from "@/lib/client/vehicles";
 import { useLocale } from "@/lib/i18n/LocaleProvider";
 import {
+  COMMON_ENGINE_SIZES,
+  COMMON_MAKES,
+  OTHER_OPTION,
+  VEHICLE_YEARS,
+  isVehicleYear,
+  manualDiagnoseReady,
+  manualSaveReady,
+  parseMileageInput,
+  type ManualVehicleInput,
+} from "@/lib/vehicleCatalog";
+import {
   DIAGNOSE_PREFILL_KEY,
   RETURN_TO_KEY,
   buildCodeDiagnosisPrefill,
@@ -30,9 +41,16 @@ import {
  * scan flow, mobile-first: start from what the car is already showing
  * you. Three modes:
  *
- *   VIN   → decode through /api/vin/decode (NHTSA, server-side), show
- *           the vehicle card + open recalls; hand off to a diagnosis
- *           with the car prefilled, or save the car to the vault.
+ *   Vehicle → the first tab (renamed from "VIN", owner order
+ *           2026-11-20). PRIMARY door: add by details — year, make,
+ *           model (cascading from vPIC via /api/vehicles/models),
+ *           engine size, mileage — saved through the same
+ *           /api/vehicles record and handed to the diagnosis through
+ *           the same prefill the decode path builds. SECOND door:
+ *           add by VIN — decode through /api/vin/decode (NHTSA,
+ *           server-side), show the vehicle card + open recalls;
+ *           hand off to a diagnosis with the car prefilled, or save
+ *           the car to the vault.
  *   Photo → dashboard photo to /api/scan/photo (vision through the
  *           provider layer) → lights identified + explained. Triage:
  *           NO quota is consumed here, ever.
@@ -154,6 +172,102 @@ export default function ScanPage() {
    * the decode when NHTSA provides one and is typed otherwise. */
   const [saveMileage, setSaveMileage] = useState("");
   const [saveEngine, setSaveEngine] = useState("");
+
+  /* Vehicle mode — the VIN door starts closed; the manual form is
+   * the tab's headline (owner order 2026-11-20). */
+  const [vinOpen, setVinOpen] = useState(false);
+
+  /* Manual (add-by-details) state. Each catalog field is a select
+   * with an "Other…" escape into a text input; the model cascades
+   * from vPIC for the chosen year+make and falls back to free text
+   * when vPIC has no list (or can't be reached). */
+  const [mYear, setMYear] = useState("");
+  const [mMakeSel, setMMakeSel] = useState("");
+  const [mMakeText, setMMakeText] = useState("");
+  const [mModelSel, setMModelSel] = useState("");
+  const [mModelText, setMModelText] = useState("");
+  const [mModels, setMModels] = useState<string[] | null>(null);
+  const [mModelsLoading, setMModelsLoading] = useState(false);
+  const [mEngineSel, setMEngineSel] = useState("");
+  const [mEngineText, setMEngineText] = useState("");
+  const [mMileage, setMMileage] = useState("");
+  const [manualSaveState, setManualSaveState] = useState<
+    "idle" | "working" | "saved" | "failed" | "unwired"
+  >("idle");
+  const [manualSaveDetail, setManualSaveDetail] = useState("");
+
+  const mMake = mMakeSel === OTHER_OPTION ? mMakeText.trim() : mMakeSel;
+  const mModel =
+    mModels && mModels.length > 0
+      ? mModelSel === OTHER_OPTION
+        ? mModelText.trim()
+        : mModelSel
+      : mModelText.trim();
+  const mEngine = mEngineSel === OTHER_OPTION ? mEngineText.trim() : mEngineSel;
+  const manualInput: ManualVehicleInput = {
+    year: mYear,
+    make: mMake,
+    model: mModel,
+    engine: mEngine,
+    mileage: mMileage,
+  };
+
+  // Model cascade: a listed make + a year asks vPIC (through the
+  // server route) for that year+make's models. Anything else —
+  // free-text make, no year yet, vPIC down — leaves mModels null
+  // and the model field stays a text input.
+  useEffect(() => {
+    setMModelSel("");
+    setMModelText("");
+    if (!isVehicleYear(mYear) || !mMakeSel || mMakeSel === OTHER_OPTION) {
+      setMModels(null);
+      setMModelsLoading(false);
+      return;
+    }
+    let cancelled = false;
+    setMModelsLoading(true);
+    void (async () => {
+      const res = await apiFetch<{ models: string[] | null }>(
+        `/api/vehicles/models?make=${encodeURIComponent(mMakeSel)}&year=${encodeURIComponent(mYear)}`,
+      );
+      if (cancelled) return;
+      setMModelsLoading(false);
+      setMModels(res.status === 200 ? res.data.models : null);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [mYear, mMakeSel]);
+
+  async function onSaveManualVehicle() {
+    // Same required-fields rule as the decode card's save (the
+    // owner's add-a-vehicle spec): engine + current mileage, on
+    // top of the vehicle's identity.
+    if (!manualSaveReady(manualInput)) {
+      setManualSaveDetail(s.manualNeedsDetail);
+      setManualSaveState("failed");
+      return;
+    }
+    setManualSaveState("working");
+    const res = await apiFetch("/api/vehicles", {
+      method: "POST",
+      body: JSON.stringify({
+        year: mYear,
+        make: mMake,
+        model: mModel,
+        engine: mEngine,
+        mileage: parseMileageInput(mMileage),
+      }),
+    });
+    if (res.status === 201) {
+      setManualSaveState("saved");
+    } else if (res.status === 501) {
+      setManualSaveState("unwired");
+    } else {
+      setManualSaveDetail(apiDetail(res.data, s.saveFailed));
+      setManualSaveState("failed");
+    }
+  }
 
   /* Photo mode state */
   const [photoFile, setPhotoFile] = useState<File | null>(null);
@@ -384,9 +498,207 @@ export default function ScanPage() {
           ))}
         </div>
 
-        {/* ------------------------- VIN mode ------------------------- */}
+        {/* ----------------------- Vehicle mode ----------------------- */}
         {mode === "vin" && (
           <section className="mt-6 flex flex-col gap-5">
+            {/* ADD BY DETAILS — the primary door (owner order
+                2026-11-20): year, brand, model, engine size,
+                mileage. Saves through the same /api/vehicles record
+                and hands off through the same prefill a decoded VIN
+                builds — one downstream flow, two doors in. */}
+            <div className="rounded-2xl border border-line bg-surface px-5 py-5">
+              <h2 className="font-display text-xl font-semibold text-ink-1">
+                {s.detailsHeading}
+              </h2>
+              <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div>
+                  <label htmlFor="scan-m-year" className={labelCls}>
+                    {s.yearLabel}
+                  </label>
+                  <select
+                    id="scan-m-year"
+                    className={inputCls}
+                    value={mYear}
+                    onChange={(e) => setMYear(e.target.value)}
+                  >
+                    <option value="">{s.chooseYear}</option>
+                    {VEHICLE_YEARS.map((y) => (
+                      <option key={y} value={y}>
+                        {y}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label htmlFor="scan-m-make" className={labelCls}>
+                    {s.makeLabel}
+                  </label>
+                  <select
+                    id="scan-m-make"
+                    className={inputCls}
+                    value={mMakeSel}
+                    onChange={(e) => setMMakeSel(e.target.value)}
+                  >
+                    <option value="">{s.chooseMake}</option>
+                    {COMMON_MAKES.map((mk) => (
+                      <option key={mk} value={mk}>
+                        {mk}
+                      </option>
+                    ))}
+                    <option value={OTHER_OPTION}>{s.otherOption}</option>
+                  </select>
+                  {mMakeSel === OTHER_OPTION && (
+                    <input
+                      className={inputCls + " mt-2"}
+                      value={mMakeText}
+                      onChange={(e) => setMMakeText(e.target.value)}
+                      aria-label={s.makeLabel}
+                    />
+                  )}
+                </div>
+                <div>
+                  <label htmlFor="scan-m-model" className={labelCls}>
+                    {s.modelLabel}
+                  </label>
+                  {mModels && mModels.length > 0 ? (
+                    <>
+                      <select
+                        id="scan-m-model"
+                        className={inputCls}
+                        value={mModelSel}
+                        onChange={(e) => setMModelSel(e.target.value)}
+                      >
+                        <option value="">{s.chooseModel}</option>
+                        {mModels.map((md) => (
+                          <option key={md} value={md}>
+                            {md}
+                          </option>
+                        ))}
+                        <option value={OTHER_OPTION}>{s.otherOption}</option>
+                      </select>
+                      {mModelSel === OTHER_OPTION && (
+                        <input
+                          className={inputCls + " mt-2"}
+                          value={mModelText}
+                          onChange={(e) => setMModelText(e.target.value)}
+                          aria-label={s.modelLabel}
+                        />
+                      )}
+                    </>
+                  ) : (
+                    <input
+                      id="scan-m-model"
+                      className={inputCls}
+                      value={mModelText}
+                      onChange={(e) => setMModelText(e.target.value)}
+                    />
+                  )}
+                  {mModelsLoading && (
+                    <p className="mt-2 text-sm text-ink-3">{s.modelsLoading}</p>
+                  )}
+                </div>
+                <div>
+                  <label htmlFor="scan-m-engine" className={labelCls}>
+                    {s.engineSizeLabel}
+                  </label>
+                  <select
+                    id="scan-m-engine"
+                    className={inputCls}
+                    value={mEngineSel}
+                    onChange={(e) => setMEngineSel(e.target.value)}
+                  >
+                    <option value="">{s.chooseEngine}</option>
+                    {COMMON_ENGINE_SIZES.map((es) => (
+                      <option key={es} value={es}>
+                        {es}
+                      </option>
+                    ))}
+                    <option value={OTHER_OPTION}>{s.otherOption}</option>
+                  </select>
+                  {mEngineSel === OTHER_OPTION && (
+                    <input
+                      className={inputCls + " mt-2"}
+                      value={mEngineText}
+                      onChange={(e) => setMEngineText(e.target.value)}
+                      aria-label={s.engineSizeLabel}
+                    />
+                  )}
+                </div>
+                <div>
+                  <label htmlFor="scan-m-mileage" className={labelCls}>
+                    {s.mileageLabel}
+                  </label>
+                  <input
+                    id="scan-m-mileage"
+                    className={inputCls}
+                    inputMode="numeric"
+                    placeholder={s.mileagePlaceholder}
+                    value={mMileage}
+                    onChange={(e) => setMMileage(e.target.value)}
+                  />
+                </div>
+              </div>
+              <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+                <button
+                  type="button"
+                  className={primaryBtn}
+                  disabled={!manualDiagnoseReady(manualInput)}
+                  onClick={() =>
+                    handoffToDiagnose(
+                      buildVinDiagnosisPrefill({
+                        year: mYear || null,
+                        make: mMake || null,
+                        model: mModel || null,
+                        engine: mEngine || null,
+                      }),
+                    )
+                  }
+                >
+                  {s.diagnoseCarCta}
+                </button>
+                <button
+                  type="button"
+                  className={ghostBtn}
+                  disabled={manualSaveState === "working" || manualSaveState === "saved"}
+                  onClick={() => void onSaveManualVehicle()}
+                >
+                  {manualSaveState === "saved" ? s.savedVault : s.saveVaultCta}
+                </button>
+              </div>
+              {manualSaveState === "saved" && (
+                <p className="mt-3 text-base text-ink-1" role="status">
+                  {s.savedVault}{" "}
+                  <Link href="/app/vault" className="font-semibold text-accent underline">
+                    {s.viewVault}
+                  </Link>
+                </p>
+              )}
+              {manualSaveState === "unwired" && (
+                <p className="mt-3 text-base text-ink-2" role="status">
+                  {s.vaultUnwired}
+                </p>
+              )}
+              {manualSaveState === "failed" && (
+                <p className="mt-3 text-base text-verdict-rip" role="alert">
+                  {manualSaveDetail}
+                </p>
+              )}
+            </div>
+
+            {/* ADD BY VIN — the alternative door: the decode flow
+                below is the pre-redesign tab, unchanged, behind a
+                collapsed toggle so the details form leads. */}
+            <button
+              type="button"
+              aria-expanded={vinOpen}
+              onClick={() => setVinOpen((v) => !v)}
+              className="flex h-12 w-full items-center justify-between rounded-full border border-line bg-surface px-5 text-base font-semibold text-ink-1"
+            >
+              {s.vinDoorHeading}
+              <span aria-hidden="true">{vinOpen ? "▾" : "▸"}</span>
+            </button>
+            {vinOpen && (
+              <>
             <div>
               <label htmlFor="scan-vin" className={labelCls}>
                 {s.vinLabel}
@@ -650,6 +962,8 @@ export default function ScanPage() {
                   </p>
                 )}
               </div>
+            )}
+              </>
             )}
           </section>
         )}

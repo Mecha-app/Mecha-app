@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { AppNav } from "@/components/AppNav";
+import { UnreadBadge, useUnreadCount } from "@/components/UnreadBadge";
 import { BillingSection } from "@/components/BillingSection";
 import { BusinessAvatar } from "@/components/BusinessAvatar";
 import { CheckoutReturnTracker } from "@/components/CheckoutReturnTracker";
@@ -147,6 +148,9 @@ interface Business {
 export default function DashboardPage() {
   const { t } = useLocale();
   const d = t.wp6.dashboard;
+  // Unread-messages badge on the dashboard's Messages action too
+  // (owner order 2026-11-20) — same count as the nav badge.
+  const unread = useUnreadCount();
   const [kind, setKind] = useState<"driver" | "business" | null>(null);
   const [name, setName] = useState("");
   const [quota, setQuota] = useState<QuotaView | null>(null);
@@ -973,9 +977,11 @@ export default function DashboardPage() {
               )}
               <Link
                 href="/app/messages"
+                aria-label={unread > 0 ? `${d.businessMessages} (${unread})` : undefined}
                 className="flex h-12 items-center justify-center rounded-full bg-accent px-8 text-base font-semibold text-accent-ink"
               >
                 {d.businessMessages}
+                <UnreadBadge count={unread} />
               </Link>
               <Link
                 href="/app/nearby"

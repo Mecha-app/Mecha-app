@@ -46,5 +46,5 @@
     "typecheck": "tsc --noEmit",
     "test:e2e": "playwright test"
   },
-  "version": "0.4.48-followup"
+  "version": "0.4.49-scan-live"
 }
