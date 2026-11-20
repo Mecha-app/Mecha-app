@@ -125,6 +125,11 @@ test("install hint: both doors, every gate, dismissal remembered", () => {
   assert.ok(hint.includes("(pointer: coarse)"), "phones only — desktops never");
   assert.ok(hint.includes("setTimeout(() => setVisible(true), 1500)"), "never on first paint");
   assert.ok(hint.includes("writeInstallDismissed(Date.now())"), "Not now is remembered");
+  // The tokens are plain CSS vars: Tailwind cannot generate the
+  // /95 alpha variant of bg-surface — the class does not exist
+  // and the bar renders transparent. The bar must stay opaque.
+  assert.ok(hint.includes("bg-surface px-4"), "the bar uses the opaque surface token");
+  assert.ok(!hint.includes("bg-surface/"), "no alpha-variant surface class (it cannot compile)");
   assert.ok(read("app/layout.tsx").includes("<PwaInstall />"), "the layout mounts the hint");
 });
 

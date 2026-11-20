@@ -153,7 +153,13 @@ export function PwaInstall() {
       role="region"
       aria-label={t.install.label}
     >
-      <div className="mx-auto flex max-w-6xl items-center gap-3 rounded-2xl border border-line bg-surface/95 px-4 py-3 shadow-[0_8px_30px_rgba(15,42,80,0.14)] backdrop-blur">
+      {/* bg-surface OPAQUE, deliberately not the 95% alpha
+          variant: the design tokens are plain CSS vars, so
+          Tailwind cannot generate alpha variants of them — that
+          class silently does not exist and the bar would render
+          transparent over the hero photo (found by screenshot,
+          2026-11-20). */}
+      <div className="mx-auto flex max-w-6xl items-center gap-3 rounded-2xl border border-line bg-surface px-4 py-3 shadow-[0_8px_30px_rgba(15,42,80,0.14)]">
         <Image
           src="/icons/icon-192.png"
           alt=""
