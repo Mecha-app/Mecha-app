@@ -36,7 +36,8 @@ test("language switcher: the button is ONE label span — no glued code word", (
 test("catalog: the audit's exact EN copy is what ships", () => {
   assert.equal(
     en.hero.copilotTitle,
-    "Know what's wrong with your car — and what the repair should cost.",
+    "Know what's wrong with your car. And what the repair should cost.",
+    "the owner's two-beat headline, no em dash (item 8, 2026-11-20)",
   );
   assert.equal(en.hero.startFreeCta, "Diagnose my car free");
   assert.equal(en.hero.demoCta, "See a sample report first");
@@ -50,12 +51,17 @@ test("catalog: the audit's exact EN copy is what ships", () => {
   assert.equal(en.pricing.pro.cta, "Start Pro");
   assert.equal(en.pricing.pro.period, "Per month, cancel anytime");
   assert.ok(en.pricing.pro.sub.includes("small fleet"), "the Pro subhead names who Pro is for");
+  assert.equal(
+    en.pricing.pro.point4,
+    "$9.99/mo from the first month, card required at checkout.",
+    "no early-member free months (owner decision, 2026-11-20): Pro bills from month one, stated plainly",
+  );
   assert.ok(
-    en.pricing.pro.point4.includes("Card required at checkout."),
-    "the early-member line states the card truth (the Pro checkout collects a card; no trial exists in code)",
+    !/early|3 months|free months|locked for life/i.test(en.pricing.pro.point4),
+    "no trace of the removed claim in the Pro points",
   );
   assert.equal(en.auth.register.headline, "Create your free account");
-  assert.equal(en.auth.register.freeSub, "5 free diagnoses. No card. Takes about 20 seconds.");
+  assert.equal(en.auth.register.freeSub, "5 free diagnoses. No card. Takes about a minute.");
 });
 
 test("plan cards: single block + plan intent are wired to the real flows", () => {

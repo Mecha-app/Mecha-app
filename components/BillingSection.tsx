@@ -92,6 +92,9 @@ interface CreditsView {
     daysLeft: number;
     endedReason: "time" | "credits" | null;
   } | null;
+  /** The shop's free terms + count-only shelf (free20, 2026-11-20). */
+  freeTerms?: string | null;
+  free?: { limit: number; used: number; remaining: number; exhausted: boolean } | null;
 }
 
 function RowCheck() {
@@ -217,7 +220,7 @@ export function BillingSection({
               badge: t.pricing.shops.badge,
               price: t.pricing.shops.price,
               period: t.pricing.shops.period,
-              label: b.upgradeBusiness,
+              label: b.upgradeNow,
               plan: "business" as const,
             }
           : null
@@ -288,7 +291,14 @@ export function BillingSection({
         })
       : null;
   const showTrialRow = Boolean(trial && !isPaidPlan && (trial.active || trial.endedReason));
-  const factRows = hasFactRows || showTrialRow;
+  // The free20 shelf (2026-11-20), stated on the card the same way:
+  // used / remaining while it runs, plainly once it is used up —
+  // the shop always sees its own count and what happens at the
+  // limit; the generic free-count row below stands down for these
+  // shops so the shelf is stated once.
+  const freeShelf = kind === "business" ? (credits?.free ?? null) : null;
+  const showFreeRow = Boolean(freeShelf && !isPaidPlan);
+  const factRows = hasFactRows || showTrialRow || showFreeRow;
 
   return (
     <section id="billing" className="mt-6 scroll-mt-24">
@@ -326,6 +336,19 @@ export function BillingSection({
                 </span>
               </li>
             )}
+            {showFreeRow && freeShelf && (
+              <li className="flex gap-2.5 text-sm leading-relaxed text-ink-2">
+                <RowCheck />
+                <span>
+                  {freeShelf.exhausted
+                    ? b.freeEndedLine.replace("{limit}", String(freeShelf.limit))
+                    : b.freeLine
+                        .replace("{used}", String(freeShelf.used))
+                        .replace("{limit}", String(freeShelf.limit))
+                        .replace("{remaining}", String(freeShelf.remaining))}
+                </span>
+              </li>
+            )}
             {statusWord && (
               <li className="flex gap-2.5 text-sm leading-relaxed text-ink-2">
                 <RowCheck />
@@ -346,7 +369,7 @@ export function BillingSection({
                 <span>{b.cancelScheduledNote}</span>
               </li>
             )}
-            {credits && (
+            {credits && !showFreeRow && (
               <li className="flex gap-2.5 text-sm leading-relaxed text-ink-2">
                 <RowCheck />
                 <span>

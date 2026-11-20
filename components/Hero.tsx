@@ -77,7 +77,7 @@ export function Hero() {
         <p className="text-[13px] font-semibold uppercase tracking-[0.34em] text-white/85">
           Drive with confidence.
         </p>
-        <h1 className="mx-auto mt-5 max-w-4xl font-display text-[clamp(2.6rem,6vw,4.75rem)] font-semibold leading-[1.05] tracking-[-0.02em] text-white">
+        <h1 className="mx-auto mt-5 max-w-4xl text-balance font-display text-[clamp(2.6rem,6vw,4.75rem)] font-semibold leading-[1.05] tracking-[-0.02em] text-white">
           {t.hero.copilotTitle}
         </h1>
         <p className="mt-5 max-w-2xl text-lg text-white/90 sm:text-xl">

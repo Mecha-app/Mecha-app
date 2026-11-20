@@ -22,7 +22,7 @@ export function HomePlans() {
 
   return (
     <section className="bg-bg">
-      <div className="mx-auto max-w-6xl px-4 py-20 sm:px-6">
+      <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-20">
         <PlanCards variant="compact" />
 
         <div className="mt-14 text-center">

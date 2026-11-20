@@ -76,7 +76,12 @@ function classify(route: string): ShellKind {
     route === "/auth/google/complete"
   )
     return "minimalBar";
-  if (route === "/business/login" || route === "/business/register") return "businessAuth";
+  if (
+    route === "/business/login" ||
+    route === "/business/register" ||
+    route === "/business/google/complete"
+  )
+    return "businessAuth";
   return "header";
 }
 

@@ -1,5 +1,10 @@
-import { InvalidCredentialsError, ValidationError } from "./authService";
+import {
+  GoogleStateMismatchError,
+  InvalidCredentialsError,
+  ValidationError,
+} from "./authService";
 import { shopTrialWindow } from "./credits";
+import type { GoogleIdTokenClaims, GoogleTokenVerifier } from "./googleAuth";
 import { NotFoundError } from "./errors";
 import { isValidLatLng, normalizeZip, zipCentroid, type LatLng } from "./geo";
 import { normalizeEmail, normalizePhone } from "./identity";
@@ -311,6 +316,74 @@ export async function loginBusiness(
   const ok = await verifyPassword(password, towing?.passwordHash ?? (await dummyHash()));
   if (!towing || !towing.passwordHash || !ok) throw new InvalidCredentialsError();
   return { token: signToken({ id: towing.id, type: "towing" }), business: publicTowing(towing) };
+}
+
+/**
+ * Google sign-in for businesses (item 10, 2026-11-20 — the owner's
+ * live test found a returning shop had NO way back in: /business/login
+ * was linked from nowhere and carried no Google door).
+ *
+ * The rule that shapes everything here: a business email resolves to
+ * the BUSINESS account and nothing else. This resolver receives ONLY
+ * the AppStore (business tables) — it structurally cannot create or
+ * sign into a driver account, so the old trap (Google sign-in with a
+ * shop's email silently spawning a duplicate driver-only account in
+ * the users table) cannot happen through this door. An email with no
+ * business behind it is an honest refusal, never an account creation:
+ * the owner lists the business first, then Google works.
+ */
+export class BusinessGoogleNoAccountError extends Error {
+  readonly code = "google_no_business_account";
+  constructor() {
+    super("No business account uses that Google email yet.");
+    this.name = "BusinessGoogleNoAccountError";
+  }
+}
+
+export async function resolveBusinessGoogleSignIn(
+  store: AppStore,
+  claims: GoogleIdTokenClaims,
+): Promise<BusinessAuthResult> {
+  const email = normalizeEmail(claims.email);
+  // Linking an existing account to a Google identity requires Google
+  // to have verified the email — the driver flow's rule, unchanged.
+  if (!email || !claims.emailVerified) throw new BusinessGoogleNoAccountError();
+  const shop = await store.findShopByEmail(email);
+  if (shop) return { token: signToken({ id: shop.id, type: "shop" }), business: publicShop(shop) };
+  const towing = await store.findTowingByEmail(email);
+  if (towing) {
+    return { token: signToken({ id: towing.id, type: "towing" }), business: publicTowing(towing) };
+  }
+  throw new BusinessGoogleNoAccountError();
+}
+
+export interface BusinessGoogleCallbackDeps {
+  verifier: GoogleTokenVerifier;
+  exchangeCode: (code: string) => Promise<string>;
+}
+
+/**
+ * The business callback's core, mirroring the driver flow's contract:
+ * the state check FIRST (a mismatch stops everything), then the code
+ * exchange, then ID-token verification, then business resolution.
+ * The route is a thin adapter; tests drive it with the stub verifier.
+ */
+export async function completeBusinessGoogleSignIn(
+  store: AppStore,
+  input: { code?: string | null; state?: string | null; expectedState?: string | null },
+  deps: BusinessGoogleCallbackDeps,
+): Promise<BusinessAuthResult> {
+  if (
+    !input.code ||
+    !input.state ||
+    !input.expectedState ||
+    input.state !== input.expectedState
+  ) {
+    throw new GoogleStateMismatchError();
+  }
+  const idToken = await deps.exchangeCode(input.code);
+  const claims = await deps.verifier.verifyIdToken(idToken);
+  return resolveBusinessGoogleSignIn(store, claims);
 }
 
 export async function getBusinessProfile(

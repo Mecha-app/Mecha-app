@@ -35,7 +35,7 @@ const es: DeepPartial<Dictionary> = {
     runCta: "Haz un diagnóstico",
     pricingCta: "Ver precios",
     shopsLine: "Para talleres.",
-    copilotTitle: "Descubre qué le pasa a tu auto — y cuánto debería costar la reparación.",
+    copilotTitle: "Descubre qué le pasa a tu auto. Y cuánto debería costar la reparación.",
     startFreeCta: "Diagnostica mi auto gratis",
     howCta: "Mira cómo funciona",
     demoCta: "Ver un informe de ejemplo primero",
@@ -341,12 +341,12 @@ const es: DeepPartial<Dictionary> = {
       name: "Pro",
       price: "$9.99",
       period: "Por mes, cancela cuando quieras",
-      sub: "Para quienes revisan seguido — autos, familia o una flota pequeña.",
+      sub: "Para quienes revisan seguido: autos, familia o una flota pequeña.",
       badge: "Para conductores",
       point1: "100 créditos de diagnóstico cada mes",
       point2: "Análisis profundo para los problemas que se resisten a una primera respuesta",
       point3: "Primero los diagnósticos gratis, luego el paquete mensual — en ese orden",
-      point4: "Miembros tempranos: 3 meses de Pro gratis, precio de lanzamiento bloqueado de por vida. Se requiere tarjeta al pagar.",
+      point4: "$9.99/mes desde el primer mes, se requiere tarjeta al pagar.",
       cta: "Comenzar Pro",
     },
     shops: {
@@ -357,7 +357,7 @@ const es: DeepPartial<Dictionary> = {
       point1: "Tu negocio en la lista cercana desde la que llaman los conductores",
       point2: "Nombre primero, distancia visible, un toque para llamarte",
       point3: "500 créditos de diagnóstico al mes — diagnostica los autos en tus propios talleres, más rápido",
-      point4: "14 días gratis — 25 diagnósticos por nuestra cuenta, sin tarjeta. Luego $149/mes.",
+      point4: "Empieza gratis, sin tarjeta para empezar. Luego $149/mes.",
       cta: "Anuncia tu negocio",
     },
     meterTitle: "El medidor, a plena vista",
@@ -594,12 +594,12 @@ const es: DeepPartial<Dictionary> = {
           a: "Los diagnósticos se pausan. Tu cuenta, tus autos, tus informes y tu historial del Vault siguen disponibles, y nada se cobra automáticamente. Tú eliges: comprar un solo diagnóstico, o empezar Pro por 100 al mes.",
         },
         early: {
-          q: "¿Qué reciben los miembros tempranos?",
-          a: "La oferta vigente para miembros tempranos es 3 meses de Pro gratis y el precio de lanzamiento bloqueado de por vida. Está vinculada al plan Pro de esta página; MECHA no agrega un nivel sorpresa por separado al pagar.",
+          q: "¿Cuándo empieza la facturación de Pro?",
+          a: "Al pagar: $9.99 el primer mes, luego $9.99/mes hasta que canceles. El plan gratis no necesita tarjeta: 5 diagnósticos gratis.",
         },
         business: {
           q: "¿El plan Talleres se cobra por empresa o por ubicación?",
-          a: "Por ubicación — 14 días gratis para empezar, luego $149 al mes por cada ubicación anunciada de taller o grúa. Un negocio que quiere anunciar otra ubicación usa un plan para esa ubicación.",
+          a: "Por ubicación — puedes empezar gratis y sin tarjeta, luego $149 al mes por cada ubicación anunciada de taller o grúa. Un negocio que quiere anunciar otra ubicación usa un plan para esa ubicación.",
         },
       },
     },
@@ -617,6 +617,7 @@ const es: DeepPartial<Dictionary> = {
     sub: "Tu próximo cliente llega con un diagnóstico de MECHA ya en la mano: sabe qué falla y cuánto debería costar. MECHA para Talleres pone ese mismo diagnóstico en tu mostrador.",
     primaryCta: "Crea una cuenta de negocio",
     nearbyCta: "Ver la búsqueda cercana",
+    signInCta: "Acceso para talleres",
     listing: {
       eyebrow: "Qué te da el anuncio",
       heading: "Un perfil hecho para un conductor bajo presión, no una página de directorio.",
@@ -641,7 +642,7 @@ const es: DeepPartial<Dictionary> = {
     plan: {
       eyebrow: "El plan Talleres",
       heading: "Una ubicación. Un precio mensual claro.",
-      body: "Diagnostica los autos en tus propios talleres, más rápido: el auto de un cliente en el elevador, uno de intercambio en el lote, cualquier auto que escribas. 14 días gratis — 25 diagnósticos por nuestra cuenta, sin tarjeta. Luego $149/mes con 500 créditos de diagnóstico al mes. Cada conductor se va sabiendo qué necesita su auto.",
+      body: "Diagnostica los autos en tus propios talleres, más rápido: el auto de un cliente en el elevador, uno de intercambio en el lote, cualquier auto que escribas. Empieza gratis, sin tarjeta para empezar. Luego $149/mes con 500 créditos de diagnóstico al mes. Cada conductor se va sabiendo qué necesita su auto.",
       priceLabel: "Por mes, por ubicación",
       point1: "Un anuncio cercano para una ubicación de taller de reparación o de grúa",
       point2: "Presentación con el nombre primero, distancia y llamada con un toque",
@@ -678,7 +679,7 @@ const es: DeepPartial<Dictionary> = {
         },
         cost: {
           q: "¿Cuánto cuesta el plan para negocios?",
-          a: "14 días gratis — 25 diagnósticos por nuestra cuenta, sin tarjeta. Luego el plan Talleres cuesta $149 al mes, por ubicación — el mismo plan para un taller de reparación o una compañía de grúa.",
+          a: "Empieza gratis, sin tarjeta para empezar. Luego el plan Talleres cuesta $149 al mes, por ubicación — el mismo plan para un taller de reparación o una compañía de grúa.",
         },
         cancel: {
           q: "¿Un negocio puede cancelar?",
@@ -839,7 +840,7 @@ const es: DeepPartial<Dictionary> = {
     },
     register: {
       headline: "Crea tu cuenta gratuita",
-      freeSub: "5 diagnósticos gratis. Sin tarjeta. Toma unos 20 segundos.",
+      freeSub: "5 diagnósticos gratis. Sin tarjeta. Toma aproximadamente un minuto.",
       confirmPassword: "Confirmar contraseña",
       passwordMismatch: "Las contraseñas no coinciden — revísalas e inténtalo de nuevo.",
       phoneOptional: "Teléfono (opcional)",

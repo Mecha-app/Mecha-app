@@ -1,9 +1,10 @@
 import { NextResponse } from "next/server";
 import { getAppStore } from "@/lib/server/appStore";
 import { apiError, readJsonBody } from "@/lib/server/http";
+import { getMailer } from "@/lib/server/mailer";
 import { getIdentityStore } from "@/lib/server/store";
 import { requireAuth } from "@/lib/server/routeAuth";
-import { listThreads, postMessage } from "@/lib/server/messageService";
+import { listThreads, notifyNewMessage, postMessage } from "@/lib/server/messageService";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -35,7 +36,14 @@ export async function POST(request: Request) {
   }
   if (!body) return NextResponse.json({ error: "invalid_json" }, { status: 400 });
   try {
-    const message = await postMessage(getAppStore(), getIdentityStore(), auth.payload, body);
+    const store = getAppStore();
+    const users = getIdentityStore();
+    const message = await postMessage(store, users, auth.payload, body);
+    // Item 12: the other side hears about it by email. Awaited so
+    // the serverless invocation doesn't end before the send, and
+    // notifyNewMessage swallows its own failures — a mail hiccup
+    // never turns a stored message into a failed post.
+    await notifyNewMessage(store, users, getMailer(), auth.payload, message);
     return NextResponse.json({ status: "ok", message }, { status: 201 });
   } catch (err) {
     return apiError(err);

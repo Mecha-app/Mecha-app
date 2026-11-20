@@ -188,6 +188,13 @@ export default function LoginPage() {
             Create an account
           </Link>
         </p>
+
+        <p className="mt-4 text-base text-ink-2">
+          {t.wp6.business.forBusiness}?{" "}
+          <Link href="/business/login" className="font-semibold text-accent underline">
+            {t.wp6.business.loginTitle}
+          </Link>
+        </p>
       </main>
     </>
   );

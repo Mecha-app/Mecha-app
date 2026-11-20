@@ -101,7 +101,7 @@ export function Header({ overlay = false }: { overlay?: boolean }) {
           </Link>
           <Link
             href="/register"
-            className="inline-flex h-12 items-center rounded-lg bg-accent px-5 text-sm font-semibold text-[var(--color-accent-ink)] transition-colors duration-150 hover:bg-accent-bright"
+            className="inline-flex h-12 items-center whitespace-nowrap rounded-lg bg-accent px-4 text-sm font-semibold text-[var(--color-accent-ink)] transition-colors duration-150 hover:bg-accent-bright sm:px-5"
           >
             {t.header.createAccount}
           </Link>

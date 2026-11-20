@@ -71,7 +71,7 @@ export function HomeSteps() {
 
   return (
     <section id="how-it-works" className="scroll-mt-16 bg-surface">
-      <div className="mx-auto max-w-6xl px-4 py-20 sm:px-6">
+      <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-20">
         <h2 className="text-center font-display text-[clamp(1.9rem,4vw,2.75rem)] font-semibold tracking-[-0.02em] text-ink-1">
           {t.hero.stepsTitle}
         </h2>

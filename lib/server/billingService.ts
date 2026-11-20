@@ -3,7 +3,14 @@ import type { AccountType } from "./jwt";
 import type { IdentityStore } from "./store";
 import { StripeNotConfiguredError, type StripeClient } from "./stripe";
 import { quotaStateFor } from "./quota";
-import { shopBucketView, shopTrialView, type ShopTrialView } from "./credits";
+import {
+  shopBucketView,
+  shopFreeTermsOf,
+  shopFreeView,
+  shopTrialView,
+  type ShopFreeView,
+  type ShopTrialView,
+} from "./credits";
 import { SHOP_FREE_DIAGNOSES } from "./pricing";
 
 /**
@@ -124,6 +131,12 @@ export interface CreditsView {
    * a shop past its trial window the free counts above read 0
    * remaining — lapsed trial credits are not spendable. */
   trial?: ShopTrialView | null;
+  /** The shop's free terms (2026-11-20); null/absent for drivers
+   * and legacy handling. "free20" shops read their shelf from
+   * `free` below, not from the trial view. */
+  freeTerms?: "legacy" | "free20" | null;
+  /** The count-only free shelf (free20 shops); null otherwise. */
+  free?: ShopFreeView | null;
 }
 
 export async function getCreditsView(
@@ -155,6 +168,26 @@ export async function getCreditsView(
     if (!shop) throw new NotFoundError("Account not found.");
     const trial = shopTrialView(shop);
     const bucket = shopBucketView(shop);
+    const bucketView = bucket
+      ? { limit: bucket.limit, used: bucket.used, remaining: bucket.remaining }
+      : null;
+    const terms = shopFreeTermsOf(shop);
+    if (terms === "free20") {
+      // Count-only shelf (2026-11-20): 20 free diagnoses, no day
+      // limit. The free counts below ARE the shelf; `trial` reads
+      // null so no surface renders the old trial line for this shop.
+      const free = shopFreeView(shop);
+      return {
+        freeUsed: free.used,
+        freeLimit: free.limit,
+        freeRemaining: free.remaining,
+        purchasedCredits: null,
+        bucket: bucketView,
+        trial: null,
+        freeTerms: terms,
+        free,
+      };
+    }
     // The free shelf is the trial pool: it reads as remaining only
     // while the trial is active (or the shop is subscribed, where
     // the settled free-first order still applies). A lapsed trial
@@ -166,10 +199,10 @@ export async function getCreditsView(
       freeLimit: SHOP_FREE_DIAGNOSES,
       freeRemaining: freeOpen ? trial.creditsRemaining : 0,
       purchasedCredits: null,
-      bucket: bucket
-        ? { limit: bucket.limit, used: bucket.used, remaining: bucket.remaining }
-        : null,
+      bucket: bucketView,
       trial,
+      freeTerms: terms,
+      free: null,
     };
   }
   return null;

@@ -19,7 +19,10 @@ export const dynamic = "force-dynamic";
  * itself was still validated locally, and nothing is invented.
  */
 export async function POST(request: Request) {
-  const auth = requireAuth(request, ["driver"]);
+  // Shops use this door too (the diagnose panel's VIN entry,
+  // 2026-11-20) — the route only decodes and enriches; it persists
+  // nothing for either account type.
+  const auth = requireAuth(request, ["driver", "shop"]);
   if ("response" in auth) return auth.response;
   let body;
   try {

@@ -5,6 +5,7 @@ import { AppNav } from "@/components/AppNav";
 import { apiDetail, apiFetch } from "@/lib/client/api";
 import { getStoredUser, getToken } from "@/lib/client/auth";
 import { useLocale } from "@/lib/i18n/LocaleProvider";
+import { RETURN_TO_KEY } from "@/lib/server/scan";
 
 /**
  * /app/messages — driver ↔ shop conversations (WP6). The thread is
@@ -60,6 +61,20 @@ export default function MessagesPage() {
 
   useEffect(() => {
     if (!getToken()) {
+      // Carry the destination (item 10, 2026-11-20): a visitor who
+      // tapped "Messages" on a shop's profile — or a shop owner
+      // checking replies — lands BACK here after sign-in, thread
+      // included, instead of being stranded on a dashboard. Every
+      // sign-in door honors the saved return-to (driver login,
+      // business login, both Google completion pages).
+      try {
+        sessionStorage.setItem(
+          RETURN_TO_KEY,
+          window.location.pathname + window.location.search,
+        );
+      } catch {
+        // Private mode — the bounce still works, just without the return.
+      }
       window.location.href = "/login";
       return;
     }

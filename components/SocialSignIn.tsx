@@ -23,7 +23,7 @@ import { authClient } from "@/lib/client/authClient";
  * /api/auth/google/start link only while it is not.
  */
 
-function GoogleMark() {
+export function GoogleMark() {
   return (
     <svg width="20" height="20" viewBox="0 0 48 48" aria-hidden="true" focusable="false">
       <path

@@ -42,6 +42,8 @@ export async function POST(request: Request) {
         plan: quota.plan,
         accountKind: "shop",
         trial: quota.trial,
+        terms: quota.terms,
+        free: quota.free,
         bucket: quota.bucket,
         message: shopCountdownMessage(quota),
       });

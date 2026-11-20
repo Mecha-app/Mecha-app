@@ -61,6 +61,17 @@ export const SHOP_FREE_DIAGNOSES = 25;
 export const SHOP_TRIAL_DAYS = 14;
 export const SHOP_TRIAL_CREDITS = SHOP_FREE_DIAGNOSES;
 
+/** The shops free tier from 2026-11-20 (owner decision): 20 free
+ * diagnoses per business, NO day limit — the count is the limit,
+ * then the $149/mo subscription is required to keep diagnosing.
+ * Applies to businesses stamped 'free20' by migration 0023 (every
+ * row created after it). Businesses that registered under the
+ * 14-day / 25-diagnosis promise keep those LEGACY terms — see
+ * shopFreeTermsOf in credits.ts. Not advertised on the homepage or
+ * as a public headline; the shop sees its own count in its
+ * dashboard. */
+export const SHOP_FREE20_LIMIT = 20;
+
 export function formatUsd(cents: number): string {
   return `$${(cents / 100).toFixed(2)}`;
 }

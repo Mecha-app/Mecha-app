@@ -1,5 +1,6 @@
 import type { IdentityStore, ShopRecord } from "./store";
 import {
+  SHOP_FREE20_LIMIT,
   SHOP_FREE_DIAGNOSES,
   SHOP_MONTHLY_CREDITS,
   SHOP_TRIAL_CREDITS,
@@ -138,6 +139,34 @@ export function shopTrialWindow(start: Date): { startedAt: string; endsAt: strin
   return { startedAt: start.toISOString(), endsAt: ends.toISOString() };
 }
 
+/** Which free terms govern a shop (owner decision 2026-11-20).
+ * "free20" is the current standard — migration 0023 stamps every
+ * NEW business row 'free20' (20 diagnoses, no day limit). Anything
+ * else ('legacy', null, a record built before the column existed)
+ * keeps the 14-day / 25-diagnosis trial the Wave 1 shops were
+ * promised when they registered. */
+export type ShopFreeTerms = "legacy" | "free20";
+
+export function shopFreeTermsOf(shop: ShopRecord): ShopFreeTerms {
+  return shop.freeTerms === "free20" ? "free20" : "legacy";
+}
+
+export interface ShopFreeView {
+  limit: number;
+  used: number;
+  remaining: number;
+  exhausted: boolean;
+}
+
+/** The count-only free shelf of a free20 shop: 20 diagnoses, no day
+ * limit. Same numbers the dashboard shows the shop — the limit is
+ * visible in its account, never an ambush at diagnosis 21. */
+export function shopFreeView(shop: ShopRecord): ShopFreeView {
+  const used = shop.freeDiagnosesUsed ?? 0;
+  const remaining = Math.max(0, SHOP_FREE20_LIMIT - used);
+  return { limit: SHOP_FREE20_LIMIT, used, remaining, exhausted: remaining <= 0 };
+}
+
 /**
  * The shop-side quota state — the shape the diagnosis stream, the
  * check-limit route, and /api/auth/me hand to the shop's screens.
@@ -156,12 +185,37 @@ export interface ShopQuotaState {
   bucket: MonthlyBucketState | null;
   trial: ShopTrialView;
   canDiagnose: boolean;
+  /** The shop's free terms + its count-only free shelf (free20
+   * shops); `free` is null for legacy shops, whose shelf is the
+   * trial view above. */
+  terms: ShopFreeTerms;
+  free: ShopFreeView | null;
 }
 
 export function shopQuotaStateFor(shop: ShopRecord, now: Date = new Date()): ShopQuotaState {
   const trial = shopTrialView(shop, now);
   const bucket = shopBucketView(shop, now);
   const onPlan = shop.plan === "business";
+  const terms = shopFreeTermsOf(shop);
+  if (terms === "free20") {
+    // Count-only shelf: 20 diagnoses, no day limit. Same shape
+    // conventions as the legacy branch below — used/limit/remaining
+    // describe the free shelf being drawn from.
+    const free = shopFreeView(shop);
+    const freeOpen = free.remaining > 0;
+    return {
+      accountKind: "shop",
+      plan: onPlan ? "business" : "free",
+      used: free.used,
+      limit: free.limit,
+      remaining: freeOpen ? free.remaining : 0,
+      bucket,
+      trial,
+      canDiagnose: freeOpen || (bucket !== null && bucket.remaining > 0),
+      terms,
+      free,
+    };
+  }
   const freeOpen = onPlan
     ? trial.creditsRemaining > 0
     : trial.active;
@@ -174,11 +228,25 @@ export function shopQuotaStateFor(shop: ShopRecord, now: Date = new Date()): Sho
     bucket,
     trial,
     canDiagnose: freeOpen || (bucket !== null && bucket.remaining > 0),
+    terms,
+    free: null,
   };
 }
 
 /** The countdown line a shop hears after each diagnosis. */
 export function shopCountdownMessage(state: ShopQuotaState): string {
+  if (state.terms === "free20" && state.free) {
+    if (state.free.remaining > 1) {
+      return `You have ${state.free.remaining} free diagnoses left (of your ${state.free.limit} free).`;
+    }
+    if (state.free.remaining === 1) {
+      return `You have 1 free diagnosis left (of your ${state.free.limit} free).`;
+    }
+    if (state.bucket && state.bucket.remaining > 0) {
+      return `Your free diagnoses are used up. Shop plan credits: ${state.bucket.remaining} of ${state.bucket.limit} left this month.`;
+    }
+    return shopPaywallMessage(state);
+  }
   if (state.remaining > 1) {
     return `You have ${state.remaining} free trial diagnoses left (${state.trial.daysLeft} ${state.trial.daysLeft === 1 ? "day" : "days"} left in your free trial).`;
   }
@@ -196,6 +264,9 @@ export function shopPaywallMessage(state: ShopQuotaState): string {
   if (state.plan === "business") {
     return "Your Shop plan's 500 monthly diagnosis credits are used up for this cycle. They renew with your next billing cycle — nothing more is charged until you choose.";
   }
+  if (state.terms === "free20") {
+    return "You've used your 20 free diagnoses. Subscribe to MECHA for Shops ($149/mo, 500 diagnoses a month) to keep diagnosing cars in your shop. Nothing is charged until you choose.";
+  }
   return "Your free trial has ended — 14 days free, 25 diagnoses on us, no card. Subscribe to MECHA for Shops ($149/mo, 500 diagnoses a month) to keep diagnosing cars in your shop. Nothing is charged until you choose.";
 }
 
@@ -206,8 +277,15 @@ export type ShopConsumeResult =
       freeUsed: number;
       bucket: MonthlyBucketState | null;
       trial: ShopTrialView;
+      free: ShopFreeView | null;
     }
-  | { ok: false; freeUsed: number; bucket: MonthlyBucketState | null; trial: ShopTrialView };
+  | {
+      ok: false;
+      freeUsed: number;
+      bucket: MonthlyBucketState | null;
+      trial: ShopTrialView;
+      free: ShopFreeView | null;
+    };
 
 /**
  * Consume one diagnosis for a SHOP, in the settled order: the free
@@ -230,10 +308,23 @@ export async function consumeShopDiagnosis(
 ): Promise<ShopConsumeResult> {
   const freeUsed = shop.freeDiagnosesUsed ?? 0;
   const trialBefore = shopTrialView(shop, now);
+  // The free shelf's terms decide both its limit and when it is
+  // open: legacy = the trial pool (open while the trial is active,
+  // or while credits remain for a subscribed shop); free20 = the
+  // count alone (open while any of the 20 remain, subscribed or
+  // not — a subscribed free20 shop still draws its free shelf
+  // first, then the bucket).
+  const terms = shopFreeTermsOf(shop);
+  const freeBefore = terms === "free20" ? shopFreeView(shop) : null;
+  const freeLimit = terms === "free20" ? SHOP_FREE20_LIMIT : SHOP_FREE_DIAGNOSES;
   const freeOpen =
-    shop.plan === "business" ? trialBefore.creditsRemaining > 0 : trialBefore.active;
-  if (freeOpen && freeUsed < SHOP_FREE_DIAGNOSES) {
-    const taken = await store.consumeShopFreeDiagnosis(shop.id);
+    terms === "free20"
+      ? (freeBefore?.remaining ?? 0) > 0
+      : shop.plan === "business"
+        ? trialBefore.creditsRemaining > 0
+        : trialBefore.active;
+  if (freeOpen && freeUsed < freeLimit) {
+    const taken = await store.consumeShopFreeDiagnosis(shop.id, freeLimit);
     if (taken) {
       const after: ShopRecord = { ...shop, freeDiagnosesUsed: freeUsed + 1 };
       return {
@@ -242,6 +333,7 @@ export async function consumeShopDiagnosis(
         freeUsed: freeUsed + 1,
         bucket: shopBucketView(shop, now),
         trial: shopTrialView(after, now),
+        free: terms === "free20" ? shopFreeView(after) : null,
       };
     }
   }
@@ -260,6 +352,7 @@ export async function consumeShopDiagnosis(
         freeUsed,
         bucket: { remaining: before.limit - used, used, limit: before.limit, stale: false },
         trial: trialBefore,
+        free: freeBefore,
       };
     }
   }
@@ -268,6 +361,7 @@ export async function consumeShopDiagnosis(
     freeUsed,
     bucket: shop.plan === "business" ? shopBucketView(shop, now) : null,
     trial: trialBefore,
+    free: freeBefore,
   };
 }
 

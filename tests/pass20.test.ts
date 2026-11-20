@@ -313,8 +313,14 @@ test("guarantee: the owner's set policy — 14 days, refund or credit (conversio
 
 test("shops framing: drivers ready to act, settled credit model, no invented volumes", () => {
   assert.equal(en.shopsPage.heading, "Drivers ready to act");
-  assert.ok(en.shopsPage.plan.body.includes("14 days free"), "the shops trial is stated");
-  assert.ok(en.shopsPage.plan.body.includes("25 diagnoses on us, no card"), "the trial credits are stated");
+  assert.ok(
+    en.shopsPage.plan.body.includes("Get started free, no card to start."),
+    "the shops plan states the free start plainly (2026-11-20 terms change)",
+  );
+  assert.ok(
+    !en.shopsPage.plan.body.includes("14 days free") && !en.shopsPage.plan.body.includes("25 diagnoses"),
+    "the old 14-day / 25-diagnosis promise is no longer made to new visitors",
+  );
   assert.ok(en.shopsPage.plan.body.includes("500 diagnosis credits"), "the settled monthly bucket is stated");
   const text = `${en.shopsPage.heading} ${en.shopsPage.sub} ${en.shopsPage.plan.body}`;
   assert.ok(!/\d[\d,]*\s*(shops|garages|customers|drivers)\s+(already|use|trust)/i.test(text), "no invented adoption numbers");

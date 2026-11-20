@@ -296,12 +296,16 @@ test("home diagnosis: mechanic loop, the hero primary as its button", () => {
   assert.ok(s.includes("gate"), "the button carries the account-first gate behavior");
 });
 
-test("home fair price: quote loop, one button to /diagnose", () => {
+test("home fair price: quote loop, one button to /app/diagnose", () => {
   const s = read("components/HomeFairPrice.tsx");
   assert.ok(s.includes('loop="quote"'), "the shop-counter quote loop is the visual");
   assert.ok(s.includes("t.hero.fairTitle") && s.includes("t.hero.fairLine"), "headline + one line from the catalog");
   assert.ok(s.includes("t.hero.fairCta"), "the button label is Check a repair price");
-  assert.ok(s.includes('href="/diagnose"'), "the button targets /diagnose");
+  assert.ok(
+    s.includes('href="/app/diagnose"'),
+    "button unity (2026-11-20): Check a repair price lands on the same door as the hero button",
+  );
+  assert.ok(!s.includes('href="/diagnose"'), "the explainer is no longer the fair-price button's target");
 });
 
 test("home scan: warning-light loop, one button to /scan", () => {

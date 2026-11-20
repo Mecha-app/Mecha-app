@@ -3,7 +3,6 @@ import { Pool } from "pg";
 import { DatabaseNotConfiguredError, isDatabaseConfigured } from "./db";
 import { createDatabasePool } from "./poolConfig";
 import { FREE_DIAGNOSIS_LIMIT, type PlanTier } from "./quota";
-import { SHOP_FREE_DIAGNOSES } from "./pricing";
 import type { AccountType } from "./jwt";
 
 /**
@@ -121,6 +120,13 @@ export interface ShopRecord {
   // "no window recorded" (trial over for an unsubscribed shop).
   trialStartedAt?: string | null;
   trialEndsAt?: string | null;
+  // The shop's free terms (0023): 'free20' = 20 free diagnoses, no
+  // day limit (the standard for rows created after 0023); 'legacy'
+  // or absent = the 14-day / 25-diagnosis trial terms the shop
+  // registered under. Read in Pg via a to_jsonb expression so this
+  // code runs before and after the migration. Absent on records
+  // seeded before 0023 — readers treat absent as legacy.
+  freeTerms?: string | null;
 }
 
 export interface TowingRecord {
@@ -264,8 +270,10 @@ export interface IdentityStore {
   /** Reset a monthly bucket to full and re-anchor its window (Stripe
    * activation/renewal events). */
   resetMonthlyBucket(owner: "user" | "shop", id: string, at: Date): Promise<void>;
-  /** Atomically consume one of a shop's free diagnoses (0019). */
-  consumeShopFreeDiagnosis(shopId: string): Promise<boolean>;
+  /** Atomically consume one of a shop's free diagnoses (0019).
+   * The caller passes the shop's free-shelf limit (25 legacy /
+   * 20 free20 — credits.ts owns the terms). */
+  consumeShopFreeDiagnosis(shopId: string, limit: number): Promise<boolean>;
   getCachedDiagnosis(cacheKey: string): Promise<CachedDiagnosis | null>;
   putCachedDiagnosis(cacheKey: string, entry: CachedDiagnosis): Promise<void>;
   saveDiagnosisRecord(input: {
@@ -648,13 +656,13 @@ export class PgIdentityStore implements IdentityStore {
     );
   }
 
-  async consumeShopFreeDiagnosis(shopId: string): Promise<boolean> {
+  async consumeShopFreeDiagnosis(shopId: string, limit: number): Promise<boolean> {
     const { rows } = await getPool().query<{ free_diagnoses_used: number }>(
       `UPDATE shops
           SET free_diagnoses_used = free_diagnoses_used + 1
         WHERE id = $1 AND free_diagnoses_used < $2
         RETURNING free_diagnoses_used`,
-      [shopId, SHOP_FREE_DIAGNOSES],
+      [shopId, limit],
     );
     return rows.length > 0;
   }
@@ -848,9 +856,10 @@ export class PgIdentityStore implements IdentityStore {
         monthly_period_start: Date | string | null;
         trial_started_at: Date | string | null;
         trial_ends_at: Date | string | null;
+        free_terms: string | null;
       } & BillingRow
     >(
-      `SELECT id, shop_name, email, plan, stripe_customer_id, ${BILLING_COLUMNS}, free_diagnoses_used, monthly_diagnoses_used, monthly_period_start, trial_started_at, trial_ends_at FROM shops WHERE id = $1 LIMIT 1`,
+      `SELECT id, shop_name, email, plan, stripe_customer_id, ${BILLING_COLUMNS}, free_diagnoses_used, monthly_diagnoses_used, monthly_period_start, trial_started_at, trial_ends_at, (to_jsonb(shops)->>'free_terms') AS free_terms FROM shops WHERE id = $1 LIMIT 1`,
       [id],
     );
     if (rows.length === 0) return null;
@@ -867,6 +876,7 @@ export class PgIdentityStore implements IdentityStore {
       monthlyPeriodStart: toIso(r.monthly_period_start),
       trialStartedAt: toIso(r.trial_started_at),
       trialEndsAt: toIso(r.trial_ends_at),
+      freeTerms: r.free_terms ?? null,
     };
   }
 
@@ -1352,10 +1362,10 @@ export class MemoryIdentityStore implements IdentityStore {
     record.monthlyPeriodStart = at.toISOString();
   }
 
-  async consumeShopFreeDiagnosis(shopId: string): Promise<boolean> {
+  async consumeShopFreeDiagnosis(shopId: string, limit: number): Promise<boolean> {
     const shop = this.shops.get(shopId);
     if (!shop) return false;
-    if ((shop.freeDiagnosesUsed ?? 0) >= SHOP_FREE_DIAGNOSES) return false;
+    if ((shop.freeDiagnosesUsed ?? 0) >= limit) return false;
     shop.freeDiagnosesUsed = (shop.freeDiagnosesUsed ?? 0) + 1;
     return true;
   }

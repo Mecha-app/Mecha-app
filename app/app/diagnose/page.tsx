@@ -11,6 +11,9 @@ import SavedVehicleField from "@/components/SavedVehicleField";
 import ShopScript from "@/components/ShopScript";
 import { AppNav } from "@/components/AppNav";
 import { authHeaders, clearSession, getToken } from "@/lib/client/auth";
+import { useLocale } from "@/lib/i18n/LocaleProvider";
+import { RETURN_TO_KEY } from "@/lib/server/scan";
+import { ShopDiagnoseDoors } from "./ShopDiagnoseDoors";
 import { trackEvent } from "@/lib/client/analytics";
 import type { DiagnosisReport } from "@/lib/server/ai";
 import { driveVerdict } from "@/lib/server/diagnosisExtras";
@@ -45,6 +48,28 @@ interface QuotaView {
     daysLeft: number;
     endedReason: "time" | "credits" | null;
   } | null;
+  /** The shop's free terms (2026-11-20): "free20" = 20 diagnoses,
+   * no day limit; absent/"legacy" = the 14-day / 25 trial. */
+  terms?: string;
+  free?: { limit: number; used: number; remaining: number; exhausted: boolean } | null;
+}
+
+/**
+ * The logged-out door (2026-11-20): a visitor who aimed at a
+ * diagnosis lands on the register page — which explains itself
+ * ("5 free diagnoses. No card." plus the code-flow note) — with
+ * the return path saved, so sign-in lands them back here.
+ * RETURN_TO_KEY is honored first by both the login and register
+ * pages' post-auth routing; the scan page's bounce uses the same
+ * mechanism.
+ */
+function bounceToRegister() {
+  try {
+    sessionStorage.setItem(RETURN_TO_KEY, "/app/diagnose");
+  } catch {
+    // Private mode — the bounce still lands somewhere explanatory.
+  }
+  window.location.href = "/register";
 }
 
 type Phase = "loading" | "ready" | "streaming" | "done" | "blocked" | "error";
@@ -52,6 +77,7 @@ type Phase = "loading" | "ready" | "streaming" | "done" | "blocked" | "error";
 const NL = String.fromCharCode(10);
 
 export default function DiagnosePage() {
+  const { t } = useLocale();
   const [phase, setPhase] = useState<Phase>("loading");
   const [quota, setQuota] = useState<QuotaView | null>(null);
   const [message, setMessage] = useState("");
@@ -93,14 +119,14 @@ export default function DiagnosePage() {
     let cancelled = false;
     (async () => {
       if (!getToken()) {
-        window.location.href = "/login";
+        bounceToRegister();
         return;
       }
       try {
         const res = await fetch("/api/auth/me", { headers: { ...authHeaders() } });
         if (res.status === 401) {
           clearSession();
-          window.location.href = "/login";
+          bounceToRegister();
           return;
         }
         const data = (await res.json()) as {
@@ -159,6 +185,11 @@ export default function DiagnosePage() {
       }
       if (res.status === 401) {
         clearSession();
+        try {
+          sessionStorage.setItem(RETURN_TO_KEY, "/app/diagnose");
+        } catch {
+          // Private mode — login's default landing still applies.
+        }
         window.location.href = "/login";
         return;
       }
@@ -297,7 +328,7 @@ export default function DiagnosePage() {
             {quota.remaining > 0 ? (
               <>
                 <p className="font-display text-2xl font-semibold text-ink-1">
-                  {quota.remaining} of {quota.limit} free{isShop ? " trial" : ""}{" "}
+                  {quota.remaining} of {quota.limit} free{isShop && quota.terms !== "free20" ? " trial" : ""}{" "}
                   {quota.remaining === 1 ? "diagnosis" : "diagnoses"} left
                 </p>
                 <p className="mt-1 text-base text-ink-2">{message}</p>
@@ -328,11 +359,15 @@ export default function DiagnosePage() {
               <h2 className="font-display text-xl font-semibold text-ink-1">
                 {quota?.plan === "business"
                   ? "Your Shop plan's monthly credits are used up"
-                  : "Your free trial has ended"}
+                  : quota?.terms === "free20"
+                    ? "You've used your 20 free diagnoses"
+                    : "Your free trial has ended"}
               </h2>
               <p className="mt-2 text-base leading-relaxed text-ink-2">
                 {message ||
-                  "Your free trial has ended — 14 days free, 25 diagnoses on us, no card. Subscribe to MECHA for Shops ($149/mo, 500 diagnoses a month) to keep diagnosing cars in your shop — nothing is charged until you choose."}
+                  (quota?.terms === "free20"
+                    ? "You've used your 20 free diagnoses. Subscribe to MECHA for Shops ($149/mo, 500 diagnoses a month) to keep diagnosing cars in your shop — nothing is charged until you choose."
+                    : "Your free trial has ended — 14 days free, 25 diagnoses on us, no card. Subscribe to MECHA for Shops ($149/mo, 500 diagnoses a month) to keep diagnosing cars in your shop — nothing is charged until you choose.")}
               </p>
               {quota?.plan !== "business" && (
                 <div className="mt-5">
@@ -342,7 +377,7 @@ export default function DiagnosePage() {
                     disabled={buying !== null}
                     className="flex h-12 w-full items-center justify-center rounded-full bg-accent px-6 text-base font-semibold text-accent-ink disabled:opacity-60"
                   >
-                    {buying === "business" ? "Opening checkout…" : "Subscribe to MECHA for Shops — $149/mo"}
+                    {buying === "business" ? "Opening checkout…" : t.wp6.billing.upgradeNow}
                   </button>
                 </div>
               )}
@@ -371,8 +406,8 @@ export default function DiagnosePage() {
             <p className="mt-2 text-base leading-relaxed text-ink-2">
               {message ||
                 (proSpent
-                  ? "Your 100 monthly credits renew with your next cycle. Buy one diagnosis now, or wait for the renewal — nothing is charged until you choose."
-                  : "You've used all 5 of your free diagnoses. Buy one diagnosis for $4, or subscribe to MECHA Pro for 100 diagnoses a month — nothing is charged until you choose.")}
+                  ? "Your 100 monthly credits renew with your next cycle. Buy one diagnosis for $4 — one-time, no subscription — or wait for the renewal. Nothing is charged until you choose."
+                  : "You've used all 5 of your free diagnoses. Buy one diagnosis for $4 — one-time, no subscription — or subscribe to MECHA Pro for 100 diagnoses a month. Nothing is charged until you choose.")}
             </p>
             {/* The funnel (owner, 2026-11-18): TWO doors, side by
                 side — subscribe for the monthly bundle, or buy ONE
@@ -424,6 +459,19 @@ export default function DiagnosePage() {
           )
         ) : (
           <form onSubmit={onSubmit} className="mt-8 flex flex-col gap-5" noValidate>
+            {/* The shop's three doors (owner spec, 2026-11-20):
+                VIN decode, manual vehicle entry, fault-code search
+                — each fills this same form (the car, or the problem
+                for the code door), so the run below is unchanged. */}
+            {isShop && (
+              <ShopDiagnoseDoors
+                onVehicle={(info) => {
+                  setVehicleInfo(info);
+                  setVehicleId(null);
+                }}
+                onProblem={setProblem}
+              />
+            )}
             {/* The car: a picker of the driver's saved vehicles when
                 he has any (Pass 15 — he already added the car to his
                 garage; never make him re-type it), free text otherwise

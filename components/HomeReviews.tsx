@@ -43,7 +43,7 @@ export function HomeReviews() {
 
   return (
     <section className="bg-surface">
-      <div className="mx-auto max-w-4xl px-4 py-20 text-center sm:px-6">
+      <div className="mx-auto max-w-4xl px-4 py-16 text-center sm:px-6 sm:py-20">
         <p className="text-xs font-semibold uppercase tracking-eyebrow text-accent">{r.eyebrow}</p>
         <h2 className="mt-4 text-balance font-display text-[clamp(1.9rem,4vw,2.75rem)] font-semibold leading-[1.08] tracking-[-0.02em] text-ink-1">
           {r.title}

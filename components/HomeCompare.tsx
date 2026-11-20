@@ -112,7 +112,7 @@ export function HomeCompare() {
 
   return (
     <section className="bg-bg">
-      <div className="mx-auto max-w-4xl px-4 py-20 sm:px-6">
+      <div className="mx-auto max-w-4xl px-4 py-16 sm:px-6 sm:py-20">
         <h2 className="text-center font-display text-[clamp(1.9rem,4vw,2.75rem)] font-semibold tracking-[-0.02em] text-ink-1">
           {t.hero.compareTitle}{" "}
           <span className="text-[#2563eb]">{t.hero.compareTitleAlt}</span>

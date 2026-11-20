@@ -73,6 +73,20 @@ export function googleRedirectUri(): string {
   return `${base}/api/auth/google/callback`;
 }
 
+/**
+ * The BUSINESS door's redirect URI (item 10, 2026-11-20): shops and
+ * towing companies sign in with Google through their OWN callback so
+ * a business email can never be resolved into a driver account by
+ * the driver flow. This URI must be registered as an authorized
+ * redirect URI on the same Google Cloud OAuth client — until it is,
+ * Google itself refuses the business door (redirect_uri_mismatch)
+ * and the email + password door below it keeps working.
+ */
+export function businessGoogleRedirectUri(): string {
+  const base = (process.env.CLIENT_URL ?? "").replace(/\/+$/, "");
+  return `${base}/api/business/google/callback`;
+}
+
 const AUTHORIZE_URL = "https://accounts.google.com/o/oauth2/v2/auth";
 const TOKEN_URL = "https://oauth2.googleapis.com/token";
 const JWKS_URL = "https://www.googleapis.com/oauth2/v3/certs";
@@ -90,11 +104,11 @@ export function newGoogleState(): string {
   return randomBytes(32).toString("hex");
 }
 
-export function buildGoogleAuthorizeUrl(state: string): string {
+function authorizeUrl(state: string, redirectUri: string): string {
   if (!isGoogleConfigured()) throw new GoogleNotConfiguredError();
   const params = new URLSearchParams({
     client_id: googleClientId(),
-    redirect_uri: googleRedirectUri(),
+    redirect_uri: redirectUri,
     response_type: "code",
     scope: "openid email profile",
     state,
@@ -102,12 +116,28 @@ export function buildGoogleAuthorizeUrl(state: string): string {
   return `${AUTHORIZE_URL}?${params.toString()}`;
 }
 
+export function buildGoogleAuthorizeUrl(state: string): string {
+  return authorizeUrl(state, googleRedirectUri());
+}
+
+/** The business door's authorize URL — same client, its own URI. */
+export function buildBusinessGoogleAuthorizeUrl(state: string): string {
+  return authorizeUrl(state, businessGoogleRedirectUri());
+}
+
+/**
+ * The business flow's state cookie: set by /api/business/google/start,
+ * verified and cleared by its callback. A SEPARATE cookie (name +
+ * path) from the driver flow's, so the two doors can never cross.
+ */
+export const BUSINESS_GOOGLE_STATE_COOKIE = "mecha_business_google_state";
+
 /**
  * Exchange the authorization code for tokens, server-side (the client
  * secret rides only on this call). Returns the ID token; every failure
  * is the one typed error — Google's response body is never surfaced.
  */
-export async function exchangeGoogleCode(code: string): Promise<string> {
+async function exchangeCode(code: string, redirectUri: string): Promise<string> {
   if (!isGoogleConfigured()) throw new GoogleNotConfiguredError();
   let res: Response;
   try {
@@ -118,7 +148,7 @@ export async function exchangeGoogleCode(code: string): Promise<string> {
         code,
         client_id: googleClientId(),
         client_secret: googleClientSecret(),
-        redirect_uri: googleRedirectUri(),
+        redirect_uri: redirectUri,
         grant_type: "authorization_code",
       }).toString(),
     });
@@ -131,6 +161,16 @@ export async function exchangeGoogleCode(code: string): Promise<string> {
     throw new GoogleExchangeError();
   }
   return data.id_token;
+}
+
+export async function exchangeGoogleCode(code: string): Promise<string> {
+  return exchangeCode(code, googleRedirectUri());
+}
+
+/** The business door's exchange — the redirect URI must match the
+ * one its authorize URL carried, byte for byte. */
+export async function exchangeBusinessGoogleCode(code: string): Promise<string> {
+  return exchangeCode(code, businessGoogleRedirectUri());
 }
 
 // ---------------------------------------------------------------------------

@@ -51,7 +51,7 @@ export function HomeFeature({
   };
 
   return (
-    <section className="relative flex min-h-[100svh] flex-col overflow-hidden bg-black">
+    <section className="relative flex min-h-[88svh] flex-col overflow-hidden bg-black sm:min-h-[100svh]">
       {loop ? (
         <LoopClip name={loop} fill />
       ) : (

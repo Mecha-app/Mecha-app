@@ -399,6 +399,7 @@ export function ShopsPageContent() {
       <PageHero eyebrow={s.eyebrow} heading={s.heading}>
         <PrimaryLink href="/business/register">{s.primaryCta}</PrimaryLink>
         <SecondaryLink href="/app/nearby">{s.nearbyCta}</SecondaryLink>
+        <SecondaryLink href="/business/login">{s.signInCta}</SecondaryLink>
       </PageHero>
 
       <Businesses />
